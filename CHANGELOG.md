@@ -233,6 +233,8 @@ are in git history.
 
 ### Fixed
 
+- Under `dive simulate`, [`TLCGet("config")`](docs/user/simulation.md#the-runs-configuration-record) reports `mode |-> "simulate"` (`"generate"` with `--generate`) with TLC's `traces`, `depth`, `aril` and `sched` fields, where it reported `"bfs"`. When a spec reads the record, its trace documents carry these fields, so `dive validate-trace` checks `ASSUME`s under the same record.
+
 - `dive simulate` binds the model as `dive check` does in each profile: in the default profile Core evaluates the pure constant definitions its actions use only as values, so a large `CHOOSE` such as `EWD998ChanID`'s ring of seven nodes no longer costs seconds before sampling starts.
 
 - Trace validation replays action composition (`A \cdot B`) whose operands update functions with `EXCEPT`, build functions or use `LET`, so `dive simulate` validates its kept traces of `FiniteMonotonic/MCCRDT` and `MCReplicatedLog` instead of refusing them.

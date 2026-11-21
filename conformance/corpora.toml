@@ -349,6 +349,13 @@ path = "conformance/corpus/constructive-generation"
 license = "MIT"
 layout = "examples-manifest"
 
+# TLCGet("config") records in model checking, -simulate and -generate (#1249).
+[[corpus]]
+id = "tlcget-config"
+path = "conformance/corpus/tlcget-config"
+license = "MIT"
+layout = "examples-manifest"
+
 # Graph field validation versus actual normalization demand (issue #756).
 [[corpus]]
 id = "graph-demand"

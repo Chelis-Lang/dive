@@ -62,6 +62,9 @@
 //! - `properties` lists all temporal properties violated by a lasso or
 //!   stuttering word. Older documents without names remain unsupported for
 //!   liveness validation. An enclosing report's names must agree with these.
+//! - `run` (optional, written by simulation) records the producing run's
+//!   `TLCGet("config")` simulation fields ([`SimulationRun`]), so the
+//!   validator evaluates `ASSUME`s under the same record.
 //!
 //! `dive check --output json` embeds this object as `counterexample.trace`;
 //! [`TraceDoc::from_json`] accepts the object itself, a document that
@@ -475,6 +478,67 @@ pub struct TraceDoc {
     /// the order drawn (`"startup_draws"`). Like [`Self::draws`], they only
     /// guide the validator's choice among the members of each set.
     pub startup_draws: Vec<J>,
+    /// The producing simulation's `TLCGet("config")` settings (`"run"`):
+    /// the validator evaluates the specification's `ASSUME`s and definitions
+    /// under the same record. Like the seed it is a run input, not evidence:
+    /// it never makes a step valid. `None` for a model-checking trace and
+    /// for a run that never read the record.
+    pub run: Option<SimulationRun>,
+}
+
+/// A simulation's `TLCGet("config")` fields that a validator cannot derive
+/// from the specification and its seed ([`TraceDoc::run`]).
+///
+/// ```json
+/// "run": {"mode": "simulate", "traces": 3, "depth": 100, "aril": 0, "worker": 1}
+/// ```
+///
+/// `mode` is `"simulate"` or `"generate"`; `traces` is `null` when the
+/// producing run did not know its total.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SimulationRun {
+    /// The simulation fields.
+    pub simulation: dive_eval::SimulationConfig,
+    /// The worker count the record reports.
+    pub workers: i64,
+}
+
+impl SimulationRun {
+    fn to_json(&self) -> J {
+        json!({
+            "mode": self.simulation.mode_name(),
+            "traces": self.simulation.traces,
+            "depth": self.simulation.depth,
+            "aril": self.simulation.aril,
+            "worker": self.workers,
+        })
+    }
+
+    fn from_json(j: &J) -> Result<Self, String> {
+        let int = |key: &str| {
+            j.get(key)
+                .and_then(J::as_i64)
+                .ok_or_else(|| format!("`run.{key}` must be an integer"))
+        };
+        let generate = match j.get("mode").and_then(J::as_str) {
+            Some("simulate") => false,
+            Some("generate") => true,
+            _ => return Err("`run.mode` must be \"simulate\" or \"generate\"".to_owned()),
+        };
+        let traces = match j.get("traces") {
+            None | Some(J::Null) => None,
+            Some(_) => Some(int("traces")?),
+        };
+        Ok(Self {
+            simulation: dive_eval::SimulationConfig {
+                generate,
+                traces,
+                depth: int("depth")?,
+                aril: int("aril")?,
+            },
+            workers: int("worker")?,
+        })
+    }
 }
 
 /// Each state's list under `key` (`"witnesses"`, `"draws"`): empty when no
@@ -576,6 +640,7 @@ impl TraceDoc {
             witnesses: Vec::new(),
             draws: Vec::new(),
             startup_draws: Vec::new(),
+            run: None,
         })
     }
 
@@ -614,6 +679,13 @@ impl TraceDoc {
             self.draws.resize(self.states.len(), Vec::new());
             self.draws[state] = values;
         }
+        self
+    }
+
+    /// Records the producing simulation's settings ([`Self::run`]).
+    #[must_use]
+    pub fn with_run(mut self, run: SimulationRun) -> Self {
+        self.run = Some(run);
         self
     }
 
@@ -795,6 +867,10 @@ impl TraceDoc {
             witnesses,
             draws,
             startup_draws,
+            run: match j.get("run") {
+                None | Some(J::Null) => None,
+                Some(run) => Some(SimulationRun::from_json(run)?),
+            },
         })
     }
 
@@ -902,6 +978,7 @@ impl TraceDoc {
             witnesses: Vec::new(),
             draws: Vec::new(),
             startup_draws: Vec::new(),
+            run: None,
         })
     }
 
@@ -964,6 +1041,9 @@ impl TraceDoc {
         }
         if !self.startup_draws.is_empty() {
             j["startup_draws"] = J::Array(self.startup_draws.clone());
+        }
+        if let Some(run) = &self.run {
+            j["run"] = run.to_json();
         }
         j
     }

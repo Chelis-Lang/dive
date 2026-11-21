@@ -705,7 +705,7 @@ fn prepare_observed(
     // and the ASSUMEs read the start-up counters.
     model.evaluator.intern_checker_names();
     let run_config = dive_runtime::run::run_config(options, model.settings.check_deadlock);
-    model.evaluator.intern_bfs_config(&run_config);
+    model.evaluator.intern_run_config(&run_config);
     host.set_config(Some(run_config));
     dive_runtime::run::startup_counters(&host);
     if debugger.is_some() && !model.implied_temporals.is_empty() {

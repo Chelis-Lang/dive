@@ -128,6 +128,9 @@ pub(crate) struct Core {
     /// How many names were interned at start-up
     /// ([`crate::Evaluator::seal_startup_names`]).
     pub(crate) startup_names: std::sync::atomic::AtomicUsize,
+    /// Whether evaluation has read `TLCGet("config")`
+    /// ([`crate::Evaluator::config_read`]).
+    pub(crate) config_read: std::sync::atomic::AtomicBool,
 }
 
 impl std::fmt::Debug for Core {
@@ -258,6 +261,7 @@ impl Core {
             sink,
             printed: std::sync::atomic::AtomicBool::new(false),
             startup_names: std::sync::atomic::AtomicUsize::new(0),
+            config_read: std::sync::atomic::AtomicBool::new(false),
             host: crate::host::HostSlot::default(),
             simulation_active: std::sync::atomic::AtomicBool::new(false),
         }

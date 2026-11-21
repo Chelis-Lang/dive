@@ -330,6 +330,41 @@ impl SimulateReport {
     }
 }
 
+/// `TLCGet("config")`'s simulation fields (`Simulator.createConfig`).
+/// `traces` is the run's total, as TLC's `workers * num` is; -1 when
+/// unbounded, TLC's one-worker value. Under `compat_tlc` it is narrowed to
+/// TLC's 32-bit `IntValue`; the default profile reports the exact count
+/// (D-045). A `--trace-ids` run does not know its parent run's total. `aril`
+/// is 0: TLC builds the record before it applies `-aril`, and dive refuses
+/// a nonzero `aril` outside TLC's mode.
+fn simulation_config(
+    req: &SimulateRequest,
+    traces: u64,
+    depth: usize,
+) -> dive_eval::SimulationConfig {
+    let total = if traces == UNLIMITED_TRACES {
+        -1
+    } else {
+        i64::try_from(traces).unwrap_or(i64::MAX)
+    };
+    dive_eval::SimulationConfig {
+        generate: req.generation,
+        traces: req.trace_ids.is_none().then(|| {
+            if req.compat_tlc {
+                #[allow(
+                    clippy::cast_possible_truncation,
+                    reason = "TLC's `(int)` cast of the total"
+                )]
+                i64::from(total as i32)
+            } else {
+                total
+            }
+        }),
+        depth: i64::try_from(depth).unwrap_or(i64::MAX),
+        aril: 0,
+    }
+}
+
 /// Loads and samples a specification with the compiled Core, and validates
 /// every returned trace separately.
 ///
@@ -404,20 +439,27 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         .clone()
         .unwrap_or_else(|| req.file.with_extension("cfg"));
     let runtime = dive_sim::Runtime::new(options.clone());
-    let model = SpecModel::load_hosted(
-        &req.file,
-        &config,
-        &TraceOptions {
-            compat_tlc: req.compat_tlc,
-            no_deadlock: req.no_deadlock,
-            run: Some((seed, 0)),
-            library_paths: req.library_paths.clone(),
-            module_paths: req.module_paths.clone(),
-            ..TraceOptions::default()
-        },
-        Some(runtime.host()),
-    )?;
-    runtime.set_config(Some(crate::trace::make_run_config(model.model(), seed, 0)));
+    let trace_options = TraceOptions {
+        compat_tlc: req.compat_tlc,
+        no_deadlock: req.no_deadlock,
+        run: Some((seed, 0)),
+        run_mode: dive_eval::RunMode::Simulate(simulation_config(req, traces, depth)),
+        // The logical count, 1, by default (D-011); TLC's physical count
+        // under `compat_tlc`.
+        run_workers: req
+            .compat_tlc
+            .then(|| i64::try_from(workers).unwrap_or(i64::MAX)),
+        library_paths: req.library_paths.clone(),
+        module_paths: req.module_paths.clone(),
+        ..TraceOptions::default()
+    };
+    let model = SpecModel::load_hosted(&req.file, &config, &trace_options, Some(runtime.host()))?;
+    runtime.set_config(Some(crate::trace::make_run_config(
+        model.model(),
+        seed,
+        0,
+        &trace_options,
+    )));
     let mut run_budget = crate::mode_budget::ModeBudget::start(
         dive_runtime::budget::Phase::Simulation,
         req.time_limit,

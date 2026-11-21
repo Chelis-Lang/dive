@@ -414,6 +414,31 @@ runtime runs one execution and keeps the random draws consumed at startup.
 `TLCGet("config")` is available after binding, with the seed and settings in
 use.
 
+### The run's configuration record
+
+Under `dive simulate`, `TLCGet("config")` is the record TLC's simulator
+builds, so a spec can test `TLCGet("config").mode \in {"generate",
+"simulate"}` as Examples `SmokeEWD998` does:
+
+| Field | Value |
+|---|---|
+| `mode` | `"simulate"`, or `"generate"` with `--generate` |
+| `traces` | the run's total trace count; -1 for `--traces unlimited` |
+| `depth` | `--depth` (default 100) |
+| `aril` | `"0"`, as TLC reports it |
+| `sched` | `"random"` |
+| `deadlock`, `seed`, `install` | as under `dive check` |
+| `worker` | 1, the logical count; the physical count under `--compat=tlc` ([D-011](../tlc-differences.md#d-011-tlcgetconfigworker-reports-the-logical-worker-count)) |
+
+There is no `fingerprint` field, as in TLC. `dive check` keeps `mode |->
+"bfs"` and the fingerprint polynomial. When the spec reads the record, each
+trace document records the simulation fields under `run`, so `dive validate-trace` evaluates the spec's
+`ASSUME`s under the same record. A `--trace-ids` run refuses to evaluate
+`TLCGet("config")`, because it does not know the total trace count of the run
+it regenerates part of. `traces` is exact in the default profile; TLC and
+`--compat=tlc` narrow it to a 32-bit integer
+([D-045](../tlc-differences.md#d-045-simulation-config-record)).
+
 ## Constructive successors
 
 ```sh

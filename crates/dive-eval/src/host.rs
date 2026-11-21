@@ -60,6 +60,78 @@ pub struct RunConfig {
     pub fingerprint: i64,
     /// TLC's install location; dive's is the running executable's.
     pub install: String,
+    /// The kind of run, which decides `mode` and the mode's own fields.
+    pub mode: RunMode,
+}
+
+/// The kind of run `TLCGet("config")` describes.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub enum RunMode {
+    /// Model checking (`AbstractChecker.createConfig`): `mode |-> "bfs"`
+    /// with the fingerprint polynomial. TLC reports `"bfs"` for its DFID
+    /// checker too.
+    #[default]
+    Check,
+    /// Simulation (`Simulator.createConfig`): `mode |-> "simulate"` or
+    /// `"generate"`, with `traces`, `depth`, `aril` and `sched` and without
+    /// the fingerprint.
+    Simulate(SimulationConfig),
+}
+
+/// The simulation fields of `TLCGet("config")` ([`RunMode::Simulate`]).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SimulationConfig {
+    /// `-generate` (`mode |-> "generate"`) rather than `-simulate`.
+    pub generate: bool,
+    /// The run's total trace count, -1 when unbounded. `None` when the run
+    /// cannot know it (a `--trace-ids` regeneration of part of a larger
+    /// run): reading the record is then refused, so that a trace never
+    /// depends on which part of the run regenerates it.
+    pub traces: Option<i64>,
+    /// The maximum trace depth.
+    pub depth: i64,
+    /// The seed adjustment the record reports (printed as a string). TLC
+    /// builds the record before it applies `-aril`, so it reports 0.
+    pub aril: i64,
+}
+
+impl RunConfig {
+    /// The strings `createConfig` constructs, in TLC's construction order:
+    /// TLC interns them before it checks assumptions
+    /// ([`crate::Evaluator::intern_run_config`]).
+    #[must_use]
+    pub fn interned_strings(&self) -> Vec<String> {
+        match &self.mode {
+            RunMode::Check => vec![
+                "bfs".to_owned(),
+                self.seed.to_string(),
+                self.fingerprint.to_string(),
+                self.install.clone(),
+            ],
+            RunMode::Simulate(sim) => vec![
+                sim.mode_name().to_owned(),
+                self.seed.to_string(),
+                sim.aril.to_string(),
+                self.install.clone(),
+                SimulationConfig::SCHED.to_owned(),
+            ],
+        }
+    }
+}
+
+impl SimulationConfig {
+    /// `sched`: dive's only scheduler, TLC's default.
+    pub const SCHED: &str = "random";
+
+    /// `mode`'s value.
+    #[must_use]
+    pub const fn mode_name(&self) -> &'static str {
+        if self.generate {
+            "generate"
+        } else {
+            "simulate"
+        }
+    }
 }
 
 /// An error raised by a host operation, with TLC's code and message.
@@ -894,17 +966,38 @@ impl Core {
                 let c = self.host_for(key)?.config().ok_or_else(|| {
                     EvalError::unsupported("TLCGet(\"config\") (this run does not provide it)")
                 })?;
-                self.record(vec![
-                    ("mode", Value::string(&self.names, "bfs")),
+                self.config_read.store(true, Ordering::SeqCst);
+                let mut fields = vec![
                     ("deadlock", Value::Bool(c.deadlock)),
                     ("worker", Value::Int(c.workers)),
                     ("seed", Value::string(&self.names, &c.seed.to_string())),
-                    (
-                        "fingerprint",
-                        Value::string(&self.names, &c.fingerprint.to_string()),
-                    ),
                     ("install", Value::string(&self.names, &c.install)),
-                ])
+                ];
+                match &c.mode {
+                    RunMode::Check => fields.extend([
+                        ("mode", Value::string(&self.names, "bfs")),
+                        (
+                            "fingerprint",
+                            Value::string(&self.names, &c.fingerprint.to_string()),
+                        ),
+                    ]),
+                    RunMode::Simulate(sim) => {
+                        let traces = sim.traces.ok_or_else(|| {
+                            EvalError::unsupported(
+                                "TLCGet(\"config\") under --trace-ids, which regenerates part of \
+                                 a run whose trace count it does not know",
+                            )
+                        })?;
+                        fields.extend([
+                            ("mode", Value::string(&self.names, sim.mode_name())),
+                            ("traces", Value::Int(traces)),
+                            ("depth", Value::Int(sim.depth)),
+                            ("aril", Value::string(&self.names, &sim.aril.to_string())),
+                            ("sched", Value::string(&self.names, SimulationConfig::SCHED)),
+                        ]);
+                    }
+                }
+                self.record(fields)
             }
             "level" => {
                 if st.is(control::CONST) || st.is(control::INIT) {
