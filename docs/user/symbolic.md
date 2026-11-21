@@ -79,7 +79,15 @@ A table such as `snapshotStore[t][k]` can describe the same transaction and key 
 | 4 keys, 3 transactions, complete search | 536.59 s | 307.51 s | 3,552,493,680,513 distinct, depth 37 |
 | 4 keys, 7 transactions, direct induction | Stopped at 50 s | 6.36–6.96 s | Inductive safety proof |
 
-All three completed searches also agreed on generated counts. On four keys the final reachable diagram dropped from 4,171 to 3,226 nodes. For the stronger model invariant `FullHasFresh`, increasing the domain to **4 keys and 24 transactions** took 109.69 s to prove. **2 keys and 56 transactions** took 10.27 s and **1 key and 102 transactions** took 7.11 s. Additional slots reached the 512-bit admission limit at 2 keys/57 slots and 1 key/103 slots. These are induction results on the source program. The independent KVS history formula gives about 5.0024 × 10¹⁰⁶ labeled reachable states at 102 slots. The proof checks initial inclusion and next-step closure without traversing these states. In the 102-slot model the weaker invariants alone failed the next-step obligation. The [measurements, domain setup and reproduction commands](../../conformance/reports/perf/2026-11-21-symbolic-table-orders.json) include both bit orders and the negative controls.
+All three completed searches also agreed on generated counts. On four keys the final reachable diagram dropped from 4,171 to 3,226 nodes. For the stronger model invariant `FullHasFresh`, increasing the domain to **4 keys and 24 transactions** took 109.69 s to prove. **2 keys and 56 transactions** took 10.27 s and **1 key and 102 transactions** took 7.11 s. In that comparison, additional slots reached the previous 512-bit direct-proof limit at 2 keys/57 slots and 1 key/103 slots. These are induction results on the source program. The independent KVS history formula gives about 5.0024 × 10¹⁰⁶ labeled reachable states at 102 slots. The proof checks initial inclusion and next-step closure without traversing these states. In the 102-slot model the weaker invariants alone failed the next-step obligation. The [measurements, domain setup and reproduction commands](../../conformance/reports/perf/2026-11-21-symbolic-table-orders.json) include both bit orders and the negative controls.
+
+### Direct induction on wider finite models
+
+Use `--prove-inductive` to check whether the configured invariants hold initially and are preserved by every permitted transition. Ordinary finite layouts and index-only symmetry admit up to **2,048 state bits** for this operation. Complete exploration, verification of a saved predicate, domain refinement and symmetry that permutes stored values retain their 512-bit bounds. A failed next-step obligation can involve an unreachable state. Use search to produce a reachable counterexample.
+
+The bound alone does not explain the improvement on Lamport's transaction commit model. Its consistency property forbids an aborted manager and a committed manager in the same state. A Cartesian expansion examines one million index pairs at 1,000 managers. The worker can check this condition by finding whether each of the two kinds of manager exists. This takes two scans of the same finite domain and includes the case where the indices coincide. This rule applies to two independently indexed unprimed finite tables compared to string or integer literals. Dependent tests, tuple binders and partial tables use the general quantifier evaluator.
+
+With the 1,000 resource managers listed in `RM`, the original `TCTypeOK` and `TCConsistent` proved in **99.01 s** with **584.4 MiB** peak RSS. The public module needed no source edit or additional invariant. For KVS with two values the stronger `FullHasFresh` configuration also proved at **200 keys and two symmetric transactions in 56.22 s**, and at **one key and 256 labeled transactions in 75.05 s**. Each proof covers its configured finite domain. The [data and reproduction commands](../../conformance/reports/perf/2026-11-21-wide-source-induction.json) include the 2,048-bit boundary, negative controls, and runs isolating the two changes.
 
 ## Check edits and prove properties
 
@@ -198,8 +206,7 @@ Unproved, refused and interrupted checks establish no safety result.
 `--time-limit SECONDS` bounds the entire invocation, including child
 processes and rechecks. `--max-memory MIB` limits virtual address space
 per worker process on Linux. Set an external cgroup limit when the budget
-covers aggregate physical memory. Compilation admits up to 512 state bits,
-16,384 visited layout fields and 100,000 expanded action witnesses. Above 52 state bits, search counts assignments with arbitrary-precision
+covers aggregate physical memory. Compilation admits 16,384 visited layout fields and 100,000 expanded action witnesses. The ordinary search limit is 512 state bits. Eligible direct proofs admit 2,048 bits. Above 52 state bits, search counts assignments with arbitrary-precision
 integers over the decision diagram. JSON counters are exact decimal integers. The transferred predicate format admits 100,000 nodes and
 16 MiB. Actual time and memory depend on intermediate decision diagrams.
 
@@ -233,7 +240,7 @@ dive check PaxosLeaseChecked.tla --strategy symbolic --config PaxosLeaseBase.cfg
   --time-limit 30m --max-memory 6g --output json
 ```
 
-The checker emits a JSON row for each revision it checks. A refusal, error or exhausted budget ends the session. `refinement_rounds` counts binding and search attempts for the revision, `learned_members` counts coordinates in the final refined set layout, and `initial_hint_members` counts surviving coordinates supplied by the preceding revision. Stale coordinates drop out. If a warm layout fails or exceeds its bounds, the worker can restart cold within the original time budget. The 512-bit limit applies to every layout. Predicate transfer uses the ordinary symbolic strategy. When symmetry is configured, retained set members include every image of each learned member under the group. For modest explicit graphs, ordinary Core can be faster even when the refined symbolic search completes.
+The checker emits a JSON row for each revision it checks. A refusal, error or exhausted budget ends the session. `refinement_rounds` counts binding and search attempts for the revision, `learned_members` counts coordinates in the final refined set layout, and `initial_hint_members` counts surviving coordinates supplied by the preceding revision. Stale coordinates drop out. If a warm layout fails or exceeds its bounds, the worker can restart cold within the original time budget. The 512-bit limit applies to every refined layout. Predicate transfer uses the ordinary symbolic strategy. When symmetry is configured, retained set members include every image of each learned member under the group. For modest explicit graphs, ordinary Core can be faster even when the refined symbolic search completes.
 
 ### Finite initial choices
 

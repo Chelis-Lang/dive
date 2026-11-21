@@ -19,7 +19,9 @@ are in git history.
 
 - The [EmergencyCall benchmark](docs/developer/large-models.md#enlarge-the-emergencycall-number-sets) checks four larger source configurations and exports independently validated counterexamples.
 
-- [Finite symbolic checking](docs/user/symbolic.md#symbolic-layout-for-nested-tables) groups nested labeled tables by their shared coordinates. The KVS source now proves safety at 102 transaction slots within its existing 512-bit limit.
+- [Direct symbolic induction](docs/user/symbolic.md#direct-induction-on-wider-finite-models) admits 2,048-bit finite models and factors independent forbidden pairs. The original transaction-commit safety properties prove at 1,000 managers.
+
+- [Finite symbolic checking](docs/user/symbolic.md#symbolic-layout-for-nested-tables) groups nested labeled tables by their shared coordinates. The KVS source now proves safety at 102 transaction slots within 512 state bits.
 
 - The bundled [FramedFunctions module](docs/user/modules.md#enumerating-functions-with-fixed-coordinates) generates finite function updates on their writable coordinates. Release archives include the TLA+ source for TLC.
 
@@ -210,7 +212,7 @@ are in git history.
 
 ### Fixed
 
-- Ordinary Core safety checks finish a frontier wave when the operating system refuses a worker thread, preserving the results already computed. [Workers and stores](docs/user/checking.md#workers-and-stores).
+- Ordinary multi-worker Core safety checks reuse their expansion threads across frontier waves. If the operating system refuses the team at startup, the calling thread completes the search. [Workers and stores](docs/user/checking.md#workers-and-stores).
 
 - `dive check` applies the Examples Hanoi `Bits.class` override to calls of
   `Bits!And` whose arguments depend on the state. It used to evaluate the

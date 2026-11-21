@@ -89,6 +89,8 @@ Outside == x \notin Colors
 
     check_action_guards(module, config, run, explicit, compare)
     check_nested_tables(folder, run, explicit, compare)
+    check_direct_proof_width(folder, run)
+    check_pair_exclusion(folder, run, explicit, compare)
 
 
 def check_action_guards(module, config, run, explicit, compare):
@@ -617,3 +619,163 @@ Next == \E o \in Owners, k \in Keys :
     compare(normal, expected)
     compare(separated, expected)
     assert normal["reachable_bdd_nodes"] < separated["reachable_bdd_nodes"]
+
+
+def check_direct_proof_width(folder, run):
+    module = folder / "Wide.tla"
+    config = folder / "Wide.cfg"
+    template = r"""---- MODULE Wide ----
+EXTENDS Naturals
+CONSTANT Last
+VARIABLE got
+TypeInvariant == got \subseteq 1..Last
+Empty == got = {}
+Init == got = {}
+Next == ACTION
+====
+"""
+
+    def size(n):
+        config.write_text(f"CONSTANT Last = {n}\nINIT Init\nNEXT Next\nINVARIANTS TypeInvariant Empty\n")
+
+    size(2048)
+    module.write_text(template.replace("ACTION", "UNCHANGED got"))
+    holds, = run(module, config, "--prove-inductive")
+    assert holds["proof"] == "inductive-safety" and "distinct" not in holds
+    search, = run(module, config, code=2)
+    assert "exceeds 512 state bits" in search["reason"]
+    candidate = folder / "wide-predicate.json"
+    candidate.write_text(json.dumps({"format": "finite-state-predicate-v1", "root": 1, "nodes": []}))
+    verify, = run(module, config, "--verify-predicate", candidate, code=2)
+    assert "exceeds 512 state bits" in verify["reason"]
+
+    module.write_text(template.replace("ACTION", r"got' = got \cup {1}"))
+    broken, = run(module, config, "--prove-inductive", code=2)
+    assert broken["proof"] == "inconclusive" and broken["failed_obligation"] == "Next closure"
+    size(2049)
+    refused, = run(module, config, "--prove-inductive", code=2)
+    assert "exceeds 2048 state bits" in refused["reason"]
+
+
+def check_pair_exclusion(folder, run, explicit, compare):
+    module = folder / "Flags.tla"
+    config = folder / "Flags.cfg"
+    module.write_text(r"""---- MODULE Flags ----
+CONSTANT Ids
+VARIABLE f, g
+TypeInvariant == f \in [Ids -> {0,1}] /\ g \in [Ids -> {0,1}]
+Init == f = [i \in Ids |-> 0] /\ g = [i \in Ids |-> 0]
+Next == \/ \E i \in Ids : /\ f' = [f EXCEPT ![i]=1] /\ UNCHANGED g
+        \/ \E i \in Ids : /\ g' = [g EXCEPT ![i]=1] /\ UNCHANGED f
+        \/ UNCHANGED <<f,g>>
+Separate == \A i,j \in Ids : ~(f[i]=1 /\ 1=g[j])
+SameIndex == \A i,j \in Ids : ~(f[i]=1 /\ f[i]=0)
+====
+""")
+
+    def select(domain, prop):
+        config.write_text(f"CONSTANT Ids = {domain}\nINIT Init\nNEXT Next\nINVARIANTS TypeInvariant {prop}\n")
+
+    select("{a,b}", "SameIndex")
+    holds, = run(module, config)
+    compare(holds, explicit(module, config))
+    select("{a,b}", "Separate")
+    bad, = run(module, config, code=1)
+    concrete = explicit(module, config)
+    assert bad["verdict"] == concrete["verdict"] == "invariant-violation"
+    assert bad["depth"] == concrete["statistics"]["depth"] == 3 and bad["trace_validated"]
+    select("{}", "Separate")
+    empty, = run(module, config)
+    compare(empty, explicit(module, config))
+
+
+def check_pair_truth(folder, exporter):
+    """Compare the factored and Cartesian predicates on every encoded state."""
+    import gc
+    import subprocess
+    from dd import cudd
+    from engine import SourceModel, Unsupported
+
+    class Cartesian(SourceModel):
+        def pair_exclusion(self, q, env, assigned):
+            return None
+
+    class Factored(SourceModel):
+        matches = 0
+
+        def pair_exclusion(self, q, env, assigned):
+            result = super().pair_exclusion(q, env, assigned)
+            if result is not None:
+                self.matches += 1
+            return result
+
+    module = folder / "PairTruth.tla"
+    module.write_text(r"""---- MODULE PairTruth ----
+CONSTANTS Ids, Left
+VARIABLES f, g
+TypeInvariant == f \in [Left -> {0,1}] /\ g \in [Ids -> {0,1}]
+Init == f = [i \in Left |-> 0] /\ g = [i \in Ids |-> 0]
+Next == UNCHANGED <<f,g>>
+Separate == \A i,j \in Ids : ~(f[i]=1 /\ 1=g[j])
+Swapped == \A i,j \in Ids : ~(0=g[j] /\ f[i]=1)
+OneTable == \A i,j \in Ids : ~(f[j]=0 /\ f[i]=1)
+SameSlot == \A i,j \in Ids : ~(f[i]=1 /\ g[i]=1)
+UnequalSlots == \A i,j \in Ids : ~(i /= j /\ f[i]=1 /\ g[j]=1)
+BadType == \A i,j \in Ids : ~(f[i]=2 /\ g[j]="yes")
+====
+""")
+    config = folder / "PairTruth.cfg"
+
+    def export(ids, left, properties):
+        config.write_text(f"CONSTANTS Ids={ids} Left={left}\nINIT Init NEXT Next\n"
+                          f"INVARIANTS TypeInvariant {properties}\n")
+        return json.loads(subprocess.check_output([exporter, module, config]))
+
+    def truth(model, name, point):
+        value = model.b.let(point, dict(model.properties)[name]) if point else dict(model.properties)[name]
+        assert value in (model.b.true, model.b.false)
+        return value == model.b.true
+
+    models = [(cls, cudd.BDD(memory_estimate=64 << 20)) for cls in (Factored, Cartesian)]
+    for size in range(4):
+        ids = "{" + ",".join("abc"[:size]) + "}"
+        properties = "Separate Swapped OneTable SameSlot UnequalSlots"
+        doc = export(ids, ids, properties)
+        fast, plain = (cls(doc, "TypeInvariant", manager) for cls, manager in models)
+        assert fast.matches == 3 and fast.variables == plain.variables
+        assert len(fast.variables) == 2 * size
+        for values in product((False, True), repeat=len(fast.variables)):
+            point = dict(zip(fast.variables, values))
+            state = fast.decode(point)
+            assert state == plain.decode(point)
+            f, g = ({key["model"]: value for key, value in state[name]["fcn"]} for name in ("f", "g"))
+            expected = {
+                "Separate": not any(f[i] == 1 and g[j] == 1 for i in f for j in g),
+                "Swapped": not any(g[j] == 0 and f[i] == 1 for i in f for j in g),
+                "OneTable": not any(f[j] == 0 and f[i] == 1 for i in f for j in f),
+                "SameSlot": not any(f[i] == 1 and g[i] == 1 for i in f),
+                "UnequalSlots": not any(i != j and f[i] == 1 and g[j] == 1 for i in f for j in g),
+            }
+            for name, answer in expected.items():
+                assert truth(fast, name, point) == truth(plain, name, point) == answer
+
+    # The second operand has an incomparable scalar despite the always-false
+    # first operand. A partial table is undefined at the missing domain entry.
+    for name, domain, reason in (("BadType", "{a,b}", "incomparable finite values"),
+                                 ("Separate", "{a}", "index outside finite function domain")):
+        doc = export("{a,b}", domain, name)
+        for cls, manager in models:
+            try:
+                cls(doc, "TypeInvariant", manager)
+            except Unsupported as error:
+                assert str(error) == reason
+            else:
+                raise AssertionError(f"{cls.__name__} accepted undefined {name}")
+
+    # With no bound assignments even the incomparable literal is unevaluated.
+    doc = export("{}", "{}", "BadType")
+    for cls, manager in models:
+        assert truth(cls(doc, "TypeInvariant", manager), "BadType", {})
+    # Release partial evaluators from exception tracebacks before their CUDD managers.
+    del fast, plain
+    gc.collect()

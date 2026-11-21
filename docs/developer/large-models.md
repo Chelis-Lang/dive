@@ -83,6 +83,8 @@ and `scripts/symbolic/check_transaction_commit.py` include generated counts,
 depth and a validated negative control. The three-manager property forbidding
 commit fails at depth five, after all three managers prepare.
 
+A direct source induction check of the original invariants reached **1,000 managers** in **99.01 s**, using **598,416 KiB** peak RSS. This is a proof over a finite domain. The formula above gives roughly **1.322 × 10⁴⁷⁷** reachable states for that domain. The proof returns no search counts or depth. Two independent limits mattered: the previous bit budget rejected 257 managers and Cartesian expansion of the safety property rejected 384 even after widening the layout. At 257 managers the wider Cartesian proof took 15.28 s; compiling the original property into two finite scans took 4.56 s. At 512 managers an action that creates one aborted and other committed managers failed the next-step obligation. At three managers the same edit yielded an independently replayed depth-two counterexample. [Proof measurements, guard controls and source identities](../../conformance/reports/perf/2026-11-21-wide-source-induction.json).
+
 ### Isolated symbolic measurements
 
 Three fresh processes per configuration ran sequentially on a fixed 2.4 GHz
@@ -291,7 +293,7 @@ Six of the thirteen original non-finishes reached a memory ceiling and seven rep
 | Frontier and candidates awaiting commit | At the same 800,000-state KVS Large prefix, 5,703,129 generated and 511,907 queued, reducing the ordinary eight-worker batch from 4,096 to 128 sources per worker cut RSS from 343 to 174 MiB. Wall time went from 3.03 to 3.29 s. The original frontier-spill path used 154 MiB and 4.87 s. | Candidate buffering accounts for much of the apparent benefit of spilling this prefix. The flat frontier itself still grows with layer width. |
 | Parent and ordinal storage | Four million three-child BFS entries occupied 50,331,648 bytes of resident capacity before and 5,242,880 after delta coding with a 64-record block index. Wide ordinals and arbitrary parent order round-trip. | Regular discovery order compresses. The application can still seek to a predecessor for trace reconstruction. |
 | Temporal capture scheduling | CoffeeCan3000 at eight workers went from 107.3 to 49.4 s with worker and claim-table reuse. One worker took 50.2 and 48.8 s. CoffeeCan1000 isolated pool reuse at 5.65 s, claim reuse alone at 10.29 s, and the original at 10.75 s. | Thread creation at every bounded wave accounts for much of the regression. Ordered graph commits and temporal work still limit parallel speedup. |
-| Independent receipt delivery | Ten disjoint reachable regions of the pinned `c1cs` model contain 671,088,640 distinct postdecision states and 8,724,152,320 delivery edges. An unused four-way binder generates 34,896,609,280 witnesses for those edges. Twenty concrete paths validate, and a damaged path fails validation. | Materializing the full graph explicitly charges for every combination and duplicate witness. This construction covers those regions only. Termination and fairness obligations remain open. |
+| Independent receipt delivery | Ten disjoint reachable regions of the pinned `c1cs` model contain 671,088,640 distinct postdecision states and 8,724,152,320 delivery edges. An unused four-way binder generates 34,896,609,280 witnesses for those edges. Twenty concrete paths validate, and a damaged path fails validation. | Materializing the full graph explicitly charges for every combination and duplicate witness. A separate [proof of the published instance](#the-published-c1cs-properties) covers its five invariants and fair termination. |
 
 The ordinary eight-worker candidate reduced sampled peak memory on PConProof from 1,862 to 512 MB, with elapsed time increasing from 67.8 to 75.2 s. KVS Medium went from 1,335 to 812 MB and from 108 to 106 s. Each comparison used the same CPU affinity, input and golden, with other work on the host. At one worker the candidate took 574 s on PConProof and 585 s on Medium. Both benefit from parallel expansion. Extending the persistent pool to ordinary safety increased the two PConProof eight-worker measurements from 84–101 s to 99–109 s in a separate interleaved experiment. The measured candidate retains the pool for temporal capture.
 
@@ -584,7 +586,7 @@ Flint’s three-writer checker expands 31-variable successors across workers and
 
 An in-process worker that finds a fingerprint in the resident table can carry that observation to ordered commit. The table only grows during the wave. This avoids a second coordinator lookup for that occurrence. A candidate observed only by another worker still needs its ordinary ordered check. On a dedicated 96-core Graviton4 node the 50-million-state SlateDB prefix took 64.42–64.59 s versus 66.39–66.45 s at 32 workers. The two-million-state KVS prefix fell from 2.92–2.94 s to 2.69–2.70 s at 32 workers. The full two-barrier Flint run at 96 workers fell from 13.97–13.98 s to 13.57–13.60 s. All paired counters and queues matched. [All runs, including pooled workers and allocator settings](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
 
-Keeping 96 worker threads alive saved wall time on four Graviton4 workloads, but also retained more process memory. The complete two-barrier Flint run fell from 13.57–13.61 s at 1.16–1.17 GiB to 11.94–12.03 s at 1.96 GiB. Giving each exploration machine a fixed pool worker took 11.84 s at 1.99–2.10 GiB. Replacing the pool at each BFS level brought peak RSS down to 1.83–1.85 GiB and took 12.02–12.03 s. All 32 trials matched their control on verdict, distinct and generated counts, depth and queue. The fixed-worker experiment leaves OS thread placement to the scheduler. The shipping policy still creates scoped workers. These measurements support testing pool lifetime on a complete high-worker original where visited-state storage dominates RSS. [Rows, inputs and binary digests](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
+Keeping 96 worker threads alive saved wall time on four Graviton4 workloads, but also retained more process memory. The complete two-barrier Flint run fell from 13.57–13.61 s at 1.16–1.17 GiB to 11.94–12.03 s at 1.96 GiB. Giving each exploration machine a fixed pool worker took 11.84 s at 1.99–2.10 GiB. Replacing the pool at each BFS level brought peak RSS down to 1.83–1.85 GiB and took 12.02–12.03 s. All 32 trials matched their control on verdict, distinct and generated counts, depth and queue. The fixed-worker experiment leaves OS thread placement to the scheduler. These measurements support testing pool lifetime on a complete high-worker original where visited-state storage dominates RSS. [Rows, inputs and binary digests](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
 
 A separate experiment kept a Rayon pool alive across ordinary safety batches. On Flint at 192 workers, host tasks created per run fell from about 124,000 to 314. Wall time fell from 21.97–22.24 s to 17.44–17.90 s, but peak RSS increased from 1.39 to 2.83 GiB. At 32 workers PConProof slowed from 34.55–34.89 s to 36.72–37.52 s. These tradeoffs kept ordinary worker scheduling out of the retained-row change. [All paired runs, inputs, binary identities, CPU time and memory](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
 
@@ -642,11 +644,26 @@ questions.
 The original etcdraft configuration exposed a worker-creation failure at 32 workers
 and a 420 GiB budget. The process exited after 4,461.21 s at 338.05 GiB RSS
 without a verdict. A 129-state model reproduced the panic under a Linux task
-quota. Core now completes an interrupted worker launch on the calling thread,
-preserving already claimed work. Five different quotas gave the same counts,
+quota. The scoped-worker build completed an interrupted worker launch on the calling
+thread, preserving already claimed work. Five different quotas gave the same counts,
 including when successor candidates spilled to disk. All ten failing-property
 traces replayed independently. The [measurements](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json)
 include the worker counts and the original model and configuration digests.
+
+A second 32-worker run aborted after 3,426.76 s at 354,365,256 KiB RSS. The OS
+created a thread, then Rust failed to allocate its stack guard in the child.
+Ordinary multi-worker safety now starts its expansion threads once and waits for
+each worker to enter the pool before expanding the first parallel wave. On the
+original configuration at 500,000 distinct states, both schedulers generated
+1,645,930 states and left 395,693 queued at depth ten. At 32 workers, two runs
+with reused threads took 0.61 s each, compared with 0.65 s each with scoped
+threads. RSS sampled late in the runs was 463–475 MiB with reuse and 435–437 MiB
+with scoped threads. On the same dedicated 32-core host class that produced the
+two earlier aborts, the search-lifetime pool returned the original configuration's
+420 GiB memory stop in 4,269.80 s, with 442,465,912 KiB peak RSS. It counted
+2,551,373,041 distinct states and 10,263,224,441 generated, with 1,987,633,576
+queued at depth 15. The last three-minute process sample had 34 threads.
+[Full stop, bounded prefix observations and executable digests](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
 
 On a 32-physical-core host with a 24 GiB sampled RSS limit, DiskSynod reached 835,858,711 distinct states and 12,639,577,756 generated in 6,500.61 s. It had 144,840,332 states queued at depth 35. BPConProof hit the same budget in 181.95 s with 134,831,096 distinct states. Of those, 134,714,941 were still queued. At 16 workers, BlockingQueuePoisonApple hit 24 GiB during graph capture with 117,440,513 distinct and 569,933,982 generated. At eight workers and 18 GiB, etcdraft reached 94,073,470 distinct before memory stopped it. MCetcdraft instead hit the 900 s time limit at 39,256,817 distinct and 8.89 GiB peak RSS. These runs use different worker counts and budget enforcement from the original cgroup trials. [Per-input commands, limits, binary identities and terminal queues](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
 
@@ -663,6 +680,57 @@ The [proof script](../../scripts/perf/scale/sailfish_dag.py) checks the digests 
 Z3 discharged the original five-round queries in 0.21 s, including Python startup. It took 0.65 s at sixteen rounds. cvc5 independently answered every emitted query. Core exact and pinned TLC also exhausted rounds one, two and three. At three rounds each reported 560,415 distinct, 2,194,735 generated, depth 13 and an empty queue. For every one- and two-round TLC state, a [graph comparison](../../scripts/perf/scale/sailfish_dag_graph.py) checked every predicted next vertex, delivered parent set and terminal self-loop against the full successor list. Two five-round paths of 21 states each replayed on the unchanged configuration. Six real paths across the original and enlarged configurations passed independent validation, and each altered final step failed.
 
 Even counting just fully populated DAGs gives **at least 8,388,608,000 reachable states at five rounds** and **4,398,046,511,104,000,000,000,000 at sixteen**. Schedule all four nodes each round. Before GST, let each honest vertex choose any quorum containing the previous leader (four choices). After GST it must also include all three honest nodes (one choice if the previous leader was faulty, two otherwise). Let the faulty node choose any quorum (five choices) except when it is the current leader, when it must include the previous leader (four choices). Every chosen leader has an edge to the preceding leader, fulfilling the voting guards. Every independent choice changes an immutable edge. These are constructive lower bounds. The SMT result proves properties without counting the entire graph. [Inputs, commands, per-query results and witnesses](../../conformance/reports/perf/2026-11-21-sailfish-dag.json).
+
+### The published c1cs properties
+
+All six properties in the pinned four-process `c1cs.cfg` hold. The instance has
+`N=4`, `T=F=1`, two distinct input values and a third value `Bottom`.
+Apalache checks induction over the original module using these three values as
+distinct uninterpreted constants. The induction step starts from every state
+satisfying the strengthened predicate. The proof establishes `TypeOK`, `Validity`,
+`Agreement`, `WeakAgreement` and `IndStrengthens` in every reachable state.
+A separate progress argument establishes `Termination` on every behavior of
+the configured `Spec`. The total graph size remains unknown.
+[Proof obligations, inputs and controls](../../conformance/reports/perf/2026-11-21-c1cs-source-proof.json).
+
+Two facts strengthen the safety induction. Every process in `CALL` has at least
+two broadcast proposals for its current value. If a sender's current value
+differs from its old proposal, its current value also has at least two such
+proposals. A decision has at least three proposals for its value. With four
+senders and at most one proposal per sender, quorums of two and three overlap.
+Removing the extra support facts admits an induction countermodel in which
+three senders proposed `v1` but all four current values are `v2`.
+[Inductive predicate](../../scripts/perf/scale/c1cs-proof/C1CSProgress.tla).
+
+For progress, order the locations as `PROPOSE < DECIDE < CALL < DONE < CRASH`.
+Add the four location ranks and the sizes of all four receipt sets. The sum is
+at most 80 because the message domain has sixteen records. Each original
+nonstuttering step strictly increases the sum, so every infinite behavior
+eventually stays in one state. The source's `Crash` guard counts *noncrashed*
+processes and requires fewer than one. Induction shows that no process crashes.
+
+At a stationary state outside the target, a process in `PROPOSE` can propose.
+Otherwise a process in `DECIDE` can receive a missing broadcast or act on a
+received decision. If it has all broadcasts and none is a decision, every
+process that left `PROPOSE` has broadcast its own proposal. Four proposals
+enable `Core_T1`. All these actions belong to the single weakly fair
+disjunction in `Spec`, and each changes the state. An infinite stationary
+suffix outside the target would violate this fairness condition.
+
+The driver derives the enabling guards from the parsed fair action. It checks
+that each action branch assigns every successor variable once and that the
+assignments have an acyclic dependency order. It also checks that both guarded
+vote choices have witnesses and repeats induction with every satisfying vote
+permitted. TLC independently checks the derived guard against its own
+`ENABLED` operator in all 10 and 310 states of two smaller original-source
+instances. Each model also passes its full configured properties in TLC and
+Core. Run the driver with the pinned Examples checkout, Apalache 0.62.3, a
+Java 21 runtime on `PATH`, the pinned TLC jar and the Core CLI.
+
+```sh
+python3 scripts/perf/scale/c1cs-proof/check.py "$EXAMPLES/specifications/c1cs" \
+  --apalache "$APALACHE" --java "$JAVA" --tlc-jar "$TLA2TOOLS" --dive "$DIVE"
+```
 
 ### Unbounded election terms in etcd
 
