@@ -25,10 +25,9 @@ use crate::core_engine::{CoreOutcome, CoreRun, Prepared, Search};
 use crate::core_native_graph::{NativeGraph, NativeSink};
 use crate::core_native_values::NativeValues;
 
-/// How a temporal run's checks are scheduled: `Some` for the default
-/// profile's completed-level checks, `None` for the final check only
-/// (`--compat=tlc`).
-pub(crate) type Route = Option<Schedule>;
+/// The completed-level schedule and which properties it searches. `None`
+/// selects a final check only.
+pub(crate) type Route = Option<(Schedule, crate::TemporalMode)>;
 
 /// The refusal of a temporal validation failure, whose report Core does not
 /// build (TLC's start-up and planning errors among them).
@@ -280,8 +279,11 @@ fn check_configured_inner(
         configuration.limits,
         configuration.acceptance,
         configuration.graph_labels,
-        route,
+        route.map(|(schedule, _)| schedule),
     ) {
+        Ok(check) if route.is_some_and(|(_, mode)| mode == crate::TemporalMode::PeriodicAll) => {
+            check.with_all_prefix_properties()
+        }
         Ok(check) => check,
         Err(failure) => {
             return report_outcome(

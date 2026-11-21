@@ -132,6 +132,9 @@ pub enum TemporalMode {
     /// profile.
     #[default]
     Ordinary,
+    /// Search every configured temporal property at each due completed level.
+    /// Any independently validated counterexample can decide the run.
+    PeriodicAll,
 }
 
 /// What to check and how.
@@ -254,7 +257,7 @@ pub struct CheckRequest {
     pub temporal_refusal: Option<String>,
     /// Completed-level schedule for ordinary dive-profile temporal checking
     /// (TLC checks only at the end). The default is the documented [`PeriodicSchedule::DEFAULT`];
-    /// TLC-profile and explicit final requests ignore it and check once at the end.
+    /// Ordinary TLC-profile requests ignore it. `PeriodicAll` uses it in either profile.
     pub periodic: PeriodicSchedule,
     /// `--time-limit`: wall-clock time for the whole check.
     pub time_limit: BudgetSetting<std::time::Duration>,
@@ -307,6 +310,7 @@ pub struct CheckReport {
     budget_sources: (&'static str, &'static str),
     memory_requested_source: &'static str,
     memory_samples: Option<dive_runtime::budget::MemorySamples>,
+    temporal_mode: TemporalMode,
     temporal_configuration: crate::temporal::Configuration,
     phase: Phase,
     /// The core engine's run, when `--engine=core` ran the check.
@@ -684,6 +688,7 @@ fn check_file_in(
         budget_sources: (time_source, memory_source),
         memory_requested_source,
         memory_samples: None,
+        temporal_mode: req.temporal,
         temporal_configuration: crate::temporal::file_configuration(),
         phase: Phase::Unlowered(String::new()),
         core: None,
@@ -951,14 +956,13 @@ fn check_file_in(
     Ok(report)
 }
 
-/// The core's temporal route for this request: ordinary checking only,
-/// with the default profile's completed-level schedule or, under the TLC
-/// profile, the final check alone (as `check_backend` routes it). A refused
-/// temporal strategy has no route.
+/// Select the ordinary profile schedule or an explicit all-property prefix search.
+/// A refused temporal strategy has no route.
 fn core_route(req: &CheckRequest, options: &CheckOptions) -> Option<crate::core_temporal::Route> {
-    req.temporal_refusal
-        .is_none()
-        .then(|| (options.profile == dive_eval::Profile::Dive).then_some(req.periodic))
+    req.temporal_refusal.is_none().then(|| {
+        (options.profile == dive_eval::Profile::Dive || req.temporal == TemporalMode::PeriodicAll)
+            .then_some((req.periodic, req.temporal))
+    })
 }
 
 impl From<crate::core_engine::CoreOutcome> for Phase {
@@ -1451,6 +1455,9 @@ impl CheckReport {
                 },
                 crate::temporal::Report::lncheck
             ));
+            if self.temporal_mode == TemporalMode::PeriodicAll {
+                options["periodic_properties"] = json!("all");
+            }
             options["lasso"] = json!("short");
             options["temporal_bounds"] = temporal_limits_json(self.analysis_configuration());
             options["tlc_exact_temporal"] = json!(false);

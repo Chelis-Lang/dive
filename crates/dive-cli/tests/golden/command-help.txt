@@ -76,6 +76,7 @@ USAGE: dive check FILE.tla [OPTIONS]
 --time-limit DURATION|none --max-memory BYTES|auto|none
 --max-states N|none --max-depth N|none
 --action-composition off|tla --symmetry-liveness unreduced|refuse|tlc
+--lncheck periodic-all  search every temporal property at each scheduled level
 --core-sample N         compare N sampled states' successors (diagnostic)
 --library-path DIR --module-path DIR (repeatable)
 

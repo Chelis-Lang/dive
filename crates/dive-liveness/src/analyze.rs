@@ -1430,7 +1430,7 @@ fn original_word<'a>(
 
 /// Searches the first `searched` properties in configuration order for an
 /// accepting word; attribution always covers every property. A complete graph
-/// searches all of them. A prefix searches only the first, because a word for a
+/// searches all of them. The default prefix searches only the first, because a word for a
 /// later property on a prefix does not show which property the complete
 /// graph's search would name first.
 #[allow(

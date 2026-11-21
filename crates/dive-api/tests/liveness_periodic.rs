@@ -206,3 +206,31 @@ fn prefixes_decide_only_the_first_property_so_attribution_matches_final_checking
         assert_eq!(json["properties"], json!(["P1", "P2"]), "{json}");
     }
 }
+
+#[test]
+fn all_properties_can_refute_a_later_claim_before_the_first_one_fails() {
+    let files = core_final::Files::new(
+        &source(
+            "Init == x=0\nNext == x'=IF x<6 THEN x+1 ELSE x\nP1 == [](x>=5 => <>(x=9))\nP2 == <>(x=9)\nP3 == <>(x=8)",
+        ),
+        "INIT Init\nNEXT Next\nPROPERTY P1\nPROPERTY P2\nPROPERTY P3",
+    );
+    for base in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
+        for width in [1, 4] {
+            let request = dive_api::CheckRequest {
+                temporal: dive_api::TemporalMode::PeriodicAll,
+                periodic: EVERY_LEVEL,
+                ..files.request(&options(&base, width))
+            };
+            let report = dive_api::check_file(&request).expect("Core");
+            let output = report.to_json();
+            assert_eq!(report.verdict(), "liveness-violation", "{output}");
+            assert_eq!(output["options"]["periodic_properties"], "all");
+            assert_eq!(output["periodic"]["prefix_checks"], 1);
+            assert_eq!(output["execution"]["capture_completed"], false);
+            assert_eq!(output["properties"], json!(["P2", "P3"]));
+            assert_eq!(output["counterexample"]["validation"], "valid");
+            assert_eq!(counts(&output), json!([2, 2, 2, 1]));
+        }
+    }
+}

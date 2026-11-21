@@ -66,7 +66,7 @@ impl GraphCheck<'_> {
                 Ok(_registration) => analyze_native(
                     self.model,
                     &self.plans,
-                    1,
+                    self.d.prefix_properties,
                     graph,
                     read,
                     self.limits,

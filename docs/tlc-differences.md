@@ -775,6 +775,8 @@ See [temporal checking](user/temporal.md#ordinary-checking-in-the-tlc-profile).
 | **TLC behavior** | `--compat=tlc`: one check after exhaustion |
 | **Status** | default |
 
+`--lncheck periodic-all` searches every configured property on each due prefix in either profile. A later property can decide the run at an earlier level. The report gives the independently validated false-property set of that word and the actual partial counts.
+
 **What TLC does.** TLC checks liveness periodically on a wall-clock schedule,
 so where it stops depends on timing.
 
@@ -783,7 +785,7 @@ has at least 2^16 distinct states and at least twice as many as at the last
 check. All prefix checks together cost about one final check, smaller models
 are checked once at the end, and the schedule is the same at every worker
 count. An exhausted frontier gets only the final check. A prefix check never
-proves that a property holds, searches only the first configured property, and
+proves that a property holds, searches the first configured property by default, and
 reports a violation only after fresh validation, with the actual partial counts
 and `capture_completed: false`. Reports name the schedule and its growth,
 check, boundary and exhaustion facts. Capture limits are cumulative over the
