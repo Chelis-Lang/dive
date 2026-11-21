@@ -10,7 +10,7 @@ import sys
 import tempfile
 import tomllib
 
-from test_fragment import check_fragment
+from test_fragment import check_fragment, check_pair_truth
 
 SCRIPT = Path(__file__).resolve().with_name("check.py")
 ROOT = SCRIPT.parents[2]
@@ -99,6 +99,7 @@ def main():
     with tempfile.TemporaryDirectory() as temp:
         folder = Path(temp)
         check_fragment(folder, run, explicit, compare)
+        check_pair_truth(folder, args.exporter)
         edited = folder / "MCKVS.tla"
         edited.write_text(
             module.read_text().replace(
