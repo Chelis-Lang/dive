@@ -45,8 +45,9 @@ pub(crate) fn exhausted() -> bool {
     BUDGET.with(|b| !matches!(b.borrow().poll(), Ok(None)))
 }
 
-/// Optional WF columns retain at most one 256th of the requested memory budget.
-pub(crate) fn fairness_reuse_limit() -> usize {
+/// Each optional temporal buffer (WF columns or repeated product rows)
+/// can retain up to one 256th of the requested memory budget.
+pub(crate) fn optional_buffer_limit() -> usize {
     const MAX: usize = 16 * 1024 * 1024;
     BUDGET.with(|budget| {
         budget.borrow().memory.map_or(MAX, |bytes| {
@@ -80,7 +81,7 @@ pub(crate) fn expired_for_test() -> dive_runtime::budget::Watchdog {
 mod reuse_limit_tests {
     #[test]
     fn optional_columns_use_requested_memory_fraction_and_restore_scope() {
-        let original = super::fairness_reuse_limit();
+        let original = super::optional_buffer_limit();
         for (memory, expected) in [
             (None, 16 * 1024 * 1024),
             (Some(0), 0),
@@ -89,8 +90,8 @@ mod reuse_limit_tests {
         ] {
             let budget = dive_runtime::budget::Budget::new(None, memory);
             let _scope = super::enter(&budget);
-            assert_eq!(super::fairness_reuse_limit(), expected);
+            assert_eq!(super::optional_buffer_limit(), expected);
         }
-        assert_eq!(super::fairness_reuse_limit(), original);
+        assert_eq!(super::optional_buffer_limit(), original);
     }
 }

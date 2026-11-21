@@ -1,6 +1,6 @@
 //! Conjunctive recurrence conditions outside the temporal-memory tableau.
 
-use super::{Atom, Formula, Node};
+use super::{Atom, Formula, Literal, Node};
 use std::collections::BTreeSet;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -19,6 +19,7 @@ enum Boolean {
 pub(crate) struct Recurrence {
     nodes: Vec<Boolean>,
     root: usize,
+    literal: Option<Literal>,
 }
 
 impl Recurrence {
@@ -48,6 +49,9 @@ impl Recurrence {
         mut atom: impl FnMut(Atom) -> bool,
         values: &mut Vec<bool>,
     ) -> bool {
+        if let Some(literal) = self.literal {
+            return atom(literal.atom) == literal.positive;
+        }
         values.clear();
         for node in &self.nodes {
             let value = match node {
@@ -86,7 +90,30 @@ impl Recurrence {
         }
         let root = nodes.len();
         nodes.push(Boolean::Or(roots.iter().map(|i| mapped[*i]).collect()));
-        Some(Self { nodes, root })
+        // A single signed atom needs one packed truth read. Retain the original
+        // node list for domain validation and acceptance-budget accounting.
+        let literal = match roots {
+            [id] => match formula.nodes[*id] {
+                Node::Atom(atom) => Some(Literal {
+                    atom,
+                    positive: true,
+                }),
+                Node::Not(child) => match formula.nodes[child] {
+                    Node::Atom(atom) => Some(Literal {
+                        atom,
+                        positive: false,
+                    }),
+                    _ => None,
+                },
+                _ => None,
+            },
+            _ => None,
+        };
+        Some(Self {
+            nodes,
+            root,
+            literal,
+        })
     }
 }
 

@@ -58,6 +58,8 @@ in `options.workers`. The `core.temporal_workers` section of multiworker reports
 identifies source expansion. `serial_phases` lists the phases that use one
 thread when reached, including ordered commit and temporal analysis. See [workers and stores](checking.md#workers-and-stores).
 
+Fairness can make accepting-cycle search dominate the runtime. On Elevator Large, reusing shortest prefixes, reading single fairness literals directly and retaining small product rows brought wall time from **403.59 to 113.90 seconds**. Both runs exhausted 50,653 states at depth 39 and agreed on all 230,899 generated occurrences. The peak RSS moved from 121 to 129 MiB. Elevator Medium fell from 5.86–5.87 to 1.84–1.85 seconds. Large products continue to compute edges on demand. [Matched comparison, intermediate versions and controls](../../conformance/reports/perf/2026-11-21-fairness-product-search.json).
+
 Under `--compat=tlc`, temporal capture can use every requested worker when the
 model creates no names beyond its start-up name table. From a source checkout:
 

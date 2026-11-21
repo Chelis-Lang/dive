@@ -108,7 +108,7 @@ parity (ADR 0086). No count default is raised by the decomposition itself.
 
 ### 3. The behaviour graph, built by the deterministic search
 
-The graph is stored **once**, as the state graph labelled with atom bits. The product with each tableau is not stored. It is explored on the fly by the searches (§5, §6), with pure bit operations.
+The graph is stored **once**, as the state graph labelled with atom bits. The searches (§5, §6) can reconstruct every product edge from the topology and atom bits. When several fairness alternatives search the same product, they may retain a bounded copy of its ordered rows. The copy is optional, local to that product, and preserves the original edge labels. See [storage limits and comparison](../developer/core/11-liveness.md) and the [matched experiment](../../conformance/reports/perf/2026-11-21-fairness-product-search.json).
 
 **What is evaluated, and where in ADR 0015's phases:**
 

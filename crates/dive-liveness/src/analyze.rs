@@ -1523,7 +1523,7 @@ fn analyze_graph(
             && plans
                 .first()
                 .is_some_and(|plan| plan.frozen_prefix.is_some()),
-        crate::budget::fairness_reuse_limit(),
+        crate::budget::optional_buffer_limit(),
     );
     let result = (|| {
         for (p, prepared) in model.property_claims().iter().zip(plans).take(searched) {
@@ -1551,39 +1551,35 @@ fn analyze_graph(
             )?;
             *stage = Stage::Product;
             for group in &prepared.groups {
-                // The product's vertices are retained and its
-                // edges are recomputed by each search walk, never stored.
                 let product =
                     ImplicitProduct::new(graph, &group.tableau, &labels, limits.product, policy)
                         .map_err(AnalysisError::Product)?;
-                for conditions in &group.alternatives {
-                    if let Some(lasso) = product
-                        .find_lasso_with_conditions(&labels, conditions)
-                        .map_err(AnalysisError::Product)?
-                    {
-                        let (states, _, edges) = original_word(captured, states, &lasso)?;
-                        *stage = Stage::Attribution;
-                        let properties = attribute(
-                            model,
-                            plans,
-                            &states,
-                            lasso.prefix.len(),
-                            limits.atom_cells,
-                            (control, evaluations),
-                        )?;
-                        if !properties.contains(&p.name) {
-                            return Err(AnalysisError::Inconsistent(
-                                "accepting candidate failed target-property attribution",
-                            ));
-                        }
-                        return Ok(Some(CandidateWord {
-                            target_property: p.name.clone(),
-                            properties,
-                            states,
-                            back_to: lasso.prefix.len(),
-                            edges,
-                        }));
+                if let Some(lasso) = product
+                    .find_lasso_in_alternatives(&labels, &group.alternatives)
+                    .map_err(AnalysisError::Product)?
+                {
+                    let (states, _, edges) = original_word(captured, states, &lasso)?;
+                    *stage = Stage::Attribution;
+                    let properties = attribute(
+                        model,
+                        plans,
+                        &states,
+                        lasso.prefix.len(),
+                        limits.atom_cells,
+                        (control, evaluations),
+                    )?;
+                    if !properties.contains(&p.name) {
+                        return Err(AnalysisError::Inconsistent(
+                            "accepting candidate failed target-property attribution",
+                        ));
                     }
+                    return Ok(Some(CandidateWord {
+                        target_property: p.name.clone(),
+                        properties,
+                        states,
+                        back_to: lasso.prefix.len(),
+                        edges,
+                    }));
                 }
             }
         }
