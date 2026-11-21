@@ -143,10 +143,9 @@ The checker verifies that assignments fit the proposed layout. A bound never sil
 initial state or successor.
 
 Use `INIT` and `NEXT`, or a safety `SPECIFICATION` of the form
-`Init /\ [][Next]_vars` covering every variable. The checker can reduce a
-full permutation group of up to six model values that occur as field indices
-or set members. It checks invariance of Init, each state constraint, each property and the complete
-multiset of guarded updates. Record-valued domains with symmetry, partial groups, temporal properties, fairness,
+`Init /\ [][Next]_vars` covering every variable. The checker supports finite permutation groups over up to six distinct model values, including separate proposer and acceptor groups. Values can occur in function indices, subsets, scalar fields and records. It first searches labeled states and then counts reachable symmetry classes and the generated witnesses per representative. Every enabled Init witness contributes before symmetry reduction.
+
+For record fields and compound groups, the checker verifies closure of the concrete finite domains, including functions with no varying output bits. It also verifies that each generator preserves Init, the constraint, the invariants and the full multiset of guarded updates. If it cannot establish equivariance for the encoded update it reports an explicit refusal. Temporal properties, fairness,
 action constraints, VIEW, stateful operations, substitutions and expressions
 outside the implemented fragment give an explicit refusal.
 
@@ -211,7 +210,7 @@ dive check PaxosLeaseChecked.tla --strategy symbolic --config PaxosLeaseBase.cfg
   --time-limit 30m --max-memory 6g --output json
 ```
 
-The checker emits a JSON row for each revision it checks. A refusal, error or exhausted budget ends the session. `refinement_rounds` counts binding and search attempts for the revision, `learned_members` counts coordinates in the final refined set layout, and `initial_hint_members` counts surviving coordinates supplied by the preceding revision. Stale coordinates drop out. If a warm layout fails or exceeds its bounds, the worker can restart cold within the original time budget. The 512-bit limit applies to every layout. Predicate transfer uses the ordinary symbolic strategy. Refining a wide domain with a configured symmetry group currently refuses. For modest explicit graphs, ordinary Core can be faster even when the refined symbolic search completes.
+The checker emits a JSON row for each revision it checks. A refusal, error or exhausted budget ends the session. `refinement_rounds` counts binding and search attempts for the revision, `learned_members` counts coordinates in the final refined set layout, and `initial_hint_members` counts surviving coordinates supplied by the preceding revision. Stale coordinates drop out. If a warm layout fails or exceeds its bounds, the worker can restart cold within the original time budget. The 512-bit limit applies to every layout. Predicate transfer uses the ordinary symbolic strategy. When symmetry is configured, retained set members include every image of each learned member under the group. For modest explicit graphs, ordinary Core can be faster even when the refined symbolic search completes.
 
 ### Finite initial choices
 
