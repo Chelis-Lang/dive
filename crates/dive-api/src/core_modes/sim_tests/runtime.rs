@@ -1,6 +1,6 @@
 //! An owned run context continues startup and restores its own installed host.
-//! The retired reference simulator then sampled this model's reached
-//! `RandomElement` reproducibly per seed; Core refuses it by name (#791, #910).
+//! Core samples this model's reached `RandomElement` from each trace's own
+//! stream (ADR 0162 §8); the constant's start-up draw is recorded once.
 #![allow(clippy::expect_used, reason = "bounded fixture and assertions")]
 
 use std::sync::Arc;
@@ -42,11 +42,14 @@ fn run(mode: RandomMode, seed: i64) {
         report.runtime_output,
         [] as [dive_eval::capture::Captured; 0]
     );
-    assert!(
-        matches!(report.outcome, Outcome::Unsupported(ref feature) if feature.contains("RandomElement")),
-        "{report:?}"
-    );
-    assert!(report.traces.is_empty());
+    assert!(matches!(report.outcome, Outcome::Sampled), "{report:?}");
+    assert_eq!(report.traces.len(), 2);
+    assert_eq!(runtime.startup_draws().len(), 1, "C <- Pick drew once");
+    for trace in &report.traces {
+        // Init and every step draw twice each.
+        assert_eq!(trace.draws.len(), trace.states.len());
+        assert!(trace.draws.iter().all(|(_, values)| values.len() == 2));
+    }
     assert!(Arc::ptr_eq(
         &host,
         &model.evaluator.host().expect("owned host restored")

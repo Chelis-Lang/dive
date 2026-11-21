@@ -152,6 +152,7 @@ fn held_action_query_matches_primary_and_validates_its_own_words() {
             properties: Vec::new(),
             concrete_closure: false,
             witnesses: Vec::new(),
+            draws: Vec::new(),
         };
         let mut bad_init = genuine.clone();
         bad_init.states[0] = Arc::from([Some(99.into())]);

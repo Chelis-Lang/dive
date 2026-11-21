@@ -1,6 +1,4 @@
 //! Random Init keeps nested ENABLED successor semantics and independent replay.
-#[path = "support/refused.rs"]
-mod refused;
 use dive_api::SimulateRequest;
 use dive_api::trace::{Check, SpecModel, TraceDoc, TraceOptions, Validation};
 use serde_json::json;
@@ -39,13 +37,17 @@ Safe == x \in {0,1}
                 traces: 2,
                 ..Default::default()
             };
-            // Only the retired reference engine sampled this draw (#791, #910).
-            let report = dive_api::simulate_file(&request)?;
-            refused::assert_refused(
-                &report.to_json(),
-                report.exit_code(),
-                refused::FINITE_RANDOM,
-            );
+            // Init draws per trace (ADR 0162 §8); Next keeps the nested
+            // ENABLED query, and each trace validates independently.
+            let report = dive_api::simulate_file(&request)?.to_json();
+            assert_eq!(report["result"], "sampled", "{report}");
+            for trace in report["traces"].as_array().into_iter().flatten() {
+                assert_eq!(trace["validation"]["result"], "valid", "{trace}");
+                assert_eq!(
+                    trace["document"]["states"].as_array().map(Vec::len),
+                    Some(4)
+                );
+            }
             let fresh = SpecModel::from_source(
                 "RandomNested.tla",
                 source,
@@ -80,7 +82,8 @@ Safe == x \in {0,1}
             assert!(
                 refused["message"]
                     .as_str()
-                    .is_some_and(|s| s.contains("RandomElement"))
+                    .is_some_and(|s| s.contains("RandomElement (inside ENABLED")),
+                "{refused}"
             );
             std::fs::write(&file, source)?;
         }

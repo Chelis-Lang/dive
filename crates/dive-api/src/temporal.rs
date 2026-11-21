@@ -859,6 +859,7 @@ fn validate_row(
         properties: Vec::new(),
         concrete_closure: false,
         witnesses: Vec::new(),
+        draws: Vec::new(),
     };
     let cause = state.core_cause().ok_or_else(|| {
         (

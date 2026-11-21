@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- `dive simulate` samples specs that use [`RandomElement` in `Init` or `Next`](docs/user/simulation.md#random-choices). Each trace draws from its own seeded stream, the same at any worker count, and the trace records its draws, which validation checks against each set. A step whose draws give no successor is drawn again rather than reported as a deadlock. Draws in invariants or inside `ENABLED` refuse by name.
+
 - Exact safety searches can report [orbit sizes and labeled-state counts](docs/user/checking.md#count-labeled-states-under-symmetry) when the specification declares symmetry.
 
 - Core [reclaims wide resident frontiers](docs/user/storage-recovery.md) faster when adjacent states share variable values.

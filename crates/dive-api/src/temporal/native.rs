@@ -142,6 +142,7 @@ fn validate_word(
         properties: word.properties.clone(),
         concrete_closure: false,
         witnesses: Vec::new(),
+        draws: Vec::new(),
     };
     let report = dive_trace::validate_controlled(&model, &trace, control.clone())
         .map_err(|error| interrupted(&control, error))?;

@@ -1,0 +1,617 @@
+{
+ "oracle": "tlc-2026.10.06.014338",
+ "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+ "java_version": "openjdk version \"17.0.20.1\" 2026-08-18",
+ "reason": "Initial TLC controls for random operators in simulation (ADR 0162 section 8)",
+ "captured_at": "2026-11-21T13:28:35+00:00",
+ "sources": {
+  "RndConfigured.tla": "603c7c3babf317f6191ae0d8c2bff4b1bab80afe6b96ef1834f7299fb5007397",
+  "RndConst.tla": "f35a1f27b25b2c41f8d6c7e660af0a43c682d5d5614f2297fef310303bedb121",
+  "RndDeadlock.tla": "57419d9b0a36490d71f4261a4c2cd1cb13c6d083b5115148cbc7d987feeaf6dd",
+  "RndEnabled.tla": "90fb594b0e2efca2dc9fd508d20c4e34b8a3c7bb19d20b5f070f8e6fce003ddb",
+  "RndExists.tla": "3ce9cc44c2ea5866e7db3b58aa24b27f41cb5bba5a105c1d8e214ba747a4ee52",
+  "RndInit.tla": "d2e06a34bd838c5ccab2a03b0d6a5837a906c85d15e099ffd72dff9f4b1e822b",
+  "RndInvariant.tla": "aabb19a471e2c45920952bf34ba54286e1bbac8ea8c594c30dd8866567e93d13",
+  "RndNext.tla": "4995655d3c9decb94eec708c57ac5388dcb724d43d5c9894c7ae4ddbf3759679",
+  "RndSetOfSubsets.tla": "f95f4c91a00fcf5b1a3ee654113b100b7510f6c9fc4e73b19cb2a8c5a347a3d1",
+  "RndSubset.tla": "b371d99c11fe81f1526986dac2f4193b5049005bc6f4bf6f976529a16d47d7c7",
+  "RndSubsetNegative.tla": "a052f8887c7685df8c661db3dd49b5c90f936312b0b78740843eab5046379bb0"
+ },
+ "cases": [
+  {
+   "id": "N1",
+   "module": "RndNext",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "3",
+    "-simulate",
+    "num=2,file=FILE"
+   ],
+   "shows": "RandomElement in Next draws a fresh value at every step of every trace",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "generated": 7,
+   "traces": [
+    [
+     "x = 0",
+     "x = 730968",
+     "x = 240537",
+     "x = 637418"
+    ],
+    [
+     "x = 0",
+     "x = 550438",
+     "x = 597546",
+     "x = 333219"
+    ]
+   ],
+   "stdout_sha256": "c789cccdd1f8e051ad932475f05d99024833656fc1111f13899710181940b2b1",
+   "stderr_empty": true
+  },
+  {
+   "id": "N2",
+   "module": "RndNext",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "7",
+    "-depth",
+    "3",
+    "-simulate",
+    "num=2,file=FILE"
+   ],
+   "shows": "another seed",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "generated": 7,
+   "traces": [
+    [
+     "x = 0",
+     "x = 730700",
+     "x = 749170",
+     "x = 348310"
+    ],
+    [
+     "x = 0",
+     "x = 897278",
+     "x = 708178",
+     "x = 351915"
+    ]
+   ],
+   "stdout_sha256": "a4b5db7a67d6a0e1c7cca11b4c42cd207e82f78f18ea49c5080d793b0d0ea346",
+   "stderr_empty": true
+  },
+  {
+   "id": "I1",
+   "module": "RndInit",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "2",
+    "-simulate",
+    "num=3,file=FILE"
+   ],
+   "shows": "RandomElement in Init is drawn once, when Init is enumerated: every trace starts in the same state",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "generated": 7,
+   "traces": [
+    [
+     "x = 730968",
+     "x = 730969",
+     "x = 730970"
+    ],
+    [
+     "x = 730968",
+     "x = 730969",
+     "x = 730970"
+    ],
+    [
+     "x = 730968",
+     "x = 730969",
+     "x = 730970"
+    ]
+   ],
+   "stdout_sha256": "f810e58f0a5c488ca89b142052fc6e72a118cd7a28b4f914560c43ccb034e72f",
+   "stderr_empty": true
+  },
+  {
+   "id": "E1",
+   "module": "RndExists",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "3",
+    "-simulate",
+    "num=2,file=FILE"
+   ],
+   "shows": "one draw per existential binding; the successor is chosen among them",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "generated": 7,
+   "traces": [
+    [
+     "x = 0",
+     "x = 7312",
+     "x = 2411",
+     "x = 6382"
+    ],
+    [
+     "x = 0",
+     "x = 5512",
+     "x = 5982",
+     "x = 3342"
+    ]
+   ],
+   "stdout_sha256": "2d14de8188edf6ee2d5a2d48a2391cda7a1dab55ee1a2b4c66dad44976c182cc",
+   "stderr_empty": true
+  },
+  {
+   "id": "D1",
+   "module": "RndDeadlock",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20,file=FILE"
+   ],
+   "shows": "a step whose draw disables Next is reported as a deadlock (2114)",
+   "exit": 11,
+   "deciding": [
+    {
+     "code": 2114,
+     "message": "Deadlock reached."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 2"
+   ],
+   "generated": 26,
+   "traces": [],
+   "stdout_sha256": "1e8d02b9b027638e5419976c8941b863d7dcd9bc0e4d082b125cd125bc02fcdd",
+   "stderr_empty": true
+  },
+  {
+   "id": "D2",
+   "module": "RndDeadlock",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe\nCHECK_DEADLOCK FALSE",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20,file=FILE"
+   ],
+   "shows": "without deadlock checking, the trace ends at that step",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "generated": 26,
+   "traces": [
+    [
+     "x = 0",
+     "x = 2"
+    ],
+    [
+     "x = 0",
+     "x = 2"
+    ],
+    [
+     "x = 0"
+    ],
+    [
+     "x = 0",
+     "x = 2"
+    ],
+    [
+     "x = 0"
+    ],
+    [
+     "x = 0"
+    ],
+    [
+     "x = 0"
+    ],
+    [
+     "x = 0",
+     "x = 2"
+    ],
+    [
+     "x = 0",
+     "x = 2"
+    ],
+    [
+     "x = 0",
+     "x = 2"
+    ],
+    [
+     "x = 0",
+     "x = 2"
+    ],
+    [
+     "x = 0"
+    ],
+    [
+     "x = 0",
+     "x = 2"
+    ],
+    [
+     "x = 0"
+    ],
+    [
+     "x = 0"
+    ],
+    [
+     "x = 0"
+    ],
+    [
+     "x = 0"
+    ],
+    [
+     "x = 0"
+    ],
+    [
+     "x = 0",
+     "x = 2"
+    ],
+    [
+     "x = 0"
+    ]
+   ],
+   "stdout_sha256": "25089f9fb3eebd47b18eb2949b1b622a0b3dd82fa8dbf42dd8a307f208c5db00",
+   "stderr_empty": true
+  },
+  {
+   "id": "S1",
+   "module": "RndSubset",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe\nCONSTANT K = 2",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "3",
+    "-simulate",
+    "num=2,file=FILE"
+   ],
+   "shows": "RandomSubset in Init (drawn once) and Next (k elements)",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "generated": 9,
+   "traces": [
+    [
+     "s = {3}",
+     "s = {5, 6}",
+     "s = {5, 10}",
+     "s = {1, 9}"
+    ],
+    [
+     "s = {3, 4}",
+     "s = {2, 3}",
+     "s = {1, 3}",
+     "s = {6, 8}"
+    ]
+   ],
+   "stdout_sha256": "28dc6bb3d44084aca98d62a957c4d3dcfa714a0f303d6ebb730db3ae62130d9c",
+   "stderr_empty": true
+  },
+  {
+   "id": "S2",
+   "module": "RndSubset",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe\nCONSTANT K = 12",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "2",
+    "-simulate",
+    "num=1,file=FILE"
+   ],
+   "shows": "RandomSubset(k, S) with k > Cardinality(S) is all of S",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "generated": 5,
+   "traces": [
+    [
+     "s = {3}",
+     "s = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}"
+    ]
+   ],
+   "stdout_sha256": "69661594cd9a60f6947cd672f6adea84bc233a60848e58c098f0304d8d879443",
+   "stderr_empty": true
+  },
+  {
+   "id": "S3",
+   "module": "RndSubset",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe\nCONSTANT K = 0",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "2",
+    "-simulate",
+    "num=1,file=FILE"
+   ],
+   "shows": "RandomSubset(0, S) is the empty set",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "generated": 5,
+   "traces": [
+    [
+     "s = {3}",
+     "s = {}"
+    ]
+   ],
+   "stdout_sha256": "65970b7b39fa7ba857946dae3d3cf9a5cfcec1718e3fe23bddfd8b723e753018",
+   "stderr_empty": true
+  },
+  {
+   "id": "S4",
+   "module": "RndSubsetNegative",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "2",
+    "-simulate",
+    "num=1,file=FILE"
+   ],
+   "shows": "RandomSubset with a negative count is an evaluation error",
+   "exit": 255,
+   "deciding": [
+    {
+     "code": 2154,
+     "message": "Attempted to apply the operator overridden by the Java method public static tlc2.value.impl.Value tlc2.module.Randomization.RandomSubset(tlc2.value.impl.Value,tlc2.value.impl.Value), but it produced the following error: -1"
+    }
+   ],
+   "counterexample": [
+    "s = {}"
+   ],
+   "generated": null,
+   "traces": [],
+   "stdout_sha256": "27f90e13d85dcde52205dc170897be526e871f5e238f0859ccbd2f154bb18d91",
+   "stderr_empty": true
+  },
+  {
+   "id": "R1",
+   "module": "RndSetOfSubsets",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "3",
+    "-simulate",
+    "num=2,file=FILE"
+   ],
+   "shows": "RandomSetOfSubsets in Next",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "generated": 7,
+   "traces": [
+    [
+     "s = {}",
+     "s = {{2}, {1, 2}, {1, 2, 3, 4}}",
+     "s = {{}, {2}, {4, 5}}",
+     "s = {{4}, {4, 5}, {1, 2, 3, 4}}"
+    ],
+    [
+     "s = {}",
+     "s = {{2}, {5}, {1, 4, 5}}",
+     "s = {{}, {1, 2, 3, 4}}",
+     "s = {{5}, {1, 3, 4}, {1, 3, 4, 5}}"
+    ]
+   ],
+   "stdout_sha256": "e70be815b96ea3f907b7dffc0e21e9f7806122e798c80ea572ff340d9019518b",
+   "stderr_empty": true
+  },
+  {
+   "id": "V1",
+   "module": "RndInvariant",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "4",
+    "-simulate",
+    "num=5,file=FILE"
+   ],
+   "shows": "RandomElement in an invariant draws on every check",
+   "exit": 12,
+   "deciding": [
+    {
+     "code": 2110,
+     "message": "Invariant Safe is violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1"
+   ],
+   "generated": 9,
+   "traces": [],
+   "stdout_sha256": "d0ae879d8a188183b8622869df209bf746ab35ac7060ea1d7b48734f06a260a7",
+   "stderr_empty": true
+  },
+  {
+   "id": "B1",
+   "module": "RndEnabled",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "4",
+    "-simulate",
+    "num=5,file=FILE"
+   ],
+   "shows": "RandomElement inside ENABLED",
+   "exit": 11,
+   "deciding": [
+    {
+     "code": 2114,
+     "message": "Deadlock reached."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1"
+   ],
+   "generated": 8,
+   "traces": [],
+   "stdout_sha256": "ffd852144dfeee1c3a5f10fc2294dfec4f991c66f556e2dccf2b64a7347d7316",
+   "stderr_empty": true
+  },
+  {
+   "id": "C1",
+   "module": "RndConst",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "2",
+    "-simulate",
+    "num=3,file=FILE"
+   ],
+   "shows": "a constant-level definition draws once at start-up",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "generated": 7,
+   "traces": [
+    [
+     "x = 730968"
+    ],
+    [
+     "x = 730968"
+    ],
+    [
+     "x = 730968"
+    ]
+   ],
+   "stdout_sha256": "9dfe7ad626648c8596f93e40ade860fe81e08b09bcd89d3982a37a2918282615",
+   "stderr_empty": true
+  },
+  {
+   "id": "C2",
+   "module": "RndConst",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe\nVIEW View",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "2",
+    "-simulate",
+    "num=3,file=FILE"
+   ],
+   "shows": "the same with a VIEW",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "generated": 7,
+   "traces": [
+    [
+     "x = 730968"
+    ],
+    [
+     "x = 730968"
+    ],
+    [
+     "x = 730968"
+    ]
+   ],
+   "stdout_sha256": "4f87cb7954526ff45333ddd458266eca11c529264f1ae89b2964aecffe2c4a73",
+   "stderr_empty": true
+  },
+  {
+   "id": "C3",
+   "module": "RndConfigured",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Safe\nCONSTANT C <- Pick",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-depth",
+    "4",
+    "-simulate",
+    "num=2,file=FILE"
+   ],
+   "shows": "a constant configured with C <- Pick names Pick's body, which draws again at every use",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "generated": 9,
+   "traces": [
+    [
+     "x = 240537",
+     "x = 730968",
+     "x = 240537",
+     "x = 637418",
+     "x = 550438"
+    ],
+    [
+     "x = 240537",
+     "x = 597546",
+     "x = 333219",
+     "x = 385190",
+     "x = 984842"
+    ]
+   ],
+   "stdout_sha256": "fe25d3088e2d70015e3b3aaea45d0ac25f24cc8d4edb89b2fb14172e72ea06e9",
+   "stderr_empty": true
+  }
+ ]
+}

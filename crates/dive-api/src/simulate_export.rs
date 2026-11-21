@@ -73,6 +73,8 @@ pub(crate) struct TraceDir<'a> {
     dir: PathBuf,
     format: TraceFormat,
     spec: &'a SpecModel,
+    /// The run, whose start-up draws every document records.
+    runtime: &'a dive_sim::Runtime,
     control: Arc<dyn dive_eval::HostControl>,
     stop: &'a (dyn Fn() -> bool + Sync),
     /// Written to a temporary file, not yet committed.
@@ -93,6 +95,7 @@ impl<'a> TraceDir<'a> {
         dir: &Path,
         format: TraceFormat,
         spec: &'a SpecModel,
+        runtime: &'a dive_sim::Runtime,
         control: Arc<dyn dive_eval::HostControl>,
         stop: &'a (dyn Fn() -> bool + Sync),
     ) -> Result<Self, String> {
@@ -121,6 +124,7 @@ impl<'a> TraceDir<'a> {
             dir: dir.to_owned(),
             format,
             spec,
+            runtime,
             control,
             stop,
             pending: Mutex::new(BTreeSet::new()),
@@ -249,13 +253,16 @@ impl TraceDir<'_> {
 impl crate::core_modes::sample::TraceExport for TraceDir<'_> {
     fn write(&self, trace: &dive_sim::Trace, deciding: Option<&Outcome>) -> Result<(), Outcome> {
         let model = self.spec.model();
-        let source = SimStates::new(model, trace, self.stop);
-        let header = source.header(deciding.map_or(dive_trace::Ending::Behavior, |outcome| {
-            crate::simulate_traces::deciding_ending(outcome, trace)
-        }));
+        let startup = self.runtime.startup_draws();
+        let source = SimStates::new(model, trace, &startup, self.stop);
         let refused = |what: &str, why: String| {
             Outcome::Unsupported(format!("--trace-dir trace {}: {what}: {why}", trace.id))
         };
+        let header = source
+            .header(deciding.map_or(dive_trace::Ending::Behavior, |outcome| {
+                crate::simulate_traces::deciding_ending(outcome, trace)
+            }))
+            .map_err(|why| refused("a start-up draw", why))?;
         // Every state must have a JSON form before validation reads it.
         dive_trace::stream::write_document(
             &header,

@@ -111,6 +111,7 @@ fn a_deadlock_claim_with_a_real_successor_is_not_validated() {
         properties: vec![],
         concrete_closure: false,
         witnesses: Vec::new(),
+        draws: Vec::new(),
     };
     let report = dive_trace::validate(&model, &trace);
     assert!(

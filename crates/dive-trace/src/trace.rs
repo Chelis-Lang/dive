@@ -44,6 +44,9 @@ pub struct Trace {
     /// Recorded existential witnesses per state ([`TraceDoc::witnesses`]):
     /// empty, or one list per state.
     pub witnesses: Vec<Vec<Value>>,
+    /// Recorded draws of random operators per state ([`TraceDoc::draws`]):
+    /// empty, or one list per state.
+    pub draws: Vec<Vec<Value>>,
 }
 
 /// The model's variable names, by [`dive_ir::VarId`].
@@ -104,18 +107,23 @@ impl Trace {
                 })?;
             states.push(state);
         }
-        let mut witnesses = Vec::with_capacity(doc.witnesses.len());
-        for (k, values) in doc.witnesses.iter().enumerate() {
-            let values = values
-                .iter()
-                .map(|j| value_json::from_json(j, &model.names, ctx))
-                .collect::<Result<Vec<_>, _>>()
-                .map_err(|detail| ShapeError {
-                    state: Some(k),
-                    detail: format!("a witness: {detail}"),
-                })?;
-            witnesses.push(values);
-        }
+        let lists = |lists: &[Vec<J>], what: &str| -> Result<Vec<Vec<Value>>, ShapeError> {
+            let mut out = Vec::with_capacity(lists.len());
+            for (k, values) in lists.iter().enumerate() {
+                let values = values
+                    .iter()
+                    .map(|j| value_json::from_json(j, &model.names, ctx))
+                    .collect::<Result<Vec<_>, _>>()
+                    .map_err(|detail| ShapeError {
+                        state: Some(k),
+                        detail: format!("{what}: {detail}"),
+                    })?;
+                out.push(values);
+            }
+            Ok(out)
+        };
+        let witnesses = lists(&doc.witnesses, "a witness")?;
+        let draws = lists(&doc.draws, "a draw")?;
         Ok(Self {
             states,
             labels: doc.labels.clone(),
@@ -124,6 +132,7 @@ impl Trace {
             properties: doc.properties.clone(),
             concrete_closure: doc.concrete_closure,
             witnesses,
+            draws,
         })
     }
 
@@ -154,6 +163,7 @@ impl Trace {
         let mut states = Vec::with_capacity(n);
         let mut labels = Vec::with_capacity(n);
         let mut witnesses: Vec<Vec<Value>> = Vec::new();
+        let mut draws: Vec<Vec<Value>> = Vec::new();
         let mut failure = None;
         let produced = source.states(&mut |state| {
             let k = states.len();
@@ -169,19 +179,20 @@ impl Trace {
                 }
             }
             labels.push(state.label);
-            if !state.witnesses.is_empty() {
-                match state
-                    .witnesses
-                    .iter()
-                    .map(read)
-                    .collect::<Result<Vec<_>, _>>()
-                {
+            for (given, list, what) in [
+                (&state.witnesses, &mut witnesses, "a witness"),
+                (&state.draws, &mut draws, "a draw"),
+            ] {
+                if given.is_empty() {
+                    continue;
+                }
+                match given.iter().map(read).collect::<Result<Vec<_>, _>>() {
                     Ok(values) => {
-                        witnesses.resize(n.max(k + 1), Vec::new());
-                        witnesses[k] = values;
+                        list.resize(n.max(k + 1), Vec::new());
+                        list[k] = values;
                     }
                     Err(detail) => {
-                        let detail = format!("a witness: {detail}");
+                        let detail = format!("{what}: {detail}");
                         failure = Some(ShapeError {
                             state: Some(k),
                             detail: detail.clone(),
@@ -213,6 +224,7 @@ impl Trace {
             properties: header.properties.clone(),
             concrete_closure: header.concrete_closure,
             witnesses,
+            draws,
         })
     }
 
@@ -232,11 +244,14 @@ impl Trace {
             }
             states.push(m);
         }
-        let witnesses = self
-            .witnesses
-            .iter()
-            .map(|values| values.iter().map(|v| value_json::to_json(v, ctx)).collect())
-            .collect::<Result<Vec<Vec<J>>, String>>()?;
+        let json = |lists: &[Vec<Value>]| {
+            lists
+                .iter()
+                .map(|values| values.iter().map(|v| value_json::to_json(v, ctx)).collect())
+                .collect::<Result<Vec<Vec<J>>, String>>()
+        };
+        let witnesses = json(&self.witnesses)?;
+        let draws = json(&self.draws)?;
         Ok(TraceDoc {
             variables: vars,
             states,
@@ -247,6 +262,8 @@ impl Trace {
             properties: self.properties.clone(),
             concrete_closure: self.concrete_closure,
             witnesses,
+            draws,
+            startup_draws: Vec::new(),
         })
     }
 }

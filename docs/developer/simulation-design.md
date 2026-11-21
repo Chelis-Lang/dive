@@ -536,8 +536,8 @@ prefix of ids, which is the same at any `W` for a given stopping id.
 
 ## 8. Random operators in Init and Next
 
-Today `check_finite_access` (`dive-core/src/eval.rs`) refuses `RandomElement`
-in finite modes because the machine has no draw stream. #910 tracks the gap;
+Before this work `check_finite_access` (`dive-core/src/eval.rs`) refused
+`RandomElement` in finite modes because the machine had no draw stream. #910 tracks the gap;
 its recent comments list the finite-simulation refusals, and the last change
 to `eval.rs` on main is the documentation pass of #994. This section is a proposal to
 coordinate with whoever owns #910, not a change to `eval.rs` in this design.
@@ -568,6 +568,35 @@ coordinate with whoever owns #910, not a change to `eval.rs` in this design.
   owner.
 - **VIEW and SYMMETRY.** With no fingerprints in simulation, randomness under
   VIEW or SYMMETRY needs nothing extra.
+
+As built (RandomElement): draws come from
+`Streams::simulation_random(trace, step, action, attempt)`, a stream separate
+from the choice and S6 streams, so a spec that draws nothing samples exactly
+what it sampled before. `check_finite_access` admits the random operators
+only while a draw stream is installed, which only simulation does; `dive
+check` is unchanged. The machine logs each value drawn (`Machine::random_log`)
+and the chosen candidate's draws go into the trace (`dive_sim::Trace::draws`,
+per-state `draws` in the document). Start-up draws (constant definitions,
+`ASSUME`s) are recorded by the simulation host while binding and written as
+the document's `startup_draws`; once sampling starts, a draw by the reference
+evaluator (an `ALIAS`, a temporal atom) refuses by name. Init with a draw is
+detected by the S6 probe and enumerated per trace, so Init draws per trace,
+where TLC draws once per run (D-044). A step whose draws admit nothing is
+drawn again (S6's attempts) and never reported as a deadlock. Draws in state
+checks (invariants, constraints, implied properties) and inside `ENABLED`
+refuse by name, since one draw cannot decide them.
+
+The validator treats recorded draws as untrusted hints
+(`dive-trace/src/choices.rs`, `draws.rs`): at each call, the step's recorded
+values that the validator's own evaluation shows to be members of the set
+are tried first, from the one after the last used, then the existing bounded
+enumeration; start-up values only reorder that enumeration. A trace is
+invalid only when no admitted value of any call reproduces it.
+`SpanTreeRandom` (D-002) validates in well under a second, because its six
+start-up subsets are found first. Remaining gaps, all named refusals:
+`RandomSubset`, `RandomSetOfSubsets` and `RandomSubsetSet` in simulation;
+temporal counterexamples through draws, whose lasso documents do not record
+draws yet (S3).
 
 ## 9. Large and unbounded domains
 

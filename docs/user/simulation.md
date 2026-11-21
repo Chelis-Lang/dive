@@ -59,9 +59,11 @@ states, counted in trace order.
 ## What a sample covers
 
 `Print` and `PrintT` run through captured operators, with their arguments,
-rendering and return values evaluated. A `RandomElement`, register,
-Randomization operator or other unsupported host effect refuses by name when
-the simulation reaches it; a branch that is never taken does not run it.
+rendering and return values evaluated. `RandomElement` in `Init` and `Next`
+draws from the trace's own stream (see [Random choices](#random-choices)). A
+register, a Randomization operator or another unsupported host effect refuses
+by name when the simulation reaches it; a branch that is never taken does not
+run it.
 
 `TLCGet("level")` returns what the pinned TLC simulator returns: 0 in `Init`,
 the state's 1-based position in its trace in invariants and `CONSTRAINT`s, and
@@ -365,15 +367,36 @@ limit and unsupported returns.
 
 ## Random choices
 
-Simulation refuses a reached `RandomElement` in `Init` or `Next` by name, with
-verdict `unsupported`:
+`RandomElement` in `Init` and `Next` draws from a stream keyed by the seed,
+the trace, the step, the action and the attempt:
 
 ```sh
-dive simulate crates/dive-sim/tests/fixtures/random-init/InitRandomNextBoundary.tla --compat=tlc --traces 2 --depth 3 --seed 7 --output json
+dive simulate crates/dive-sim/tests/fixtures/random-ops/RndNext.tla --traces 3 --depth 3 --seed 0 --output json
 ```
 
-Dive does not try to match TLC's individual random draws, in either profile.
-Reproduce a sample with the same seed, options and source.
+The same seed gives the same traces at any worker count, and `--trace-ids`
+regenerates any of them. `Init` draws for each trace, so traces can start in
+different states, and a `Print` in `Init` prints once per trace. TLC draws
+`Init` once per run ([D-044](../tlc-differences.md#d-044-randomelement-in-simulation)).
+A constant definition draws once at start-up. A configured `C <- Pick` names
+`Pick`'s body, so it draws again wherever `C` is used, as in TLC.
+
+Each state of a trace document lists the values its step drew under
+`draws`, and the document lists what start-up drew under `startup_draws`.
+Validation evaluates each set itself and accepts a recorded value only if it
+is a member, so a trace whose draws were edited fails validation.
+
+A draw is one value, never proof that no other value works:
+- A step whose draws give no successor draws again, up to eight attempts.
+  After that the trace stops and is counted in `traces_stalled`. It is never
+  reported as a deadlock, which TLC does.
+- A draw in an invariant, a constraint, an implied property or inside
+  `ENABLED` refuses by name, because its verdict would rest on one draw.
+- A temporal violation on a trace with draws refuses by name: its lasso
+  document does not record draws yet.
+
+`RandomSubset`, `RandomSetOfSubsets` and `RandomSubsetSet` refuse by name in
+simulation. Dive does not match TLC's individual draws in either profile.
 
 The file API creates the host for you. A low-level caller that binds source
 creates `dive_sim::Runtime::new(options)`, installs `runtime.host()` in
@@ -479,8 +502,8 @@ has every bench.
 ## Engine
 
 dive runs simulation with compiled Init, Next and predicates for finite safety
-models in either profile. What dive does not implement, such as random choices
-and registers, refuses by name. A refusal is not retried and does not repeat
+models in either profile. What dive does not implement, such as the
+Randomization operators and registers, refuses by name. A refusal is not retried and does not repeat
 output. JSON reports `engine: "core"`, `engine_requested` and
 `engine_fallback`, which is always `null`, and reports requested and used
 workers separately.

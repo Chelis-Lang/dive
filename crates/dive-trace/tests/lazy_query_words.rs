@@ -169,6 +169,7 @@ fn check_words(cases: &[(&str, &str, bool)]) {
                 properties: Vec::new(),
                 concrete_closure: false,
                 witnesses: Vec::new(),
+                draws: Vec::new(),
             };
             let mut bad_init = trace.clone();
             let mut forged = state;

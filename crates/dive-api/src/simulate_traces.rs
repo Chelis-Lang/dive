@@ -18,6 +18,8 @@ use serde_json::{Map, Value, json};
 pub(crate) struct SimStates<'a> {
     model: &'a dive_model::Model,
     trace: &'a dive_sim::Trace,
+    /// What start-up evaluation drew (`dive_sim::Runtime::startup_draws`).
+    startup: &'a [dive_value::Value],
     /// Variable names in document order, with their index in a state.
     names: Vec<(String, usize)>,
     /// Returns true once the run's budget is exhausted.
@@ -28,6 +30,7 @@ impl<'a> SimStates<'a> {
     pub(crate) fn new(
         model: &'a dive_model::Model,
         trace: &'a dive_sim::Trace,
+        startup: &'a [dive_value::Value],
         stop: &'a (dyn Fn() -> bool + Sync),
     ) -> Self {
         let mut names: Vec<(String, usize)> = model
@@ -41,17 +44,29 @@ impl<'a> SimStates<'a> {
         Self {
             model,
             trace,
+            startup,
             names,
             stop,
         }
     }
 
-    /// The document around these states: its variables and `ending`, and
-    /// for a lasso or stuttering word the properties false on it.
-    pub(crate) fn header(&self, ending: Ending) -> TraceDoc {
+    /// The document around these states: its variables, `ending` and
+    /// start-up draws, and for a lasso or stuttering word the properties
+    /// false on it.
+    ///
+    /// # Errors
+    /// A start-up draw with no JSON form.
+    pub(crate) fn header(&self, ending: Ending) -> Result<TraceDoc, String> {
+        let ctx = self.model.evaluator.options().ctx;
+        let startup = self
+            .startup
+            .iter()
+            .map(|value| dive_trace::value_json::to_json(value, ctx))
+            .collect::<Result<Vec<_>, _>>()?;
         let mut header = TraceDoc::behavior(Vec::new())
             .unwrap_or_else(|_| unreachable!("an empty behavior is a document"))
-            .with_ending(ending);
+            .with_ending(ending)
+            .with_startup_draws(startup);
         header.variables = self.names.iter().map(|(name, _)| name.clone()).collect();
         // A lasso's loop closes on equal states, which the validator then
         // checks whatever VIEW or SYMMETRY is declared (D-037).
@@ -62,7 +77,7 @@ impl<'a> SimStates<'a> {
                 .with_properties(properties.clone())
                 .with_concrete_closure();
         }
-        header
+        Ok(header)
     }
 
     /// The whole document of `header` and these states, held in memory.
@@ -73,10 +88,14 @@ impl<'a> SimStates<'a> {
             document.states.push(state.values);
             document.labels.push(state.label);
             document.witnesses.push(state.witnesses);
+            document.draws.push(state.draws);
             Ok(())
         })?;
         if document.witnesses.iter().all(Vec::is_empty) {
             document.witnesses.clear();
+        }
+        if document.draws.iter().all(Vec::is_empty) {
+            document.draws.clear();
         }
         Ok(document)
     }
@@ -145,26 +164,40 @@ impl StateSource for SimStates<'_> {
     fn states(&self, each: &mut dyn FnMut(Streamed) -> Result<(), String>) -> Result<(), String> {
         let ctx = self.model.evaluator.options().ctx;
         let mut drawn = self.trace.witnesses.iter().peekable();
+        let mut random = self.trace.draws.iter().peekable();
         for index in 0..self.trace.states.len() {
             if (self.stop)() {
                 return Err("run budget exhausted during trace serialization".to_owned());
             }
-            let mut witnesses = Vec::new();
-            while let Some((state, members)) = drawn.next_if(|(state, _)| *state <= index) {
-                if *state == index {
-                    for member in members {
-                        witnesses.push(dive_trace::value_json::to_json(member, ctx)?);
-                    }
-                }
-            }
+            let witnesses = values_at(&mut drawn, index, ctx)?;
+            let recorded = values_at(&mut random, index, ctx)?;
             each(Streamed {
                 values: self.values(index)?,
                 label: self.label(index),
                 witnesses,
+                draws: recorded,
             })?;
         }
         Ok(())
     }
+}
+
+/// The values `list` (state index, values; by increasing index) records
+/// for state `index`, in dive's JSON form, consuming the entries up to it.
+fn values_at(
+    list: &mut std::iter::Peekable<std::slice::Iter<'_, (usize, Vec<dive_value::Value>)>>,
+    index: usize,
+    ctx: dive_value::Ctx,
+) -> Result<Vec<Value>, String> {
+    let mut out = Vec::new();
+    while let Some((state, members)) = list.next_if(|(state, _)| *state <= index) {
+        if *state == index {
+            for member in members {
+                out.push(dive_trace::value_json::to_json(member, ctx)?);
+            }
+        }
+    }
+    Ok(out)
 }
 
 /// How `trace`, number `number` of the report, ends under the run's

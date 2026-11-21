@@ -25,9 +25,32 @@ fn native_random_steps_and_startup_have_reproducible_validated_samples() {
             traces: 2,
             ..Default::default()
         };
-        // Only the retired reference engine sampled RandomElement (#791, #910).
-        let first = simulate_file(&request).expect("simulation");
-        refused::assert_refused(&first.to_json(), first.exit_code(), refused::FINITE_RANDOM);
+        // ADR 0162 §8: each step draws from its own trace position, and
+        // the document records it. A configured `C <- Pick` names Pick's
+        // body, which TLC evaluates at every use (fixture `random-ops`, C3),
+        // so Init draws too; start-up's own evaluation of Pick is recorded
+        // as a start-up draw.
+        let first = simulate_file(&request).expect("simulation").to_json();
+        let again = simulate_file(&request).expect("simulation").to_json();
+        assert_eq!(
+            first["traces"], again["traces"],
+            "a seed reproduces its samples"
+        );
+        assert_eq!(first["result"], "sampled", "{first}");
+        for trace in first["traces"].as_array().expect("traces") {
+            assert_eq!(trace["validation"]["result"], "valid", "{trace}");
+            let document = &trace["document"];
+            let states = document["states"].as_array().expect("states");
+            assert_eq!(states.len(), 101);
+            let picked = &document["startup_draws"][0];
+            assert!(*picked == 0 || *picked == 1, "{document}");
+            let initial = &states[0]["values"]["x"];
+            assert!(*initial == 0 || *initial == 1, "{document}");
+            assert_eq!(states[0]["draws"], serde_json::json!([initial]));
+            for state in &states[1..] {
+                assert_eq!(state["draws"], serde_json::json!([state["values"]["x"]]));
+            }
+        }
     }
     check_action_contexts(&file);
     std::fs::write(&file,"---- MODULE Choices ----\nEXTENDS TLC\nVARIABLE x\nInit==x=TLCGet(\"config\").seed\nNext==UNCHANGED x\n====\n").expect("configuration source");

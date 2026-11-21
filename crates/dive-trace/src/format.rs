@@ -462,22 +462,36 @@ pub struct TraceDoc {
     /// a member of the set; with none that proves it, the `\E` stays
     /// unsupported.
     pub witnesses: Vec<Vec<J>>,
+    /// Values `RandomElement` and the `Randomization` operators drew for
+    /// the step into each state, in the order drawn (`"draws"` on a state;
+    /// for the first state, Init's draws), in dive's JSON form: empty, or one
+    /// list per state. Simulation records them (ADR 0162 §8). They carry no
+    /// trust: the validator uses a recorded value as an operator's result
+    /// only after checking it against its own evaluation of the operator's
+    /// arguments (a member of the set for `RandomElement`), and never
+    /// concludes from them that a step is invalid.
+    pub draws: Vec<Vec<J>>,
+    /// Values the constant definitions and `ASSUME`s drew at start-up, in
+    /// the order drawn (`"startup_draws"`). Like [`Self::draws`], they only
+    /// guide the validator's choice among the members of each set.
+    pub startup_draws: Vec<J>,
 }
 
-/// Each state's `"witnesses"`: empty when no state has any.
-fn state_witnesses(states: &[J]) -> Result<Vec<Vec<J>>, String> {
-    let mut witnesses = Vec::new();
+/// Each state's list under `key` (`"witnesses"`, `"draws"`): empty when no
+/// state has one.
+fn state_lists(states: &[J], key: &str) -> Result<Vec<Vec<J>>, String> {
+    let mut lists = Vec::new();
     for (k, s) in states.iter().enumerate() {
-        match s.get("witnesses") {
+        match s.get(key) {
             None | Some(J::Null) => {}
             Some(J::Array(values)) => {
-                witnesses.resize(states.len(), Vec::new());
-                witnesses[k].clone_from(values);
+                lists.resize(states.len(), Vec::new());
+                lists[k].clone_from(values);
             }
-            Some(_) => return Err(format!("state {k}: `witnesses` must be a list")),
+            Some(_) => return Err(format!("state {k}: `{key}` must be a list")),
         }
     }
-    Ok(witnesses)
+    Ok(lists)
 }
 
 /// Checks that a document's ending is one its version permits.
@@ -560,6 +574,8 @@ impl TraceDoc {
             properties: Vec::new(),
             concrete_closure: false,
             witnesses: Vec::new(),
+            draws: Vec::new(),
+            startup_draws: Vec::new(),
         })
     }
 
@@ -578,6 +594,33 @@ impl TraceDoc {
             self.witnesses.resize(self.states.len(), Vec::new());
             self.witnesses[state] = values;
         }
+        self
+    }
+
+    /// Records `values` as the draws of the step into state `state`
+    /// ([`Self::draws`]). Out of range does nothing.
+    ///
+    /// ```
+    /// use dive_trace::TraceDoc;
+    /// use serde_json::json;
+    /// let doc = TraceDoc::behavior(vec![json!({"x": 0}), json!({"x": 7})])?
+    ///     .with_draws(1, vec![json!(7)]);
+    /// assert_eq!(doc.to_json()["states"][1]["draws"], json!([7]));
+    /// # Ok::<(), String>(())
+    /// ```
+    #[must_use]
+    pub fn with_draws(mut self, state: usize, values: Vec<J>) -> Self {
+        if state < self.states.len() && !values.is_empty() {
+            self.draws.resize(self.states.len(), Vec::new());
+            self.draws[state] = values;
+        }
+        self
+    }
+
+    /// Records `values` as the start-up draws ([`Self::startup_draws`]).
+    #[must_use]
+    pub fn with_startup_draws(mut self, values: Vec<J>) -> Self {
+        self.startup_draws = values;
         self
     }
 
@@ -702,7 +745,13 @@ impl TraceDoc {
             .ok_or("`states` must be a list")?;
         let mut states = Vec::with_capacity(states_j.len());
         let mut labels = Vec::with_capacity(states_j.len());
-        let witnesses = state_witnesses(states_j)?;
+        let witnesses = state_lists(states_j, "witnesses")?;
+        let draws = state_lists(states_j, "draws")?;
+        let startup_draws = match j.get("startup_draws") {
+            None | Some(J::Null) => Vec::new(),
+            Some(J::Array(values)) => values.clone(),
+            Some(_) => return Err("`startup_draws` must be a list".to_owned()),
+        };
         for (k, s) in states_j.iter().enumerate() {
             let values = s
                 .get("values")
@@ -744,6 +793,8 @@ impl TraceDoc {
             properties: property_names(j)?,
             concrete_closure: closure_claim(j)?,
             witnesses,
+            draws,
+            startup_draws,
         })
     }
 
@@ -849,6 +900,8 @@ impl TraceDoc {
             properties: Vec::new(),
             concrete_closure: false,
             witnesses: Vec::new(),
+            draws: Vec::new(),
+            startup_draws: Vec::new(),
         })
     }
 
@@ -866,6 +919,7 @@ impl TraceDoc {
                     s,
                     l.as_ref(),
                     self.witnesses.get(k).map_or(&[][..], Vec::as_slice),
+                    self.draws.get(k).map_or(&[][..], Vec::as_slice),
                 )
             })
             .collect();
@@ -908,19 +962,30 @@ impl TraceDoc {
         if self.concrete_closure {
             j["closure"] = J::from("concrete");
         }
+        if !self.startup_draws.is_empty() {
+            j["startup_draws"] = J::Array(self.startup_draws.clone());
+        }
         j
     }
 }
 
 /// One state of a document in dive's JSON form, as [`TraceDoc::to_json`]
 /// writes it.
-pub(crate) fn state_json(values: &Map<String, J>, label: Option<&Label>, witnesses: &[J]) -> J {
+pub(crate) fn state_json(
+    values: &Map<String, J>,
+    label: Option<&Label>,
+    witnesses: &[J],
+    draws: &[J],
+) -> J {
     let mut state = json!({
         "action": label.map(|l| json!({"name": l.name, "location": l.location})),
         "values": values,
     });
     if !witnesses.is_empty() {
         state["witnesses"] = J::Array(witnesses.to_vec());
+    }
+    if !draws.is_empty() {
+        state["draws"] = J::Array(draws.to_vec());
     }
     state
 }

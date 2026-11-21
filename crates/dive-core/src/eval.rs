@@ -97,6 +97,13 @@ pub struct Machine {
     /// How many draws were made, which the engine reads to refuse a draw
     /// in a check.
     pub draws: u64,
+    /// Every value drawn since the engine last reset it, in order and
+    /// interned, when the engine records draws (simulation records them in
+    /// the trace document for the validator); `None` records nothing.
+    pub random_log: Option<Vec<Handle>>,
+    /// `ENABLED` queries being evaluated, innermost last: a simulation
+    /// stream refuses to draw inside one.
+    pub(crate) in_enabled: u32,
     /// Draws members of sets a generator cannot enumerate, in simulation
     /// only (`crate::unbounded`); `None` keeps the "not enumerable" error.
     pub unbounded: Option<crate::unbounded::Unbounded>,
@@ -260,6 +267,8 @@ impl Machine {
             checker_access: CheckerAccess::Full,
             draw: None,
             draws: 0,
+            random_log: None,
+            in_enabled: 0,
             unbounded: None,
             level: 0,
             conts: Vec::new(),
@@ -463,7 +472,10 @@ impl Machine {
             CheckerAccess::Level => op == dive_ir::StdOp::TlcTLCGet,
             CheckerAccess::Denied => false,
         };
+        // A finite mode that installed a draw stream (simulation) draws.
+        let drawn = self.draw.is_some() && crate::stdlib::random_op(op);
         if !allowed
+            && !drawn
             && op.impure()
             && !matches!(op, dive_ir::StdOp::TlcPrint | dive_ir::StdOp::TlcPrintT)
         {

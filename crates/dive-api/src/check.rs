@@ -1946,6 +1946,8 @@ impl CheckReport {
                         properties: Vec::new(),
                         concrete_closure: false,
                         witnesses: Vec::new(),
+                        draws: Vec::new(),
+                        startup_draws: Vec::new(),
                     };
                     doc["error_witness"] = witness.to_json();
                 }
@@ -2258,6 +2260,8 @@ fn trace_doc(
         properties: Vec::new(),
         concrete_closure: false,
         witnesses: Vec::new(),
+        draws: Vec::new(),
+        startup_draws: Vec::new(),
     };
     Ok(doc.to_json())
 }

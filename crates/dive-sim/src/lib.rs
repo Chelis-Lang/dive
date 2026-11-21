@@ -220,6 +220,12 @@ pub struct Trace {
     /// into a state, as (state index, members), for the states that have
     /// any. The validator uses them only to prove those existentials.
     pub witnesses: Vec<(usize, Vec<dive_value::Value>)>,
+    /// Values `RandomElement` and the `Randomization` operators drew for
+    /// the step into a state (for state 0, Init's), in the order drawn, as
+    /// (state index, values), for the states that have any. The validator
+    /// checks each value it uses against its own evaluation of the
+    /// operator's set (ADR 0162 §8).
+    pub draws: Vec<(usize, Vec<dive_value::Value>)>,
     /// For a temporal violation, how the word in `states` continues forever
     /// and the configured properties false on it, in configuration order.
     /// `None` for a finite sampled trace.
@@ -432,6 +438,21 @@ impl Runtime {
     /// Configuration remains unavailable during binding, as in ordinary TLC.
     pub fn set_config(&self, config: Option<dive_eval::RunConfig>) {
         self.host.set_config(config);
+    }
+
+    /// The values start-up evaluation (constant definitions, `ASSUME`s) drew
+    /// with `RandomElement`, in order: every trace document records them, so
+    /// the validator replays start-up with the same values.
+    #[must_use]
+    pub fn startup_draws(&self) -> Vec<dive_value::Value> {
+        self.host.startup_draws()
+    }
+
+    /// Ends start-up evaluation: once the backend samples traces, a draw by
+    /// the reference evaluator (whose stream every worker would share) is
+    /// refused by name. Core's draws come from each trace's own streams.
+    pub fn start_sampling(&self) {
+        self.host.start_sampling();
     }
 
     /// Runs an alternate finite backend under this same binding/runtime host.

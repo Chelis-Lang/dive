@@ -52,22 +52,21 @@ fn direct_captured_and_configured_prints_match_genuine_primary_words() {
             let report = dive_api::simulate_file(&req).expect("simulation");
             let result = report.to_json();
             check_print_statistics(&req, row, &result);
-            if row["native_scope"] == "unsupported" {
+            // `TLCSet` stays refused in simulation. The fixture's other
+            // `unsupported` row, a `RandomElement` step, now samples
+            // (ADR 0162 §8) and must agree with the oracle.
+            if name == "RuntimePrintRegister" {
+                assert_eq!(row["native_scope"], "unsupported");
                 assert_eq!(result["result"], "unsupported");
                 assert_eq!(result["violation_validated"], false);
                 assert_eq!(result["options"]["workers_used"], 1);
                 assert_eq!(texts(&result["runtime_output"]), ["0"]);
                 assert_eq!(result["statistics"]["scope"], "completed-prefix");
-                let refused = if name == "RuntimePrintRegister" {
-                    "TLCSet"
-                } else {
-                    "RandomElement"
-                };
                 assert!(
                     result["message"]
                         .as_str()
                         .expect("refusal")
-                        .contains(refused)
+                        .contains("TLCSet")
                 );
                 continue;
             }

@@ -1977,7 +1977,7 @@ impl Compiler<'_> {
         if let Node::Lib { op, .. } = &n {
             match op {
                 StdOp::TlcPrint | StdOp::TlcPrintT => self.effects.prints = true,
-                StdOp::TlcRandomElement => self.effects.draws = true,
+                op if crate::stdlib::random_op(*op) => self.effects.draws = true,
                 StdOp::TlcTLCSet => self.effects.registers = true,
                 _ => {}
             }

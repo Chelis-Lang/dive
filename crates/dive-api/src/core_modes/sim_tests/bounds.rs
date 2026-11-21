@@ -465,20 +465,25 @@ fn basic_action_flows_keep_standard_operator_action_names() {
 }
 
 #[test]
-fn reached_randomness_is_a_named_refusal_when_sampling_reaches_it() {
-    // The retired reference simulator seeded RandomElement here (4 generated,
-    // 3 sampled successors in {1, 2}); Core refuses it by name when reached.
+fn reached_randomness_samples_and_records_each_step_draw() {
+    // ADR 0162 §8: each step draws from its own position's stream, and the
+    // trace records the draw beside the state it produced.
     let source = "---- MODULE M ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x = 0\nNext == x' = RandomElement({1, 2})\n====\n";
     let report = run(
         source,
         "INIT Init\nNEXT Next\n",
         &Options::new(0, RandomMode::Tlc, 3, 1),
     );
-    assert!(
-        matches!(report.outcome, Outcome::Unsupported(ref feature) if feature.contains("RandomElement")),
-        "{report:?}"
-    );
+    assert!(matches!(report.outcome, Outcome::Sampled), "{report:?}");
     assert_eq!(report.stage, "sampling");
-    assert_eq!(report.generated, 1);
+    assert_eq!(report.generated, 4);
     assert_eq!(report.runtime_output.len(), 0);
+    assert_eq!(report.traces.len(), 1, "{report:?}");
+    let trace = &report.traces[0];
+    assert_eq!(trace.draws.len(), 3);
+    for (step, values) in &trace.draws {
+        assert_eq!(values.len(), 1);
+        assert_eq!(Some(&values[0]), trace.states[*step][0].as_ref());
+        assert!(matches!(values[0], dive_value::Value::Int(1 | 2)));
+    }
 }

@@ -456,6 +456,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
                 dir,
                 req.trace_format,
                 &model,
+                &runtime,
                 control.clone(),
                 &stop,
             )
@@ -578,16 +579,23 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
     let sampled = std::mem::take(&mut result.traces);
     let mut traces = Vec::<crate::simulate_traces::Written>::new();
     let mut verdicts = Vec::<TraceVerdict>::new();
+    let startup = runtime.startup_draws();
     for (number, trace) in sampled.into_iter().enumerate() {
         if stop() {
             break;
         }
-        let source = crate::simulate_traces::SimStates::new(model.model(), &trace, &stop);
-        let header = source.header(crate::simulate_traces::ending(
+        let source = crate::simulate_traces::SimStates::new(model.model(), &trace, &startup, &stop);
+        let header = match source.header(crate::simulate_traces::ending(
             &result.outcome,
             number,
             &trace,
-        ));
+        )) {
+            Ok(header) => header,
+            Err(feature) => {
+                trace_refusal = Some(format!("simulation start-up draw serialization: {feature}"));
+                break;
+            }
+        };
         let alias = model
             .model()
             .alias

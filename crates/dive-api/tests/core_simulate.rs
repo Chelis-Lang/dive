@@ -105,17 +105,16 @@ fn direct_captured_and_configured_prints_keep_actual_output() -> Result {
             let native = simulate_file(&request)?.to_json();
             checked(&native);
             if name == "RuntimePrintConditional" {
-                // Only the retired reference engine sampled this RandomElement
-                // step (#791, #910); Core refuses it by name.
-                assert_eq!(native["result"], "unsupported");
-                assert!(
-                    native["message"]
-                        .as_str()
-                        .is_some_and(|message| message.contains("RandomElement"))
+                // The RandomElement step samples (ADR 0162 §8): `x` reaches
+                // 2 on the first trace and violates `Safe`, as in TLC.
+                assert_eq!(native["result"], "violation");
+                assert_eq!(native["observed_violation"]["name"], "Safe");
+                assert_eq!(native["violation_validated"], true);
+                assert_eq!(native["statistics"]["generated"], 3);
+                assert_eq!(
+                    native["traces"][0]["document"]["states"][2]["draws"],
+                    serde_json::json!([true])
                 );
-                assert_eq!(native["statistics"]["generated"], 2);
-                assert_eq!(native["statistics"]["scope"], "completed-prefix");
-                assert_eq!(native["violation_validated"], false);
                 agreed::check_eq(
                     AGREED,
                     "direct_captured_and_configured_prints_keep_actual_output/0",
