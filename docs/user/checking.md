@@ -84,8 +84,13 @@ before any search, for example at a false `ASSUME`, names no engine.
   counterexample traces in the `dive-trace` format, and TLC's evaluation-error
   endings where dive can reproduce them.
 - **Printing.** `Print`, `PrintT` and `ToString` print what TLC prints, in
-  TLC's order. A specification that prints runs with one worker, and the
-  header says so. These refuse: a run that prints and then finds a violation
+  TLC's order. Ordinary in-memory safety checking with `Print` or `PrintT`
+  can use several workers. If a worker reaches a print, the coordinator
+  evaluates that source again at its place in the search, with the committed
+  visited set. This preserves the order and number of messages, including
+  prints in checks that only a newly discovered state requires. One-source
+  levels run inline. Random draws, checker registers and other ordered modes
+  retain their single-worker behavior. These refuse: a run that prints and then finds a violation
   or an error; a print inside a function constructor, filter or set map; and a
   set that TLC may hold as an interval and print as `1..3` (a set of
   consecutive integers, in a specification that uses `..` or `DOMAIN`).

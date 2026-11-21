@@ -1023,6 +1023,17 @@ fn labels_with_reuse<'a>(
                 fully_native = false;
                 continue; // The actual action-domain column is already FALSE.
             }
+            // The checked CSR already validates every original ordinal,
+            // destination and stutter. A proved false row leaves its
+            // pre-zeroed bits intact, including duplicate destinations.
+            if !eager
+                && matches!(graph, OriginalEdges::Native(_))
+                && graph.len(v).is_some_and(|n| n > 1)
+                && states.action_row_false(pred, v)?
+            {
+                consumed = true;
+                continue;
+            }
             let targets = selected_originals(graph, v, states, eager)?;
             if graph.len(v) == Some(0) {
                 continue;
