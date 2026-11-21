@@ -1340,7 +1340,89 @@
           }
         },
         "ratchet": "Three one-worker small-tier temporal models agreed with the pinned goldens; zero baseline regressions.",
-        "integrated_binary_sha256": "f5619ba060a4dea6048bd19bd8d0f4bcc586d4729851e8c48ef572190188c28b"
+        "integrated_binary_sha256": "f5619ba060a4dea6048bd19bd8d0f4bcc586d4729851e8c48ef572190188c28b",
+        "long_without_state_cutoff": {
+          "command": "dive check kafka/kraft_kip_996.tla --config kafka/model_liveness.cfg --library-path modules --workers 8 --fp 0 --seed 0 --max-memory 8g --time-limit 43200s --output json",
+          "binary_sha256": "f009c2efb13271cedc60fb8bb879ceddbffd2c5927d87f54b94b7c3f44b64312",
+          "source_sha256": "87f9c5d5849195a7f4308f8181b2281a9e5d72dbe689d0a0a1b0b72838eb4a4d",
+          "config_sha256": "3de24e3b89db9468dc390f2ddd70bd6a7f47fedc0b7ba3680690b0ed4507030e",
+          "start_utc": "2026-11-21T02:36:12Z",
+          "finish_utc": "2026-11-21T04:15:52Z",
+          "exit": 5,
+          "verdict": "stopped",
+          "diagnostic": "DIVE-L0038: stopped during graph-capture: resident memory 8606912512 bytes exceeds the ceiling of 8589934592 bytes",
+          "stopped": {
+            "elapsed_ms": 5980158,
+            "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+            "limit": 8589934592,
+            "observed": 8606912512,
+            "phase": "graph-capture",
+            "resource": "memory",
+            "unit": "bytes"
+          },
+          "execution": {
+            "capture_completed": false,
+            "stage": "capture"
+          },
+          "statistics": {
+            "depth": 6,
+            "distinct": 8388609,
+            "exhaustive": false,
+            "generated": 1935626353,
+            "initial_generated": 1,
+            "left_on_queue": 7359346,
+            "reported_by_tlc": false
+          },
+          "periodic": {
+            "bounds_scope": "capture cumulative; label and product per property per check; no total-run work or byte cap",
+            "exhausted": false,
+            "final_check": false,
+            "growth_factor": 2,
+            "last_level": 4,
+            "last_size": 1568061,
+            "min_states": 65536,
+            "prefix_checks": 2
+          },
+          "property": null,
+          "properties": null,
+          "trace_validation": null,
+          "wall_seconds": 5980.25,
+          "process_maxrss_kib": 9391504,
+          "collector_capacity_bytes": 6610256090,
+          "atom_evaluations": {
+            "state_evaluations": 456761484,
+            "action_evaluations": 817339894,
+            "action_source_guards": {
+              "false_rows": 49619976,
+              "plans": 1020,
+              "probes": 50632035
+            },
+            "fallback": 0
+          },
+          "instrumentation": "Four low-frequency external uprobes recorded level_done entries/returns and product-search calls in the unchanged release binary. A level_done return alone is a graph-prefix event.",
+          "level_boundaries": [
+            {
+              "utc": "2026-11-21 02:36:55",
+              "event": "level-enter",
+              "level": 3
+            },
+            {
+              "utc": "2026-11-21 02:41:25",
+              "event": "level-return",
+              "level": 3
+            },
+            {
+              "utc": "2026-11-21 02:48:34",
+              "event": "level-enter",
+              "level": 4
+            },
+            {
+              "utc": "2026-11-21 03:38:03",
+              "event": "level-return",
+              "level": 4
+            }
+          ]
+        }
       },
       "unchanged_target_action_prefixes": {
         "host": "AWS r7i.8xlarge x86_64. Timed arms ran sequentially on the same eight physical cores (8–15); the separate 12-hour capacity run used physical cores 0–7.",
