@@ -37,6 +37,11 @@
       "liveness": {
         "atoms": {
           "action_evaluations": 0,
+          "action_source_guards": {
+            "false_rows": 0,
+            "plans": 0,
+            "probes": 0
+          },
           "audit": false,
           "eligibility": "source-scoped effect-free Core plans without fresh strings over materialized rows; identity-scoped fairness queries",
           "eligible_action_atoms": 0,

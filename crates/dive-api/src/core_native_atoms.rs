@@ -24,6 +24,7 @@ use crate::core_native_values::NativeValues;
 struct Compiled {
     identity: *const PredicateAtom,
     plan: dive_core::plan::Plan,
+    false_guard: Option<dive_core::plan::P>,
     /// A directly syntactic `~ENABLED A` atom: the plan searches `A` and the
     /// truth is its negation, as the dive-eval evaluator negates its search.
     negate: bool,
@@ -65,6 +66,8 @@ pub(crate) struct NativeAtoms {
     fallback: u64,
     eligible_state: usize,
     eligible_action: usize,
+    guard_probes: u64,
+    guard_rows: u64,
     evaluated_state: u64,
     evaluated_action: u64,
     evaluated_enabled: u64,
@@ -188,6 +191,8 @@ impl NativeAtoms {
             fallback: 0,
             eligible_state: 0,
             eligible_action: 0,
+            guard_probes: 0,
+            guard_rows: 0,
             evaluated_state: 0,
             evaluated_action: 0,
             evaluated_enabled: 0,
@@ -232,7 +237,8 @@ impl NativeAtoms {
                 result.rejections.record(Rejection::ForeignScope);
                 continue;
             }
-            let plan = match compile(model, store, atom, opts, &result.machine.heap) {
+            let (plan, false_guard) = match compile(model, store, atom, opts, &result.machine.heap)
+            {
                 Ok(plan) => plan,
                 Err(reason) => {
                     result.rejections.record(reason);
@@ -246,6 +252,7 @@ impl NativeAtoms {
             result.compiled.push(Compiled {
                 identity: std::ptr::from_ref(atom),
                 plan,
+                false_guard,
                 negate: matches!(atom.test, AtomTest::NegatedEnabled { .. }),
                 exhausted_in_a_row: 0,
             });
@@ -267,6 +274,8 @@ impl NativeAtoms {
 
     pub(crate) fn metrics(&self) -> serde_json::Value {
         serde_json::json!({"total_atoms": self.total, "eligible_atoms": self.eligible,
+            "action_source_guards": {"plans": self.compiled.iter().filter(|p| p.false_guard.is_some()).count(),
+                "probes": self.guard_probes, "false_rows": self.guard_rows},
             "evaluated": self.evaluated, "fallback": self.fallback,
             "eligible_state_atoms": self.eligible_state, "eligible_action_atoms": self.eligible_action,
             "state_evaluations": self.evaluated_state, "action_evaluations": self.evaluated_action,
@@ -365,42 +374,14 @@ impl NativeAtoms {
             self.fallbacks.row_proof += 1;
             return Ok(None);
         }
-        self.machine.s0.copy_from_slice(before);
-        self.machine.s1.fill(Handle::EMPTY);
-        if let Some(after) = after {
-            self.machine.s1.copy_from_slice(after);
-        }
-        // `inputs_closed` just proved both rows materialized, and admission
-        // proved the bound scope parameters (`admit_plan`): the machine's
-        // identity tests need not prove those exact handles again.
-        self.machine.set_proven_materialized(
+        let result = run_bound(
+            &compiled.plan,
+            &mut self.machine,
             before,
-            after.unwrap_or(&[]),
-            compiled.plan.bound_preset.iter().map(|&(_, value)| value),
+            after,
+            self.fuel,
+            None,
         );
-        self.machine.set_fuel(self.fuel);
-        let predicate = &compiled.plan.implied_actions[0];
-        let frame = self.machine.enter(predicate.frame);
-        for &(slot, value) in &compiled.plan.bound_preset {
-            if let Some(cell) = self
-                .machine
-                .frame
-                .get_mut(self.machine.base + slot as usize)
-            {
-                *cell = value;
-            }
-        }
-        self.machine.warnings.clear();
-        self.machine.printed.clear();
-        let result = predicate.conjuncts.iter().try_fold(true, |holds, part| {
-            if holds {
-                self.machine.eval_bool(&compiled.plan.code, part.p)
-            } else {
-                Ok(false)
-            }
-        });
-        self.machine.leave(frame);
-        self.machine.heap.reset();
         check(&self.control, control)?;
         let exhausted = result.is_err() && self.machine.fuel_exhausted();
         let strikes = &mut self.compiled[index].exhausted_in_a_row;
@@ -441,6 +422,50 @@ impl NativeAtoms {
         }
     }
 
+    /// All target rows in this checked graph have already been certified.
+    /// Try to disprove the bound action from the source alone. Any unknown
+    /// result keeps every ordinary edge demand, including its error path.
+    fn false_guard(
+        &mut self,
+        atom: &PredicateAtom,
+        before: &[Handle],
+        control: &EvaluationControl,
+    ) -> Result<bool, AnalysisError> {
+        check(&self.control, control)?;
+        let Some(index) = self.position(atom) else {
+            return Ok(false);
+        };
+        let compiled = &mut self.compiled[index];
+        if compiled.exhausted_in_a_row >= FUEL_STRIKES || self.audit {
+            return Ok(false);
+        }
+        let Some(guard) = compiled.false_guard else {
+            return Ok(false);
+        };
+        // The full action starts with And, Not and a proven-direct SameVars.
+        let Some(fuel) = self.fuel.checked_sub(3) else {
+            return Ok(false);
+        };
+        self.guard_probes += 1;
+        let result = run_bound(
+            &compiled.plan,
+            &mut self.machine,
+            before,
+            None,
+            fuel,
+            Some(guard),
+        );
+        check(&self.control, control)?;
+        let proved = matches!(result, Ok(false))
+            && !self.machine.heap.poisoned()
+            && self.machine.warnings.is_empty()
+            && self.machine.printed.is_empty();
+        if proved {
+            compiled.exhausted_in_a_row = 0;
+        }
+        Ok(proved)
+    }
+
     fn validate_reuse(
         &mut self,
         atom: &PredicateAtom,
@@ -469,7 +494,7 @@ fn compile(
     atom: &PredicateAtom,
     opts: Opts,
     heap: &dive_core::Heap,
-) -> Result<dive_core::plan::Plan, Rejection> {
+) -> Result<(dive_core::plan::Plan, Option<dive_core::plan::P>), Rejection> {
     let Ok(mut handoff) = crate::core_engine::handoff(model, &model.ir, Vec::new()) else {
         return Err(Rejection::CompileError);
     };
@@ -503,35 +528,17 @@ fn compile(
     handoff.deferred.clear();
     handoff.startup_evaluator = None;
     handoff.assumptions.clear();
-    let plan = match atom.test {
-        AtomTest::Predicate => dive_core::compile::compile_bound_test(
-            &handoff,
-            Arc::clone(store),
-            opts,
-            dive_core::compile::BoundTest::Predicate,
-        ),
-        AtomTest::Enabled { sub } => dive_core::compile::compile_bound_test(
-            &handoff,
-            Arc::clone(store),
-            opts,
-            dive_core::compile::BoundTest::Enabled(sub),
-        ),
-        AtomTest::NegatedEnabled { .. } => dive_core::compile::compile_bound_test(
-            &handoff,
-            Arc::clone(store),
-            opts,
-            dive_core::compile::BoundTest::Enabled(None),
-        ),
-        AtomTest::Nonstuttering { sub } => dive_core::compile::compile_bound_test(
-            &handoff,
-            Arc::clone(store),
-            opts,
-            dive_core::compile::BoundTest::Nonstuttering(sub),
-        ),
-    }
-    .map_err(|_| Rejection::CompileError)?;
+    let test = match atom.test {
+        AtomTest::Predicate => dive_core::compile::BoundTest::Predicate,
+        AtomTest::Enabled { sub } => dive_core::compile::BoundTest::Enabled(sub),
+        AtomTest::NegatedEnabled { .. } => dive_core::compile::BoundTest::Enabled(None),
+        AtomTest::Nonstuttering { sub } => dive_core::compile::BoundTest::Nonstuttering(sub),
+    };
+    let (plan, false_guard) =
+        dive_core::compile::compile_bound_test_with_guard(&handoff, Arc::clone(store), opts, test)
+            .map_err(|_| Rejection::CompileError)?;
     admit_plan(&plan, heap)?;
-    Ok(plan)
+    Ok((plan, false_guard))
 }
 
 /// The first failing admission check of a compiled plan, in the original order.
@@ -582,6 +589,56 @@ fn admit_plan(plan: &dive_core::plan::Plan, heap: &dive_core::Heap) -> Result<()
     // memo = step_memo = false and a table-less Memo, so it never reads or
     // fills one. A power's digits are charged to fuel before allocation.
     Ok(())
+}
+
+/// Runs one source-scoped bound test, or its certified necessary prefix,
+/// in a fresh role frame. The caller certifies materialization of the
+/// exact input rows and the prepared plan's preset values.
+fn run_bound(
+    plan: &dive_core::plan::Plan,
+    machine: &mut Machine,
+    before: &[Handle],
+    after: Option<&[Handle]>,
+    fuel: u64,
+    guard: Option<dive_core::plan::P>,
+) -> Result<bool, dive_core::Error> {
+    machine.s0.copy_from_slice(before);
+    machine.s1.fill(Handle::EMPTY);
+    if let Some(after) = after {
+        machine.s1.copy_from_slice(after);
+    }
+    // `inputs_closed` just proved both rows materialized, and admission
+    // proved the bound scope parameters (`admit_plan`): the machine's
+    // identity tests need not prove those exact handles again.
+    machine.set_proven_materialized(
+        before,
+        after.unwrap_or(&[]),
+        plan.bound_preset.iter().map(|&(_, value)| value),
+    );
+    machine.set_fuel(fuel);
+    let predicate = &plan.implied_actions[0];
+    let frame = machine.enter(predicate.frame);
+    for &(slot, value) in &plan.bound_preset {
+        if let Some(cell) = machine.frame.get_mut(machine.base + slot as usize) {
+            *cell = value;
+        }
+    }
+    machine.warnings.clear();
+    machine.printed.clear();
+    let result = if let Some(guard) = guard {
+        machine.eval_bool(&plan.code, guard)
+    } else {
+        predicate.conjuncts.iter().try_fold(true, |holds, part| {
+            if holds {
+                machine.eval_bool(&plan.code, part.p)
+            } else {
+                Ok(false)
+            }
+        })
+    };
+    machine.leave(frame);
+    machine.heap.reset();
+    result
 }
 
 fn check(owner: &EvaluationControl, control: &EvaluationControl) -> Result<(), AnalysisError> {
@@ -842,6 +899,33 @@ impl NativeReader for Reader<'_, '_> {
             self.audit(atom, before, after, value, control)?;
         }
         Ok(native)
+    }
+
+    fn action_row_false(
+        &mut self,
+        atom: &PredicateAtom,
+        before: usize,
+        rows: usize,
+        control: &EvaluationControl,
+    ) -> Result<bool, AnalysisError> {
+        // Each certified bit refers to a physical row in this graph and
+        // its owning Store. The checked graph may describe a prefix.
+        let retained = self.proofs.graph.input().retained_rows;
+        if self.proofs.metrics.certified != retained as u64
+            || rows > retained
+            || self.atoms.machine.heap.poisoned()
+            || !self
+                .proofs
+                .graph
+                .owns_store(self.atoms.machine.heap.store())
+        {
+            return Ok(false);
+        }
+        let answer = self
+            .atoms
+            .false_guard(atom, self.proofs.graph.row(before)?, control)?;
+        self.atoms.guard_rows += u64::from(answer);
+        Ok(answer)
     }
 
     fn validate_predicate_inputs(
@@ -2269,6 +2353,156 @@ mod tests {
                 assert_eq!(atoms.metrics()["audit"], true);
             });
         }
+    }
+
+    #[test]
+    fn nonstuttering_source_guard_preserves_quantified_truth_and_errors() {
+        let text = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLE x
+vars == <<x>>
+Init == x=0
+Next == x' \in 0..3
+Act == \E i \in 1..2 : /\ (IF x=1 THEN 1 \div 0=0 ELSE x=3)
+                          /\ i=1
+                          /\ (x'=0 \/ (1 \div 0=0))
+Spec == Init /\ [][Next]_vars /\ WF_vars(Act)
+P == <>(x=0)
+====";
+        for tlc in [false, true] {
+            with_wrappers(text, tlc, |prepared, driver, atoms, control| {
+                let options = if tlc {
+                    dive_runtime::CheckOptions::tlc(0, 0)
+                } else {
+                    dive_runtime::CheckOptions::dive(0)
+                };
+                let (graph, mut values) = capture(prepared, &options);
+                let count = graph.input().retained_rows;
+                let atom = driver
+                    .native_predicates()
+                    .find(|a| matches!(a.test, AtomTest::Nonstuttering { .. }))
+                    .expect("fairness action");
+                let mut reader = Reader::new(&graph, &mut values, atoms);
+                assert!(
+                    !reader
+                        .action_row_false(atom, 0, count, control)
+                        .expect("unproved rows")
+                );
+                for row in 0..count {
+                    assert!(
+                        reader
+                            .proofs
+                            .closed(&reader.atoms.machine.heap, row)
+                            .expect("complete row")
+                    );
+                }
+                assert!(
+                    !reader
+                        .action_row_false(atom, 0, count + 1, control)
+                        .expect("out-of-graph target set")
+                );
+                reader.atoms.audit = true;
+                assert!(
+                    !reader
+                        .action_row_false(atom, 0, count, control)
+                        .expect("audit keeps individual edges")
+                );
+                reader.atoms.audit = false;
+                let ordinary_fuel = reader.atoms.fuel;
+                reader.atoms.fuel = 3;
+                assert!(
+                    !reader
+                        .action_row_false(atom, 0, count, control)
+                        .expect("guard must fit fuel")
+                );
+                reader.atoms.fuel = ordinary_fuel;
+                let mut hits = 0;
+                let mut errors = 0;
+                for before in 0..count {
+                    let false_row = reader
+                        .action_row_false(atom, before, count, control)
+                        .expect("optional row proof");
+                    if false_row {
+                        hits += 1;
+                    }
+                    for after in 0..count {
+                        let b = reader
+                            .values
+                            .read_retained(&graph, before, control)
+                            .expect("before");
+                        let a = reader
+                            .values
+                            .read_retained(&graph, after, control)
+                            .expect("after");
+                        let reference =
+                            atom.evaluate(&prepared.model, &dive_eval::St::action(b, a));
+                        if false_row {
+                            assert!(matches!(reference, Ok(false)));
+                        }
+                        if reference.is_err() {
+                            errors += 1;
+                            assert!(!false_row);
+                        }
+                    }
+                }
+                assert!(errors > 0);
+                if tlc {
+                    assert_eq!(hits, 0);
+                } else {
+                    assert!(hits > 0);
+                }
+            });
+        }
+    }
+
+    #[test]
+    fn successor_independent_action_keeps_a_failing_nonstuttering_subscript() {
+        let source = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLE x
+vars == <<x>>
+Init == x=0
+Next == x' \in 0..2
+Act == /\ x=2
+       /\ x'=1
+sub == 1 \div x
+Spec == Init /\ [][Next]_vars /\ WF_sub(Act)
+P == <>(x=0)
+====";
+        with_wrappers(source, false, |prepared, driver, atoms, control| {
+            let (graph, mut values) = capture(prepared, &dive_runtime::CheckOptions::dive(0));
+            let count = graph.input().retained_rows;
+            let atom = driver
+                .native_predicates()
+                .find(|a| matches!(a.test, AtomTest::Nonstuttering { .. }))
+                .expect("fairness action");
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            for row in 0..count {
+                assert!(
+                    reader
+                        .proofs
+                        .closed(&reader.atoms.machine.heap, row)
+                        .expect("complete row")
+                );
+            }
+            assert!(
+                !reader
+                    .action_row_false(atom, 0, count, control)
+                    .expect("partial subscript")
+            );
+            let before = reader
+                .values
+                .read_retained(&graph, 0, control)
+                .expect("zero source");
+            let after = reader
+                .values
+                .read_retained(&graph, 1, control)
+                .expect("successor");
+            assert!(
+                atom.evaluate(&prepared.model, &dive_eval::St::action(before, after))
+                    .is_err()
+            );
+        });
     }
 
     /// Sets, SUBSET/UNION, filters, Cardinality, CHOOSE over sets, records,
