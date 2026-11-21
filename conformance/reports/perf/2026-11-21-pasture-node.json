@@ -372,5 +372,27 @@
       }
     },
     "matched_fingerprint_comparison": "The Core fingerprint run was 6.80% shorter in elapsed time and used 3.10 times less peak RSS than pinned TLC. All three terminal counts, depth and queue agree with Core exact on this configured model."
+  },
+  "larger_semantic_pcr_bound": {
+    "parameters": [
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "config_change": "From the largest published CFG change only MaxSemPcrLen = 1 to MaxSemPcrLen = 2. All four invariants and Constrain remain enabled.",
+    "cfg_sha256": "f7e5f9ed61a3d320db6ca495ba5128fc4c23fa00c0fcd3e265b9a9e951c6f8a0",
+    "host": "EC2 r8g.24xlarge, us-east-1, 96 physical Neoverse-V2 cores, one hardware thread each, Linux 7.0.0-1018-aws",
+    "dive_sha256": "aa441e38fb26a96b135da52243f53c8ce3c6b63ae60505457ab67c784c7b3376",
+    "dive_source": "55c94185176d7e415b389f13fcf3d6e2066223a1",
+    "command": "taskset -c 0-47 dive check PastureNodeModel.tla --config 22222.cfg --store exact --workers 48 --seed 0 --fp 0 --compat=tlc --time-limit 129600s --max-memory 650g --output json",
+    "wall_s": 24760.69,
+    "peak_rss_kib": 356737752,
+    "exit": 134,
+    "signal": 6,
+    "verdict": null,
+    "statistics": null,
+    "diagnostic": "The OS refused a scoped thread creation with EAGAIN and allocations subsequently failed. The process aborted without emitting a checker report. No mapping samples or cgroup terminal counters were collected for this run."
   }
 }
