@@ -455,6 +455,19 @@
       "binary_sha256": "d54a5576c1e25aacefb74db02c68dd04136620517d4dbe90eaac881115c8dbc0",
       "config_sha256": "1875b686891580a70c44075852711429ea7e697122688e3254020d5733c26c72",
       "source_revision": "d07f2a5cac165a9211cae580ad4d8c3029a315bc"
+    },
+    "tlc_first_limit": {
+      "exit": 124,
+      "result": "external deadline during periodic temporal analysis",
+      "wall_seconds": 6360.21,
+      "peak_rss_kib": 6835472,
+      "last_reported": {
+        "depth": 37,
+        "generated": 5765200,
+        "distinct": 1315959,
+        "left_on_queue": 59078
+      },
+      "command": "java -XX:ActiveProcessorCount=4 -Xmx14g -DTLA-Library=MODULES -cp tla2tools.jar tlc2.TLC -workers 4 -seed 0 -fp 0 -metadir NEW -config fixed5.cfg kraft_kip_996.tla, CPUs 0–3, external deadline 6360s"
     }
   }
 }
