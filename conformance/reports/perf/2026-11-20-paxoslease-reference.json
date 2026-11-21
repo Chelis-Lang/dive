@@ -2010,6 +2010,151 @@
         }
       ]
     },
-    "differential_controls": "Source fragment, TLC goldens, exact Core and installed-path tests passed. An independently written 22-revision two-root fixture compared 17 successful revisions and five validated violations against fresh explicit Core, including excluded roots/emissions, simultaneous assignments, newly reachable coordinates, changed constraints and shortcuts."
+    "differential_controls": "Source fragment, TLC goldens, exact Core and installed-path tests passed. An independently written 22-revision two-root fixture compared 17 successful revisions and five validated violations against fresh explicit Core, including excluded roots/emissions, simultaneous assignments, newly reachable coordinates, changed constraints and shortcuts.",
+    "quarantine_equals_proposer": {
+      "order": [
+        "original",
+        "Reset",
+        "original",
+        "Drain",
+        "original"
+      ],
+      "inputs": "Same wrappers and proof changes as the Base session. Use PaxosLeaseQuarantineEqualsProposer.cfg and its constants in the original and edited configurations.",
+      "host": "Same isolated comparison host and CPU 0 as matched_host; --type-invariant TypeOK --refine-domains, --time-limit 4800s --max-memory 12g, one process per five-revision batch.",
+      "reference": {
+        "process_wall_seconds": 1950.05,
+        "peak_rss_kib": 1193256,
+        "revisions": [
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "seconds": 396.210352,
+            "reachable_bdd_nodes": 630485,
+            "reused": false,
+            "initial_hint_members": 0,
+            "learned_members": 80,
+            "refinement_rounds": 11
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 468598377,
+            "depth": 43,
+            "seconds": 413.182905,
+            "reachable_bdd_nodes": 630485,
+            "reused": false,
+            "initial_hint_members": 80,
+            "learned_members": 80,
+            "refinement_rounds": 2
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "seconds": 376.446878,
+            "reachable_bdd_nodes": 630485,
+            "reused": false,
+            "initial_hint_members": 80,
+            "learned_members": 80,
+            "refinement_rounds": 2
+          },
+          {
+            "verdict": "success",
+            "distinct": 77384096,
+            "generated": 401456611,
+            "depth": 43,
+            "seconds": 387.580509,
+            "reachable_bdd_nodes": 664321,
+            "reused": false,
+            "initial_hint_members": 80,
+            "learned_members": 80,
+            "refinement_rounds": 2
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "seconds": 376.4176,
+            "reachable_bdd_nodes": 630485,
+            "reused": false,
+            "initial_hint_members": 80,
+            "learned_members": 80,
+            "refinement_rounds": 2
+          }
+        ]
+      },
+      "verified": {
+        "process_wall_seconds": 1257.87,
+        "peak_rss_kib": 923364,
+        "revisions": [
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "seconds": 405.781904,
+            "reachable_bdd_nodes": 630485,
+            "reused": false,
+            "initial_hint_members": 0,
+            "learned_members": 80,
+            "refinement_rounds": 11
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 468598377,
+            "depth": 43,
+            "seconds": 1.741926,
+            "reachable_bdd_nodes": 630485,
+            "reused": true,
+            "initial_hint_members": 80,
+            "learned_members": 80,
+            "refinement_rounds": 1
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "seconds": 1.659869,
+            "reachable_bdd_nodes": 630485,
+            "reused": true,
+            "initial_hint_members": 80,
+            "learned_members": 80,
+            "refinement_rounds": 1
+          },
+          {
+            "verdict": "success",
+            "distinct": 77384096,
+            "generated": 401456611,
+            "depth": 43,
+            "seconds": 443.535519,
+            "reachable_bdd_nodes": 664321,
+            "reused": false,
+            "reused_layer_images": 5,
+            "initial_hint_members": 80,
+            "learned_members": 80,
+            "refinement_rounds": 1
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "seconds": 404.942233,
+            "reachable_bdd_nodes": 630485,
+            "reused": false,
+            "reused_layer_images": 4,
+            "initial_hint_members": 80,
+            "learned_members": 80,
+            "refinement_rounds": 1
+          }
+        ]
+      }
+    }
   }
 }
