@@ -1,0 +1,168 @@
+{
+  "scope": "Two reduced but symmetry-enabled public PaxosLease configurations. All properties, action definitions and state constraints retained. Source of changes and hashes below.",
+  "repository": "https://github.com/mtrencseni/paxoslease-revisited",
+  "revision": "5ca959624c5a2560ab1ad86dc71e8b161621d9bc",
+  "source": "PaxosLeaseCheckedSym.tla, original checked module. Create the small CFG by changing Acceptors to {a1,a2} and MaxNetwork to 1. Keep SYMMETRY Symm and all other constants of the corresponding published CFG.",
+  "hashes": {
+    "PaxosLease.tla": "3ac9f462afc48698eac87519530abc227c9f47d44d305bed31104543e3c6ca1a",
+    "PaxosLeaseChecked.tla": "52070f65a049c576a707dbb99c54078a2f45887f4c689b8b85fb3f4bc4e7b679",
+    "PaxosLeaseCheckedSym.tla": "ad351fb904414c0e93900f57ca23c3e52a0605ed6ebcea483a7dc7862f7343df",
+    "PaxosLeaseReleaseCrash.cfg": "095c47fc0a1dc441aeb5adaccb857eaeae681a1bcc5b0ac356c53cf832a3f6e3",
+    "PaxosLeaseRenewCrash3.cfg": "43efe9c0c1c9c1080df34b34a7983a9e6dc87014150fb55b91c75a67abe5f879",
+    "ReleaseCrash-small-sym.cfg": "4b4a3af65a9d898a74f6c2023792f7f7c2874fcf67a437faf86c29fcba93c3e1",
+    "RenewCrash3-small-sym.cfg": "b92e781c900d3f70687945f5862383b6670051073c6777828e39a4a867f0b1bc",
+    "ReleaseCrash-A2-N2-symmetric.cfg": "a11d6540c13785aca07d43bd7126587396d95fe1b2c70deb442c8ed2d6bb2b2c",
+    "RenewCrash3-A2-N2-symmetric.cfg": "520bf6d03f086e6b110d202afcf6a96412305efc85eefadab2c3eb7c3441b94a",
+    "../orbit-integrated/dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+    "../orbit-integrated/libexec/dive-symbolic/engine.py": "ce4ef17fcab9e4a0edb85f387173a3a195f65ba2792a1546d8afac81b2f8bc36",
+    "../orbit-integrated/libexec/dive-symbolic/symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+    "../orbit-integrated/libexec/dive-symbolic/finite_relation.py": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9"
+  },
+  "commands": {
+    "installed_symbolic": "dive check PaxosLeaseCheckedSym.tla --config CFG --strategy symbolic --refine-domains --type-invariant TypeOK --max-memory 6g --time-limit 3600s --output json",
+    "core": "dive check PaxosLeaseCheckedSym.tla --config CFG --workers 1 --store exact --compat=tlc --output json",
+    "tlc": "java -Xmx768m -XX:+UseSerialGC -XX:ActiveProcessorCount=1 -cp tla2tools.jar tlc2.TLC -workers 1 -seed 0 -fp 0 -config CFG PaxosLeaseCheckedSym.tla"
+  },
+  "hosts": "c7i.4xlarge AWS, single logical CPU in each trial, GNU time full process wall and peak RSS. Ordinary comparisons and unrestricted-equation prototype on the relation host; final worker on a separate c7i.4xlarge concurrently running a larger check on a different CPU. Timings are individual measurements.",
+  "tlc_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "comparisons": {
+    "RenewCrash3": {
+      "symbolic": {
+        "wall_seconds": 1.35,
+        "peak_rss_kib": 69108,
+        "exit_code": 0,
+        "verdict": "success",
+        "distinct": 670,
+        "generated": 7036,
+        "depth": 15,
+        "learned_members": 12,
+        "refinement_rounds": 2,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ]
+      },
+      "core": {
+        "wall_seconds": 0.04,
+        "peak_rss_kib": 31848,
+        "exit_code": 0,
+        "verdict": "success",
+        "statistics": {
+          "depth": 15,
+          "distinct": 670,
+          "generated": 7036,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      "tlc": {
+        "wall_seconds": 1.53,
+        "peak_rss_kib": 115184,
+        "exit_code": 0,
+        "distinct": 670,
+        "generated": 7036,
+        "depth": 15,
+        "queue": 0
+      },
+      "unrestricted_fixed_equations": {
+        "wall_seconds": 136.15,
+        "peak_rss_kib": 4180584,
+        "exit_code": 4,
+        "verdict": "stopped",
+        "reason": "refinement worker exhausted memory during native allocation"
+      }
+    },
+    "ReleaseCrash": {
+      "symbolic": {
+        "wall_seconds": 1.05,
+        "peak_rss_kib": 64032,
+        "exit_code": 0,
+        "verdict": "success",
+        "distinct": 310,
+        "generated": 2326,
+        "depth": 14,
+        "learned_members": 12,
+        "refinement_rounds": 2,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ]
+      },
+      "core": {
+        "wall_seconds": 0.02,
+        "peak_rss_kib": 29840,
+        "exit_code": 0,
+        "verdict": "success",
+        "statistics": {
+          "depth": 14,
+          "distinct": 310,
+          "generated": 2326,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      "tlc": {
+        "wall_seconds": 1.2,
+        "peak_rss_kib": 108592,
+        "exit_code": 0,
+        "distinct": 310,
+        "generated": 2326,
+        "depth": 14,
+        "queue": 0
+      },
+      "unrestricted_fixed_equations": {
+        "wall_seconds": 135.5,
+        "peak_rss_kib": 4180880,
+        "exit_code": 4,
+        "verdict": "stopped",
+        "reason": "refinement worker exhausted memory during native allocation"
+      }
+    }
+  },
+  "fresh_controls": {
+    "weighted_counts": {
+      "distinct": 104,
+      "generated": 729,
+      "depth": 10,
+      "min_outdegree": 4,
+      "max_outdegree": 10,
+      "oracles": [
+        "TLC",
+        "separate representative enumerator"
+      ]
+    },
+    "same_relation_changing_group": {
+      "full_S3": [
+        5,
+        59,
+        4
+      ],
+      "cyclic_C3": [
+        7,
+        79,
+        4
+      ],
+      "order_two": [
+        12,
+        129,
+        4
+      ],
+      "fields": [
+        "distinct",
+        "generated",
+        "depth"
+      ]
+    },
+    "wide_domain": {
+      "record_members": 729,
+      "learned": 9,
+      "distinct": 3,
+      "generated": 31,
+      "depth": 2
+    },
+    "zero_bit_regression": "Function with domain {A} and only the empty set as an output, y in {A,B,C}, stuttering Next. The previous experimental prototype counted 1/4/1; pinned TLC counts 2/5/1. Current worker refuses the nonclosed domain. A closed zero-bit function and nested record keys agree with TLC. Asymmetric 260-member full domain refuses even with no learned coordinates.",
+    "rechecks": "Changing the symmetry group forces a new count. Identical revisions retain the proof. A new false invariant produces an independently validated trace."
+  }
+}

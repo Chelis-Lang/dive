@@ -20,6 +20,7 @@ NeverBlue == B \notin got
 Outside == x \notin Colors
 ====
 """
+    check_record_permutations(folder, run, explicit, compare)
     check_initial_choices(folder, run, explicit, compare)
     check_initial_enumeration(folder, run)
     check_constraints(folder, run, explicit, compare)
@@ -554,3 +555,41 @@ BeforeFive == x # 5
     _, bad = run(module, passed, *flags, "--recheck", module, failed, code=1)
     assert bad["ending"]["name"] == "Safe" and bad["depth"] == 5 and bad["trace_validated"]
     assert bad["reused_layer_images"] == 4
+
+
+def check_record_permutations(folder, run, explicit, compare):
+    module = folder / "PacketRoles.tla"
+    module.write_text(r"""---- MODULE PacketRoles ----
+EXTENDS TLC
+CONSTANTS Senders, Receivers, Preferred
+VARIABLES last, messages
+Packets == [sender : Senders, receiver : Receivers]
+TypeInvariant == last \in Packets /\ messages \subseteq Packets
+Init == /\ last \in Packets /\ messages = {}
+Next == \E s \in Senders, r \in Receivers :
+          /\ last' = [sender |-> s, receiver |-> r]
+          /\ messages' = messages \cup {last}
+Both == Permutations(Senders) \cup Permutations(Receivers)
+One == Permutations(Senders)
+Empty == messages = {}
+OnlyPreferred == last.sender = Preferred
+====
+""")
+    common = "CONSTANTS Senders={p,q} Receivers={a,b} Preferred=p\nINIT Init\nNEXT Next\nINVARIANT TypeInvariant\n"
+    def config(name, extra):
+        path = folder / ("packet-" + name + ".cfg")
+        path.write_text(common + extra)
+        return path
+    both = config("both", "SYMMETRY Both\n")
+    one = config("one", "SYMMETRY One\n")
+    failure = config("nonempty", "SYMMETRY Both\nINVARIANT Empty\n")
+    unsafe = config("preferred", "SYMMETRY Both\nINVARIANT OnlyPreferred\n")
+    for flags in ([], ["--refine-domains"]):
+        pair = run(module, both, *flags, "--recheck", module, one)
+        for row, cfg in zip(pair, (both, one)):
+            compare(row, explicit(module, cfg))
+        assert pair[0]["distinct"] < pair[1]["distinct"] and not pair[1]["reused"]
+        _, bad = run(module, both, *flags, "--recheck", module, failure, code=1)
+        assert bad["trace_validated"] and bad["depth"] == 2 and bad["ending"]["name"] == "Empty"
+        (refused,) = run(module, unsafe, *flags, code=2)
+        assert refused["verdict"] == "unsupported" and "asymmetric" in refused["reason"]

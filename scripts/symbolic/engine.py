@@ -115,6 +115,15 @@ def unpack(expr):
     return next(iter(expr.items()))
 
 
+class NeedsValuePermutation(Unsupported):
+    """A scalar value or a group action cannot be represented by swapping simple indices."""
+
+
+def require_index_permutation(condition, reason):
+    if not condition:
+        raise NeedsValuePermutation(reason)
+
+
 class SourceModel(FiniteRelation):
     def __init__(self, doc, type_invariant, manager=None, order_by_path=False, single_partition=False, learned=None):
         require(doc["format"] == "dive-symbolic-input-v2", "incompatible bound IR exporter")
@@ -147,7 +156,7 @@ class SourceModel(FiniteRelation):
             declaration = doc["symmetry"]
             atoms = tuple(declaration["atoms"])
             indices = tuple(range(len(atoms)))
-            require(
+            require_index_permutation(
                 1 < len(atoms) <= 6
                 and {indices, *map(tuple, declaration["maps"])} == set(itertools.permutations(indices)),
                 "expected a full finite permutation group",
@@ -159,7 +168,7 @@ class SourceModel(FiniteRelation):
         if self.refining:
             for name, typ in list(types.items()):
                 if isinstance(typ, PowerSet) and len(typ.domain) > 256:
-                    require(not self.symmetry, "wide set-domain refinement with symmetry")
+                    require_index_permutation(not self.symmetry, "wide set-domain refinement with symmetry")
                     path = (name,)
                     self.whole_domains[path] = typ.domain
                     types[name] = PowerSet(Members(
@@ -284,7 +293,7 @@ class SourceModel(FiniteRelation):
 
         def indices(domain):
             keys = set(self.static_set(domain))
-            require(not keys & permuted or permuted <= keys, "asymmetric finite index domain")
+            require_index_permutation(not keys & permuted or permuted <= keys, "asymmetric finite index domain")
             return sorted(keys, key=repr)
 
         # Check the size while traversing the proposed type. Nested functions
@@ -311,7 +320,7 @@ class SourceModel(FiniteRelation):
                 return
             choices = tuple(self.static_set(bound))
             require(choices, "empty scalar domain")
-            require(not set(choices) & permuted, "permuted atoms in a scalar field")
+            require_index_permutation(not set(choices) & permuted, "permuted atoms in a scalar field")
             planned_bits += max(1, (len(choices) - 1).bit_length())
             require(planned_bits <= 512, f"finite layout exceeds 512 state bits at {path[0]} ({planned_bits} bits so far)")
             domains[inner_domain] += 1
@@ -343,7 +352,7 @@ class SourceModel(FiniteRelation):
                 group = next((clusters.index(atom) for key in reversed(path[1:])
                               for atom in model_values(key) if atom in clusters), -1)
             roles = [atoms.index(k) for k in path[1:] if k in atoms]
-            require(len(roles) <= 1, "multiple permuted indices in one path")
+            require_index_permutation(len(roles) <= 1, "multiple permuted indices in one path")
             return group, (roles[0] if roles else -1), self.names.index(path[0]), tuple(map(repr, path))
 
         # Record relative path identities as well as bit positions. This lets a
@@ -711,7 +720,7 @@ class SourceModel(FiniteRelation):
             body, args = self.call(tag, x, env, assigned)
             return self.eval(body, args, assigned)
         if tag in ("Record", "RecordSet"):
-            require(not self.doc["symmetry"], "symmetry on record-valued finite domains")
+            require_index_permutation(not self.doc["symmetry"], "symmetry on record-valued finite domains")
             fields = sorted(x, key=lambda field: field["name"])
             names = [f["name"] for f in fields]
             require(len(names) == len(set(names)), "duplicate record field")
@@ -1323,6 +1332,159 @@ class SourceModel(FiniteRelation):
         )
 
 
+def finite_group(declaration):
+    """Verify the exporter's complete permutation set and select generators."""
+    atoms = tuple(declaration["atoms"])
+    require(1 < len(atoms) <= 6 and len(set(atoms)) == len(atoms), "expected 2 to 6 distinct symmetry atoms")
+    identity = tuple(range(len(atoms)))
+    group = {identity, *map(tuple, declaration["maps"])}
+    require(all(sorted(perm) == list(identity) for perm in group), "invalid finite permutation")
+    generators = []
+    subgroup = {identity}
+    for perm in sorted(group):
+        if perm in subgroup:
+            continue
+        generators.append(perm)
+        pending = list(subgroup)
+        while pending:
+            current = pending.pop()
+            for generator in generators:
+                composed = tuple(generator[i] for i in current)
+                require(composed in group, "configured permutations do not form a group")
+                if composed not in subgroup:
+                    subgroup.add(composed)
+                    pending.append(composed)
+    return atoms, sorted(group), generators
+
+
+def rename_value(value, mapping):
+    # Raw strings denote model values. TLA+ strings, integers and Booleans
+    # have type tags and stay fixed. Record field names are TLA+ strings.
+    if isinstance(value, str):
+        return mapping.get(value, value)
+    if value[0] == "record":
+        return ("record", tuple((field, rename_value(item, mapping)) for field, item in value[1]))
+    return value
+
+
+class PermutedModel(SourceModel):
+    """Act on complete encoded values when swapping simple index bits is insufficient."""
+
+    def __init__(self, doc, type_invariant, manager, order_by_path, single_partition, learned):
+        atoms, group, generators = finite_group(doc["symmetry"])
+        mappings = {perm: dict(zip(atoms, (atoms[i] for i in perm))) for perm in group}
+        if learned is not None:
+            # Every retained network member needs all its images. An actual
+            # emission outside the retained domain still forces another pass.
+            learned = {(path, rename_value(key, mapping))
+                       for path, key in learned for mapping in mappings.values()}
+        # Bind the labeled program. Expose quotient counts only after proving
+        # that each generator preserves initial states, obligations and edges.
+        super().__init__({**doc, "symmetry": None}, type_invariant, manager, order_by_path, single_partition, learned)
+        self.symmetry = True
+        self.doc = doc
+        for perm in generators:
+            for bound in self.types.values():
+                self.verify_domain(bound, mappings[perm])
+            for original in self.whole_domains.values():
+                self.verify_domain(PowerSet(original), mappings[perm])
+        self.permutations = {perm: self.bit_permutation(mapping) for perm, mapping in mappings.items()}
+        for perm in generators:
+            inverse = tuple(perm.index(i) for i in range(len(perm)))
+            self.verify_generator(self.permutations[perm], self.permutations[inverse])
+
+    def verify_domain(self, bound, mapping):
+        # A function with an empty set as its only possible output has no
+        # encoded bits. Its domain keys still form part of every concrete state.
+        if isinstance(bound, FunctionSpace):
+            self.verify_domain(bound.codomain, mapping)
+        values = bound.domain if isinstance(bound, (FunctionSpace, PowerSet)) else bound
+        keys = set(self.static_set(values))
+        require({rename_value(key, mapping) for key in keys} == keys,
+                "asymmetric finite index domain or scalar alphabet")
+
+    def bit_permutation(self, mapping):
+        """Map each output coordinate to its Boolean function of the original state."""
+        renamed = {}
+        for path, (bits, choices) in self.layout.items():
+            dest = (path[0], *(rename_value(key, mapping) for key in path[1:]))
+            require(dest in self.layout, "finite coordinate domain is not closed under symmetry")
+            other, alternatives = self.layout[dest]
+            require(len(bits) == len(other), "unequal permuted scalar widths")
+            new_bits = bits
+            if choices is not None:
+                keys = tuple(rename_value(key, mapping) for key in choices)
+                require(alternatives is not None and set(keys) == set(alternatives),
+                        "finite scalar alphabet is not closed under symmetry")
+                if keys != alternatives:
+                    positions = {key: index for index, key in enumerate(alternatives)}
+                    values = [self.encoding(bits, i) for i in range(len(keys))]
+                    new_bits = [self.any(value for key, value in zip(keys, values)
+                                         if positions[key] & (1 << bit)) for bit in range(len(bits))]
+            else:
+                require(alternatives is None, "unequal permuted field types")
+            renamed.update((target.var, expr) for target, expr in zip(other, new_bits) if target != expr)
+        return renamed
+
+    def verify_generator(self, forward, reverse):
+        def back(expr):
+            return self.b.let(reverse, expr) if reverse else expr
+
+        require(back(self.initial) == self.initial and back(self.constraint) == self.constraint
+                and all(back(prop) == prop for _, prop in self.properties),
+                "asymmetric Init, constraint or invariant")
+        after = Counter()
+        for (guard, update), multiplicity in self.effects.items():
+            change = dict(update)
+            conjugate = {}
+            for name in self.variables:
+                # The renamed update is P o Update o P^-1. A coordinate
+                # independent of the changed fields maps to itself.
+                coordinate = forward.get(name)
+                if coordinate is None:
+                    if name not in change:
+                        continue
+                    value = back(change[name])
+                elif coordinate.support & change.keys():
+                    value = back(self.b.let(change, coordinate))
+                else:
+                    continue
+                if value != self.b.var(name):
+                    conjugate[name] = value
+            after[(back(guard), frozenset(conjugate.items()))] += multiplicity
+        require(after == self.effects, "asymmetric action witnesses")
+
+    def counts(self, states, symmetry, initial_generated=1):
+        if not symmetry:
+            return super().counts(states, False, initial_generated)
+        distinct = generated = 0
+        for rename in self.permutations.values():
+            # Intersect each fixed-coordinate equation with reachable states
+            # immediately. The unrestricted equality can be exponentially larger.
+            subset = states
+            for name, value in rename.items():
+                subset &= self.b.var(name).equiv(value)
+                if subset == self.b.false:
+                    break
+            distinct += self.state_count(subset)
+            generated += sum(self.state_count(subset & guard) for guard, _ in self.actions)
+        size = len(self.permutations)
+        require(not distinct % size and not generated % size, "incomplete symmetry orbits")
+        return distinct // size, initial_generated + generated // size
+
+    def same_encoding_and_admission(self, other):
+        return (isinstance(other, PermutedModel) and self.permutations == other.permutations
+                and super().same_encoding_and_admission(other))
+
+
+def bind_source_model(doc, type_invariant, manager, order_by_path, single_partition, learned):
+    args = (doc, type_invariant, manager, order_by_path, single_partition, learned)
+    try:
+        return SourceModel(*args)
+    except NeedsValuePermutation:
+        return PermutedModel(*args)
+
+
 class RefinementWorker:
     """One request at a time; only a completed successful pass keeps its manager."""
 
@@ -1511,7 +1673,7 @@ def check_revisions(args, revisions, owner):
         doc = json.loads(exported.stdout)
         if not owner:
             owner.append(cudd.BDD(memory_estimate=512 << 20))
-        model = SourceModel(
+        model = bind_source_model(
             doc,
             args.type_invariant,
             owner[0],
