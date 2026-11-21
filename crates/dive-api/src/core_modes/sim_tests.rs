@@ -10,6 +10,7 @@ mod ownership;
 mod print;
 mod random_init;
 mod runtime;
+mod startup;
 
 /// Simulates a bound model on Core, as `simulate_file` does after
 /// binding: preflight, Core preparation (a refusal is a preflight report),
