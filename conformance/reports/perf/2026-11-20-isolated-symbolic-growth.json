@@ -2594,5 +2594,71 @@
         100950860734327
       ]
     }
+  },
+  "six_key_three_transaction_growth": {
+    "wall_seconds": 4578.19,
+    "peak_rss_kib": 1148920,
+    "exit_code": 0,
+    "report": {
+      "verdict": "success",
+      "distinct": 539910848473937721,
+      "generated": 21725268712106423230,
+      "depth": 51,
+      "reused": false,
+      "reachable_bdd_nodes": 5756,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "format": "dive-symbolic-report-v1",
+      "module": "MCKVS.tla",
+      "config": "K6V2T3.cfg",
+      "seconds": 4577.720602
+    },
+    "sha256": {
+      "KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+      "MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+      "K6V2T3.cfg": "f945c442e5c704980d710763f796601307aab1d7d486070f98390411c54b29fc",
+      "../libexec/dive-symbolic/engine.py": "fae0fefcad2f0d8279834322074cd3ebe66c506e05905beb20732e6f581156b6",
+      "../libexec/dive-symbolic/symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+      "../dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1"
+    },
+    "host": "EC2 c7i.4xlarge, one logical CPU (0), warm source page cache, fresh process, 22 GiB application limit in 26 GiB cgroup. GNU time for wall seconds and peak RSS.",
+    "command": "dive check MCKVS.tla --config K6V2T3.cfg --strategy symbolic --time-limit 10800s --max-memory 22g --output json",
+    "source_edit": "Replace only Key = {k1, k2, k3} in the released Large CFG with Key = {k1, k2, k3, k4, k5, k6}. Leave transaction symmetry and the two invariants enabled.",
+    "formula": "scripts/symbolic/kvs_symbolic.py transaction_history_counts(6, 2, 3, symmetry). Counts are distinct and generated respectively.",
+    "mathematical_check_decimal": {
+      "orbit": [
+        "539910848473937721",
+        "21725268712106423230"
+      ],
+      "concrete": [
+        "3239447207251422105",
+        "130350884965021924615"
+      ]
+    },
+    "scope": "The orbit counts are measured at a complete fixed point. The concrete pair in this record comes from the independent history formula."
+  },
+  "five_key_frontier_control": {
+    "wall_seconds": 7200.11,
+    "peak_rss_kib": 2230380,
+    "exit_code": 4,
+    "report": {
+      "verdict": "stopped",
+      "reason": "time limit"
+    },
+    "sha256": {
+      "KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+      "MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+      "MCKVSSafetyLarge.cfg": "c1f414a1caf84df31089ecb569de0dd6b835fad640f7545b2b7b239b7aad7964",
+      "K4V2T3.cfg": "0f998c45c65cb704efa99c7571662c4a634ce9fd26707969ded2c8de4561a751",
+      "K5V2T3.cfg": "47b6561fb3018ffe94f1a0e36956879dcc8fdd8fb32a24d73471cf12330b81b5",
+      "../libexec/dive-symbolic/engine.py": "35b63528e8c35af1ed9b6b35c4dc9721afeccedb8155a78d1aa6f694cd647a84",
+      "../libexec/dive-symbolic/symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+      "kvs_symbolic.py": "b7c9b152745821630bf4cc6cb539c0bfa190ec2f6d9af59aa61131c631ed6614"
+    },
+    "scope": "Earlier frontier-only worker on the five-key, two-value, three-transaction source, same CFG bytes as the 1431.39 s completing smaller-source run. Distinct and generated counters are unavailable from the stopped worker.",
+    "time_limit_seconds": 7200,
+    "host": "Single logical CPU on EC2 c7i.4xlarge; runs used separate hosts."
   }
 }
