@@ -1275,11 +1275,18 @@ Restarts raised the completed two-writer graph from 74,637 to 3,761,377 distinct
 
 Allowing two writer restarts instead of one raised the complete two-writer graph from **3,761,377 to 98,416,351 distinct states**. Core and TLC independently generated 398,235,951 states, reached depth 114 and exhausted the queue. On the same eight physical cores, Core took 396.33 s at 1.65 GiB peak RSS and TLC took 804.47 s at 5.02 GiB. With all three original writers and two restarts, Core reached a 30-million-state prefix in 135.87 s, with 102,653,606 generated and 6,184,868 still queued. That larger model's total size remains unknown. [Pinned configurations, per-engine commands and measurements](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
-#### The earlier four-writer WAL protocol
-
 Switching only `EnableFix` to `FALSE` on the released three-writer, one-restart configuration exposed a violation of **ConsistentMachineData**. Ordinary exact Core found it at depth 65 after 436,254,077 distinct states and 1,787,047,699 generated occurrences. It took 1,810.72 s and peaked at 33.91 GiB on an isolated 16-worker run. The independent validator accepted the 65-state trace on the edited configuration. With two writers the same switch still passed all six invariants: 52,260 states without restarts and 1,601,824 with one restart. Both searches exhausted their queues. The unchanged three-writer CFG with the fix enabled also passed all six invariants. [Inputs, commands, exact counts, memory and trace identity](../../conformance/reports/perf/2026-11-21-slatedb-source-edits.json).
 
-The four-writer switch configuration stopped at the time limit after 3,300.37 s, with 439,414,951 distinct states, 1,775,147,975 generated, depth 46 and 113,110,552 pending. The four-writer fixed configuration stopped at the time limit after 4,500.53 s, with 580,547,531 distinct states, 2,410,061,075 generated, depth 48 and 137,369,779 pending. [Four-writer exact runs](../../conformance/reports/perf/2026-11-21-slatedb-source-edits.json).
+Adding a fourth writer to the restart-capable model left both exact searches with a large pending frontier. All six original invariants remained enabled. The two runs had different time limits.
+
+| EnableFix | Elapsed, s | Distinct | Generated | Depth | Pending | Peak RSS, GiB |
+|---|---:|---:|---:|---:|---:|---:|
+| FALSE | 3,300.37 | 439,414,951 | 1,775,147,975 | 46 | 113,110,552 | 35.65 |
+| TRUE | 4,500.53 | 580,547,531 | 2,410,061,075 | 48 | 137,369,779 | 52.62 |
+
+Both runs stopped before reaching the depth of the three-writer witness. The four-writer verdict remains open for both settings. [Configurations and exact measurements](../../conformance/reports/perf/2026-11-21-slatedb-source-edits.json).
+
+#### The earlier four-writer WAL protocol
 
 The author's November release contains two programs. The main WAL model allows a fenced writer to restart. A separately named, earlier program uses four writers and has no restart parameter. The notes give 49 billion unique states for the newer program and 12 billion for the simpler one. The earlier program's shipped configuration keeps the fix enabled and checks six invariants. Its writer count differs from the three in the newer CFG, so the two published figures require separate reproductions. [Author's notes and configurations](https://github.com/Vanlightly/s3-wal-collection/tree/35fdc537af4d226f43b4574cded1764375f264ac/slatedb) · [TLAPS-Bench, Appendix D](https://arxiv.org/abs/2611.02849).
 
