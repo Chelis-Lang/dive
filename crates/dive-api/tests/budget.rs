@@ -208,6 +208,17 @@ fn a_memory_ceiling_below_the_footprint_stops_the_run() -> Result<(), Box<dyn st
         assert!(json["execution"].is_null());
         assert_eq!(json["stopped"]["limit"], 1 << 20);
         assert_eq!(json["options"]["budget"]["max_memory_source"], "explicit");
+
+        let unsupported = dive_api::check_file(&CheckRequest {
+            chaos: Some(0),
+            max_memory: BudgetSetting::Explicit(1 << 20),
+            ..request(&file, compat_tlc, 1)
+        })?;
+        refused::assert_refused(
+            &unsupported.to_json(),
+            unsupported.exit_code(),
+            refused::CHAOS,
+        );
     }
     Ok(())
 }

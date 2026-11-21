@@ -173,7 +173,8 @@ Inspect `statistics`, `collision`, `counterexample`, `warnings`, `notes` and
 the resolved `options` in the JSON report. `core.metrics.store.memory` lists
 the known allocations of the state store; its
 `known_retained_bytes_lower_bound` leaves out allocator overhead and other
-regions, so it is a lower bound.
+regions, so it is a lower bound. Core reports a permanently unsupported option even
+when its startup memory sample already exceeds the requested ceiling.
 
 `dive check --distributed-worker IP:port` (repeated, two or more) sends states
 to running `dive worker` processes started with the same build, model files,

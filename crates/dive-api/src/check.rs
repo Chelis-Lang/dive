@@ -755,10 +755,12 @@ fn check_file_in(
             error => crate::ApiError::BudgetStartup(error),
         })?;
     let armed = armed.into_owned();
+    // Let Core report a permanently unsupported option through its normal route.
     report.phase = if let Some(exhausted) = armed
         .budget
         .poll()
         .map_err(crate::ApiError::BudgetMeasurement)?
+        && crate::core_engine::option_refusal(&armed, profile == Profile::Tlc).is_none()
     {
         Phase::BudgetStopped(exhausted.during(dive_runtime::budget::Phase::Startup))
     } else if let Some(request) = checkpoint {
