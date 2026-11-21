@@ -593,6 +593,35 @@
             "peak_rss_kib": 48541544,
             "workers": 32
           }
+        },
+        {
+          "paper_parameters": [
+            4,
+            2,
+            2,
+            0
+          ],
+          "MaxTimeoutFailures": 2,
+          "cfg_sha256": "f02370671a2c30fa80d679ea5931c7ebcc2f649fa4727468b87a6e174cd10786",
+          "same_as_paper_count_and_depth": false,
+          "verdict": "success",
+          "depth": 73,
+          "generated": 1782477619,
+          "distinct": 583836034,
+          "queued": 0,
+          "core": {
+            "exit_code": 0,
+            "wall_seconds": 53966.23,
+            "peak_rss_kib": 13192412,
+            "workers_used": 1,
+            "print_events": 0
+          },
+          "tlc": {
+            "exit_code": 0,
+            "wall_seconds": 11049.08,
+            "peak_rss_kib": 70324696,
+            "workers": 32
+          }
         }
       ]
     }
