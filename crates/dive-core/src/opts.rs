@@ -179,6 +179,7 @@ impl Opts {
             d.hashcons,
             d.symbolic_member,
             d.member_index,
+            d.framed_function_choices,
             d.memo,
             d.step_memo,
             d.primed_memo,
