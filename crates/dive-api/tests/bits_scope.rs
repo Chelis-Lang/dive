@@ -354,3 +354,61 @@ fn finite_simulation_keeps_its_separate_worker_contract() {
         assert_eq!(parallel["options"]["workers_used"], 4);
     }
 }
+
+/// A call whose arguments depend on the state is evaluated during the search,
+/// by the override, not by the TLA+ body (99): Java's `x & y` on
+/// two's-complement ints, as TLC computes it (corpus `bits-override`). Checking
+/// used to compile the source IR and evaluate the body.
+#[test]
+fn state_dependent_calls_use_the_local_class_in_check_and_simulate() {
+    let files = setup(true);
+    std::fs::write(
+        files.0.join("Scope.tla"),
+        "---- MODULE Scope ----\nEXTENDS Integers, Bits\nVARIABLE x\nInit == x \\in {-6, 5}\nNext == x' = And(x, 7, 0, 0) - 3\nInv == And(x, -1, 0, 0) = x /\\ And(-3, x, -1, 2) = x - And(x, 2, 0, 0)\n====\n",
+    )
+    .expect("state-dependent calls");
+    for profile in [false, true] {
+        for workers in [1, 4] {
+            let req = request(&files, profile, workers, Store::Fingerprint);
+            let json = dive_api::check_file(&req).expect("check").to_json();
+            assert_eq!(json["verdict"], "success", "{json}");
+            assert_eq!(json["statistics"]["distinct"], 10, "{json}");
+            let sim = SimulateRequest {
+                file: files.0.join("Scope.tla"),
+                compat_tlc: profile,
+                seed: Some(7),
+                depth: Some(8),
+                traces: 4,
+                workers: Some(workers),
+                ..SimulateRequest::default()
+            };
+            let sampled = dive_api::simulate_file(&sim).expect("sample").to_json();
+            assert_eq!(sampled["result"], "sampled", "{sampled}");
+            assert_eq!(sampled["traces"][0]["validation"]["result"], "valid");
+        }
+    }
+}
+
+/// TLC casts every argument to `IntValue` and fails a non-integer with error
+/// 2154 ("Cannot cast tlc2.value.impl.BoolValue to tlc2.value.impl.IntValue");
+/// Core refuses that case by name.
+#[test]
+fn a_non_integer_argument_is_a_named_refusal() {
+    let files = setup(true);
+    std::fs::write(
+        files.0.join("Scope.tla"),
+        "---- MODULE Scope ----\nEXTENDS Integers, Bits\nVARIABLE x\nInit == x \\in {TRUE}\nNext == x' = x\nInv == And(7, 3, x, 0) = 3\n====\n",
+    )
+    .expect("boolean argument");
+    for profile in [false, true] {
+        let req = request(&files, profile, 1, Store::Fingerprint);
+        let json = dive_api::check_file(&req).expect("check").to_json();
+        assert_eq!(json["verdict"], "unsupported", "{json}");
+        assert!(
+            json["message"]
+                .as_str()
+                .is_some_and(|m| m.contains("Bits!And (an argument that is not a TLC IntValue)")),
+            "{json}"
+        );
+    }
+}

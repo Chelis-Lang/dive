@@ -184,7 +184,13 @@ are in git history.
 
 ### Fixed
 
+- `dive check` applies the Examples Hanoi `Bits.class` override to calls of
+  `Bits!And` whose arguments depend on the state. It used to evaluate the
+  module's TLA+ body for them. `dive simulate` now runs models that use the
+  override instead of refusing `Bits!And`.
+
 - An unsupported Core option such as `--chaos` now receives its named refusal even if the process begins above its memory ceiling.
+
 - Independent trace validation can certify Next errors, partial successors and deadlocks when replay of a direct diagnostic action reaches no output. [Independent trace validation](docs/user/traces.md#error-endpoints).
 
 - Core grows the in-memory fingerprint table one shard at a time, packs trace

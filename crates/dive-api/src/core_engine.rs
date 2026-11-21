@@ -753,7 +753,18 @@ fn prepare_observed(
     // remaining ASSUMEs are checked. Compiling is pure start-up work (it
     // prints nothing, draws nothing and reads no counter), so a compile
     // failure is reported only after the ASSUMEs pass, as before.
-    let compiled = compile_plan(&model, ir, options, core_opts, &mut sym, debugger.as_ref());
+    // The plan is compiled from the bound IR: binding installs the local
+    // Java overrides TLC loads (the pinned Hanoi `Bits.class`) on it, and
+    // the source IR would evaluate the module's TLA+ body instead.
+    let bound_ir = Arc::clone(&model.ir);
+    let compiled = compile_plan(
+        &model,
+        &bound_ir,
+        options,
+        core_opts,
+        &mut sym,
+        debugger.as_ref(),
+    );
     // The core evaluates a leading run of the ASSUMEs, stopping at the first
     // that is not TRUE (TLC's order: an ASSUME may guard the next). One it
     // found FALSE is the first that is not TRUE, and is reported without
