@@ -1,0 +1,480 @@
+{
+  "model": "holdout-blocking-queue/BlockingQueuePoisonApple",
+  "source_commit": "68715979666344cbcc66fa621b27039f281bdd5c",
+  "input_sha256": {
+    "BlockingQueuePoisonApple.tla": "1695bd49adcc3414ed7f1c5feb23eed29c36d8cca1ee106fb75d7d59c7ccea09",
+    "BlockingQueuePoisonApple.cfg": "af6cf7f7a62e43194fa83ec60056a72a44ee112d121abdbdeb34aa0e0450d22f"
+  },
+  "capacity_record": "2026-11-20-large-model-outcomes.json",
+  "host": "EC2 Xeon Platinum 8488C, Linux 7.0.0-1018-aws; single pinned physical core per process; other bounded controls occupied separate cores. TLC complete controls included DOT output.",
+  "checker_sha256": "0d4fcf747862a5afcf15ed3db4eb88153ff745c94ede4da06706504beec91f16",
+  "tlc_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "command_templates": {
+    "prepare": "python3 scripts/perf/scale/poison_queue.py SRC NEW --producers P --consumers C --capacity B [--project-payload]",
+    "core": "dive check BlockingQueuePoisonApple.tla --config CFG --workers 1 --fp 0 --seed 0 --store exact --max-memory 3g --time-limit 180s --output json",
+    "tlc": "java -XX:ActiveProcessorCount=1 -Xmx2g -cp tla2tools.jar tlc2.TLC -workers 1 -seed 0 -fp 0 -config CFG BlockingQueuePoisonApple.tla",
+    "complete_graphs": "Append CHECK_DEADLOCK FALSE to the prepared CFG. TLC uses -Xmx600m -dump dot,actionlabels all.dot. Core uses --max-memory 1g --time-limit 60s. Run python3 scripts/perf/scale/poison_queue_graph.py ORIGINAL/all.dot PROJECTED/all.dot. A relabelled Get(c1) edge in the projected 2/2/2 graph was rejected.",
+    "native_simulation": "dive simulate BlockingQueuePoisonApple.tla --traces 8 --depth 500 --workers 1 --seed SEED --keep-traces 0 --time-limit 75s --max-memory 750m --output json. Larger controls use one trace, depth 5000, 90s and 1g. Extract .traces[0].document and independently run dive validate-trace with the corresponding original module and CFG.",
+    "tlc_simulation": "java -XX:ActiveProcessorCount=1 -Xmx512m -cp tla2tools.jar tlc2.TLC -workers 1 -seed SEED -fp 0 -simulate num=1 -depth 500 -config BlockingQueuePoisonApple.cfg BlockingQueuePoisonApple.tla"
+  },
+  "measurement_scope": "Wall includes startup; RSS in KiB. As-configured rows stop on a deadlock. Only the explicit deadlock-disabled small controls exhaust and check all three temporal properties. Simulation counters are per seed, not exhaustive counts. Generated counts in the two small-model engines matched on every row.",
+  "small_exhaustive_controls": [
+    {
+      "producers_consumers_capacity": [
+        1,
+        1,
+        1
+      ],
+      "actor_graph_audit": {
+        "original_states": 6,
+        "projected_states": 6,
+        "original_actor_edges": 9,
+        "projected_actor_edges": 9
+      },
+      "original": {
+        "as_configured": {
+          "verdict": "deadlock",
+          "statistics": {
+            "distinct": 6,
+            "generated": 10,
+            "depth": 3,
+            "left_on_queue": 0
+          },
+          "core": {
+            "wall_s": 0.01,
+            "peak_rss_kib": 29852
+          },
+          "tlc": {
+            "wall_s": 1.05,
+            "peak_rss_kib": 99188
+          }
+        },
+        "deadlock_check_disabled": {
+          "verdict": "success",
+          "statistics": {
+            "distinct": 6,
+            "generated": 10,
+            "depth": 3,
+            "left_on_queue": 0
+          },
+          "core": {
+            "wall_s": 0.01,
+            "peak_rss_kib": 29508
+          },
+          "tlc": {
+            "wall_s": 1.01,
+            "peak_rss_kib": 81788
+          }
+        }
+      },
+      "projected": {
+        "as_configured": {
+          "verdict": "deadlock",
+          "statistics": {
+            "distinct": 6,
+            "generated": 10,
+            "depth": 3,
+            "left_on_queue": 0
+          },
+          "core": {
+            "wall_s": 0.01,
+            "peak_rss_kib": 29872
+          },
+          "tlc": {
+            "wall_s": 1.07,
+            "peak_rss_kib": 101828
+          }
+        },
+        "deadlock_check_disabled": {
+          "verdict": "success",
+          "statistics": {
+            "distinct": 6,
+            "generated": 10,
+            "depth": 3,
+            "left_on_queue": 0
+          },
+          "core": {
+            "wall_s": 0.01,
+            "peak_rss_kib": 29684
+          },
+          "tlc": {
+            "wall_s": 1.06,
+            "peak_rss_kib": 87232
+          }
+        }
+      }
+    },
+    {
+      "producers_consumers_capacity": [
+        2,
+        1,
+        2
+      ],
+      "actor_graph_audit": {
+        "original_states": 53,
+        "projected_states": 33,
+        "original_actor_edges": 117,
+        "projected_actor_edges": 72
+      },
+      "original": {
+        "as_configured": {
+          "verdict": "deadlock",
+          "statistics": {
+            "distinct": 52,
+            "generated": 97,
+            "depth": 6,
+            "left_on_queue": 9
+          },
+          "core": {
+            "wall_s": 0.01,
+            "peak_rss_kib": 30172
+          },
+          "tlc": {
+            "wall_s": 1.19,
+            "peak_rss_kib": 103360
+          }
+        },
+        "deadlock_check_disabled": {
+          "verdict": "success",
+          "statistics": {
+            "distinct": 53,
+            "generated": 118,
+            "depth": 6,
+            "left_on_queue": 0
+          },
+          "core": {
+            "wall_s": 0.01,
+            "peak_rss_kib": 29852
+          },
+          "tlc": {
+            "wall_s": 1.28,
+            "peak_rss_kib": 91688
+          }
+        }
+      },
+      "projected": {
+        "as_configured": {
+          "verdict": "deadlock",
+          "statistics": {
+            "distinct": 32,
+            "generated": 63,
+            "depth": 6,
+            "left_on_queue": 4
+          },
+          "core": {
+            "wall_s": 0.01,
+            "peak_rss_kib": 29932
+          },
+          "tlc": {
+            "wall_s": 1.14,
+            "peak_rss_kib": 100808
+          }
+        },
+        "deadlock_check_disabled": {
+          "verdict": "success",
+          "statistics": {
+            "distinct": 33,
+            "generated": 73,
+            "depth": 6,
+            "left_on_queue": 0
+          },
+          "core": {
+            "wall_s": 0.01,
+            "peak_rss_kib": 29644
+          },
+          "tlc": {
+            "wall_s": 1.21,
+            "peak_rss_kib": 84688
+          }
+        }
+      }
+    },
+    {
+      "producers_consumers_capacity": [
+        2,
+        2,
+        2
+      ],
+      "actor_graph_audit": {
+        "original_states": 478,
+        "projected_states": 292,
+        "original_actor_edges": 1620,
+        "projected_actor_edges": 992
+      },
+      "original": {
+        "as_configured": {
+          "verdict": "deadlock",
+          "statistics": {
+            "distinct": 475,
+            "generated": 1576,
+            "depth": 10,
+            "left_on_queue": 19
+          },
+          "core": {
+            "wall_s": 0.01,
+            "peak_rss_kib": 30064
+          },
+          "tlc": {
+            "wall_s": 1.56,
+            "peak_rss_kib": 109824
+          }
+        },
+        "deadlock_check_disabled": {
+          "verdict": "success",
+          "statistics": {
+            "distinct": 478,
+            "generated": 1621,
+            "depth": 10,
+            "left_on_queue": 0
+          },
+          "core": {
+            "wall_s": 0.03,
+            "peak_rss_kib": 29600
+          },
+          "tlc": {
+            "wall_s": 2.06,
+            "peak_rss_kib": 93248
+          }
+        }
+      },
+      "projected": {
+        "as_configured": {
+          "verdict": "deadlock",
+          "statistics": {
+            "distinct": 289,
+            "generated": 974,
+            "depth": 10,
+            "left_on_queue": 8
+          },
+          "core": {
+            "wall_s": 0.01,
+            "peak_rss_kib": 29880
+          },
+          "tlc": {
+            "wall_s": 1.51,
+            "peak_rss_kib": 108704
+          }
+        },
+        "deadlock_check_disabled": {
+          "verdict": "success",
+          "statistics": {
+            "distinct": 292,
+            "generated": 993,
+            "depth": 10,
+            "left_on_queue": 0
+          },
+          "core": {
+            "wall_s": 0.02,
+            "peak_rss_kib": 29536
+          },
+          "tlc": {
+            "wall_s": 1.74,
+            "peak_rss_kib": 97468
+          }
+        }
+      }
+    },
+    {
+      "producers_consumers_capacity": [
+        3,
+        2,
+        2
+      ],
+      "actor_graph_audit": {
+        "original_states": 5882,
+        "projected_states": 2560,
+        "original_actor_edges": 25866,
+        "projected_actor_edges": 11550
+      },
+      "original": {
+        "as_configured": {
+          "verdict": "deadlock",
+          "statistics": {
+            "distinct": 5877,
+            "generated": 25558,
+            "depth": 14,
+            "left_on_queue": 95
+          },
+          "core": {
+            "wall_s": 0.05,
+            "peak_rss_kib": 36108
+          },
+          "tlc": {
+            "wall_s": 3.59,
+            "peak_rss_kib": 124684
+          }
+        },
+        "deadlock_check_disabled": {
+          "verdict": "success",
+          "statistics": {
+            "distinct": 5882,
+            "generated": 25867,
+            "depth": 14,
+            "left_on_queue": 0
+          },
+          "core": {
+            "wall_s": 0.32,
+            "peak_rss_kib": 37996
+          },
+          "tlc": {
+            "wall_s": 6.29,
+            "peak_rss_kib": 151400
+          }
+        }
+      },
+      "projected": {
+        "as_configured": {
+          "verdict": "deadlock",
+          "statistics": {
+            "distinct": 2555,
+            "generated": 11378,
+            "depth": 14,
+            "left_on_queue": 52
+          },
+          "core": {
+            "wall_s": 0.03,
+            "peak_rss_kib": 32008
+          },
+          "tlc": {
+            "wall_s": 2.94,
+            "peak_rss_kib": 115844
+          }
+        },
+        "deadlock_check_disabled": {
+          "verdict": "success",
+          "statistics": {
+            "distinct": 2560,
+            "generated": 11551,
+            "depth": 14,
+            "left_on_queue": 0
+          },
+          "core": {
+            "wall_s": 0.15,
+            "peak_rss_kib": 31480
+          },
+          "tlc": {
+            "wall_s": 4.03,
+            "peak_rss_kib": 104088
+          }
+        }
+      }
+    }
+  ],
+  "original_seeded_simulation": [
+    {
+      "seed": 0,
+      "trace_length": 102,
+      "generated": 151,
+      "validation": "valid",
+      "wall_s": 0.02,
+      "peak_rss_kib": 29612
+    },
+    {
+      "seed": 1,
+      "trace_length": 99,
+      "generated": 150,
+      "validation": "valid",
+      "wall_s": 0.01,
+      "peak_rss_kib": 29560
+    },
+    {
+      "seed": 2,
+      "trace_length": 103,
+      "generated": 154,
+      "validation": "valid",
+      "wall_s": 0.01,
+      "peak_rss_kib": 29692
+    },
+    {
+      "seed": 3,
+      "trace_length": 112,
+      "generated": 167,
+      "validation": "valid",
+      "wall_s": 0.01,
+      "peak_rss_kib": 29676
+    },
+    {
+      "seed": 4,
+      "trace_length": 111,
+      "generated": 189,
+      "validation": "valid",
+      "wall_s": 0.02,
+      "peak_rss_kib": 29692
+    }
+  ],
+  "shortened_trace": {
+    "check": "ending",
+    "detail": "the claimed deadlock has a successor",
+    "state": 100
+  },
+  "tlc_simulation": [
+    {
+      "seed": 0,
+      "generated": 216,
+      "exit": 11,
+      "wall_s": 1.01,
+      "peak_rss_kib": 76952
+    },
+    {
+      "seed": 1,
+      "generated": 159,
+      "exit": 11,
+      "wall_s": 0.97,
+      "peak_rss_kib": 77240
+    },
+    {
+      "seed": 2,
+      "generated": 177,
+      "exit": 11,
+      "wall_s": 1.0,
+      "peak_rss_kib": 74176
+    }
+  ],
+  "projected_original_size_bfs": {
+    "verdict": "stopped",
+    "message": "DIVE-L0038: stopped during temporal-analysis after 180047 ms: the time limit is 180000 ms",
+    "statistics": {
+      "depth": 11,
+      "distinct": 1314511,
+      "exhaustive": false,
+      "generated": 7737121,
+      "initial_generated": 1,
+      "left_on_queue": 788688,
+      "reported_by_tlc": false
+    },
+    "wall_s": 180.05,
+    "peak_rss_kib": 445296
+  },
+  "larger_seeded_simulation": [
+    {
+      "producers": 8,
+      "consumers": 8,
+      "capacity": 5,
+      "seed": 0,
+      "trace_length": 245,
+      "generated": 397,
+      "wall_s": 0.03,
+      "peak_rss_kib": 35792
+    },
+    {
+      "producers": 12,
+      "consumers": 12,
+      "capacity": 5,
+      "seed": 0,
+      "trace_length": 608,
+      "generated": 1044,
+      "wall_s": 0.07,
+      "peak_rss_kib": 35668
+    },
+    {
+      "producers": 20,
+      "consumers": 20,
+      "capacity": 5,
+      "seed": 0,
+      "trace_length": 1867,
+      "generated": 3321,
+      "wall_s": 0.29,
+      "peak_rss_kib": 52212
+    }
+  ]
+}

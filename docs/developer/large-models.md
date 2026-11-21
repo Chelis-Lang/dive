@@ -585,6 +585,24 @@ include the worker counts and the original model and configuration digests.
 
 On a 32-physical-core host with a 24 GiB sampled RSS limit, DiskSynod reached 835,858,711 distinct states and 12,639,577,756 generated in 6,500.61 s. It had 144,840,332 states queued at depth 35. BPConProof hit the same budget in 181.95 s with 134,831,096 distinct states. Of those, 134,714,941 were still queued. At 16 workers, BlockingQueuePoisonApple hit 24 GiB during graph capture with 117,440,513 distinct and 569,933,982 generated. At eight workers and 18 GiB, etcdraft reached 94,073,470 distinct before memory stopped it. MCetcdraft instead hit the 900 s time limit at 39,256,817 distinct and 8.89 GiB peak RSS. These runs use different worker counts and budget enforcement from the original cgroup trials. [Per-input commands, limits, binary identities and terminal queues](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
 
+### A terminating concurrent queue
+
+The unchanged `BlockingQueuePoisonApple.cfg` has five producers, five consumers and a queue of capacity five. Its `NoDeadlock` invariant says that the wait set never contains every thread. The checker separately reports any reachable state with no enabled next step. All actors can finish with empty wait set and buffer, so that check has a concrete counterexample.
+
+```sh
+dive simulate BlockingQueuePoisonApple.tla --traces 8 --depth 500 --workers 1 --seed 0 --keep-traces 0 --output json > sample.json
+jq '.traces[0].document' sample.json > trace.json
+dive validate-trace BlockingQueuePoisonApple.tla --config BlockingQueuePoisonApple.cfg --trace trace.json --output json
+```
+
+Five seeds each found a terminal trace on the first sample in 0.01–0.02 s. All five replayed against the original source and CFG. Removing the final state from the first trace left a live consumer and failed deadlock validation. Pinned TLC also found deadlock on all three sampling seeds tested. Increasing both roles to 20 produced a replayable 1,867-state trace in 0.29 s. These witnesses establish reachability of termination. The three temporal properties quantify over fair behaviors and require a separate check.
+
+Breadth-first graph capture on the original reached depth 12 at 24 GiB and depth 15 at 224 GiB. The latter stopped after 18,792.68 s with 1,073,741,425 distinct states, 6,531,433,021 generated and 561,037,884 still queued. Normal termination requires every producer to send five poison pills and every consumer to receive five. Even a path with no waits or ordinary messages needs 50 transitions to reach that terminal state.
+
+The buffer also stores each ordinary message's producer ID. Every consumer tests only whether its head equals `Poison`. The [preparer](../../scripts/perf/scale/poison_queue.py) can replace those ordinary IDs with a single producer value in the pinned model. The acting producer, its quota and its identity in the wait set remain distinct. For each concrete state, projection commutes with append, tail and the poison test. Every projected step has a concrete step from that same state: use the same actor, branch and wake-up choice, writing that actor's own ID on an ordinary put. Every non-stuttering step changes queue length, a quota, or the wait set, which the projection preserves. Thus the enabled and taken `Get(c)` and poison-producing `Put(p, …) /\ prod' # prod` steps used by fairness correspond in both directions. This argument uses the supplied disjoint producer and poison constants and the observations in these five properties. A property that tests the queued producer's identity would require a different argument.
+
+With only the checker's terminal deadlock check disabled, Core and TLC exhausted the original and projected graphs at four sizes and verified all three temporal properties and both invariants. For three producers, two consumers and capacity two, projection reduced the graph from 5,882 to 2,560 states and from 25,866 to 11,550 actor-labelled edges. The [graph comparison](../../scripts/perf/scale/poison_queue_graph.py) checked the complete successor set separately for every original state. The projected five-by-five search still stopped at depth 11 under its 180 s budget. Its full fair-graph result remains open. [Source pins, commands and measurements](../../conformance/reports/perf/2026-11-21-poison-queue.json).
+
 ### Car Talk evaluates a constant expression
 
 Lamport’s five-piece `CarTalkPuzzle.toolbox/Model_3` asks TLC to print
