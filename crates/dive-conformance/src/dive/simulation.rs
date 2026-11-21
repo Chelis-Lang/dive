@@ -485,6 +485,221 @@ fn minimum_generated(initial: u64, words: &[Value]) -> Option<u64> {
     })
 }
 
+/// One `dive simulate` run of the simulation study
+/// ([`crate::simulation_study`]): its verdict class and, for a violation,
+/// the independent validation of the deciding trace.
+#[derive(Debug, Clone)]
+pub struct StudyRun {
+    /// Verdict class, as [`Verdict::as_str`], or `unsupported` / `cli-error`.
+    pub class: String,
+    /// Violated property or invariant name.
+    pub property: Option<String>,
+    /// Independent validation of a violation's deciding trace.
+    pub validation: Option<crate::trace_check::TraceCheck>,
+    /// The refusal or error message, if any.
+    pub message: Option<String>,
+    /// Wall time.
+    pub elapsed_ms: u64,
+    /// Per temporal property: (name, traces checked, traces unchecked).
+    pub temporal: Vec<(String, u64, u64)>,
+    /// The command line, redacted.
+    pub command: Vec<String>,
+}
+
+/// Parameters of one study run.
+#[derive(Debug, Clone, Copy)]
+pub struct StudyParams<'a> {
+    /// Total traces.
+    pub traces: u64,
+    /// Trace depth.
+    pub depth: u64,
+    /// Seed.
+    pub seed: i64,
+    /// `--liveness-extend` value, when not the default.
+    pub extend: Option<&'a str>,
+    /// Child timeout; dive's own time limit is slightly shorter.
+    pub timeout: std::time::Duration,
+    /// `--max-memory`.
+    pub memory: &'a str,
+}
+
+impl DiveImplementation {
+    /// Runs `dive simulate` once for the simulation study, keeping only the
+    /// deciding trace, and validates that trace with a fresh model.
+    ///
+    /// # Errors
+    /// Fails only on harness process errors; every dive outcome is a run.
+    pub fn simulation_study_run(
+        &self,
+        corpus_root: &std::path::Path,
+        model: &crate::corpus::ModelEntry,
+        params: StudyParams<'_>,
+    ) -> Result<StudyRun> {
+        let config = corpus_root.join(&model.id);
+        let (traces, depth, seed) = (
+            params.traces.to_string(),
+            params.depth.to_string(),
+            params.seed.to_string(),
+        );
+        let limit = format!(
+            "{}ms",
+            params.timeout.as_millis().saturating_sub(5_000).max(1_000)
+        );
+        let mut extra: Vec<&std::ffi::OsStr> = vec![
+            "--config".as_ref(),
+            config.as_os_str(),
+            "--traces".as_ref(),
+            traces.as_ref(),
+            "--depth".as_ref(),
+            depth.as_ref(),
+            "--seed".as_ref(),
+            seed.as_ref(),
+            "--workers".as_ref(),
+            "1".as_ref(),
+            "--keep-traces".as_ref(),
+            "0".as_ref(),
+            "--time-limit".as_ref(),
+            limit.as_ref(),
+            "--max-memory".as_ref(),
+            params.memory.as_ref(),
+            "--exit-codes".as_ref(),
+            "tlc".as_ref(),
+            "--engine".as_ref(),
+            self.engine.name().as_ref(),
+        ];
+        if model.features.iter().any(|f| f == "constructive generation") {
+            extra.push("--generate".as_ref());
+        }
+        if let Some(extend) = params.extend {
+            extra.extend::<[&std::ffi::OsStr; 2]>(["--liveness-extend".as_ref(), extend.as_ref()]);
+        }
+        for path in &self.module_path {
+            extra.extend(["--module-path".as_ref(), path.path.as_os_str()]);
+        }
+        let (command, outcome) = self.run(
+            "simulate",
+            &extra,
+            corpus_root,
+            &model.module,
+            params.timeout,
+        )?;
+        let mut run = StudyRun {
+            class: String::new(),
+            property: None,
+            validation: None,
+            message: None,
+            elapsed_ms: u64::try_from(outcome.elapsed.as_millis()).unwrap_or(u64::MAX),
+            temporal: Vec::new(),
+            command,
+        };
+        if outcome.timed_out {
+            Verdict::Timeout.as_str().clone_into(&mut run.class);
+            return Ok(run);
+        }
+        let Ok(value) = serde_json::from_str::<Value>(&outcome.stdout) else {
+            run.class = "cli-error".into();
+            run.message = outcome
+                .stderr
+                .lines()
+                .rev()
+                .find(|l| !l.trim().is_empty())
+                .map(|l| l.chars().take(200).collect());
+            return Ok(run);
+        };
+        run.message = value["message"].as_str().map(|m| m.chars().take(200).collect());
+        for p in value["statistics"]["properties"].as_array().into_iter().flatten() {
+            if p["part"] == "temporal" {
+                run.temporal.push((
+                    p["name"].as_str().unwrap_or_default().to_owned(),
+                    p["checked_traces"].as_u64().unwrap_or(0),
+                    p["unchecked_traces"].as_u64().unwrap_or(0),
+                ));
+            }
+        }
+        let code = value["tlc_code"].as_i64().and_then(|c| i32::try_from(c).ok());
+        let verdict = match value["result"].as_str().unwrap_or_default() {
+            "sampled" => Some(Verdict::Success),
+            "violation" | "evaluation-error" => Some(
+                code.and_then(crate::tlc::codes::verdict_for_code)
+                    .unwrap_or(Verdict::EvaluationError),
+            ),
+            "stopped" | "resource-limit" => Some(Verdict::ResourceLimit),
+            _ => None,
+        };
+        let Some(verdict) = verdict else {
+            run.class = value["result"].as_str().unwrap_or("unclassified").to_owned();
+            return Ok(run);
+        };
+        verdict.as_str().clone_into(&mut run.class);
+        if value["result"] != "violation" {
+            return Ok(run);
+        }
+        let claim = &value["observed_violation"];
+        run.property = claim["name"].as_str().map(str::to_owned);
+        // `observed_violation.trace` indexes the report's trace array.
+        let deciding = claim["trace"]
+            .as_u64()
+            .and_then(|i| usize::try_from(i).ok())
+            .and_then(|i| value["traces"].as_array()?.get(i));
+        run.validation = Some(match deciding.map(|t| &t["document"]) {
+            Some(document) if !document.is_null() => {
+                self.validate_study_word(corpus_root, model, params.seed, document)
+            }
+            _ => crate::trace_check::TraceCheck::no(
+                "the report carries no deciding trace document",
+            ),
+        });
+        Ok(run)
+    }
+
+    fn validate_study_word(
+        &self,
+        corpus_root: &std::path::Path,
+        model: &crate::corpus::ModelEntry,
+        seed: i64,
+        document: &Value,
+    ) -> crate::trace_check::TraceCheck {
+        use crate::trace_check::TraceCheck;
+        let doc = match TraceDoc::from_json(document) {
+            Ok(doc) => doc,
+            Err(e) => return TraceCheck::refuted(format!("unreadable trace document: {e}")),
+        };
+        let spec = match SpecModel::load(
+            &corpus_root.join(&model.module),
+            &corpus_root.join(&model.id),
+            &TraceOptions {
+                compat_tlc: self.profile != Profile::Dive,
+                run: Some((seed, 0)),
+                module_paths: self.module_path.iter().map(|p| p.path.clone()).collect(),
+                ..TraceOptions::default()
+            },
+        ) {
+            Ok(spec) => spec,
+            Err(e) => return TraceCheck::no(format!("independent binding failed: {e}")),
+        };
+        // A simulation deadlock has no successor inside the constraints, so
+        // it is checked as a sample; every other ending as an ordinary word.
+        let report = if doc.ending == Some(Ending::Deadlock) {
+            match spec.try_validate_sample(&doc) {
+                Ok(report) => report,
+                Err(e) => return TraceCheck::no(format!("independent validation interrupted: {e}")),
+            }
+        } else {
+            spec.validate(&doc)
+        };
+        match report.validation {
+            Validation::Valid => TraceCheck::yes("validated against a fresh independent model"),
+            Validation::Invalid(f) => {
+                TraceCheck::refuted(format!("invalid state {}: {}", f.state, f.detail))
+            }
+            Validation::Unsupported(why) => {
+                TraceCheck::no(format!("independent validation refused: {why}"))
+            }
+            other => TraceCheck::no(format!("independent validation returned {}", other.kind())),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

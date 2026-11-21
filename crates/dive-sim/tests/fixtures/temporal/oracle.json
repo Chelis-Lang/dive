@@ -2,17 +2,18 @@
  "oracle": "tlc-2026.10.06.014338",
  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
  "java_version": "openjdk version \"17.0.20.1\" 2026-08-18",
- "reason": "Measure TLC -simulate and -generate on temporal PROPERTY, SYMMETRY, VIEW, ALIAS, implied properties, trace files, large or unbounded domains and workers for the simulation design (#491)",
- "captured_at": "2026-11-20T12:57:09+00:00",
+ "reason": "S4: add E1, T5 and their BFS controls; TLC -simulate reports <>[]P violated on behaviors that satisfy it when P is false before the repeating part",
+ "captured_at": "2026-11-21T01:29:55+00:00",
  "sources": {
   "BigNext.tla": "c5a411baece2b9ec47386566b498e1856888337c56c05dcec9865a46bb272df1",
   "Cycle.tla": "8eb811f1a1e211f4abd61ee19b6be6a9eea46a3bd816e582c1ef295acfd07362",
   "Fair.tla": "45ebcc2e11ffa5f0866c02a16b7c3297a0914fa2907f24c372ada16c9336e580",
   "InfInit.tla": "1ecfb57064297f4c082eb1a099e85ad665d040aa55c896623229a3f28cda33b3",
   "InfNext.tla": "14a90f4f9161d4cca36b0514b9c7794017396dd6357d6d1a9907e0af9fa616a3",
+  "Stem.tla": "e840659b82818dfaa351d3dd25deea7a43a119cd07aa136fccd52429b59c4948",
   "Strong.tla": "dc918836370cc0b8b60c50e3ec57449a78969281adb8e89dcce482af9db954b6",
   "SymLoop.tla": "8ee11f11878b61bd48085b5a54753457683c86d16ac3d476811e916f398fbde8",
-  "Terminal.tla": "58cd53c9b95b96b92a9a68c5fed97c8b6fd87e1aaea62b128d516567dfcfd052",
+  "Terminal.tla": "182c3b241c20f48bba4c0d55473e6c7f1253e1ce66b5a35637607e84eadae20a",
   "Unbounded.tla": "b14a4544cbccaa6f1bcced5abf2ab48d9ef4258206ed75c8bfa0c2e2dab15b7a",
   "ViewLoop.tla": "1a3676c88098da0b6739e5b027183db42dc3359448eb8aa9d9952781d5e08069",
   "Walk.tla": "d0ae7649a8b4065e164a26bbbf2ddd33f9a3eed42c0ab784c717c56b97328c0f"
@@ -49,7 +50,7 @@
    "back_to_state": 1,
    "stuttering": false,
    "generated": 11,
-   "stdout_sha256": "2057efdbc86512021bd538bb8d62dd1ab7666ba253a72b5a43ea48d4f9da3db2",
+   "stdout_sha256": "6aa006db47a745910d343bf5f35559c1a13b2a9a468f45e699f3d22e2c203deb",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -85,7 +86,7 @@
    "back_to_state": 1,
    "stuttering": false,
    "generated": 11,
-   "stdout_sha256": "cfb166b52ed82476dbc171b910515820c03a43f6e188fad57ebbd35587806bd2",
+   "stdout_sha256": "be0d81df4f4815e22e76adcf2b0622f2af79ee5de8ced927dd803f5ba1081594",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -122,7 +123,7 @@
    "back_to_state": 2,
    "stuttering": false,
    "generated": 11,
-   "stdout_sha256": "4815e8ee363ddfde98d4ad8e2e5fa2f9c2f5492b42e8fe3e1baa8f22c366af67",
+   "stdout_sha256": "10ede57c6271f25d6c826de92f817ff724efdb9b2c4bc3423f25140be963dfc2",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -149,7 +150,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 201,
-   "stdout_sha256": "8c4b3558fccbb70e0522cb7e6c687e1227b050490a71a0fa313e9eed4fdd0f8f",
+   "stdout_sha256": "eabaabadb39a29b51a13f9b38bb43772917e9204631a42b8835158b628f9813e",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -176,7 +177,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 201,
-   "stdout_sha256": "94c5ec9130ca4b16006dcc32c507736a754b49919192241b82e2d30acc00bb51",
+   "stdout_sha256": "d7b9f6be5468a1e0a7e8af298e98e8a147ae57daef3ceffa7dc0b0b4bfc63005",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -212,7 +213,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 41,
-   "stdout_sha256": "ebcba1f56c881fc412abe92671f578f9843fe57bbbce0c73f85083a4d34004e5",
+   "stdout_sha256": "3b193d3e44747080fb6a652c4fdab014a3af5d5924a9193157e8dd1a6d484f74",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -239,7 +240,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 41,
-   "stdout_sha256": "d6f9cfb3103d6003a7e0e6033ece910d255ddb3b902e2653bc2ed373bb2b7838",
+   "stdout_sha256": "b61626792f7d15b35c42cbbd9d9783ec4358defece539cfe2c255df8bd59f74f",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -266,7 +267,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 41,
-   "stdout_sha256": "4456c120d5be8dd1b375930007ff1faa057f9f49d8bf6066e61d81ca6dd743d6",
+   "stdout_sha256": "3d0b2e9590c6718f879ea166d9677393801cae482e3b839fb7d41bc85f10cedf",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -302,7 +303,7 @@
    "back_to_state": null,
    "stuttering": true,
    "generated": 11,
-   "stdout_sha256": "5bdb425bb3ff0dd5a4b9e2d84261c57d7986bd1cc61b3f67523d75532e3be309",
+   "stdout_sha256": "cc824492b7532c4d0ecd88e9b561b2ef7ae08d7458dc1987afd3cfe5b7f608a1",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -337,8 +338,8 @@
    ],
    "back_to_state": 1,
    "stuttering": false,
-   "generated": 261,
-   "stdout_sha256": "6c1e87b1546737a043bd760fbf17af16403e83de87cb10cec238422d3bbaeafd",
+   "generated": 533,
+   "stdout_sha256": "695cd8d969c4f893bb45ef7c484c9d27032b3dae21f76646bdeb7dad54f02a9b",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -365,7 +366,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 2001,
-   "stdout_sha256": "cf1e401809a64d97529f11525c28c2b3b6ec3a356679f926fbbe7b639ae447c6",
+   "stdout_sha256": "75dd6edff9efdee0552b505286348f6f2ad77a0b7e75ffdb57d79ecd22169205",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -393,7 +394,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 41,
-   "stdout_sha256": "b2bdb2893a92d8a8be551e180d481f85200c09834d48ddd4e8fdb28651889ea1",
+   "stdout_sha256": "cf9773cd1acb2d45afe6228630475de4f9928952a5e1f2f77a212aa0227552b0",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -430,7 +431,7 @@
    "back_to_state": null,
    "stuttering": true,
    "generated": 3,
-   "stdout_sha256": "1e84d959439220a80e8d720c51dfeb21c52972d65d110c16ec7986f9a96e8498",
+   "stdout_sha256": "a9dee2e6ce5691447685abe983ba993c134abbc8cf139a7a1955a5b87bd2b203",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -467,7 +468,80 @@
    "back_to_state": null,
    "stuttering": true,
    "generated": 3,
-   "stdout_sha256": "f0bd3204f3c979a4932ed44dc7701dd521ea4d37b4f770ea5d81e16154c961a5",
+   "stdout_sha256": "7fdf1de46a174634c7a5bf69dd3d6d04b18872bf7a0069bfd69b9a519c5913ef",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "T5",
+   "module": "Terminal",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyAlwaysTwo",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-deadlock",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "unsound: reports a stuttering counterexample on 0, 1, 2, 2, ..., which satisfies <>[](x = 2) (BFS control B-T5 finds none)",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal properties were violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2"
+   ],
+   "back_to_state": null,
+   "stuttering": true,
+   "generated": 3,
+   "stdout_sha256": "25858ee0c2e9f449a5382c7731914852318762211225d4338d30870fcdb258aa",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "E1",
+   "module": "Stem",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyAlwaysPositive",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "unsound: reports a lasso back to x = 1 on 0, 1, 2, 1, 2, ..., which satisfies <>[](x > 0) (BFS control B-E1 finds none)",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal properties were violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2"
+   ],
+   "back_to_state": 2,
+   "stuttering": false,
+   "generated": 11,
+   "stdout_sha256": "d49f915337b0ea7f1683d9ef10ea28ab049129cadfd7d921774494d8507ced73",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -503,7 +577,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 41,
-   "stdout_sha256": "f579f170627bda94ab18c9259d6a05e1ce38b6111697386786fbd6780a11fe05",
+   "stdout_sha256": "31bce9cd9e9121767d8a0958f49746c7fdc7f0deb4a5a6af318ae2671b746b79",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -530,7 +604,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 101,
-   "stdout_sha256": "6229bb4bd9c09d980e86a325a32337a1efd19da2ccd33d308a85d1053518e729",
+   "stdout_sha256": "1cbfe19f073f09e2261e448729af4c0608762a4d6cfd2102630bf034b19b9024",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -557,7 +631,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 101,
-   "stdout_sha256": "a07f4fad2377c6e9101b9c87255764dbf9c88bec7b223081409af352abac1b46",
+   "stdout_sha256": "5b9df25d737326f3f35b500346efbae276e2d5ad02e3ba2ffaf9f5529711acad",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -584,7 +658,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 101,
-   "stdout_sha256": "e8b6e8e88813acdb1e832ef3972ca8db4cf59c29145a630a2745f72594aa0412",
+   "stdout_sha256": "4d98605952912ba475839e655187633c0575bb05168bee79de868511bf830660",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -622,7 +696,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 81,
-   "stdout_sha256": "4d6370d87e357693e79f97893f3f85865c117ae75607efa6d63efc2bf00aa900",
+   "stdout_sha256": "f0613361721fab34b92297c6f6daf1eaf24dd41b5477e76ba0b0a944010dc1c2",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -649,7 +723,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 101,
-   "stdout_sha256": "456dabdce5a1c691076a40f1ff944d6bfee9e6d8915bcbecaf8cc23cc58168a1",
+   "stdout_sha256": "2b063c563bc9693a03d80786291c4a066180e98341dac9a3558e31c8ef673814",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -676,7 +750,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 101,
-   "stdout_sha256": "65d79bbe51144cc695592fb423716156b5b5dd2ab9914d0a0d365669ae4eba6c",
+   "stdout_sha256": "0dac08ce3636384c5fc8f57752d5bed1ec9eba57a17c1dcd1010b1938701ebcb",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -711,7 +785,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 21,
-   "stdout_sha256": "85307c0a95b66df5623a73895dfdd3804cbadeb5ab606f32a7889a703e740a40",
+   "stdout_sha256": "12e9383203feb1d420c4c752ccbaf06673503ccf6474268e30b95717d04aca86",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -750,7 +824,7 @@
    "back_to_state": null,
    "stuttering": true,
    "generated": 6,
-   "stdout_sha256": "8dd7f7ebfc70cfd0515397f7a2e6fc7824bb37383a244a36970fdeff5e503c98",
+   "stdout_sha256": "d94072af06f9379ba844cde4eef8ba4b41e276bc6854379254c720a0f687a569",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -777,7 +851,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 401,
-   "stdout_sha256": "bb0cc179222bfd83ef45cb1d827bde8c727b4cab0f2ece4a337ecace09f4efed",
+   "stdout_sha256": "de4dcb2f9ea7fff0026416767f3e11b1255238ddbcd6203408c5ead9a39280ec",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -814,7 +888,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 81,
-   "stdout_sha256": "ab6dcbfe5de4b9df480adb0bbcac0e4ddcb3dff57c815b31722552f8d57cecb5",
+   "stdout_sha256": "97d659cfd07bc84ed4409c3a21620bcd56c25678a3cc04ddfb2e8f112e007d34",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -842,7 +916,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 81,
-   "stdout_sha256": "3d23b862fda8452e7cf93e28a42d86d87f6e0438216d791025ddc1c12b98f3aa",
+   "stdout_sha256": "b8c56f64a04536a3c97215ea11da968340df313e8a72910462cf3d7b29c7382c",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -869,7 +943,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 101,
-   "stdout_sha256": "0fac1b74ef0c6d87d28453e37080964bed0d0206a1e10982de15568858049f39",
+   "stdout_sha256": "b147d9ff2bab96866f3bfd979ddd4d5d1fe37ab2d7400b96d7e296d4817225a6",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -896,7 +970,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 101,
-   "stdout_sha256": "7e5c8e949e5144b4ccdf7f6e0491b8d0cdef33392afcc0e4029f62716c072a3e",
+   "stdout_sha256": "d7d4c1d85512986173714b6705ec84d7f3a67e05d7571436a42a8af02023c788",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -933,7 +1007,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 61,
-   "stdout_sha256": "66d3e14b7e8664d59625484b4bc8efffdc1536e0915f1ae39417104131b25687",
+   "stdout_sha256": "750165fc58c3cb389aa0f0e33092761ac054930341aea7fd8cb7c570c1ccb330",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -971,7 +1045,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 81,
-   "stdout_sha256": "92c9eace9731616386024a0258848e87e45625989322605ceb840a9fcd195446",
+   "stdout_sha256": "db09cfa74c08d4831bd1adf39abe9673a4a629b5b602d1500cf1d906fbc6ce0d",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1005,7 +1079,7 @@
    "back_to_state": null,
    "stuttering": true,
    "generated": 11,
-   "stdout_sha256": "f1964d83611b1bf67138edbd8a71f94d4ae1670a0ac9d040dadec234406deec9",
+   "stdout_sha256": "773e67686bd1c31651978a171261a787e6304c97e0d786121786095ffc08cc36",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1032,7 +1106,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 501,
-   "stdout_sha256": "fa6deda847fceb06da3b1f5d2c3455a2488538b8e9bda84bcfaf1a8c51398b76",
+   "stdout_sha256": "3a9729b1da40a76243e6798781fdc18413cfe66c224ddf3698036dd71e7aefdd",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1059,7 +1133,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 501,
-   "stdout_sha256": "1696b5842aa84aef11c39bc71259e7824e1ec698e752c638a5903964a420eaf4",
+   "stdout_sha256": "b2c466ec94ef731cffc46cc9f1a92515bf47f72a62bc6192f1a28e1268ad85fb",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1094,7 +1168,7 @@
    "back_to_state": 1,
    "stuttering": false,
    "generated": 21,
-   "stdout_sha256": "33af642e66c1d5cbb24b3efbbd3de1307cea15ef57053544a691b5a12cca223f",
+   "stdout_sha256": "010c89e9d833706b5b9778aa893163acc1d2c23acbddae363d1ff5cf661316c9",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1121,7 +1195,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 501,
-   "stdout_sha256": "e07baafe2b229206498b0c7797a890960a228abbfd97b1bb0816499a66e71b64",
+   "stdout_sha256": "14b252dec35b2ea4617fe18d394a3b609a53e79da1a32a23bb512183462751f6",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1156,7 +1230,7 @@
    "back_to_state": 1,
    "stuttering": false,
    "generated": 11,
-   "stdout_sha256": "26e72b69ea7d9105c35b0e382cb21f82bf82bed7ee26b0bb43984abfad15aacb",
+   "stdout_sha256": "bb64079a673a131e92a0108aad0d002e589bef6a106dc904667b5139efc4a8c9",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1183,7 +1257,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 201,
-   "stdout_sha256": "d581c42a813a839053916e298417c3b6154d127722e5b3780a35cd209550c88c",
+   "stdout_sha256": "8e23cc1e816ad54c2923c3dc4cde36b98a9245c20c3a7da91f7a0483acd18f57",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1219,7 +1293,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 41,
-   "stdout_sha256": "f7ea889d6bc2815b756a6664e9db5dc44f294bf5850a43af5a40d9f5163073c5",
+   "stdout_sha256": "1772288dbcd1dbc83d375f90b76e213272f14b2272857584488e6d1246c5502b",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1246,7 +1320,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 201,
-   "stdout_sha256": "0cb60538ee7ad52e48accbaef4dd56191535c3befd6dcc19634c461fe598ee33",
+   "stdout_sha256": "9f540cc8413d5b099f135498c6dd2b1e22e7331205909ae7309a6bc6e10ef8e7",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1273,7 +1347,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 201,
-   "stdout_sha256": "979dc9b305e2547d70d0a0257050221e84db651780003a0feb9a04ccd302d655",
+   "stdout_sha256": "62786c695e21a68cabe5cdedb071275a89b2cc881fb6342229c6ff49b7e520ce",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1300,7 +1374,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 31,
-   "stdout_sha256": "63a27a125f33b68aad54b873ab763889a1148d9956cf44219bba30d8924f211c",
+   "stdout_sha256": "42a21f1a321af4d9b4b6a21f06e736ae3f980b30aa574dbd3d9700c702ac091a",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1335,7 +1409,7 @@
    "back_to_state": 1,
    "stuttering": false,
    "generated": 11,
-   "stdout_sha256": "5f6fa20bfce24786602c2172280894bdcbb080484545ff2af61e01e7ecfbd69f",
+   "stdout_sha256": "1c759b717d1edd63f76d124b48182065c3728e45d0ad0a0c954788a59e4b5d74",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1370,7 +1444,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 21,
-   "stdout_sha256": "04d9d8ca4c87c0b917302710311d16e503a03d2a6f351c0b806a74854d72ec69",
+   "stdout_sha256": "22f04464b696a398cb726647db6c1718dd6a4323320bb68eefd0c487f5bfe4dc",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1408,7 +1482,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 81,
-   "stdout_sha256": "3a2bcc248e4ffc7401b65e34fac216762f11b470ebe7034967cb87278af5f9c3",
+   "stdout_sha256": "63ef3710780aac2a6fa890ee133e77436abc5308b2e88af54c783ffdc6ec2f25",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1435,7 +1509,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 7,
-   "stdout_sha256": "9fe77a43426d52b02fbc1ddc45462c3789a3e06f8279f23ab392867099777509",
+   "stdout_sha256": "c3169e44b98737a68b3d4e25f5cd9991ad0b87c01f3bab007fe687050219957f",
    "stderr_empty": true,
    "trace_files": [
     "t_0_0",
@@ -1478,7 +1552,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 9,
-   "stdout_sha256": "3c9f6d590c4b03bec632edb16028ed9a5443b635efea777b087040cb9e410c32",
+   "stdout_sha256": "f45d3625d6a49ad44c53fe25d09a093ec5fa3418529429d417765c1da400bc79",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1505,7 +1579,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 101000000,
-   "stdout_sha256": "63994eab3f06da94220c8b9c1f20c4f9def2961554e213f665042494b8ac03b8",
+   "stdout_sha256": "1ff19d30b07b2e5f0daf54997521c8965fa02e300be06f764d7274a9045c52dc",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1532,7 +1606,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 1000100,
-   "stdout_sha256": "3d7f05e491e5ee6a0eca51051e1cc603a823da9cba6aa9f22a6145e49a852950",
+   "stdout_sha256": "631ce3306c9b9d8a59b48343d673f14858fe2a1c3bd79411716539edb717574f",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1564,7 +1638,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 0,
-   "stdout_sha256": "52981abc529048bf7d7f6c01c88318bd18f22b41267282b4961412225d59b242",
+   "stdout_sha256": "8cf12e52c05ff0d4af3f32e16bd6722baa80c47236eaacedc97532a7348eef5c",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1596,7 +1670,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": 0,
-   "stdout_sha256": "074723f187b9edee16b4861cf72c0d6d733368f0f3623aa283f200a21fae850a",
+   "stdout_sha256": "12ac951f3abebf28b4a02cdd6e1238ae81b0e1a66c5c1d68442dce09182f7fba",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1630,7 +1704,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": null,
-   "stdout_sha256": "1518bdc7dca0f4661b59d8636db5804de778edd9c48ab82bd0b19957a4436195",
+   "stdout_sha256": "b98eaf0bdf3495e64556821b3c2fce8b3528f25f06aeb1ba4fbdb0c3c6c0b5b3",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1664,7 +1738,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": null,
-   "stdout_sha256": "c24aff5033febd613a5400cae0c34fa88f6f7402d9ed30584a123571ee7abc51",
+   "stdout_sha256": "1a6433b7cd45aa205ba102bbf5c89fdcd6c47279cfedac8d0622f2426da29ffd",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1691,9 +1765,9 @@
     12
    ],
    "generated": [
-    6860,
-    8588,
-    16382
+    9125,
+    9257,
+    8057
    ],
    "counterexample_sha256": [
     "fb30c489889bf046",
@@ -1729,12 +1803,12 @@
     12
    ],
    "generated": [
-    2685,
-    3203,
-    3187,
-    4736,
-    2652,
-    1875
+    2337,
+    12871,
+    5706,
+    4131,
+    3138,
+    3374
    ],
    "counterexample_sha256": [
     "eda108f1499050df",
@@ -1756,6 +1830,36 @@
  ],
  "bfs_controls": [
   {
+   "id": "B-E1",
+   "module": "Stem",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyAlwaysPositive",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": null,
+   "stdout_sha256": "aa11775c4f996ae36b72fde4eaab1199652e0a37a2bfa4dcae46fb4af67fec45",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "B-T5",
+   "module": "Terminal",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyAlwaysTwo\nCHECK_DEADLOCK FALSE",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": null,
+   "stdout_sha256": "2ee8210e53205c03077152fc4c9592718bfcc711362e3efc3cc79fdd3088cc3c",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
    "id": "B-U12",
    "module": "Unbounded",
    "cfg": "SPECIFICATION FairSpec\nPROPERTY InitOne",
@@ -1770,7 +1874,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": null,
-   "stdout_sha256": "1c8e41729e2d2f4c5e6ad0378ba8f3822b654164e9eba836c320c0af4c440abf",
+   "stdout_sha256": "2b81eab9152400fc6a87539503695c7da22f1d742f60f1d5778bca75c6cfabe5",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1795,7 +1899,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": null,
-   "stdout_sha256": "2d22e9a842674a609d6a43d5c73e95f266674117694e76b6c4040950092c19ae",
+   "stdout_sha256": "8aa6d08b5fa91c3b90b39aabaf860edd4c24c3921dcaff9ea3cac1f8434a475e",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1818,7 +1922,7 @@
    "back_to_state": 1,
    "stuttering": false,
    "generated": null,
-   "stdout_sha256": "3653c1a852a980475d3e9cd005a96f4e56647562c009882a888b1ab1675156c7",
+   "stdout_sha256": "93b2358548393950cd1618bd8e03ec9c7165d612ee5283ce3cfe2e9080b7a567",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []
@@ -1833,7 +1937,7 @@
    "back_to_state": null,
    "stuttering": false,
    "generated": null,
-   "stdout_sha256": "b1ccec607692288ab4702a56c12c887fc4584bb9a976100ba0f6e88a2a643d29",
+   "stdout_sha256": "19e21a9323b863f5460e894c8a1c36567f218dc5a28a00198228d9a249eb2b9e",
    "stderr_empty": true,
    "trace_files": [],
    "trace_file_variables": []

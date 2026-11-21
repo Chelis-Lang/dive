@@ -101,8 +101,10 @@ property, fairness included. Observed:
 | C7 | `<>(x=5)`, depth 2 (loop never closes) | no error, exit 0 | violated | **silent**: success with liveness unchecked |
 | C8 | `[]<>(x=0)`, depth 2 | no error | holds | the truncated end is not treated as stuttering |
 | C9 | no fairness, `[]<>(x=0)` | 2116, stuttering after 3 states | violated | sound |
+| E1 | `0` then the loop `1,2`, WF, `<>[](x>0)` | 2116, lasso back to state 2 | holds | **unsound**: BFS (B-E1) finds no violation (D-043) |
 | T2, T3 | counter to 2 then no successor, `-deadlock` | 2116, stuttering | violated | sound: no successor means stuttering |
 | T4 | same, deadlock checked | 2114 deadlock, exit 11 | | deadlock decides first |
+| T5 | same, `-deadlock`, `<>[](x=2)` | 2116, stuttering after `x = 2`, exit 13 | holds | **unsound**: the terminal behavior `0, 1, 2, 2, ...` satisfies the property, and BFS (B-T5) finds no violation (D-043) |
 | U1 to U3, U9 | `x' = x + 1`, WF, `<>`, `[]<>`, `~>`, depth 5 or 20 | no error | holds | **silent**: no trace can decide |
 | U4 | `[](x<4)`, depth 5 | 2110 at `x = 4` | violated | sound bad prefix |
 | U5 | `[](x<10)`, depth 5 | no error | violated | incomplete (beyond depth) |
@@ -117,7 +119,10 @@ Conclusions:
 
 - TLC's liveness on a sample is sound when fingerprints are concrete: every
   lasso it finds is a path in the trace graph, and a stutter self-loop is a
-  real TLA+ step.
+  real TLA+ step. The exception found in S4 is `<>[]P` when `P` is false
+  before the part of the trace that repeats, a loop (E1) or a final state
+  with no successor (T5): TLC reports a violation where `P` holds from some
+  state on.
 - TLC never says that a property went unchecked. A depth that never closes a
   loop (C7, U1) reports the same success as a run that checked thousands of
   lassos (C4). That is the main weakness to beat.
