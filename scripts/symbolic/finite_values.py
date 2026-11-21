@@ -83,14 +83,8 @@ class FiniteValueModel(SourceModel):
         require(
             len(set(self.names)) == len(self.names), "ambiguous state variable names"
         )
-        require(
-            not {
-                "deadlock",
-                "partition changed",
-                "invalid or undefined successor value",
-            }.intersection(name for name, _ in document["invariants"]),
-            "ambiguous invariant name",
-        )
+        self.check_property_names(document)
+        self.completed = None
         self.layout_expr = layout_expr
         self.bound_reads = None
         self.values = {}
@@ -598,11 +592,38 @@ class FiniteValueModel(SourceModel):
                 seen |= active
                 self.check_initial_choices(child, scope, active)
 
-    def check(self, previous):
+    @staticmethod
+    def check_property_names(document):
+        require(
+            not {
+                "deadlock",
+                "partition changed",
+                "invalid or undefined successor value",
+            }.intersection(name for name, _ in document["invariants"]),
+            "ambiguous invariant name",
+        )
+
+    def recheck_invariants(self, document, layout):
+        """Discharge edited state predicates over a previous exhaustive closure."""
+        if self.completed is None or layout != self.layout_expr:
+            return None
+        if document.keys() != self.doc.keys() or any(
+            document[key] != value for key, value in self.doc.items() if key != "invariants"
+        ):
+            return None
+        self.check_property_names(document)
+        reached, counts = self.completed
+        for _, expr in document["invariants"]:
+            if reached & ~self.predicate(expr, {}) != self.b.false:
+                # Fresh BFS supplies the first violating layer and replayable word.
+                return None
+        return dict(counts, reused=True, invariants=[name for name, _ in document["invariants"]])
+
+    def check(self, previous, *, retain=False):
         require(previous is None, "whole-value search requires fresh inputs")
-        result = self.check_values(keep_trace=True)
+        result = self.check_values(keep_trace=True, retain=retain)
         if result["closed"]:
-            return dict(
+            row = dict(
                 verdict="success",
                 distinct=result["distinct"],
                 generated=result["generated"],
@@ -612,7 +633,10 @@ class FiniteValueModel(SourceModel):
                 reachable_bdd_nodes=result["bdd_nodes"],
                 invariants=result["invariants"],
                 encoding="whole-values",
-            ), None
+            )
+            if retain:
+                self.completed = result.pop("reached"), row.copy()
+            return row, None
         ending = result["ending"]
         verdict = "deadlock" if ending["kind"] == "deadlock" else "invariant-violation"
         return dict(
@@ -623,7 +647,7 @@ class FiniteValueModel(SourceModel):
             encoding="whole-values",
         ), result["trace"]
 
-    def check_values(self, fixed_values=(), keep_trace=False):
+    def check_values(self, fixed_values=(), keep_trace=False, *, retain=False):
         assigned = self.check_init_order(self.doc["init"], frozenset(), {})
         require(assigned == self.values.keys(), "incomplete initial state binding")
         self.bound_reads = None
@@ -709,6 +733,7 @@ class FiniteValueModel(SourceModel):
             frontier = successors & ~reached
             reached |= frontier
         return {
+            **({"reached": reached} if retain and not fixed_values else {}),
             "initial": initial_count,
             "distinct": self.state_count(reached),
             "generated": initial_count

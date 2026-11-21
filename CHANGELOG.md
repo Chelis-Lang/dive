@@ -22,6 +22,8 @@ are in git history.
 
 - [Independent trace validation](docs/user/checking.md#consistency-predicates-over-named-processes) can check pairwise consistency over large concrete status tables in one scan and validate or reject single-entry updates without rebuilding the table for every possible process.
 
+- [Whole-value symbolic checks](docs/user/symbolic.md) can recheck an edited invariant list against the exact completed reachable set. A violated invariant receives a fresh breadth-first search and independent trace replay.
+
 - [Symbolic rechecks](docs/user/symbolic.md) can reuse shortest-path layers outside the region affected by a deleted action.
 
 - Core can check actions that choose a [subset of messages for one recipient](docs/user/checking.md), including queues that previously exceeded its powerset limit.

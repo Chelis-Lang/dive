@@ -1,0 +1,682 @@
+{
+  "schema": "dive-whole-value-edit-session-1",
+  "source": {
+    "repository": "https://github.com/FormalCellular/EmergencyCall",
+    "revision": "093684f1bb02d733cae95d50f1690f1cb792296a",
+    "module": "model/EmergencyCall_Model_auto.tla",
+    "f3": "model/config/f3.cfg",
+    "full_cfg": "INIT Init\nNEXT Next\nINVARIANT TypeInvariant SetInvariant\n",
+    "negative_cfg": "INIT Init\nNEXT Next\nINVARIANT TypeInvariant F1\n"
+  },
+  "method": "Serial invocations on isolated EC2 c7i.4xlarge Linux hosts, one logical CPU. GNU time reports whole-session elapsed and peak RSS. Per-revision seconds include binding and, where relevant, independent replay. Session A used the tested candidate before lifetime cleanup for cold fallback. Session B used the final source in this PR. Timings across hosts are not paired speedups.",
+  "command": "dive check MODULE --config full.cfg --strategy symbolic --recheck MODULE reduced.cfg --recheck MODULE full.cfg --output json. reduced.cfg selects TypeInvariant only; negative.cfg selects TypeInvariant and F1. In session B append --recheck MODULE negative.cfg --trace TRACE. All use Init, Next and deadlock checking.",
+  "session_a": {
+    "region": "us-east-1",
+    "identities": {
+      "bin/dive": "6cfaee45f0ba61261e54e39c75c1d31e6665e9ff62feafe916a7ce9879857703",
+      "bin/libexec/dive-symbolic/symbolic_input": "180847c7d8ad10ceedd8c2f065b4d986a497fdd224fa980fa5c8da95ebe161de",
+      "bin/libexec/dive-symbolic/engine.py": "f6c42ef57e997d476ffce97666de9fd12386153da5eab901e3010246f6b66a45",
+      "bin/libexec/dive-symbolic/finite_values.py": "be1dce471078f1a9ed8eb453d565c777b62f922b1a56f95676dcdd9f14d84743",
+      "EmergencyCall_Model_auto.tla": "76236976cf936bd81a8a30e57144ee9ed20b1a3498f9224a55e96147ab339a5e",
+      "full.cfg": "b4f0307e37a400bac0ab0c289b9159ec5c8a4c5c01a59112c2fce1dd676bcc15",
+      "reduced.cfg": "dced17c681b4268dc3bc74c7e0a4779339f623c278d417a8622f13323fe9810d",
+      "negative.cfg": "2415c3892e0c2d96d398d6b1682762ae286cdc9abc4d569fb744edd6bc2585a8",
+      "local-3/EmergencyCall_Model_auto.tla": "3bbf6587df410e5e66b35b0727b03281fff9fe6da4d1e13ad009d510a406f2c5"
+    },
+    "original": {
+      "rows": [
+        {
+          "verdict": "success",
+          "distinct": 49911672768,
+          "generated": 328063574184,
+          "depth": 44,
+          "reused": false,
+          "initial": 56623104,
+          "reachable_bdd_nodes": 159191,
+          "invariants": [
+            "TypeInvariant",
+            "SetInvariant"
+          ],
+          "module": "EmergencyCall_Model_auto.tla",
+          "config": "full.cfg",
+          "seconds": 82.105465
+        },
+        {
+          "verdict": "success",
+          "distinct": 49911672768,
+          "generated": 328063574184,
+          "depth": 44,
+          "reused": true,
+          "initial": 56623104,
+          "reachable_bdd_nodes": 159191,
+          "invariants": [
+            "TypeInvariant"
+          ],
+          "module": "EmergencyCall_Model_auto.tla",
+          "config": "reduced.cfg",
+          "seconds": 0.054011
+        },
+        {
+          "verdict": "success",
+          "distinct": 49911672768,
+          "generated": 328063574184,
+          "depth": 44,
+          "reused": true,
+          "initial": 56623104,
+          "reachable_bdd_nodes": 159191,
+          "invariants": [
+            "TypeInvariant",
+            "SetInvariant"
+          ],
+          "module": "EmergencyCall_Model_auto.tla",
+          "config": "full.cfg",
+          "seconds": 0.051857
+        }
+      ],
+      "wall_seconds": 82.57,
+      "peak_rss_kib": 899164
+    },
+    "original_negative": {
+      "rows": [
+        {
+          "verdict": "success",
+          "distinct": 49911672768,
+          "generated": 328063574184,
+          "depth": 44,
+          "reused": false,
+          "initial": 56623104,
+          "reachable_bdd_nodes": 159191,
+          "invariants": [
+            "TypeInvariant"
+          ],
+          "module": "EmergencyCall_Model_auto.tla",
+          "config": "reduced.cfg",
+          "seconds": 81.073818
+        },
+        {
+          "verdict": "invariant-violation",
+          "depth": 7,
+          "ending": {
+            "kind": "invariant",
+            "name": "F1"
+          },
+          "reused": false,
+          "trace_validated": true,
+          "module": "EmergencyCall_Model_auto.tla",
+          "config": "negative.cfg",
+          "seconds": 39.454863
+        }
+      ],
+      "wall_seconds": 120.92,
+      "peak_rss_kib": 899788
+    },
+    "grown": {
+      "rows": [
+        {
+          "verdict": "success",
+          "distinct": 1400862255552,
+          "generated": 13256352435648,
+          "depth": 44,
+          "reused": false,
+          "initial": 792723456,
+          "reachable_bdd_nodes": 617893,
+          "invariants": [
+            "TypeInvariant",
+            "SetInvariant"
+          ],
+          "module": "local-3/EmergencyCall_Model_auto.tla",
+          "config": "full.cfg",
+          "seconds": 1041.014919
+        },
+        {
+          "verdict": "success",
+          "distinct": 1400862255552,
+          "generated": 13256352435648,
+          "depth": 44,
+          "reused": true,
+          "initial": 792723456,
+          "reachable_bdd_nodes": 617893,
+          "invariants": [
+            "TypeInvariant"
+          ],
+          "module": "local-3/EmergencyCall_Model_auto.tla",
+          "config": "reduced.cfg",
+          "seconds": 0.105624
+        },
+        {
+          "verdict": "success",
+          "distinct": 1400862255552,
+          "generated": 13256352435648,
+          "depth": 44,
+          "reused": true,
+          "initial": 792723456,
+          "reachable_bdd_nodes": 617893,
+          "invariants": [
+            "TypeInvariant",
+            "SetInvariant"
+          ],
+          "module": "local-3/EmergencyCall_Model_auto.tla",
+          "config": "full.cfg",
+          "seconds": 0.043474
+        }
+      ],
+      "wall_seconds": 1041.99,
+      "peak_rss_kib": 2541060
+    }
+  },
+  "session_b": {
+    "region": "us-east-1",
+    "identities": {
+      "bin/dive": "6cfaee45f0ba61261e54e39c75c1d31e6665e9ff62feafe916a7ce9879857703",
+      "bin/libexec/dive-symbolic/engine.py": "2c17afcdd3b02ba8cd467af29ab7b45cdd4c56a60058fd57fd2af1820655d9e4",
+      "bin/libexec/dive-symbolic/finite_values.py": "be1dce471078f1a9ed8eb453d565c777b62f922b1a56f95676dcdd9f14d84743",
+      "bin/libexec/dive-symbolic/symbolic_input": "180847c7d8ad10ceedd8c2f065b4d986a497fdd224fa980fa5c8da95ebe161de",
+      "EmergencyCall_Model_auto.tla": "76236976cf936bd81a8a30e57144ee9ed20b1a3498f9224a55e96147ab339a5e",
+      "full.cfg": "b4f0307e37a400bac0ab0c289b9159ec5c8a4c5c01a59112c2fce1dd676bcc15",
+      "negative.cfg": "2415c3892e0c2d96d398d6b1682762ae286cdc9abc4d569fb744edd6bc2585a8",
+      "reduced.cfg": "dced17c681b4268dc3bc74c7e0a4779339f623c278d417a8622f13323fe9810d"
+    },
+    "original": {
+      "rows": [
+        {
+          "verdict": "success",
+          "distinct": 49911672768,
+          "generated": 328063574184,
+          "depth": 44,
+          "reused": false,
+          "initial": 56623104,
+          "reachable_bdd_nodes": 159191,
+          "invariants": [
+            "TypeInvariant",
+            "SetInvariant"
+          ],
+          "module": "EmergencyCall_Model_auto.tla",
+          "config": "full.cfg",
+          "seconds": 97.461436
+        },
+        {
+          "verdict": "success",
+          "distinct": 49911672768,
+          "generated": 328063574184,
+          "depth": 44,
+          "reused": true,
+          "initial": 56623104,
+          "reachable_bdd_nodes": 159191,
+          "invariants": [
+            "TypeInvariant"
+          ],
+          "module": "EmergencyCall_Model_auto.tla",
+          "config": "reduced.cfg",
+          "seconds": 0.057357
+        },
+        {
+          "verdict": "success",
+          "distinct": 49911672768,
+          "generated": 328063574184,
+          "depth": 44,
+          "reused": true,
+          "initial": 56623104,
+          "reachable_bdd_nodes": 159191,
+          "invariants": [
+            "TypeInvariant",
+            "SetInvariant"
+          ],
+          "module": "EmergencyCall_Model_auto.tla",
+          "config": "full.cfg",
+          "seconds": 0.05496
+        },
+        {
+          "verdict": "invariant-violation",
+          "depth": 7,
+          "ending": {
+            "kind": "invariant",
+            "name": "F1"
+          },
+          "reused": false,
+          "trace_validated": true,
+          "module": "EmergencyCall_Model_auto.tla",
+          "config": "negative.cfg",
+          "seconds": 39.539375
+        }
+      ],
+      "wall_seconds": 137.35,
+      "peak_rss_kib": 898972
+    },
+    "fresh_installed_controls": "All whole-value source and revision controls passed.",
+    "source_suite": "The complete check_source.py default corpus passed, including fresh exact comparisons, relation invalidation, layout refusals, validated and damaged traces."
+  },
+  "fresh_on_main": {
+    "note": "Fresh replay with the protected-main worker from #1256. All 64 cells matched the native exact control in 2026-11-21-emergencycall-finite-values.json on initial, distinct, generated and depth. The per-cell times cover six concurrent independent processes pinned to CPUs 0\u201311, while full, f3 and negative ran separately on CPU 0.",
+    "inputs": {
+      "EmergencyCall_Model_auto.tla": "76236976cf936bd81a8a30e57144ee9ed20b1a3498f9224a55e96147ab339a5e",
+      "phone-f3.cfg": "90e80cd05411cd0108ec9f7314345df31b9c72213ce1314f37d3e054c8f2b160",
+      "full.cfg": "b4f0307e37a400bac0ab0c289b9159ec5c8a4c5c01a59112c2fce1dd676bcc15",
+      "bin/dive": "6cfaee45f0ba61261e54e39c75c1d31e6665e9ff62feafe916a7ce9879857703",
+      "bin/libexec/dive-symbolic/symbolic_input": "180847c7d8ad10ceedd8c2f065b4d986a497fdd224fa980fa5c8da95ebe161de",
+      "bin/libexec/dive-symbolic/check.py": "be7a35cc3ebdd3bfb89501313314e9a5639d7dcd4754f8a04ca9adeca320adeb",
+      "bin/libexec/dive-symbolic/compiled.py": "9db5dc7a6b46e89fb601ad7dfe4d206d2984d2c18957fbd8a5733ab281eb1bd1",
+      "bin/libexec/dive-symbolic/engine.py": "c9c19fa473c87e98ed7b476ad981ae7d1ac523aa6ca73c9d899f3e7b1f80c008",
+      "bin/libexec/dive-symbolic/finite_relation.py": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9",
+      "bin/libexec/dive-symbolic/finite_values.py": "7fe7754914b75db26131c41644ceabae9235537ef29f9b5e2f473b03dfbb2fee",
+      "bin/libexec/dive-symbolic/induction.py": "77dc5831a524e78659d8d7ccd1c3c88fc9b680a0a95c4616e18c77a7912842b8",
+      "bin/libexec/dive-symbolic/occupancy.py": "e599ede4068c42eea84571ff9f31cbde33ef155d5551140e69e46030c2559a9d",
+      "bin/libexec/dive-symbolic/occupancy_predicate.py": "aafac700d924994a056e9c73ff937474e8d142efbec2e8c553a07b23ed263d68",
+      "bin/libexec/dive-symbolic/occupancy_source.py": "8c7ed9fd6c21acb1f5f36f70c90efa876681552afaa89e5f32d709376b54fce1",
+      "bin/libexec/dive-symbolic/packed_codegen.py": "af119cbf2e0a7f053790d9259431b0c5f7d329d885b270c6ac9c3dd202ad0278",
+      "bin/libexec/dive-symbolic/worker_process.py": "310294e83ac7f4155e1e077dd2841a0a0f0dab35b77cdcd80eb8aeca3baaf32a"
+    },
+    "cells": [
+      {
+        "cell": 0,
+        "wall_seconds": 6.62,
+        "peak_rss_kib": 223740
+      },
+      {
+        "cell": 1,
+        "wall_seconds": 33.15,
+        "peak_rss_kib": 424208
+      },
+      {
+        "cell": 2,
+        "wall_seconds": 13.52,
+        "peak_rss_kib": 222232
+      },
+      {
+        "cell": 3,
+        "wall_seconds": 50.84,
+        "peak_rss_kib": 1311956
+      },
+      {
+        "cell": 4,
+        "wall_seconds": 28.06,
+        "peak_rss_kib": 535412
+      },
+      {
+        "cell": 5,
+        "wall_seconds": 25.05,
+        "peak_rss_kib": 360852
+      },
+      {
+        "cell": 6,
+        "wall_seconds": 48.27,
+        "peak_rss_kib": 807644
+      },
+      {
+        "cell": 7,
+        "wall_seconds": 36.71,
+        "peak_rss_kib": 452220
+      },
+      {
+        "cell": 8,
+        "wall_seconds": 12.72,
+        "peak_rss_kib": 216216
+      },
+      {
+        "cell": 9,
+        "wall_seconds": 54.64,
+        "peak_rss_kib": 645940
+      },
+      {
+        "cell": 10,
+        "wall_seconds": 5.05,
+        "peak_rss_kib": 140344
+      },
+      {
+        "cell": 11,
+        "wall_seconds": 17.88,
+        "peak_rss_kib": 409104
+      },
+      {
+        "cell": 12,
+        "wall_seconds": 44.2,
+        "peak_rss_kib": 672784
+      },
+      {
+        "cell": 13,
+        "wall_seconds": 41.22,
+        "peak_rss_kib": 461196
+      },
+      {
+        "cell": 14,
+        "wall_seconds": 16.49,
+        "peak_rss_kib": 390572
+      },
+      {
+        "cell": 15,
+        "wall_seconds": 11.78,
+        "peak_rss_kib": 255012
+      },
+      {
+        "cell": 16,
+        "wall_seconds": 6.81,
+        "peak_rss_kib": 223700
+      },
+      {
+        "cell": 17,
+        "wall_seconds": 33.04,
+        "peak_rss_kib": 424340
+      },
+      {
+        "cell": 18,
+        "wall_seconds": 13.38,
+        "peak_rss_kib": 222276
+      },
+      {
+        "cell": 19,
+        "wall_seconds": 51.4,
+        "peak_rss_kib": 1312172
+      },
+      {
+        "cell": 20,
+        "wall_seconds": 28.09,
+        "peak_rss_kib": 535164
+      },
+      {
+        "cell": 21,
+        "wall_seconds": 24.99,
+        "peak_rss_kib": 360736
+      },
+      {
+        "cell": 22,
+        "wall_seconds": 48.2,
+        "peak_rss_kib": 807688
+      },
+      {
+        "cell": 23,
+        "wall_seconds": 36.38,
+        "peak_rss_kib": 452396
+      },
+      {
+        "cell": 24,
+        "wall_seconds": 12.48,
+        "peak_rss_kib": 216348
+      },
+      {
+        "cell": 25,
+        "wall_seconds": 54.45,
+        "peak_rss_kib": 645880
+      },
+      {
+        "cell": 26,
+        "wall_seconds": 4.9,
+        "peak_rss_kib": 140220
+      },
+      {
+        "cell": 27,
+        "wall_seconds": 18.68,
+        "peak_rss_kib": 409108
+      },
+      {
+        "cell": 28,
+        "wall_seconds": 43.36,
+        "peak_rss_kib": 672940
+      },
+      {
+        "cell": 29,
+        "wall_seconds": 40.17,
+        "peak_rss_kib": 461168
+      },
+      {
+        "cell": 30,
+        "wall_seconds": 16.2,
+        "peak_rss_kib": 390396
+      },
+      {
+        "cell": 31,
+        "wall_seconds": 11.47,
+        "peak_rss_kib": 254856
+      },
+      {
+        "cell": 32,
+        "wall_seconds": 6.41,
+        "peak_rss_kib": 223784
+      },
+      {
+        "cell": 33,
+        "wall_seconds": 33.45,
+        "peak_rss_kib": 402504
+      },
+      {
+        "cell": 34,
+        "wall_seconds": 13.43,
+        "peak_rss_kib": 222012
+      },
+      {
+        "cell": 35,
+        "wall_seconds": 51.64,
+        "peak_rss_kib": 1312224
+      },
+      {
+        "cell": 36,
+        "wall_seconds": 26.91,
+        "peak_rss_kib": 536332
+      },
+      {
+        "cell": 37,
+        "wall_seconds": 23.5,
+        "peak_rss_kib": 360380
+      },
+      {
+        "cell": 38,
+        "wall_seconds": 47.17,
+        "peak_rss_kib": 807536
+      },
+      {
+        "cell": 39,
+        "wall_seconds": 36.24,
+        "peak_rss_kib": 452340
+      },
+      {
+        "cell": 40,
+        "wall_seconds": 12.23,
+        "peak_rss_kib": 216376
+      },
+      {
+        "cell": 41,
+        "wall_seconds": 54.45,
+        "peak_rss_kib": 645936
+      },
+      {
+        "cell": 42,
+        "wall_seconds": 5.1,
+        "peak_rss_kib": 140264
+      },
+      {
+        "cell": 43,
+        "wall_seconds": 18.1,
+        "peak_rss_kib": 409136
+      },
+      {
+        "cell": 44,
+        "wall_seconds": 43.73,
+        "peak_rss_kib": 672496
+      },
+      {
+        "cell": 45,
+        "wall_seconds": 40.23,
+        "peak_rss_kib": 461228
+      },
+      {
+        "cell": 46,
+        "wall_seconds": 16.14,
+        "peak_rss_kib": 390684
+      },
+      {
+        "cell": 47,
+        "wall_seconds": 11.13,
+        "peak_rss_kib": 254808
+      },
+      {
+        "cell": 48,
+        "wall_seconds": 6.26,
+        "peak_rss_kib": 223868
+      },
+      {
+        "cell": 49,
+        "wall_seconds": 33.61,
+        "peak_rss_kib": 402440
+      },
+      {
+        "cell": 50,
+        "wall_seconds": 13.77,
+        "peak_rss_kib": 222268
+      },
+      {
+        "cell": 51,
+        "wall_seconds": 49.95,
+        "peak_rss_kib": 1312016
+      },
+      {
+        "cell": 52,
+        "wall_seconds": 26.65,
+        "peak_rss_kib": 535024
+      },
+      {
+        "cell": 53,
+        "wall_seconds": 23.3,
+        "peak_rss_kib": 360408
+      },
+      {
+        "cell": 54,
+        "wall_seconds": 47.74,
+        "peak_rss_kib": 807396
+      },
+      {
+        "cell": 55,
+        "wall_seconds": 37.86,
+        "peak_rss_kib": 452120
+      },
+      {
+        "cell": 56,
+        "wall_seconds": 12.68,
+        "peak_rss_kib": 216232
+      },
+      {
+        "cell": 57,
+        "wall_seconds": 53.08,
+        "peak_rss_kib": 645708
+      },
+      {
+        "cell": 58,
+        "wall_seconds": 5.1,
+        "peak_rss_kib": 140300
+      },
+      {
+        "cell": 59,
+        "wall_seconds": 18.18,
+        "peak_rss_kib": 409272
+      },
+      {
+        "cell": 60,
+        "wall_seconds": 43.43,
+        "peak_rss_kib": 672576
+      },
+      {
+        "cell": 61,
+        "wall_seconds": 39.76,
+        "peak_rss_kib": 461088
+      },
+      {
+        "cell": 62,
+        "wall_seconds": 16.15,
+        "peak_rss_kib": 390572
+      },
+      {
+        "cell": 63,
+        "wall_seconds": 11.12,
+        "peak_rss_kib": 254836
+      }
+    ],
+    "full": {
+      "verdict": "success",
+      "distinct": 49911672768,
+      "generated": 328063574184,
+      "depth": 44,
+      "initial": 56623104,
+      "wall_seconds": 107.82,
+      "peak_rss_kib": 899004
+    },
+    "f3": {
+      "verdict": "success",
+      "distinct": 21255936,
+      "generated": 135871232,
+      "depth": 27,
+      "initial": 49152,
+      "wall_seconds": 0.79,
+      "peak_rss_kib": 84380
+    },
+    "negative": {
+      "verdict": "invariant-violation",
+      "depth": 7,
+      "ending": {
+        "kind": "invariant",
+        "name": "F1"
+      },
+      "trace_validated": true,
+      "wall_seconds": 39.69,
+      "peak_rss_kib": 92260
+    },
+    "truncated_negative_replay": "invalid"
+  },
+  "session_c": {
+    "region": "us-east-1",
+    "method": "Final worker source, re-running the grown edit chain on the same host and CPU as session A. Includes a new cold first row; the three revisions run in one CLI process.",
+    "identities": {
+      "bin/dive": "6cfaee45f0ba61261e54e39c75c1d31e6665e9ff62feafe916a7ce9879857703",
+      "bin/libexec/dive-symbolic/engine.py": "2c17afcdd3b02ba8cd467af29ab7b45cdd4c56a60058fd57fd2af1820655d9e4",
+      "bin/libexec/dive-symbolic/finite_values.py": "be1dce471078f1a9ed8eb453d565c777b62f922b1a56f95676dcdd9f14d84743",
+      "bin/libexec/dive-symbolic/symbolic_input": "180847c7d8ad10ceedd8c2f065b4d986a497fdd224fa980fa5c8da95ebe161de",
+      "local-3/EmergencyCall_Model_auto.tla": "3bbf6587df410e5e66b35b0727b03281fff9fe6da4d1e13ad009d510a406f2c5",
+      "full.cfg": "b4f0307e37a400bac0ab0c289b9159ec5c8a4c5c01a59112c2fce1dd676bcc15",
+      "reduced.cfg": "dced17c681b4268dc3bc74c7e0a4779339f623c278d417a8622f13323fe9810d"
+    },
+    "wall_seconds": 1039.57,
+    "peak_rss_kib": 2541112,
+    "rows": [
+      {
+        "verdict": "success",
+        "distinct": 1400862255552,
+        "generated": 13256352435648,
+        "depth": 44,
+        "reused": false,
+        "initial": 792723456,
+        "reachable_bdd_nodes": 617893,
+        "invariants": [
+          "TypeInvariant",
+          "SetInvariant"
+        ],
+        "encoding": "whole-values",
+        "seconds": 1038.55499
+      },
+      {
+        "verdict": "success",
+        "distinct": 1400862255552,
+        "generated": 13256352435648,
+        "depth": 44,
+        "reused": true,
+        "initial": 792723456,
+        "reachable_bdd_nodes": 617893,
+        "invariants": [
+          "TypeInvariant"
+        ],
+        "encoding": "whole-values",
+        "seconds": 0.117724
+      },
+      {
+        "verdict": "success",
+        "distinct": 1400862255552,
+        "generated": 13256352435648,
+        "depth": 44,
+        "reused": true,
+        "initial": 792723456,
+        "reachable_bdd_nodes": 617893,
+        "invariants": [
+          "TypeInvariant",
+          "SetInvariant"
+        ],
+        "encoding": "whole-values",
+        "seconds": 0.043233
+      }
+    ]
+  }
+}
