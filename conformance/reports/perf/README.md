@@ -19,6 +19,8 @@ The scripts that produced the records are in
 The [peer comparison panel and source pins](../../../docs/internal/survey/verification-workloads.md)
 extend this evidence to native checkers, implementation traces and proofs.
 
+[EmergencyCall source growth](2026-11-21-source-whole-growth.json) records three installed CLI runs up to 1.40 trillion distinct states, the single-line source edits, worker and source digests, wall time, peak RSS and the alternate search's 64 policy cells.
+
 The [temporal analysis phase measurements](2026-11-21-temporal-analysis-phases.json) separate predicate labeling from accepting-cycle search on seven corpus configurations. Elevator Large spent 399.92 of 404.35 seconds in the product phase at eight requested workers.
 
 [Whole-value edit sessions](2026-11-21-whole-value-edit-sessions.json) records cold, edited and restored invariant checks on the 49.9-billion and 1.40-trillion state models, and independent replay when an added invariant fails.
@@ -28,6 +30,8 @@ The [source-driven EmergencyCall measurements](2026-11-21-source-whole-values.js
 The [compiled finite safety comparison](2026-11-21-compiled-finite-safety.json) records the exact Core and compiled KVS Medium runs, binding and compilation cost, same-host tlx, TCommit, and the named SlateDB holdout refusal.
 
 The [Linux allocator comparison](2026-11-21-linux-allocator-arenas.json) records the mimalloc 3.3.2 and 3.7.0 arena probes on Intel and Graviton, original Flint time to 233 million exact states, ordinary Sailfish, and paired KVS, SlateDB and EWD998 runs. The `fixed_release` object contains the 3.7.0 results.
+
+[Ordinary function-entry updates](2026-11-21-ewd998-function-entries.json) records same-work EWD998 capture timings, EWD998Small exhaustion, the immediate-delta experiment and both conformance profiles.
 
 The [frontier storage comparison](2026-11-21-frontier-scale-controls.json) records the same work on Byzantine Paxos and SlateDB in three storage modes and all three terminal BPConProof runs under a 6 GiB limit.
 

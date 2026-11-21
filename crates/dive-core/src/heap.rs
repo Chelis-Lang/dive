@@ -852,7 +852,17 @@ impl Heap {
         let was_concrete = v.flags & flags::CONCRETE != 0;
         // TLC's `RecordValue` and `TupleValue` EXCEPT keep their class.
         let record = v.flags & (flags::RECORD | flags::TUPLE);
-        let mut data = v.data.to_vec();
+        // The arena copies the finished row. A small table fits in the
+        // stack scratch, avoiding a second allocation for one changed entry.
+        let mut small = [Handle::EMPTY; 8];
+        let mut large;
+        let data = if let Some(scratch) = small.get_mut(..v.data.len()) {
+            scratch.copy_from_slice(v.data);
+            scratch
+        } else {
+            large = v.data.to_vec();
+            large.as_mut_slice()
+        };
         let (key_hash, slot) = match kind {
             Kind::IntFcn => {
                 #[allow(clippy::cast_possible_wrap, reason = "domains fit in i64")]
@@ -904,7 +914,7 @@ impl Heap {
             lo,
             fcn_hash(n, sum),
             sum,
-            &data,
+            data,
         )
     }
 
