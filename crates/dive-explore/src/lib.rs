@@ -157,6 +157,8 @@ pub struct Stats {
 /// Strategy metrics.
 #[derive(Clone, Debug, Default)]
 pub struct Metrics {
+    /// Worker width used for ordinary safety with ordered diagnostic replay.
+    pub ordered_print_workers: Option<usize>,
     /// Number of retained initial roots when a cheap temporal capture stayed inline.
     pub inline_graph_roots: Option<u64>,
     /// Authenticated remote work facts when distributed safety was requested.
@@ -221,7 +223,7 @@ pub struct Outcome {
     /// handles and their actual source evaluation levels.
     pub sampled: Vec<sample::SampledState>,
     /// What `Print` and `PrintT` printed during the search, in TLC's order
-    /// (a plan that prints runs one worker: [`Plan::effects`]).
+    /// (ordinary parallel safety re-evaluates demanded prints in commit order).
     pub printed: Vec<String>,
 }
 
@@ -1478,16 +1480,6 @@ fn run_actions(
     Ok(())
 }
 
-/// The workers a run uses: one for a plan with an effect, so that its
-/// output and draws are in TLC's order ([`Plan::effects`]).
-fn workers(plan: &Plan, config: &Config) -> usize {
-    if plan.effects.any {
-        1
-    } else {
-        config.workers.max(1)
-    }
-}
-
 /// Explores the plan's state space.
 #[must_use]
 pub fn explore(
@@ -1775,10 +1767,24 @@ fn explore_inner<'p>(
         .iter()
         .map(dive_core::plan::MemoSite::key_len)
         .collect();
-    let local_workers = if distributed.is_some() {
+    let ordered_print_workers = plan.effects.prints
+        && !plan.effects.draws
+        && !plan.effects.registers
+        && !plan.effects.level
+        && plan.code.debugger.is_none()
+        && graph.is_none()
+        && checkpoint.is_none()
+        && distributed.is_none()
+        && config.sample.is_none()
+        && storage.seen_disk.is_none()
+        && storage.frontier_memory_bytes.is_none()
+        && storage.candidate_memory_bytes.is_none()
+        && storage.predecessor_memory_bytes.is_none();
+    initial_metrics.ordered_print_workers = ordered_print_workers.then_some(1);
+    let local_workers = if distributed.is_some() || (plan.effects.any && !ordered_print_workers) {
         1
     } else {
-        workers(plan, &config)
+        config.workers.max(1)
     };
     let mut machines: Vec<Machine> = (0..local_workers)
         .map(|_| {
@@ -2059,7 +2065,7 @@ fn explore_inner<'p>(
     metrics.explore_time = start.elapsed();
     let warnings = if !config.warn {
         Vec::new()
-    } else if parallel {
+    } else if parallel && !ex.initial {
         std::mem::take(&mut ex.warnings)
     } else {
         std::mem::take(&mut m.warnings)
@@ -2413,7 +2419,14 @@ fn run(
             } else {
                 &cur[k * nvars..(k + 1) * nvars]
             };
-            if parallel && k % chunk == 0 {
+            // A one-source level has no parallelism to exploit. Evaluate it directly
+            // so a demanded diagnostic is visible even if that source hits a budget.
+            let inline_print =
+                parallel && ex.metrics.ordered_print_workers.is_some() && states == 1;
+            if parallel && !inline_print && k % chunk == 0 {
+                if let Some(width) = &mut ex.metrics.ordered_print_workers {
+                    *width = machines.len();
+                }
                 let started = Instant::now();
                 let end = (k + chunk).min(states);
                 let mut metrics = Metrics::default();
@@ -2542,11 +2555,14 @@ fn run(
                 ex.stop = Some(Verdict::Budget);
                 return Err(Error::stop());
             }
-            // Without a resident seen set, an already-committed key may have reached a
-            // speculative check that the scalar path skips. Re-evaluate exceptional sources
-            // before committing any of their occurrences, with authoritative membership.
-            let res = res.filter(|result| ex.disk.is_none() || !result.needs_ordered_evaluation());
-            let reexecute = have_expansion && res.is_none() && ex.seen.speculative_disk;
+            // An exact VIEW collision or unread disk key may make a speculative
+            // invariant check unnecessary. Only ordered evaluation can publish its
+            // prints, warnings or faults. Discard the whole source before commit.
+            let ordered_effects = ex.disk.is_some() || ex.metrics.ordered_print_workers.is_some();
+            let res = res.filter(|result| {
+                !(result.deferred_print || (ordered_effects && result.needs_ordered_evaluation()))
+            });
+            let reexecute = inline_print || (have_expansion && res.is_none());
             if reexecute {
                 m.warnings.clone_from(&ex.warnings);
             }

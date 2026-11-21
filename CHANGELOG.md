@@ -13,6 +13,8 @@ are in git history.
 
 - Core packs ordinary in-memory safety frontiers by variable and stores consecutive discovery IDs once per level. Peak process memory fell about 42% on the measured SlateDB and DiskSynod prefixes. [Inputs, counts and wall times](docs/developer/large-models.md#resident-frontier-rows).
 
+- Core safety checks can use multiple workers on specifications with conditional diagnostics. The coordinator preserves the order and number of printed lines. [Checking guide](docs/user/checking.md#workers-and-stores).
+
 - Parallel disk fingerprint membership skips unnecessary page reads using bounded in-memory filters. [Measured time, memory and lookup counts](docs/developer/large-models.md#external-fingerprint-membership).
 
 - Core packs ordinary in-memory safety frontiers by variable. Peak process memory fell about 42% on the measured SlateDB and DiskSynod prefixes. [Inputs, counts and wall times](docs/developer/large-models.md#resident-frontier-rows).

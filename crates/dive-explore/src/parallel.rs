@@ -180,6 +180,8 @@ pub(crate) enum Ending {
 /// The expansion of one state.
 #[derive(Debug)]
 pub(crate) struct Expanded {
+    /// A demanded Print requires ordered re-evaluation before committing this source.
+    pub deferred_print: bool,
     /// The successors in emission order, each with its action.
     pub occs: Vec<(usize, Occ)>,
     /// Their values (persistent handles), `nvars` per recorded state.
@@ -533,6 +535,7 @@ fn expand_one(
             occs: Vec::new(),
             values: Vec::new(),
             payloads,
+            deferred_print: false,
             end: Ending::Done,
             warnings: Vec::new(),
         },
@@ -714,28 +717,32 @@ pub(crate) fn expand_level(
                     break;
                 }
                 let s0 = &cur[k * nvars..(k + 1) * nvars];
-                if seen.speculative_disk {
+                if seen.speculative_disk || plan.effects.prints {
                     // An ordered replay decides which speculative warnings actually apply.
                     m.warnings.clear();
                 }
-                done.push((
+                if plan.effects.prints {
+                    m.defer_prints(true);
+                }
+                let mut source = expand_one(
+                    m,
+                    plan,
+                    seen,
+                    claims,
                     k,
-                    expand_one(
-                        m,
-                        plan,
-                        seen,
-                        claims,
-                        k,
-                        opts,
-                        preserve_originals,
-                        capture_limit,
-                        candidates,
-                        poll,
-                        s0,
-                        &mut local,
-                        None,
-                    ),
-                ));
+                    opts,
+                    preserve_originals,
+                    capture_limit,
+                    candidates,
+                    poll,
+                    s0,
+                    &mut local,
+                    None,
+                );
+                if plan.effects.prints {
+                    source.deferred_print = m.defer_prints(false);
+                }
+                done.push((k, source));
             }
             if candidates.is_some() {
                 break;
