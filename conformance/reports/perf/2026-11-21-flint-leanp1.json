@@ -724,5 +724,53 @@
         "exit": 0
       }
     ]
+  },
+  "successful_guard_overlap": {
+    "host": "Dedicated r8g.48xlarge, us-west-2, 192 physical Graviton4 cores. Sequential runs on CPUs 0 to W-1. Zero swap, 1400 GiB service cap, Rust 1.99.0 release builds.",
+    "inputs": "Full is the released three-writer configuration. Two changes only Writers from {A, B, C} to {A, B}. Both retain all configured checks.",
+    "method": "On each successful GCas, increment a relaxed AtomicU64 exactly when GatewayIgnoresLease and holder = \"none\". The instrumented PrintT(TRUE) still returns TRUE. Read the counter after the compiled checker returns. The adjusted count uses that same traversal.",
+    "reproduce": "From the pinned author revision and archived levelwriter.patch in compiled_witness_controls.build, generate WeightedFlint.tla with flint_overlap.py module. Run its evaluator stage on formal/tlc-rs/src/eval.rs into a new file, then replace the scratch evaluator with that file and build the author compiler. Generate the checker with -codegen NEW -config CFG WeightedFlint.tla. Run the main stage on NEW/src/main.rs into a new file, replace the generated scratch main with it, then cargo build --release in NEW. Compare the resulting digests below.",
+    "run": "tlcgen-weightedflint -workers W -checkpoint 0 -metadir FRESH -fpmem 200000 -queue-mem 150000 -config CFG WeightedFlint.tla",
+    "sha256": {
+      "WeightedFlint.tla": "94a54e6443dea6ac9993e6826556e35d5f3cf8bc042c9c8db2d3eab17154b63e",
+      "LeanP1.tla": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+      "Two.cfg": "33b7ebb804dd65013cbe63cc6c26c2287335ba56389b8a4a5ce1872834f7a420",
+      "Full.cfg": "164fd016e65d63aee9e6111afcceb4659f6b96f8ab41c28c6403e960640a41a1",
+      "authored/levelwriter.patch": "a8919c78ed34ad433be2a1312ada2d13ab61a84f16e1343cf71b77fe0ca4dfc4",
+      "authored/formal/tlc-rs/src/eval.rs": "07968257e21bb97bf8d4f420dfcf5710b7b2f5b20006c152d595b22513e13495",
+      "g-Two/target/release/tlcgen-weightedflint": "dcb6ba625c1172ff6d6e055d89e0c0d64cc8cf724cb77cd72d0bdc7710a01273",
+      "g-Two/src/main.rs": "4b9b2d766b3d3868b696d076f440546552256a5379a42a909d49868c8b7ff5a2",
+      "g-Full/target/release/tlcgen-weightedflint": "43ad50a18c78f7cda4dea054eb3fd32d5183d5d356df44700760bcfc703514da",
+      "g-Full/src/main.rs": "029e7df85fc045e112a26301d7a246f835d094bfa7d6f2f68614611beab762cf"
+    },
+    "runs": {
+      "Two": {
+        "workers": 32,
+        "generated": 180146151,
+        "distinct_fingerprints": 48353470,
+        "depth": 44,
+        "overlap": 899045,
+        "generated_with_both_guard_witnesses": 181045196,
+        "core_generated_minus_weighted": 0,
+        "core_distinct_minus_compiled": 0,
+        "wall_seconds": 102.88,
+        "peak_rss_kib": 6344536,
+        "exit": 0
+      },
+      "Full": {
+        "workers": 192,
+        "generated": 44056598310,
+        "distinct_fingerprints": 9821039050,
+        "depth": 52,
+        "overlap": 83107713,
+        "generated_with_both_guard_witnesses": 44139706023,
+        "core_generated_minus_weighted": 26,
+        "core_distinct_minus_compiled": 7,
+        "wall_seconds": 6040.45,
+        "peak_rss_kib": 478110328,
+        "exit": 0
+      }
+    },
+    "interpretation": "The full instrumented checker independently visited three more distinct fingerprints and generated 30 more occurrences than the uninstrumented published run. Weighting its own 83,107,713 overlaps leaves seven distinct fingerprints and 26 generated occurrences between it and Core. The remaining differences have no established cause."
   }
 }
