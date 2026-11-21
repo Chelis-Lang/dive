@@ -288,6 +288,43 @@
           "elapsed_ms": 29004,
           "detail": "dive check stopped at its --max-memory: DIVE-L0038: stopped during graph-capture: resident memory 2210086912 bytes exceeds the ceiling of 2147483648 bytes"
         }
+      },
+      "isolated_capacity": {
+        "24": {
+          "machine": "r7i.8xlarge",
+          "kernel": "7.0.0-1018-aws",
+          "physical_cores": 16,
+          "workers_used": 16,
+          "profile": "tlc",
+          "time_limit_s": 7200,
+          "memory_limit_gib": 24,
+          "binary_sha256": "a47cedfc7bf5ec6603930e5885b4c62840c11c327af1a3c1686cb77b2de8653d",
+          "input_sha256": {
+            "c1cs.tla": "ee222e8a5a7defc2d449ec30ee24053036560b6b7f1107ab2ab115427fb53af0",
+            "c1cs.cfg": "0ef50a8cc706e60f6285efe627f2b34ff9a52d8dfdf9287bed2b358157c4d233"
+          },
+          "wall_s": 1993.17,
+          "peak_rss_kib": 25380400,
+          "exit": 5,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 18,
+            "distinct": 55639572,
+            "exhaustive": false,
+            "generated": 1320105329,
+            "initial_generated": 16,
+            "left_on_queue": 32515471,
+            "reported_by_tlc": false
+          },
+          "stopped": {
+            "elapsed_ms": 1991971,
+            "limit": 25769803776,
+            "observed": 25771409408,
+            "phase": "graph-capture",
+            "resource": "memory",
+            "unit": "bytes"
+          }
+        }
       }
     },
     {

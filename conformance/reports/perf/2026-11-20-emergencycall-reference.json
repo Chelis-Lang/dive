@@ -571,5 +571,103 @@
       "validated": true,
       "refusals": 8
     }
+  },
+  "reconstructed_full_init": {
+    "config": "Original unmodified module, INIT Init, NEXT Next, INVARIANTS TypeInvariant SetInvariant. For each cell replace Init by Init AND Slice and add Slice as a checked invariant. This is a reconstruction of the unconstrained research question. The historical CFG and terminal log for the 10.59-billion count remain unidentified.",
+    "partition_variables": [
+      "amf_0_normal_attach_accept_include_enl",
+      "amf_1_normal_attach_accept_include_enl",
+      "amf_0_emergency_attach_accept_include_enl",
+      "amf_1_emergency_attach_accept_include_enl",
+      "amf_home_reject_or_allow_unmarked_emergency_request",
+      "amf_roam_reject_or_allow_unmarked_emergency_request"
+    ],
+    "partition_count": 64,
+    "platform": "Same isolated 96-core c8g.24xlarge as the f3 exact controls, four 24-core processes on disjoint CPU groups, 40 GiB per process, 7200 s. The original exact reachable states are compared by full mathematical equality.",
+    "stops": [
+      {
+        "valuation": 0,
+        "verdict": "stopped",
+        "exit": 5,
+        "statistics": {
+          "depth": 19,
+          "distinct": 469764632,
+          "exhaustive": false,
+          "generated": 2849599769,
+          "initial_generated": 884736,
+          "left_on_queue": 24456952,
+          "reported_by_tlc": false
+        },
+        "requested_memory_gib": 40,
+        "observed_sampled_bytes": 43029041152,
+        "peak_rss_kib": 65449652,
+        "wall_seconds": 1518.44
+      },
+      {
+        "valuation": 1,
+        "verdict": "stopped",
+        "exit": 5,
+        "statistics": {
+          "depth": 16,
+          "distinct": 469762653,
+          "exhaustive": false,
+          "generated": 2698437007,
+          "initial_generated": 884736,
+          "left_on_queue": 53610517,
+          "reported_by_tlc": false
+        },
+        "requested_memory_gib": 40,
+        "observed_sampled_bytes": 43375779840,
+        "peak_rss_kib": 66788908,
+        "wall_seconds": 1435.51
+      },
+      {
+        "valuation": 2,
+        "verdict": "stopped",
+        "exit": 5,
+        "statistics": {
+          "depth": 17,
+          "distinct": 469762578,
+          "exhaustive": false,
+          "generated": 2800656451,
+          "initial_generated": 884736,
+          "left_on_queue": 38751202,
+          "reported_by_tlc": false
+        },
+        "requested_memory_gib": 40,
+        "observed_sampled_bytes": 43401498624,
+        "peak_rss_kib": 66058404,
+        "wall_seconds": 1499.4
+      },
+      {
+        "valuation": 3,
+        "verdict": "stopped",
+        "exit": 5,
+        "statistics": {
+          "depth": 16,
+          "distinct": 469762934,
+          "exhaustive": false,
+          "generated": 2653427570,
+          "initial_generated": 884736,
+          "left_on_queue": 64753006,
+          "reported_by_tlc": false
+        },
+        "requested_memory_gib": 40,
+        "observed_sampled_bytes": 43324219392,
+        "peak_rss_kib": 67003700,
+        "wall_seconds": 1453.61
+      }
+    ],
+    "interpretation": "These first four cells each stopped with an open frontier near 7/8 × 2^29 identities. The resident std HashMap held the hash, first packed-row position and discovery ID in a value able to represent a collision vector. A table grow allocates a replacement before freeing the prior table. GNU time records the process peak; the periodic memory sample can miss that peak. No whole-model total is available.",
+    "symbolic_probe": {
+      "verdict": "unsupported",
+      "reason": "set of nonscalars",
+      "module": "phone/EmergencyCall_Model_auto.tla",
+      "config": "phone/f3.cfg",
+      "refinement_rounds": 1,
+      "learned_members": 0,
+      "initial_hint_members": 0,
+      "seconds": 0.198935
+    }
   }
 }
