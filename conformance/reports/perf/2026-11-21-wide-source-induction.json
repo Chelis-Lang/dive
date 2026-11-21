@@ -39,8 +39,8 @@
   "reachability": {
     "formula": "3^N + 2^N - 1",
     "N": 1000,
-    "analytic_distinct": 1322070819480806636890455259752144365965422032752148167664920368226828597346704899540778313850608061963909777696872582355950954582100618911865342725257953674027620225198320803888729860300827514483874650608188636146742995932678430512499070056757597185739867403057464132562505635672985624992996836506787589077753408999763159864926991202242455671742787389505973542671744384049800542091741991748600881855507827985255215384941165728921582126433707999671044197784797489606108523289376,
-    "scope": "Before any commit managers may independently be working, prepared or aborted. After a commit each is prepared or committed. The all-prepared state overlaps. This analytical graph cardinality is separate from the direct proof. The wide CLI reports initial inclusion and next-step closure, no exploration counts or depth."
+    "scope": "Before any commit managers may independently be working, prepared or aborted. After a commit each is prepared or committed. The all-prepared state overlaps. This analytical graph cardinality is separate from the direct proof. The wide CLI reports initial inclusion and next-step closure, no exploration counts or depth.",
+    "analytic_distinct_decimal": "1322070819480806636890455259752144365965422032752148167664920368226828597346704899540778313850608061963909777696872582355950954582100618911865342725257953674027620225198320803888729860300827514483874650608188636146742995932678430512499070056757597185739867403057464132562505635672985624992996836506787589077753408999763159864926991202242455671742787389505973542671744384049800542091741991748600881855507827985255215384941165728921582126433707999671044197784797489606108523289376"
   },
   "tests": {
     "truth_table": "0, 1, 2, 3 index domains each with two separate Boolean tables, 85 complete assignments, five properties compared against Cartesian evaluation and a separate explicit truth definition. Includes reversed operands, one common table, same bound index, i\u2260j, empty/singleton vacuity and coincidence. Partial indices and incomparable literals retain named refusals; empty-domain comparison remains vacuously true.",
@@ -337,6 +337,226 @@
       "distinct": 34,
       "generated": 94,
       "cfg_sha256": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415"
+    }
+  },
+  "kvs_graph_formula": {
+    "source": "scripts/symbolic/kvs_history.py PATH/KeyValueStore --keys K --values 2 --transactions T; separate combinatorial history calculation over the pinned original Init/Next, which these invariant-only edits preserve. Symmetry-orbit and labeled outputs are both mathematical counts. Direct safety proofs report neither.",
+    "rows": {
+      "200-2": {
+        "selected_count_scope": "transaction_orbits",
+        "formula_output": {
+          "transaction_orbits": {
+            "distinct_decimal": "68588169039290511743443148949538558612744826430307618212802425663277194488051378855779100378366241267776503120552189039747121798690734217847673404920149512458850035533690873779901020205856915387180187776573037947656182309556605871931827394357122488863755245328146223451306551428117435674505101293241429724807735559498111098439424846540343889843356395879443754145824940151575256684264485728594666749451090357042852001",
+            "generated_decimal": "55076299738550280929984848606479469741617427487450440319368576887017788312553980528788791529577392889544313382497239035356073560748919789537986064678775841920128652118437350650272118980214228278225006608591961783506809983816320974954278061754702674793119282515452163742339388048957306680753801649571777360482044228527349591039122574479812642859916124408233672671336482688162784156965148206178569853052472549781476041380"
+          },
+          "labeled": {
+            "distinct_decimal": "137176338078581023486886297899077117225489652860615236425604851326554388976102757711558200756732482535553006241104378079494243597381468435695346809840299024917700071067381747559802040411713830774360374867264385502407247184681722248478068661265980674651328362632035814130668222342437457968449423313960464176701413277501482532009085519492780670249358778710290489817777508486105494410790364799967335922413515213106622625",
+            "generated_decimal": "110152599477100561859969697212958939483234854974900880638737153774035576625107961057577583059154785779088626764994478070712147121497839579075972129357551683840257304236874701300544237960428456556450012665735044491117905550349724395618544877041000849912988134099401994736035092164821493003536736764035548921541185952492928704545373831846512979434819895020656059534908606457807144681027771412128356498958819533304403944453"
+          }
+        },
+        "wall_s": 0.04,
+        "peak_rss_kib": 17592
+      },
+      "1-256": {
+        "selected_count_scope": "labeled",
+        "formula_output": {
+          "transaction_orbits": {
+            "distinct_decimal": "1235415760771771488",
+            "generated_decimal": "1092556774278053325697"
+          },
+          "labeled": {
+            "distinct_decimal": "1184809847706734966466198655032961885381957461432415204062463624917571256270295547156936134809005785796984593797613560888668240300686046687613559726249079632310915432927241681232574431141808397149765712588664469897985837481573095958009548550275961268288474990188659715",
+            "generated_decimal": "1047802745317374341253016410560059383726880198619503191374513285745284272736641098440641280700424133686209561575309842839104310114571633517680204748107579455344895856885700465564920298782514385129061184281643769742350134909512731995478189096453298322058915876784901101057"
+          }
+        },
+        "wall_s": 0.78,
+        "peak_rss_kib": 17536
+      }
+    }
+  },
+  "merged_source_qualification": {
+    "source": "d5ff5253e; worker files from protected main. CLI built from 12d15c6c5: all Rust crate sources, Cargo manifests/lock and pinned toolchain match the merge. Export helper built at 3a373d3b; the only intervening native code change is in the multiworker search coordinator, which the bound exporter does not call.",
+    "binary_and_worker_sha256": {
+      "dive": "d2fcf868347c89ea5c74349396d2365deddedd959a8190db987b35188ec144ca",
+      "check.py": "340c72a376b6276d63d956d59333add015f4da4511d0bc2a5ffb78a25ea8a38e",
+      "engine.py": "bbab4fd8d3ee0bdc253c59750fec85790c9507a8719e51b84ec0df642c08f7f7",
+      "symbolic_input": "98f9be5b7fed5d9b6a3f217cf9bd3d3edc02d91ebf3e140af79a39e0301ef898",
+      "induction.py": "77dc5831a524e78659d8d7ccd1c3c88fc9b680a0a95c4616e18c77a7912842b8",
+      "finite_relation.py": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9"
+    },
+    "runs": {
+      "T1000": {
+        "exit": 0,
+        "wall_s": 99.61,
+        "peak_rss_kib": 598088,
+        "seconds": 99.270219,
+        "proof": "inductive-safety",
+        "failed_obligation": null
+      },
+      "K200T2": {
+        "exit": 0,
+        "wall_s": 56.63,
+        "peak_rss_kib": 597508,
+        "seconds": 56.347943,
+        "proof": "inductive-safety",
+        "failed_obligation": null
+      },
+      "corrupt512": {
+        "exit": 2,
+        "wall_s": 27.16,
+        "peak_rss_kib": 621156,
+        "seconds": 26.860188,
+        "proof": "inconclusive",
+        "failed_obligation": "Next closure"
+      },
+      "corrupt3": {
+        "exit": 1,
+        "wall_s": 0.25,
+        "peak_rss_kib": 55652,
+        "verdict": "invariant-violation",
+        "depth": 2,
+        "seconds": 0.017326,
+        "reused": false,
+        "trace_validated": true,
+        "ending": {
+          "kind": "invariant",
+          "name": "TCConsistent"
+        }
+      }
+    },
+    "full_source_harness": "Standard scripts/symbolic/check_source.py with TLC goldens, trace tampering and the exhaustive small finite-truth controls passed with these artifacts."
+  },
+  "full_original_256": {
+    "method": "Complete ordinary symbolic BFS on the original TCommit source with 256 named managers, two state bits per manager (current search limit), no symmetry, retained predicate or induction. CPU7, 2,370 s/2,700 MiB worker and 3,000 MiB cgroup. Other tasks used independent physical cores. Prior and new direct proof timings above do not describe BFS.",
+    "inputs": {
+      "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+      "R256.cfg": "573c8f5a8bae6765b0dd4d594db1418bf491e21b21fe7afb6674a9dcff92bdb7",
+      "dive": "a2797d1867ecece6e4e93ca1bb47d60a3660a26fa3816d1ee6c0643e510b07d5",
+      "engine.py": "bbab4fd8d3ee0bdc253c59750fec85790c9507a8719e51b84ec0df642c08f7f7",
+      "symbolic_input": "aec41fb7dfc99d0d27efeeab84f45b483724021504083dd9c81de870fd4982da"
+    },
+    "observed": {
+      "exit": 4,
+      "wall_s": 2370.06,
+      "peak_rss_kib": 596212,
+      "verdict": "stopped",
+      "reason": "time limit"
+    },
+    "analytic_expected": {
+      "distinct_decimal": "139008452377144732764939786789661303114218850924321227228921019853607057638454343794271753819750173561269249548462029075456",
+      "generated_decimal": "35586163808549051587824585418153293597240025821804846748227308068306320674332259806115010940654052234634357131393398849405185",
+      "depth": 513
+    },
+    "reproduce": "python scripts/symbolic/check_transaction_commit.py PATH/transaction_commit --managers 256 --dive DIVE --exporter SYMBOLIC_INPUT"
+  },
+  "full_original_192": {
+    "method": "Intermediate complete-search control in the same package as full_original_256, CPU0 and 1,280 s worker budget; no symmetry, reuse or induction.",
+    "inputs": {
+      "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+      "R192.cfg": "a947ba284b038d111638efe9984e4a27b098f74df91e923642834d9bafe2e16d",
+      "dive": "a2797d1867ecece6e4e93ca1bb47d60a3660a26fa3816d1ee6c0643e510b07d5",
+      "engine.py": "bbab4fd8d3ee0bdc253c59750fec85790c9507a8719e51b84ec0df642c08f7f7",
+      "symbolic_input": "aec41fb7dfc99d0d27efeeab84f45b483724021504083dd9c81de870fd4982da"
+    },
+    "observed": {
+      "exit": 4,
+      "wall_s": 1280.05,
+      "peak_rss_kib": 612532,
+      "verdict": "stopped",
+      "reason": "time limit"
+    },
+    "analytic_expected": {
+      "distinct_decimal": "40483766022843281411184472189571661029309242268771069577989539308732182129074265222209287936",
+      "generated_decimal": "7772883076385910030947418660397758315025607918482692030738206919340603022956136254116870045889",
+      "depth": 385
+    },
+    "reproduce": "python scripts/symbolic/check_transaction_commit.py PATH/transaction_commit --managers 192 --dive DIVE --exporter SYMBOLIC_INPUT"
+  },
+  "full_original_160": {
+    "method": "Full ordinary symbolic BFS, protected-main worker and CLI as identified in merged_source_qualification, 1700 s time and 2,700 MiB virtual budget, 3,000 MiB cgroup. These fresh runs restart from Init.",
+    "inputs": {
+      "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+      "R160.cfg": "02b35030c8d9776c3acf158fdfeca793a77dd9371277c70d2e509139d2e1f39d",
+      "dive": "d2fcf868347c89ea5c74349396d2365deddedd959a8190db987b35188ec144ca",
+      "engine.py": "bbab4fd8d3ee0bdc253c59750fec85790c9507a8719e51b84ec0df642c08f7f7",
+      "symbolic_input": "98f9be5b7fed5d9b6a3f217cf9bd3d3edc02d91ebf3e140af79a39e0301ef898"
+    },
+    "observed": {
+      "exit": 0,
+      "wall_s": 591.76,
+      "peak_rss_kib": 645888,
+      "verdict": "success",
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent"
+      ],
+      "depth": 321,
+      "reachable_bdd_nodes": 1271,
+      "seconds": 591.437734,
+      "reused": false,
+      "distinct_decimal": "21847450052839212624230656504451736779897953023116436713529106968318864898176",
+      "generated_decimal": "3495592008454274019876905040595357753797200250242335087547354473358543780270241"
+    },
+    "analytic_expected": {
+      "distinct_decimal": "21847450052839212624230656504451736779897953023116436713529106968318864898176",
+      "generated_decimal": "3495592008454274019876905040595357753797200250242335087547354473358543780270241",
+      "depth": 321
+    },
+    "reproduce": "python scripts/symbolic/check_transaction_commit.py PATH/transaction_commit --managers 160 --dive DIVE --exporter SYMBOLIC_INPUT"
+  },
+  "full_original_128_pair": {
+    "method": "Single paired calibration on CPU5 of the same growth host, previous installed worker and protected-main worker in order. Each starts from original Init with the same two properties, CFG, limits (830 s, 2,700 MiB virtual, 3,000 MiB cgroup) and pinned CUDD. Prior published 128-manager timings were on different hosts.",
+    "input_sha256": {
+      "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+      "R128.cfg": "1bdc04130e27be9a1f78adb7e40c763fb6e13919e4a42e30ca2d4764a27aa4b4"
+    },
+    "rows": {
+      "old": {
+        "observed": {
+          "exit": 0,
+          "wall_s": 181.62,
+          "peak_rss_kib": 341048,
+          "verdict": "success",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "depth": 257,
+          "reachable_bdd_nodes": 1015,
+          "seconds": 181.314423,
+          "reused": false,
+          "distinct_decimal": "11790184577738583171521213143779439604141674966883272877308416",
+          "generated_decimal": "1509143625950538645954693504332285329268472739786183295129944193"
+        },
+        "package_sha256": {
+          "dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+          "engine.py": "fae0fefcad2f0d8279834322074cd3ebe66c506e05905beb20732e6f581156b6",
+          "symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12"
+        }
+      },
+      "exact": {
+        "observed": {
+          "exit": 0,
+          "wall_s": 175.85,
+          "peak_rss_kib": 374928,
+          "verdict": "success",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "depth": 257,
+          "reachable_bdd_nodes": 1015,
+          "seconds": 175.557076,
+          "reused": false,
+          "distinct_decimal": "11790184577738583171521213143779439604141674966883272877308416",
+          "generated_decimal": "1509143625950538645954693504332285329268472739786183295129944193"
+        },
+        "package_sha256": {
+          "dive": "d2fcf868347c89ea5c74349396d2365deddedd959a8190db987b35188ec144ca",
+          "engine.py": "bbab4fd8d3ee0bdc253c59750fec85790c9507a8719e51b84ec0df642c08f7f7",
+          "symbolic_input": "98f9be5b7fed5d9b6a3f217cf9bd3d3edc02d91ebf3e140af79a39e0301ef898"
+        }
+      }
     }
   }
 }

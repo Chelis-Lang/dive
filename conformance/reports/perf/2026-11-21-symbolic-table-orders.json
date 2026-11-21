@@ -1109,5 +1109,30 @@
         "rss_kib": 17592
       }
     }
+  },
+  "larger_labeled_searches": {
+    "five_keys": {
+      "method": "CPU1, 4,200 s + 4,200 MiB per worker/4,600 MiB cgroup, no selected symmetry, ordered-bundle worker (hash in sha256), prepared with sail_kvs_edits.py --keys 5; removed selected SYMMETRY clause.",
+      "inputs": {
+        "MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+        "Model.cfg": "29aab6da4d9a136cc2639dc19111d25e47b83a4d546920158fdc66e9055438fe"
+      },
+      "observed": {
+        "exit": 0,
+        "wall_s": 1537.37,
+        "peak_rss_kib": 645148,
+        "verdict": "success",
+        "invariants": [
+          "TypeInvariant",
+          "TxLifecycle"
+        ],
+        "depth": 44,
+        "reachable_bdd_nodes": 4491,
+        "seconds": 1537.009261,
+        "reused": false,
+        "distinct_decimal": "3428937742115475",
+        "generated_decimal": "117678291762703177"
+      }
+    }
   }
 }
