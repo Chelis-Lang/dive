@@ -243,11 +243,13 @@ targets the two CoffeeCan models. [Every sample, worker width and input digest](
 
 Replay needs the exact original successor ordinal on every generated edge,
 including duplicate destinations. The graph also holds a stutter entry per
-expanded state. Core stores ordinals below 65,534 in two bytes per entry.
-One reserved value marks stutters, the other points to a sparse table with
-the full ordinal indexed by physical edge. A source with many successors
-continues to support full-width ordinals. The checked graph verifies the
-table and source order before temporal analysis or reuse.
+expanded state. When a generated ordinal matches its position in the source row, Core
+derives it directly. The last physical edge of a closed source is its
+stutter. A block of 256 edges acquires a two-byte ordinal column only if
+it contains an exception. Full-width exceptions use a side table keyed
+by physical edge. A source hint per block bounds random ordinal lookup;
+consumers that already know the source read it directly. The checked
+graph verifies each block, extended ordinal and source range.
 
 | Two-million-state prefix | Generated | Collector buffers, before / after | Peak process RSS, before / after | Wall seconds, before / after |
 |---|---:|---:|---:|---:|
@@ -269,7 +271,7 @@ individual observations under `capacity`.
 
 ### Action labels in temporal graphs
 
-Core retains one action ID per edge so it can distinguish named transitions during replay. For up to 255 action names, it stores a byte per edge, with 255 reserved for an unnamed entry. Larger action tables retain full-width IDs. Duplicate destinations, successor ordinals and implicit stutter edges keep their identities.
+Core retains the action ID of every physical transition, including duplicate destinations. It uses byte IDs for up to 255 action names and two-byte IDs for up to 65,535. The maximum value at each width marks an unnamed occurrence. Each sealed block of 256 IDs uses either a dense array or sorted pairs of inclusive end position and action ID, whichever occupies fewer cells. One directory lookup and a search within the block recover a random ID. Action tables above 65,535 names retain full-width optional IDs.
 
 | Two-million-state prefix | Generated | Collector buffers, before / after | Mean peak RSS, before / after | Mean wall seconds, before / after |
 |---|---:|---:|---:|---:|
@@ -297,6 +299,30 @@ counts, queue sizes and depths at each prefix. The dense control already used
 byte action IDs and compact ordinals. [Inputs, individual timings and collector capacities](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
 
 At the same 20 GiB sampled cap, deriving ordinary edge originals raised c1cs capacity another 12.8%, from 38,066,281 to 42,930,269 distinct states. The latter run generated 989,943,733 states and stopped at depth 18, with 25,181,577 still queued. Wall time was 1,556.23 s for that larger prefix. [Matched control, binary hashes and admission counters](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json).
+
+At Kafka KIP-996’s first periodic check, 36,120,199 stored edges used 292
+action names. The original action column reserved 512 MiB, although only
+225,593 runs of equal IDs occurred. In all 16,574 completed rows, each
+generated ordinal equalled its source-local position. The table isolates each
+change at fixed work. Kafka stopped one state before the check, with the
+same 36,103,626 generated. The two other original configurations stopped
+at two million states. The binary tree exhausted its graph and passed.
+
+| Model | Original buffers | Two-byte IDs | Adaptive action blocks | Implicit ordinals alone | Combined |
+|---|---:|---:|---:|---:|---:|
+| Kafka KIP-996 | 943.0 MiB | 559.0 MiB | 435.0 MiB | 818.0 MiB | 310.0 MiB |
+| c1cs | 554.0 MiB | 554.0 MiB | 508.0 MiB | 429.0 MiB | 383.0 MiB |
+| BlockingQueuePoisonApple | 144.3 MiB | 144.3 MiB | 144.6 MiB | 128.7 MiB | 128.9 MiB |
+| Binary tree | 12.0 MiB | 12.0 MiB | 12.1 MiB | 10.1 MiB | 10.1 MiB |
+
+On inputs with interleaved action IDs, a dense block uses one directory
+entry beyond its 256 IDs. At a later Kafka stop of 200,000 distinct and
+38,232,770 generated, both binaries had completed the first periodic check
+and evaluated 71,333,304 actions and 47,497,563 state predicates. Peak process
+RSS was 2,258 MiB before and 1,903 MiB after; wall times were 302.12 s and
+303.03 s. The run stopped with 182,506 states queued. On the binary tree, both layouts also returned the same
+two-state, independently validated lasso for the false recurrence property. [All capacities,
+individual runs, outcomes and input hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
 
 ### What occupies memory at the same discovery prefix?
 

@@ -912,7 +912,11 @@ fn byte_action_ids_preserve_named_unnamed_and_stutter_edges() {
     let mut wide = ActionIds::for_labels(256);
     wide.push(Some(255)).expect("wide label");
     wide.push(None).expect("wide unnamed");
-    assert!(matches!(wide.view(), CsrActions::Expanded(ids) if ids == [Some(255),None]));
+    assert!(matches!(wide.view(), CsrActions::Words(ids) if ids == [255,u16::MAX]));
+    assert!(wide.push(Some(u32::from(u16::MAX))).is_err());
+    let mut extended = ActionIds::for_labels(65536);
+    extended.push(Some(65535)).expect("full-width label");
+    assert!(matches!(extended.view(), CsrActions::Expanded(ids) if ids == [Some(65535)]));
 }
 
 #[test]
@@ -1024,4 +1028,218 @@ fn dense_row_inputs_preserve_slice_coercions() {
         ..input
     };
     assert!(CsrCapture::checked(changed, Limits::default(), &control).is_ok());
+}
+
+#[test]
+#[allow(
+    clippy::cast_possible_truncation,
+    reason = "the generated graph has fewer than 2,000 edges"
+)]
+fn action_blocks_preserve_random_runs_unnamed_edges_and_prefixes() {
+    let control = EvaluationControl::new(&options(false).budget, Phase::Capture).expect("control");
+    let lengths = [1, 254, 1, 255, 256, 257, 71, 103];
+    let edges: usize = lengths.iter().sum();
+    let mut offsets = vec![0];
+    let mut targets = Vec::new();
+    let mut expected = Vec::new();
+    let mut ordinals = Vec::new();
+    for (source, &length) in lengths.iter().enumerate() {
+        for i in 0..length {
+            let ordinal = (i + 1 < length).then_some(i as u64);
+            let n = targets.len();
+            let id = match n / 256 {
+                0 => Some(0),
+                1 => Some((n % 2) as u32),
+                2 => Some(((n * 97 + 11) % 251) as u32),
+                _ => (!(n / 17).is_multiple_of(3)).then_some(((n / 31) % 111) as u32),
+            };
+            expected.push(ordinal.and(id));
+            ordinals.push(ordinal);
+            targets.push(source as u32);
+        }
+        offsets.push(targets.len());
+    }
+    for names in [255, 292, 65535, 65536] {
+        // A long run contains the largest actual ID at each width.
+        let expected: Vec<_> = expected
+            .iter()
+            .map(|id| id.map(|n| if n == 0 { names as u32 - 1 } else { n }))
+            .collect();
+        let labels: Vec<_> = (0..names).map(|n| format!("A{n}")).collect();
+        let mut ids = ActionIds::for_labels(names);
+        let mut memory = NativeMemory::default();
+        for &action in &expected {
+            ids.reserve(&mut memory, &control).expect("reserve");
+            ids.push(action).expect("append");
+        }
+        let acts = ids.view();
+        let rows: Vec<_> = (0..lengths.len() as u32).collect();
+        for (count, &end) in offsets.iter().enumerate().skip(1) {
+            let graph = CsrCapture::checked(
+                CsrCaptureColumns {
+                    offsets: &offsets[..=count],
+                    targets: &targets[..end],
+                    ordinals: &ordinals[..end],
+                    actions: acts.prefix(end).expect("prefix"),
+                    edge_rows: &targets[..end],
+                    representatives: &rows[..count],
+                    roots: &[0],
+                    action_labels: &labels,
+                    retained_rows: count,
+                    closed_rows: count,
+                },
+                Limits::default(),
+                &control,
+            )
+            .expect("checked prefix");
+            for edge in (0..end).rev() {
+                let name = ordinals[edge]
+                    .map(|_| expected[edge].map_or("", |n| labels[n as usize].as_str()));
+                assert_eq!(graph.label(edge), Some(name));
+            }
+        }
+        assert!(acts.prefix(edges + 1).is_none());
+    }
+}
+
+#[test]
+#[allow(
+    clippy::cast_possible_truncation,
+    reason = "three blocks of 256 edges bound each position"
+)]
+fn implicit_ordinal_blocks_preserve_gaps_full_width_and_stutters() {
+    let control = EvaluationControl::new(&options(false).budget, Phase::Capture).expect("control");
+    let edges = 3 * 256;
+    let mut words = vec![u16::MAX; 256];
+    let mut wide = Vec::new();
+    let mut targets = Vec::new();
+    let mut expected = Vec::new();
+    for edge in 0..edges {
+        let source = edge / 256;
+        let pos = edge % 256;
+        targets.push(source as u32);
+        let mut ordinal = (pos != 255).then_some(pos as u64);
+        if source == 1 && (40..255).contains(&pos) {
+            if pos < 180 {
+                words[pos] = 500 + pos as u16;
+                ordinal = Some(u64::from(words[pos]));
+            } else {
+                words[pos] = CsrOrdinals::EXTENDED;
+                ordinal = Some(u64::MAX - 256 + pos as u64);
+                wide.push((edge, ordinal.expect("generated")));
+            }
+        }
+        expected.push(ordinal);
+    }
+    let ords = CsrOrdinals::PositionBlocks {
+        edges,
+        sources: &[0, 1, 2],
+        directory: &[0, 1, 1],
+        words: &words,
+        large: &wide,
+    };
+    for rows in 1..=3 {
+        let end = rows * 256;
+        let acts = vec![None; end];
+        let graph = CsrCapture::checked(
+            CsrCaptureColumns {
+                offsets: &[0, 256, 512, 768][..=rows],
+                targets: &targets[..end],
+                ordinals: ords.prefix(end).expect("prefix"),
+                actions: acts.as_slice(),
+                edge_rows: &targets[..end],
+                representatives: &[0, 1, 2][..rows],
+                roots: &[0],
+                action_labels: &[],
+                retained_rows: rows,
+                closed_rows: rows,
+            },
+            Limits {
+                successors_per_unit: u64::MAX,
+                ..Limits::default()
+            },
+            &control,
+        )
+        .expect("valid graph");
+        for edge in (0..end).rev() {
+            assert_eq!(graph.ordinal(edge), Some(expected[edge]));
+            assert_eq!(
+                graph.metadata(edge / 256, edge % 256).expect("metadata").0,
+                expected[edge]
+            );
+        }
+        assert_eq!(graph.ordinal(end), None);
+    }
+}
+
+#[test]
+fn checked_block_columns_reject_malformed_runs_unknown_ids_and_source_hints() {
+    let control = EvaluationControl::new(&options(false).budget, Phase::Capture).expect("control");
+    let offsets = [0, 5];
+    let labels = ["left".to_owned(), "right".to_owned()];
+    let positional = |sources, directory, words| CsrOrdinals::PositionBlocks {
+        edges: 5,
+        sources,
+        directory,
+        words,
+        large: &[],
+    };
+    let runs = |encoded| {
+        CsrActions::WordBlocks(CsrActionBlocks {
+            edges: 5,
+            directory: &[6],
+            encoded,
+            tail: &[],
+        })
+    };
+    let input = CsrCaptureColumns {
+        offsets: &offsets,
+        targets: &[0; 5],
+        ordinals: positional(&[0], &[0], &[]),
+        actions: runs(&[1, 0, 3, 1, 255, u16::MAX]),
+        edge_rows: &[0; 5],
+        representatives: &[0],
+        roots: &[0],
+        action_labels: &labels,
+        retained_rows: 1,
+        closed_rows: 1,
+    };
+    let graph =
+        CsrCapture::checked(input, Limits::default(), &control).expect("prefix inside a run block");
+    assert_eq!(graph.label(1), Some(Some("left")));
+    assert_eq!(graph.label(2), Some(Some("right")));
+    assert_eq!(graph.label(4), Some(None));
+    for actions in [
+        runs(&[1, 0, 1, 1, 255, u16::MAX]), // repeated endpoint
+        runs(&[1, 0, 3, 1, 254, u16::MAX]), // missing block end
+        runs(&[1, 2, 3, 1, 255, u16::MAX]), // unknown label
+        runs(&[1, 0, 3, 1, 255, 1]),        // labelled stutter
+        runs(&[1, 0, 255, u16::MAX]),       // bad block extent
+    ] {
+        assert!(
+            CsrCapture::checked(
+                CsrCaptureColumns { actions, ..input },
+                Limits::default(),
+                &control
+            )
+            .is_err()
+        );
+    }
+    for ordinals in [
+        positional(&[], &[0], &[]),
+        positional(&[1], &[0], &[]),
+        positional(&[0], &[2], &[]),
+        positional(&[0], &[1], &[0]),
+        positional(&[0], &[1], &[0, 1, 2, 3, 4]), // explicit ordinal on the stutter
+        positional(&[0], &[1], &[0, 2, 1, 3, u16::MAX]),
+    ] {
+        assert!(
+            CsrCapture::checked(
+                CsrCaptureColumns { ordinals, ..input },
+                Limits::default(),
+                &control
+            )
+            .is_err()
+        );
+    }
 }
