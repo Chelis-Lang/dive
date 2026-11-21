@@ -877,6 +877,7 @@ class SourceModel(FiniteRelation):
             a = sub(x["args"][0])
             if op == "PowerSet":
                 return PowerSet(a)
+            require(len(x["args"]) == 2, "unsupported builtin " + op)
             b = sub(x["args"][1])
             if op in ("Eq", "Neq"):
                 eq = self.same(a, b)
@@ -1794,15 +1795,23 @@ def check_revisions(args, revisions, owner):
         doc = json.loads(exported.stdout)
         if not owner:
             owner.append(cudd.BDD(memory_estimate=512 << 20))
-        model = bind_source_model(
-            doc,
-            args.type_invariant,
-            owner[0],
-            args.order_by_path,
-            args.single_partition,
-            learned,
-            direct_induction=args.prove_inductive and not args.verify_predicate,
-        )
+        try:
+            model = bind_source_model(
+                doc, args.type_invariant, owner[0], args.order_by_path, args.single_partition,
+                learned, direct_induction=args.prove_inductive and not args.verify_predicate,
+            )
+        except Unsupported:
+            # Whole-value search has no compatible cached layers or inductive representation.
+            eligible = not any((args.recheck, args.refine_domains, args.order_by_path,
+                                args.single_partition, args.prove_inductive,
+                                args.verify_predicate, args.write_predicate))
+            layout = [expr for name, expr in doc["invariants"] if name == args.type_invariant]
+            if not eligible or len(layout) != 1:
+                raise
+            from finite_values import FiniteValueModel, whole_record_layout
+            if not whole_record_layout(doc["ir"], layout[0]):
+                raise
+            model = FiniteValueModel(doc, layout[0])
         if args.verify_predicate or args.prove_inductive:
             states = (
                 induction.load(Path(args.verify_predicate), model)

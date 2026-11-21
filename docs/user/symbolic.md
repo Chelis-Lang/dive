@@ -68,6 +68,20 @@ The completed search reports eight distinct states, 21 generated states
 including the initial state, and depth four. For comparison, run
 `target/release/dive check Receipts.tla --config Receipts.cfg --workers 1 --store exact --compat=tlc --output json`.
 
+## Check finite records and sets as whole values
+
+Some specifications declare a message as a record and update the entire message at once. For an eligible fresh safety check, the symbolic worker assigns a small integer code to each possible value of each variable. A decision diagram can then share the same message and policy choices across many combinations of states. The report identifies this encoding with `"encoding": "whole-values"`.
+
+Run the ordinary symbolic command on the current source. For example, with the [released EmergencyCall module and f3 configuration](https://github.com/FormalCellular/EmergencyCall/tree/093684f1bb02d733cae95d50f1690f1cb792296a/model):
+
+```sh
+dive check EmergencyCall_Model_auto.tla --config config/f3.cfg --strategy symbolic --output json
+```
+
+This check starts with 49,152 states and reaches 21,255,936 distinct states in 27 levels. The 135,871,232 generated occurrences include initial states and each enabled action witness, including actions that reach the same destination. To save an independently validated counterexample on a failing configuration, add `--trace witness.json`.
+
+The selected type invariant must appear in the configuration and as a required conjunct of the initializer. This encoding accepts finite whole records, sets, strings and integers. Each initial path must bind every variable before reading it, and initial choices must give a provably unique witness per state. A variable omitted from the type predicate needs a mandatory literal initial assignment and a finite inferred alphabet. Every reachable enabled assignment must be defined and stay within its alphabet. Ambiguous initial counts, incomplete actions and unsupported expressions give a named refusal. Whole-value admission covers fresh INIT/NEXT safety checks without CFG constants, symmetry, constraints or operator overrides. Predicate exchange, edit reuse and induction have their own admission rules. [Full configuration and independent controls](../developer/large-models.md#check-the-full-emergencycall-initial-predicate).
+
 ## Compile a finite safety check
 
 Use `dive check --strategy compiled` in the Linux release bundle to compile a

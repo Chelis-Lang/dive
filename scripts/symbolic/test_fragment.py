@@ -20,6 +20,7 @@ NeverBlue == B \notin got
 Outside == x \notin Colors
 ====
 """
+    check_whole_values(folder, run, explicit, compare)
     check_record_permutations(folder, run, explicit, compare)
     check_initial_choices(folder, run, explicit, compare)
     check_initial_enumeration(folder, run)
@@ -808,3 +809,39 @@ BadType == \A i,j \in Ids : ~(f[i]=2 /\ g[j]="yes")
     # Release partial evaluators from exception tracebacks before their CUDD managers.
     del fast, plain
     gc.collect()
+
+
+def check_whole_values(folder, run, explicit, compare):
+    module = folder / "Whole.tla"
+    cfg = folder / "Whole.cfg"
+    cfg.write_text("INIT Init\nNEXT Next\nINVARIANT TypeInvariant Safe\n")
+    layout = r'r \in [i : {0, 1}] /\ x \in {0,1}'
+    frame = r'UNCHANGED <<r, x>>'
+    def source(init="TypeInvariant", step=frame, safe="x = x", typ=layout):
+        module.write_text(f"---- MODULE Whole ----\nVARIABLES r,x,flag\nTypeInvariant == {typ}\n"
+                          f"Init == /\\ flag = 0 /\\ ({init})\nNext == /\\ ({step}) /\\ UNCHANGED <<flag>>\nSafe == {safe}\n====\n")
+
+    source(step=r"\/ UNCHANGED <<r, x>> \/ /\ x' = 1 /\ UNCHANGED <<r>>")
+    row, = run(module, cfg)
+    compare(row, explicit(module, cfg))
+    assert row["encoding"] == "whole-values" and row["initial"] == 4
+
+    source(safe="x = 0")
+    row, = run(module, cfg, code=1)
+    assert row["depth"] == 1 and row["trace_validated"] and row["ending"]["name"] == "Safe"
+    for props in [
+        dict(safe=r'({1} \cap "a") = {}'), dict(safe=r'({1} \ "a") = {1}'),
+        dict(safe=r'UNION {"ab"} = {"a","b"}'),
+        dict(step=r"(x' = (CASE x = 0 -> 1) /\ FALSE /\ UNCHANGED <<r>>) \/ " + frame),
+        dict(init=r"x \in {0,1} /\ (CASE x = 0 -> 0) = 0 /\ TypeInvariant",
+             typ=r'r \in [i : {0,1}] /\ x \in {0}'),
+    ]:
+        source(**props)
+        assert explicit(module, cfg)["verdict"] == "evaluation-error"
+        rejected, = run(module, cfg, code=2)
+        assert rejected["verdict"] == "unsupported"
+    for props in [dict(init=r"TypeInvariant \/ TypeInvariant"),
+                  dict(step=r"(x = 0 => (x = 0 \/ x = 0)) /\ " + frame)]:
+        source(**props)
+        rejected, = run(module, cfg, code=2)
+        assert rejected["verdict"] == "unsupported"
