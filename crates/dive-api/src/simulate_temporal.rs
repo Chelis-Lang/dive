@@ -27,16 +27,22 @@
 //! was found either contributed a fair behavior (`checked`) or did not.
 
 use std::collections::HashMap;
-use std::hash::{DefaultHasher, Hash, Hasher};
+use std::hash::{BuildHasherDefault, Hash, Hasher};
+use std::sync::Arc;
 
+use dive_core::Handle;
 use dive_eval::St;
 use dive_eval::next::StateVals;
+use dive_liveness::analyze::AnalysisError;
 use dive_liveness::formula::{
     Atom, AtomKind, Formula, Limits, Literal, Node, Tableau, TableauNode, compile,
 };
-use dive_liveness::plan::{AtomTest, Plan, lower_violation};
+use dive_liveness::plan::{AtomTest, Plan, PredicateAtom, lower_violation};
 use dive_model::Model;
+use dive_runtime::budget::{Budget, EvaluationControl, Phase};
 use dive_sim::{Outcome, TemporalEnding, Unchecked};
+
+use crate::core_native_atoms::NativeAtoms;
 
 /// Work units charged for one `ENABLED` evaluation: a successor search.
 const ENABLED_COST: u64 = 16;
@@ -188,6 +194,39 @@ impl Checker {
         }))
     }
 
+    /// The atoms a check evaluates: every claim's own atoms, and the shared
+    /// fairness atoms once, from the first claim.
+    fn evaluated_atoms(&self) -> impl Iterator<Item = &PredicateAtom> {
+        self.claims.iter().enumerate().flat_map(|(index, claim)| {
+            let from = if index == 0 { 0 } else { self.shared_atoms };
+            claim.plan.atoms.iter().skip(from)
+        })
+    }
+
+    /// One worker's native evaluator for this checker's atoms on Core's
+    /// compiled machine over `store`. An atom Core does not compile, and
+    /// every native fallback, stays with the dive-eval evaluator; `None`
+    /// leaves every atom there.
+    pub(crate) fn native(
+        &self,
+        model: &Model,
+        store: &Arc<dive_core::Store>,
+        budget: &Budget,
+        opts: dive_core::Opts,
+    ) -> Option<NativeTemporal> {
+        let control = EvaluationControl::new(budget, Phase::Simulation).ok()?;
+        let atoms =
+            NativeAtoms::prepare_atoms(model, store, self.evaluated_atoms(), &control, opts)
+                .ok()?;
+        Some(NativeTemporal {
+            atoms,
+            control,
+            ids: WordMap::default(),
+            truths: WordMap::default(),
+            pure: WordMap::default(),
+        })
+    }
+
     /// Configured property names, in order.
     pub(crate) fn names(&self) -> impl Iterator<Item = &str> {
         self.claims.iter().map(|claim| claim.name.as_str())
@@ -199,6 +238,7 @@ impl Checker {
     pub(crate) fn check(
         &self,
         model: &Model,
+        native: Option<&mut NativeTemporal>,
         graph: &TraceGraph,
         actions: &[usize],
         truncated: bool,
@@ -206,12 +246,19 @@ impl Checker {
         let budget = self
             .budget
             .unwrap_or_else(|| dive_sim::liveness_budget(graph.path.len()));
+        let mut native = native;
+        let ids = native
+            .as_deref_mut()
+            .map(|native| native.node_ids(graph))
+            .unwrap_or_default();
         let mut cx = Cx {
             model,
             checker: self,
+            native,
+            ids,
             graph,
-            state: HashMap::new(),
-            action: HashMap::new(),
+            state: WordMap::default(),
+            action: WordMap::default(),
             work: 0,
             budget,
         };
@@ -507,10 +554,12 @@ fn export(
 #[derive(Default)]
 pub(crate) struct TraceGraph {
     states: Vec<StateVals>,
-    buckets: HashMap<u64, Vec<usize>>,
+    /// Each node's interned Core row, for native atom evaluation.
+    rows: Vec<Vec<Handle>>,
+    buckets: WordMap<u64, Vec<usize>>,
     /// `(from, to, action)`; a self-loop has no action.
     edges: Vec<(usize, usize, Option<usize>)>,
-    edge_index: HashMap<(usize, usize), usize>,
+    edge_index: WordMap<(usize, usize), usize>,
     out: Vec<Vec<usize>>,
     /// The node of each trace position.
     path: Vec<usize>,
@@ -520,7 +569,8 @@ pub(crate) struct TraceGraph {
 
 impl TraceGraph {
     /// Appends the next trace state, reached by `action` from the previous
-    /// one. True when this step reached a state already in the trace.
+    /// one, with its interned Core row. True when this step reached a state
+    /// already in the trace.
     ///
     /// # Errors
     /// An incomparable value.
@@ -528,9 +578,10 @@ impl TraceGraph {
         &mut self,
         model: &Model,
         state: StateVals,
+        row: &[Handle],
         action: Option<usize>,
     ) -> Result<bool, String> {
-        let mut hasher = DefaultHasher::new();
+        let mut hasher = WordHasher::default();
         state.hash(&mut hasher);
         let key = hasher.finish();
         let mut found = None;
@@ -545,6 +596,7 @@ impl TraceGraph {
         } else {
             let node = self.states.len();
             self.states.push(state);
+            self.rows.push(row.to_vec());
             self.out.push(Vec::new());
             self.buckets.entry(key).or_default().push(node);
             self.edge(node, node, None);
@@ -629,11 +681,14 @@ enum Waypoint {
 struct Cx<'a> {
     model: &'a Model,
     checker: &'a Checker,
+    native: Option<&'a mut NativeTemporal>,
+    /// The worker-wide row id of each trace-graph node, with `native`.
+    ids: Vec<u32>,
     graph: &'a TraceGraph,
     /// `(owner, atom, node)`.
-    state: HashMap<(usize, usize, usize), bool>,
+    state: WordMap<(usize, usize, usize), bool>,
     /// `(owner, atom, edge)`.
-    action: HashMap<(usize, usize, usize), bool>,
+    action: WordMap<(usize, usize, usize), bool>,
     work: u64,
     budget: u64,
 }
@@ -716,28 +771,58 @@ impl Cx<'_> {
             return Ok(None);
         }
         self.charge(if costly { ENABLED_COST } else { 1 })?;
-        let states = &self.graph.states;
-        let st = if atom.kind == AtomKind::State {
-            St::state(states[from].clone())
-        } else {
-            St::action(states[from].clone(), states[to].clone())
+        let graph = self.graph;
+        let after = (atom.kind == AtomKind::Action).then_some(to);
+        // The worker's truths of earlier traces, keyed by row ids.
+        let rows = self.ids.get(from).copied().zip(match after {
+            Some(to) => self.ids.get(to).copied(),
+            None => Some(u32::MAX),
+        });
+        let remembered = rows.map(|rows| ((owner, atom.index), rows));
+        let mut native = None;
+        if let Some(evaluator) = self.native.as_deref_mut() {
+            if let Some(truth) = remembered.and_then(|key| evaluator.remembered(&key)) {
+                return Ok(Some(self.note(atom, key, truth)));
+            }
+            native = evaluator.compute(predicate, graph, from, after)?;
+        }
+        let value = match native {
+            Some(value) => {
+                if self.native.as_ref().is_some_and(|n| n.atoms.audits()) {
+                    let reference = reference(self.model, predicate, graph, from, after);
+                    if !matches!(reference, Ok(truth) if truth == value) {
+                        return Err(Stop::Failed(Outcome::Internal(format!(
+                            "native atom audit mismatch: simulation atom at {} ({:?}) on nodes {from}/{after:?}: native {value}, reference {}",
+                            self.model.evaluator.location(predicate.pred.expr),
+                            predicate.test,
+                            match reference {
+                                Ok(truth) => truth.to_string(),
+                                Err(Stop::Failed(outcome)) => format!("{outcome:?}"),
+                                Err(Stop::Budget) => "budget".into(),
+                            }
+                        ))));
+                    }
+                }
+                value
+            }
+            None => reference(self.model, predicate, graph, from, after)?,
         };
-        let value = predicate.evaluate(self.model, &st).map_err(|error| {
-            Stop::Failed(if error.interruption().is_some() {
-                Outcome::Cancelled
-            } else {
-                Outcome::Unsupported(format!(
-                    "simulation temporal predicate evaluation: {}",
-                    error.tool_text()
-                ))
-            })
-        })?;
+        if let (Some(evaluator), Some(remembered)) = (self.native.as_deref_mut(), remembered)
+            && (native.is_some() || evaluator.pure(self.model, remembered.0, predicate))
+        {
+            evaluator.remember(remembered, value);
+        }
+        Ok(Some(self.note(atom, key, value)))
+    }
+
+    /// Caches `value` for this trace's later demands of the same atom.
+    fn note(&mut self, atom: Atom, key: (usize, usize, usize), value: bool) -> bool {
         if atom.kind == AtomKind::State {
             self.state.insert(key, value);
         } else {
             self.action.insert(key, value);
         }
-        Ok(Some(value))
+        value
     }
 
     /// A condition's truth on a trace-graph edge, evaluating `ENABLED`
@@ -815,7 +900,7 @@ impl Cx<'_> {
             out: Vec::new(),
             initial: Vec::new(),
         };
-        let mut index: HashMap<Pn, usize> = HashMap::new();
+        let mut index: WordMap<Pn, usize> = WordMap::default();
         let start = self.graph.path[0];
         let mut queue = std::collections::VecDeque::new();
         for &root in &tableau.roots {
@@ -1082,7 +1167,7 @@ impl Cx<'_> {
     fn refutes(&mut self, index: usize, length: usize) -> Result<bool, Stop> {
         let checker = self.checker;
         let (arena, top) = &checker.claims[index].positive;
-        let mut memo: HashMap<usize, (Vec<bool>, Vec<bool>)> = HashMap::new();
+        let mut memo: WordMap<usize, (Vec<bool>, Vec<bool>)> = WordMap::default();
         let (may, _) = self.prefix(index, arena, *top, length, &mut memo)?;
         Ok(!may[0])
     }
@@ -1093,7 +1178,7 @@ impl Cx<'_> {
         arena: &Arena,
         f: usize,
         length: usize,
-        memo: &mut HashMap<usize, (Vec<bool>, Vec<bool>)>,
+        memo: &mut WordMap<usize, (Vec<bool>, Vec<bool>)>,
     ) -> Result<(Vec<bool>, Vec<bool>), Stop> {
         if let Some(found) = memo.get(&f) {
             return Ok(found.clone());
@@ -1155,6 +1240,196 @@ impl Cx<'_> {
         memo.insert(f, result.clone());
         Ok(result)
     }
+}
+
+/// A multiplicative hasher for keys made of machine words.
+#[derive(Default)]
+struct WordHasher(u64);
+
+impl Hasher for WordHasher {
+    fn finish(&self) -> u64 {
+        self.0 ^ (self.0 >> 29)
+    }
+
+    fn write(&mut self, bytes: &[u8]) {
+        for &b in bytes {
+            self.write_u64(u64::from(b));
+        }
+    }
+
+    fn write_u32(&mut self, x: u32) {
+        self.write_u64(u64::from(x));
+    }
+
+    fn write_usize(&mut self, x: usize) {
+        self.write_u64(x as u64);
+    }
+
+    fn write_u64(&mut self, x: u64) {
+        self.0 = (self.0.rotate_left(5) ^ x).wrapping_mul(0x51_7c_c1_b7_27_22_0a_95);
+    }
+}
+
+type WordMap<K, V> = HashMap<K, V, BuildHasherDefault<WordHasher>>;
+
+/// Distinct rows a worker numbers before it forgets its rows and truths.
+const ROW_IDS: usize = 1 << 16;
+
+/// Native truths a worker keeps before it forgets them.
+const TRUTHS: usize = 1 << 19;
+
+/// One worker's native atom evaluator (see [`Checker::native`]), with the
+/// atom truths it already computed. An atom's truth is a function of its
+/// input rows, and equal interned rows are equal values, so a truth computed
+/// on one trace answers the same demand on any later trace of this worker.
+/// Kept truths are native ones, whose plans are admitted effect-free, and
+/// dive-eval truths of atoms that can have no side effect; none is kept
+/// under the native atom audit, which evaluates every demand.
+pub(crate) struct NativeTemporal {
+    atoms: NativeAtoms,
+    control: Arc<EvaluationControl>,
+    /// A worker-wide id and the value of each interned row seen.
+    ids: WordMap<Box<[Handle]>, (u32, StateVals)>,
+    /// `((owner, atom), (before, after))` row ids to truth; `after` is
+    /// `u32::MAX` for a state atom.
+    truths: WordMap<Remembered, bool>,
+    /// Whether each `(owner, atom)` can have no side effect.
+    pure: WordMap<(usize, usize), bool>,
+}
+
+/// `((owner, atom), (before, after))`: an atom demand by row ids.
+type Remembered = ((usize, usize), (u32, u32));
+
+impl NativeTemporal {
+    /// The worker-wide row id of each node of `graph`. Both tables are
+    /// forgotten together, between traces, when either is full.
+    fn node_ids(&mut self, graph: &TraceGraph) -> Vec<u32> {
+        if self.atoms.audits() {
+            return Vec::new();
+        }
+        if self.ids.len() >= ROW_IDS || self.truths.len() >= TRUTHS {
+            self.ids = WordMap::default();
+            self.truths = WordMap::default();
+        }
+        graph
+            .rows
+            .iter()
+            .zip(&graph.states)
+            .map(|(row, state)| {
+                if let Some(&(id, _)) = self.ids.get(row.as_slice()) {
+                    return id;
+                }
+                let id = u32::try_from(self.ids.len()).unwrap_or(u32::MAX - 1);
+                self.ids.insert(row.as_slice().into(), (id, state.clone()));
+                id
+            })
+            .collect()
+    }
+
+    /// The value of an interned row: the one this worker converted before,
+    /// else `convert`'s. Equal interned rows are equal values.
+    ///
+    /// # Errors
+    /// `convert`'s.
+    pub(crate) fn state(
+        &mut self,
+        row: &[Handle],
+        convert: impl FnOnce() -> Result<StateVals, String>,
+    ) -> Result<StateVals, String> {
+        if let Some((_, state)) = self.ids.get(row) {
+            return Ok(state.clone());
+        }
+        let state = convert()?;
+        if self.ids.len() < ROW_IDS {
+            let id = u32::try_from(self.ids.len()).unwrap_or(u32::MAX - 1);
+            self.ids.insert(row.into(), (id, state.clone()));
+        }
+        Ok(state)
+    }
+
+    fn remembered(&self, key: &Remembered) -> Option<bool> {
+        self.truths.get(key).copied()
+    }
+
+    fn remember(&mut self, key: Remembered, truth: bool) {
+        self.truths.insert(key, truth);
+    }
+
+    /// Whether evaluating `predicate` by dive-eval can have no side effect
+    /// (output, registers, randomness, time, I/O or checker state), so its
+    /// truth on equal rows is the same on every trace.
+    fn pure(&mut self, model: &Model, atom: (usize, usize), predicate: &PredicateAtom) -> bool {
+        *self.pure.entry(atom).or_insert_with(|| {
+            let ev = &model.evaluator;
+            let sub = match predicate.test {
+                AtomTest::Enabled { sub } => sub,
+                AtomTest::Nonstuttering { sub } => Some(sub),
+                AtomTest::NegatedEnabled { action } => Some(action),
+                AtomTest::Predicate => None,
+            };
+            !ev.impure_after_startup(predicate.pred.expr)
+                && sub.is_none_or(|sub| !ev.impure_after_startup(sub))
+                && !ev.scope_has_effects(&predicate.pred.scope)
+                && !ev.scope_shares_side_effects(&predicate.pred.scope)
+        })
+    }
+
+    fn compute(
+        &mut self,
+        predicate: &PredicateAtom,
+        graph: &TraceGraph,
+        from: usize,
+        to: Option<usize>,
+    ) -> Result<Option<bool>, Stop> {
+        let Some(before) = graph.rows.get(from) else {
+            return Ok(None);
+        };
+        let after = match to {
+            Some(to) => match graph.rows.get(to) {
+                Some(row) => Some(row.as_slice()),
+                None => return Ok(None),
+            },
+            None => None,
+        };
+        self.atoms
+            .evaluate(predicate, before, after, &self.control)
+            .map_err(|error| {
+                Stop::Failed(match error {
+                    AnalysisError::Stopped(_) | AnalysisError::BudgetMeasurement(_) => {
+                        Outcome::Cancelled
+                    }
+                    other => Outcome::Internal(format!(
+                        "simulation native temporal predicate: {other:?}"
+                    )),
+                })
+            })
+    }
+}
+
+/// The dive-eval evaluator's truth of `predicate` on node `from` (and `to`
+/// for an action atom).
+fn reference(
+    model: &Model,
+    predicate: &PredicateAtom,
+    graph: &TraceGraph,
+    from: usize,
+    to: Option<usize>,
+) -> Result<bool, Stop> {
+    let states = &graph.states;
+    let st = match to {
+        None => St::state(states[from].clone()),
+        Some(to) => St::action(states[from].clone(), states[to].clone()),
+    };
+    predicate.evaluate(model, &st).map_err(|error| {
+        Stop::Failed(if error.interruption().is_some() {
+            Outcome::Cancelled
+        } else {
+            Outcome::Unsupported(format!(
+                "simulation temporal predicate evaluation: {}",
+                error.tool_text()
+            ))
+        })
+    })
 }
 
 /// Strongly connected parts of the product restricted to `allowed` edges,
@@ -1226,7 +1501,7 @@ fn path_to(
     allowed: &dyn Fn(usize) -> bool,
     goal: &dyn Fn(usize) -> bool,
 ) -> Option<(usize, Vec<usize>)> {
-    let mut parent: HashMap<usize, Option<usize>> = HashMap::new();
+    let mut parent: WordMap<usize, Option<usize>> = WordMap::default();
     let mut queue = std::collections::VecDeque::new();
     for &s in from {
         if goal(s) {

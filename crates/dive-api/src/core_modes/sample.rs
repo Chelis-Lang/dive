@@ -23,7 +23,7 @@ use dive_model::Model;
 use dive_sim::{Outcome, Report, TemporalEnding, Trace, Unchecked};
 use dive_stdlib::random::{RandomSource, Stream, Streams};
 
-use crate::simulate_temporal::{Checker, TraceGraph, Verdict, Word};
+use crate::simulate_temporal::{Checker, NativeTemporal, TraceGraph, Verdict, Word};
 
 use super::{
     Native, allowed, assumptions, at_level, classify, finish_batch, generate, generate_selected,
@@ -204,6 +204,8 @@ struct Context<'a> {
     model: &'a Model,
     /// The run's temporal checker, when the model has temporal properties.
     temporal: Option<&'a Checker>,
+    /// The run's budget, which bounds each worker's native atom evaluation.
+    budget: &'a dive_runtime::budget::Budget,
     options: &'a dive_sim::Options,
     init: &'a Init,
     init_ids: &'a [usize],
@@ -448,6 +450,7 @@ impl Native {
             plan: &self.plan,
             model,
             temporal: checker,
+            budget: &self.budget,
             options,
             init: &init,
             init_ids: &init_ids,
@@ -797,6 +800,11 @@ fn sampled_init_instead(machine: &mut Machine, report: &mut Report) -> Init {
 /// One worker: claims trace ids in order and commits each finished trace.
 fn work(machine: &mut Machine, cx: &Context<'_>, shared: &Shared) {
     let window = WINDOW_PER_WORKER.saturating_mul(cx.options.workers.max(1) as u64);
+    // This worker's own Core machine for temporal atoms: no evaluator
+    // state is shared with another worker.
+    let mut native = cx.temporal.and_then(|checker| {
+        checker.native(cx.model, machine.heap.store(), cx.budget, machine.opts)
+    });
     loop {
         if shared.stop.load(Ordering::SeqCst) || (cx.poll)() {
             break;
@@ -808,7 +816,7 @@ fn work(machine: &mut Machine, cx: &Context<'_>, shared: &Shared) {
         if !shared.wait_window(id, window, cx.poll) {
             break;
         }
-        let run = trace(machine, cx, id);
+        let run = trace(machine, &mut native, cx, id);
         if matches!(run.end, End::Deciding(_)) {
             shared.best.fetch_min(id, Ordering::SeqCst);
         }
@@ -1054,7 +1062,12 @@ fn classify_init(error: &Error) -> Outcome {
     clippy::too_many_lines,
     reason = "emitted-candidate checks and the chosen transition stay in one loop"
 )]
-fn trace(machine: &mut Machine, cx: &Context<'_>, id: u64) -> Run {
+fn trace(
+    machine: &mut Machine,
+    native: &mut Option<NativeTemporal>,
+    cx: &Context<'_>,
+    id: u64,
+) -> Run {
     let mut run = Run {
         id,
         rows: Vec::new(),
@@ -1078,11 +1091,11 @@ fn trace(machine: &mut Machine, cx: &Context<'_>, id: u64) -> Run {
     };
     machine.set_output_limits(cx.output.0, cx.output.1);
     let rng = RefCell::new(cx.streams.simulation_trace(id));
-    let mut end = sample_into(machine, cx, id, &rng, &mut run);
+    let mut end = sample_into(machine, native, cx, id, &rng, &mut run);
     if matches!(end, End::Completed)
         && let Some(checker) = cx.temporal
     {
-        match finish_temporal(machine, cx, checker, &mut run) {
+        match finish_temporal(machine, native, cx, checker, &mut run) {
             Ok(None) => {}
             Ok(Some(outcome)) | Err(outcome) => end = End::Deciding(outcome),
         }
@@ -1170,36 +1183,60 @@ fn record(
 }
 
 /// The trace graph of the rows sampled so far.
-fn graph_of(machine: &mut Machine, model: &Model, run: &Run) -> Result<TraceGraph, Outcome> {
+fn graph_of(
+    machine: &mut Machine,
+    native: &mut Option<NativeTemporal>,
+    model: &Model,
+    run: &Run,
+) -> Result<TraceGraph, Outcome> {
     let mut graph = TraceGraph::default();
     for (position, row) in run.rows.iter().enumerate() {
-        let state = values(machine, model, row).map_err(Outcome::Unsupported)?;
+        let state = state_of(machine, native, model, row).map_err(Outcome::Unsupported)?;
         let action = position
             .checked_sub(1)
             .and_then(|step| run.actions.get(step).copied());
         graph
-            .push(model, state, action)
+            .push(model, state, row, action)
             .map_err(Outcome::Unsupported)?;
     }
     Ok(graph)
 }
 
+/// The value of an interned trace row, converted once per worker when the
+/// worker has a native temporal evaluator.
+fn state_of(
+    machine: &mut Machine,
+    native: &mut Option<NativeTemporal>,
+    model: &Model,
+    row: &[Handle],
+) -> Result<dive_eval::next::StateVals, String> {
+    match native {
+        Some(native) => native.state(row, || values(machine, model, row)),
+        None => values(machine, model, row),
+    }
+}
+
 /// At the depth: whether to extend the trace, and by how many steps. A
 /// trace extends only when it neither closed nor terminated and some
 /// temporal property is unchecked on it because it was cut (D-039).
-fn extension(machine: &mut Machine, cx: &Context<'_>, run: &mut Run) -> Result<usize, Outcome> {
+fn extension(
+    machine: &mut Machine,
+    native: &mut Option<NativeTemporal>,
+    cx: &Context<'_>,
+    run: &mut Run,
+) -> Result<usize, Outcome> {
     let Some(checker) = cx.temporal else {
         return Ok(0);
     };
     if cx.options.liveness_extend == 0 {
         return Ok(0);
     }
-    let graph = graph_of(machine, cx.model, run)?;
+    let graph = graph_of(machine, native, cx.model, run)?;
     if graph.closed_at().is_some() {
         run.graph = Some(graph);
         return Ok(0);
     }
-    let verdict = checker.check(cx.model, &graph, &run.actions, true)?;
+    let verdict = checker.check(cx.model, native.as_mut(), &graph, &run.actions, true)?;
     run.graph = Some(graph);
     if matches!(&verdict, Verdict::Coverage(reasons) if reasons.contains(&Some(Unchecked::Truncated)))
     {
@@ -1213,14 +1250,19 @@ fn extension(machine: &mut Machine, cx: &Context<'_>, run: &mut Run) -> Result<u
 
 /// After an extension step: adds the new state to the trace graph; true
 /// when the step closed a loop, which ends the extension.
-fn extended_step(machine: &mut Machine, cx: &Context<'_>, run: &mut Run) -> Result<bool, Outcome> {
+fn extended_step(
+    machine: &mut Machine,
+    native: &mut Option<NativeTemporal>,
+    cx: &Context<'_>,
+    run: &mut Run,
+) -> Result<bool, Outcome> {
     let (Some(row), Some(&action)) = (run.rows.last(), run.actions.last()) else {
         return Ok(false);
     };
-    let state = values(machine, cx.model, row).map_err(Outcome::Unsupported)?;
+    let state = state_of(machine, native, cx.model, row).map_err(Outcome::Unsupported)?;
     match &mut run.graph {
         Some(graph) => graph
-            .push(cx.model, state, Some(action))
+            .push(cx.model, state, row, Some(action))
             .map_err(Outcome::Unsupported),
         None => Ok(false),
     }
@@ -1230,13 +1272,14 @@ fn extended_step(machine: &mut Machine, cx: &Context<'_>, run: &mut Run) -> Resu
 /// counterexample word (which decides the run once validated) or coverage.
 fn finish_temporal(
     machine: &mut Machine,
+    native: &mut Option<NativeTemporal>,
     cx: &Context<'_>,
     checker: &Checker,
     run: &mut Run,
 ) -> Result<Option<Outcome>, Outcome> {
     let graph = match run.graph.take() {
         Some(graph) => graph,
-        None => graph_of(machine, cx.model, run)?,
+        None => graph_of(machine, native, cx.model, run)?,
     };
     let class = match graph.closed_at() {
         Some(at) if run.extended && at > cx.options.depth => Class::ExtendedClosed,
@@ -1247,7 +1290,13 @@ fn finish_temporal(
     };
     let verdict = match run.verdict.take() {
         Some(verdict) => verdict,
-        None => checker.check(cx.model, &graph, &run.actions, class == Class::Truncated)?,
+        None => checker.check(
+            cx.model,
+            native.as_mut(),
+            &graph,
+            &run.actions,
+            class == Class::Truncated,
+        )?,
     };
     run.class = Some(class);
     match verdict {
@@ -1283,6 +1332,7 @@ fn finish_temporal(
 )]
 fn sample_into(
     machine: &mut Machine,
+    native: &mut Option<NativeTemporal>,
     cx: &Context<'_>,
     id: u64,
     rng: &RefCell<Stream>,
@@ -1329,7 +1379,7 @@ fn sample_into(
             if run.extended {
                 break;
             }
-            match extension(machine, cx, run) {
+            match extension(machine, native, cx, run) {
                 Ok(0) => break,
                 Ok(extra) => limit = limit.saturating_add(extra),
                 Err(outcome) => return End::Deciding(outcome),
@@ -1515,7 +1565,7 @@ fn sample_into(
         }
         previous = to;
         if run.extended {
-            match extended_step(machine, cx, run) {
+            match extended_step(machine, native, cx, run) {
                 Ok(true) => break,
                 Ok(false) => {}
                 Err(outcome) => return End::Deciding(outcome),

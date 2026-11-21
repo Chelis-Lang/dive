@@ -168,6 +168,24 @@ impl NativeAtoms {
         control: &Arc<EvaluationControl>,
         strategies: Opts,
     ) -> Result<Self, dive_runtime::Verdict> {
+        Self::prepare_atoms(
+            model,
+            store,
+            driver.native_predicates(),
+            control,
+            strategies,
+        )
+    }
+
+    /// [`NativeAtoms::prepare`] for an explicit set of retained atoms, which
+    /// must outlive every evaluation (simulation's per-run claims).
+    pub(crate) fn prepare_atoms<'a>(
+        model: &Model,
+        store: &Arc<Store>,
+        atoms: impl IntoIterator<Item = &'a PredicateAtom>,
+        control: &Arc<EvaluationControl>,
+        strategies: Opts,
+    ) -> Result<Self, dive_runtime::Verdict> {
         let opts = Opts {
             memo: false,
             step_memo: false,
@@ -218,7 +236,7 @@ impl NativeAtoms {
         // A warning Core does not record (2144) must reach the
         // dive-eval evaluator, which prints it.
         result.machine.set_refuse_unrecorded_warnings(true);
-        for atom in driver.native_predicates() {
+        for atom in atoms {
             result.total += 1;
             // (a) The exact retained atom and its source scope must bind to
             // this model's evaluator; equal source text is not enough. A
@@ -333,8 +351,16 @@ impl NativeAtoms {
         self.audit_mismatch.as_deref()
     }
 
-    #[cfg(test)]
-    fn evaluate(
+    /// Whether `DIVE_NATIVE_ATOM_AUDIT=1` asks the caller to re-evaluate
+    /// every native truth by reference.
+    pub(crate) const fn audits(&self) -> bool {
+        self.audit
+    }
+
+    /// The native truth of `atom` on rows the caller holds outside a checked
+    /// graph, each certified materialized here (`admissible_row`); `None`
+    /// leaves the demand to the dive-eval evaluator.
+    pub(crate) fn evaluate(
         &mut self,
         atom: &PredicateAtom,
         before: &[Handle],
