@@ -62,6 +62,10 @@ On a single isolated c7i.4xlarge, three instrumented runs of this four-key confi
 
 At **five keys and three transactions**, the installed checker exhausted **571,514,403,867,075 symmetry representatives**, generated **19,613,909,230,737,652**, and checked both original invariants through depth 44. One isolated core took 1,431.39 s and 629 MiB peak RSS. The final diagram used 4,491 nodes. The independent history calculation agrees on both counters and predicts 3,428,937,742,115,475 distinct concrete states with symmetry disabled. [Configuration hash, command and result](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
 
+At **six keys and three transactions** the checker exhausted **539,910,848,473,937,721 symmetry classes**, generated **21,725,268,712,106,423,230** occurrences and reached depth 51. Both original invariants held. The process took **4,578.19 s** and peaked at **1.10 GiB** on a single EC2 logical CPU. The reachable-set diagram had 5,756 nodes. An independent calculation over transaction histories agrees on both integers. The generated count exceeds the range of a 64-bit unsigned integer. The record includes decimal strings for tools that parse JSON numbers as floating point. The same calculation predicts 3,239,447,207,251,422,105 distinct labeled states for the six-key configuration. [Process measurement, independent formula and input hashes](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
+
+For the five-key comparison above, the earlier frontier-only worker exhausted a 7,200 s deadline at 2.13 GiB peak RSS. The smaller-source worker completed in 1,431.39 s. These single-core runs used separate hosts of the same instance type. The stopped worker did not emit counts. [Five-key control](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
+
 ## Transaction commit
 
 Lamport's published `transaction_commit/TCommit.tla` includes a global
