@@ -470,7 +470,7 @@
       "command": "java -XX:ActiveProcessorCount=4 -Xmx14g -DTLA-Library=MODULES -cp tla2tools.jar tlc2.TLC -workers 4 -seed 0 -fp 0 -metadir NEW -config fixed5.cfg kraft_kip_996.tla, CPUs 0\u20133, external deadline 6360s"
     },
     "tlc_complete": {
-      "host": "separate matched EC2 c7i.4xlarge, us-east-2, W4 pinned to CPUs 0\u20133",
+      "host": "separate matched EC2 c7i.4xlarge, us-west-2b, W4 pinned to CPUs 0\u20133",
       "wall_s": 9093.59,
       "peak_rss_kib": 8589852,
       "exit": 0,
@@ -981,6 +981,119 @@
         }
       },
       "focused_tests": 538
+    },
+    "remaining_property_search": {
+      "sampling": "36 original-source simulations, seed 996, W1, requested depth 100. Select eight pending-value and eight prospective-state pivots, favoring spent crash and network-change budgets.",
+      "suffix": "Parity projection. Freeze membership, connectivity, its counter, configuration, and sent values. Cap epochs at one above the largest pivot epoch. Freeze both ack sets for the value search or keep one selected server prospective. Check original unrestricted weak fairness on each suffix. W2 pinned TLC, seed 0 and fp 0.",
+      "row_columns": [
+        "source_trace",
+        "zero_based_state_index",
+        "generated",
+        "distinct"
+      ],
+      "rows": {
+        "ValuesEventuallyAcked": [
+          [
+            "trace_18.json",
+            200,
+            644,
+            200
+          ],
+          [
+            "trace_14.json",
+            189,
+            5,
+            4
+          ],
+          [
+            "trace_20.json",
+            92,
+            6,
+            5
+          ],
+          [
+            "trace_22.json",
+            119,
+            40,
+            18
+          ],
+          [
+            "trace_33.json",
+            105,
+            4,
+            3
+          ],
+          [
+            "trace_30.json",
+            100,
+            88,
+            36
+          ],
+          [
+            "trace_4.json",
+            99,
+            4,
+            3
+          ],
+          [
+            "trace_1.json",
+            95,
+            4,
+            3
+          ]
+        ],
+        "NotStuckInProspective": [
+          [
+            "trace_18.json",
+            200,
+            23,
+            18
+          ],
+          [
+            "trace_24.json",
+            200,
+            65,
+            32
+          ],
+          [
+            "trace_14.json",
+            196,
+            4,
+            3
+          ],
+          [
+            "trace_20.json",
+            57,
+            10,
+            6
+          ],
+          [
+            "trace_22.json",
+            80,
+            2,
+            2
+          ],
+          [
+            "trace_33.json",
+            62,
+            1,
+            1
+          ],
+          [
+            "trace_30.json",
+            57,
+            2,
+            2
+          ],
+          [
+            "trace_4.json",
+            54,
+            1,
+            1
+          ]
+        ]
+      },
+      "result": "All sixteen restricted suffixes exhausted without a fair counterexample. Both properties remain open on unrestricted executions."
     }
   }
 }

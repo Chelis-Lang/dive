@@ -93,7 +93,7 @@ def transition(states, back, scheduled, laps=None):
     return head
 
 
-def extract(trace, output):
+def extract(trace, output, quotient=None):
     """Remove only the scheduling variable and wrapper labels from a concrete replay."""
     document = json.loads(trace.read_text())["document"]
     document["variables"].remove("orbitIndex")
@@ -102,6 +102,19 @@ def extract(trace, output):
     for state in document["states"]:
         del state["values"]["orbitIndex"]
         state["action"] = None
+    if quotient is not None:
+        back = json.loads((quotient / "parity-word.json").read_text())["ending"]["back_to"]
+        end = back + len(ELECTION)
+        states = document["states"]
+        if not 0 <= back < end < len(states):
+            raise ValueError("the replay must include a complete election lap and its closing state")
+        for state in states[:end + 1]:
+            state["values"]["aux_ctrs"]["record"]["prevote_ctr"] %= 2
+        if states[back]["values"] != states[end]["values"]:
+            raise ValueError("the replay does not close under the counter projection")
+        document["states"] = states[:end]
+        document["ending"] = {"kind": "lasso", "back_to": back}
+        document["properties"] = ["ReconfigurationNotStuck", "EventuallyLeaderElected"]
     with output.open("x") as stream:
         json.dump(document, stream, separators=(",", ":"))
 
@@ -152,11 +165,12 @@ if __name__ == "__main__":
     parser.add_argument("--concrete", type=Path, help="original sample for finite replay in the original module directory")
     parser.add_argument("--laps", type=int, default=16)
     parser.add_argument("--extract", type=Path, help="export a concrete simulation trace from this envelope")
+    parser.add_argument("--project-lasso", action="store_true", help="project the extracted election lap for native periodic validation")
     parser.add_argument("--output", type=Path, help="new trace file for independent validation")
     args = parser.parse_args()
     if args.extract and args.output:
-        extract(args.extract, args.output)
-    elif args.extract or args.output:
+        extract(args.extract, args.output, args.quotient_directory if args.project_lasso else None)
+    elif args.extract or args.output or args.project_lasso:
         parser.error("--extract and --output must be used together")
     else:
         generate(args.quotient_directory, args.election_schedule, args.concrete, args.laps)
