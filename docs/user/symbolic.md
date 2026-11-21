@@ -68,6 +68,19 @@ The completed search reports eight distinct states, 21 generated states
 including the initial state, and depth four. For comparison, run
 `target/release/dive check Receipts.tla --config Receipts.cfg --workers 1 --store exact --compat=tlc --output json`.
 
+## Symbolic layout for nested tables
+
+A table such as `snapshotStore[t][k]` can describe the same transaction and key as `written[t]` and `missed[t]`. When multiple labeled tables share both complete finite index domains, the worker puts related fields next to one another. Ordinary searches keep the common inner key first. With a singleton inner domain, the bits for one outer index can sit beside all its fields. During direct induction, a larger outer domain places each transaction's cross-key obligations together. Searches and saved-predicate verification choose the same encoding. The worker rechecks all proof obligations when reading an older predicate. Configured symmetry and refined set layouts keep their own allocation rules.
+
+| Labeled KVS experiment | Previous layout | Shared indices | Observable result |
+|---|---:|---:|---|
+| 2 keys, 3 transactions, complete search | 2.65 s | 1.60–1.65 s | 3,409,605 distinct, depth 23 |
+| 3 keys, 3 transactions, complete search | 57.50–58.14 s | 36.18–36.40 s | 3,557,499,075 distinct, depth 30 |
+| 4 keys, 3 transactions, complete search | 536.59 s | 307.51 s | 3,552,493,680,513 distinct, depth 37 |
+| 4 keys, 7 transactions, direct induction | Stopped at 50 s | 6.36–6.96 s | Inductive safety proof |
+
+All three completed searches also agreed on generated counts. On four keys the final reachable diagram dropped from 4,171 to 3,226 nodes. For the stronger model invariant `FullHasFresh`, increasing the domain to **4 keys and 24 transactions** took 109.69 s to prove. **2 keys and 56 transactions** took 10.27 s and **1 key and 102 transactions** took 7.11 s. Additional slots reached the 512-bit admission limit at 2 keys/57 slots and 1 key/103 slots. These are induction results on the source program. The independent KVS history formula gives about 5.0024 × 10¹⁰⁶ labeled reachable states at 102 slots. The proof checks initial inclusion and next-step closure without traversing these states. In the 102-slot model the weaker invariants alone failed the next-step obligation. The [measurements, domain setup and reproduction commands](../../conformance/reports/perf/2026-11-21-symbolic-table-orders.json) include both bit orders and the negative controls.
+
 ## Check edits and prove properties
 
 ```sh
