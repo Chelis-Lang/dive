@@ -1113,6 +1113,120 @@
             "initial_hint_members": 138
           }
         ]
+      },
+      "Quarantine-control": {
+        "wall_seconds": 1619.93,
+        "max_rss_kib": 1192520,
+        "validated_trace_states": 2,
+        "revisions": [
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "reused": false,
+            "reachable_bdd_nodes": 630485,
+            "seconds": 550.97429,
+            "refinement_rounds": 11,
+            "learned_members": 80,
+            "initial_hint_members": 0
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "reused": false,
+            "reachable_bdd_nodes": 630485,
+            "seconds": 531.153043,
+            "refinement_rounds": 1,
+            "learned_members": 80,
+            "initial_hint_members": 80
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "reused": false,
+            "reachable_bdd_nodes": 630485,
+            "seconds": 536.996018,
+            "refinement_rounds": 1,
+            "learned_members": 80,
+            "initial_hint_members": 80
+          },
+          {
+            "verdict": "invariant-violation",
+            "depth": 2,
+            "ending": {
+              "kind": "invariant",
+              "name": "EmptyNetwork"
+            },
+            "reused": false,
+            "trace_validated": true,
+            "seconds": 0.58199,
+            "refinement_rounds": 1,
+            "learned_members": 80,
+            "initial_hint_members": 80
+          }
+        ]
+      },
+      "Quarantine-candidate": {
+        "wall_seconds": 570.66,
+        "max_rss_kib": 1192948,
+        "validated_trace_states": 2,
+        "revisions": [
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "reused": false,
+            "reachable_bdd_nodes": 630485,
+            "seconds": 562.045931,
+            "refinement_rounds": 11,
+            "learned_members": 80,
+            "initial_hint_members": 0
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "reused": true,
+            "reachable_bdd_nodes": 630485,
+            "seconds": 0.808912,
+            "refinement_rounds": 1,
+            "learned_members": 80,
+            "initial_hint_members": 80
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "reused": true,
+            "reachable_bdd_nodes": 630485,
+            "seconds": 6.833871,
+            "refinement_rounds": 1,
+            "learned_members": 80,
+            "initial_hint_members": 80
+          },
+          {
+            "verdict": "invariant-violation",
+            "depth": 2,
+            "ending": {
+              "kind": "invariant",
+              "name": "EmptyNetwork"
+            },
+            "reused": false,
+            "trace_validated": true,
+            "seconds": 0.755679,
+            "refinement_rounds": 1,
+            "learned_members": 80,
+            "initial_hint_members": 80
+          }
+        ]
       }
     }
   },
