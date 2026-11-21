@@ -1,0 +1,30 @@
+{
+  "sources": [
+    "docs/user/modules.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe"
+  ],
+  "modules": [
+    {
+      "path": "specifications/BitsState/BitsState.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/BitsState/BitsState.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    },
+    {
+      "path": "specifications/BitsState/Bits.tla",
+      "features": [],
+      "models": []
+    }
+  ]
+}

@@ -1800,6 +1800,15 @@ errors, then refuses unknown local classes before startup evaluation. Constant-r
 fallback-error controls exercise both public checking loaders in both profiles;
 the exact class still executes and no-class modules retain TLA semantics.
 
+Core evaluates the same method as `StdOp::BitsAnd` in
+`crates/dive-core/src/stdlib/community.rs`, with `dive-eval`'s semantics:
+every argument must be a 32-bit integer, the result is Java's `iand`, and a
+non-integer argument is refused by name (pinned TLC fails it with error 2154,
+"Cannot cast tlc2.value.impl.BoolValue to tlc2.value.impl.IntValue"). Checking
+compiles the plan from the bound IR, which carries the override. The corpus
+`bits-override` holds the pinned class with a placeholder TLA+ body and
+state-dependent calls on negative operands, with its TLC golden.
+
 ### Direct configured operators in temporal atoms
 
 The direct `ConstBinding::Def` call projection in temporal planning, finite

@@ -189,6 +189,10 @@ is not reinterpreted by this feature.
   two direct configured Reply temporal controls, holding and violated, with
   generated TLC/SANY goldens. This separate corpus preserves the existing
   `probes` input identity. Run it with `--corpus configured-temporal-operators`.
+- `bits-override` (`conformance/corpus/bits-override/`): the pinned Examples
+  Hanoi `Bits.class` overriding a placeholder `Bits!And` body, called with
+  state-dependent negative operands; one model with its TLC golden. Run it
+  with `--corpus bits-override --tier all`.
 - `probes` (`conformance/corpus/probes/`, `examples-manifest` layout): the honesty and determinism probes of `docs/internal/survey/competitive.md` (P1–P9, M1–M2), 12 modules and 14 models with goldens from the gating oracle. Run it with `--corpus probes`.
 
 ## Commands

@@ -2,7 +2,8 @@
 //! (`Contains`, `RemoveFirst`, `Suffixes`, `AllSubSeqs`, `SetToSeq`,
 //! `IsPrefix`, `LongestCommonPrefix`, and `ReplaceFirstSubSeq` and
 //! `ReplaceAllSubSeqs` on strings and pure scalar sequences), `Functions` (`IsInjective`),
-//! `DyadicRationals` (`Reduce`) and `Bitwise`. The reference is `dive-eval`'s
+//! `DyadicRationals` (`Reduce`), `Bitwise`, and the `And` of the pinned
+//! Examples Hanoi `Bits.class` (`StdOp::BitsAnd`). The reference is `dive-eval`'s
 //! `community` module (`call_ext`), which follows the Java overrides of
 //! `tlc2.overrides`.
 
@@ -29,6 +30,7 @@ pub(super) fn implements(op: StdOp) -> bool {
             | StdOp::SequencesExtReplaceAllSubSeqs
             | StdOp::FunctionsIsInjective
             | StdOp::FunctionsAntiFunction
+            | StdOp::BitsAnd
             | StdOp::BitwiseAnd
             | StdOp::BitwiseOr
             | StdOp::BitwiseXor
@@ -96,6 +98,19 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
         StdOp::SequencesExtIsPrefix => is_prefix(m, op, arg(args, 0)?, arg(args, 1)?),
         StdOp::FunctionsIsInjective => is_injective(m, op, arg(args, 0)?),
         StdOp::FunctionsAntiFunction => anti_function(m, op, arg(args, 0)?),
+        StdOp::BitsAnd => {
+            // The pinned Hanoi `Bits.And(IntValue x, IntValue y, IntValue n,
+            // IntValue m)` is `IntValue.gen(x.val & y.val)`: Java's `&` on
+            // two's-complement `int`s. Its signature casts all four arguments
+            // to `IntValue`, so every one is checked, although only the first
+            // two are read; TLC fails a cast with error 2154, which the core
+            // refuses by name, as `dive-eval` does.
+            let mut v = [0i32; 4];
+            for (i, slot) in v.iter_mut().enumerate() {
+                *slot = java_int(op, arg(args, i)?)?;
+            }
+            int(i64::from(v[0] & v[1]))
+        }
         StdOp::BitwiseAnd | StdOp::BitwiseOr | StdOp::BitwiseXor => {
             let x = java_int(op, arg(args, 0)?)?;
             let y = java_int(op, arg(args, 1)?)?;

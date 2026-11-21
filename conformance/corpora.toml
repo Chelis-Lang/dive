@@ -65,6 +65,15 @@ path = "conformance/corpus/probes"
 license = "MIT"
 layout = "examples-manifest"
 
+# The pinned Examples Hanoi Bits.class overriding Bits!And, called with
+# state-dependent and negative operands. Kept separate so the probes corpus
+# retains its input identity.
+[[corpus]]
+id = "bits-override"
+path = "conformance/corpus/bits-override"
+license = "MIT"
+layout = "examples-manifest"
+
 # Pinned logical coverage demand and diagnostic reconstruction controls (ADR 0150).
 [[corpus]]
 id = "tlc-coverage-primary"
