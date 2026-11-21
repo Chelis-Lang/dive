@@ -35,7 +35,8 @@ fn options(args: &[String], command: &mut Command) -> Result<(), String> {
                     return Err("--config given twice".to_owned());
                 }
             }
-            "--type-invariant" | "--write-predicate" | "--verify-predicate" | "--trace" => {
+            "--type-invariant" | "--write-predicate" | "--verify-predicate" | "--trace"
+            | "--max-orbits" => {
                 command.arg(key).arg(value()?);
             }
             "--recheck" if inline.is_none() => {
@@ -69,8 +70,12 @@ fn options(args: &[String], command: &mut Command) -> Result<(), String> {
             _ => return Err(format!("unsupported symbolic argument: {arg}")),
         }
     }
-    if strategy != Some("symbolic") {
-        return Err("--strategy expects symbolic".to_owned());
+    match strategy {
+        Some("symbolic") => {}
+        Some("occupancy") => {
+            command.arg("--occupancy");
+        }
+        _ => return Err("--strategy expects symbolic or occupancy".to_owned()),
     }
     let module = module.ok_or_else(|| "missing TLA+ module".to_owned())?;
     let config = config.unwrap_or_else(|| module.with_extension("cfg"));

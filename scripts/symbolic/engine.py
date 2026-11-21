@@ -6,14 +6,12 @@ from collections import Counter
 from contextlib import suppress
 from dataclasses import dataclass
 from enum import Enum, auto
-import errno
 import gc
 import itertools
 import json
 import math
 import operator
 from pathlib import Path
-import resource
 import subprocess
 import sys
 import tempfile
@@ -25,6 +23,7 @@ except ImportError:
     print(json.dumps(dict(verdict="unsupported", reason="install dd==0.6.0 with its CUDD extension")))
     sys.exit(2)
 from finite_relation import FiniteRelation
+from worker_process import Stopped, limit_memory, run_helper
 import induction
 
 
@@ -38,34 +37,6 @@ class Grow(Exception):
 
 class ChangedRelation(Exception):
     """Rebind the edited model in a fresh manager using its surviving coordinates."""
-
-
-class Stopped(RuntimeError):
-    """A subprocess stopped before it produced a semantic result."""
-
-
-def run_helper(command, label, memory_limited, **options):
-    try:
-        result = subprocess.run(command, text=True, capture_output=True, **options)
-    except OSError as error:
-        if error.errno in (errno.ENOMEM, errno.EAGAIN):
-            raise Stopped(label + " exhausted process resources") from error
-        raise
-    if result.returncode:
-        # A failed loader, allocator or thread startup can terminate before
-        # Rust main returns a diagnostic. Never classify that as a model refusal.
-        if result.returncode < 0:
-            raise Stopped(f"{label} terminated by signal {-result.returncode}")
-        if "cannot start a thread: " in result.stderr and any(
-            f"(os error {code})" in result.stderr for code in (errno.ENOMEM, errno.EAGAIN)
-        ):
-            raise Stopped(label + " could not allocate a binder thread")
-        if not result.stderr.startswith("Error: ") and not result.stdout.strip():
-            reason = result.stderr.strip()[-500:] or f"exit {result.returncode}"
-            if memory_limited:
-                raise Stopped(f"{label} stopped under the memory budget: {reason}")
-            raise RuntimeError(f"{label} failed without a result: {reason}")
-    return result
 
 
 def require(condition, message):
@@ -1708,12 +1679,7 @@ def refined_search(args):
 
 
 def run(args):
-    if args.max_memory:
-        _, hard = resource.getrlimit(resource.RLIMIT_AS)
-        limit = args.max_memory << 20
-        if hard != resource.RLIM_INFINITY:
-            limit = min(limit, hard)
-        resource.setrlimit(resource.RLIMIT_AS, (limit, hard))
+    limit_memory(args.max_memory)
     if args.refine_domains and not getattr(args, "domain_pass", False):
         return refined_search(args)
     if args.refine_domains:

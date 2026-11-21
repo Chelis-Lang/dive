@@ -56,6 +56,8 @@ def main():
     certificate.add_argument(
         "--verify-predicate", type=Path, help="prove safety by checking a supplied predicate for induction"
     )
+    parser.add_argument("--occupancy", action="store_true", help="exact labeled BFS on anonymous status tables")
+    parser.add_argument("--max-orbits", type=int, help="occupied-vector budget for the occupancy strategy")
     parser.add_argument("--trace", type=Path)
     parser.add_argument(
         "--recheck",
@@ -70,6 +72,11 @@ def main():
     parser.add_argument("--max-memory", type=positive_mib, metavar="MIB",
                         help="virtual address-space limit inherited by the worker and each child")
     args = parser.parse_args()
+    if args.max_orbits is not None and (not args.occupancy or args.max_orbits < 1):
+        parser.error("--max-orbits requires occupancy and a positive integer")
+    if args.occupancy and any((args.recheck, args.refine_domains, args.prove_inductive, args.order_by_path,
+                               args.single_partition, args.write_predicate, args.verify_predicate)):
+        parser.error("occupancy admits a fresh labeled search without BDD proof or session options")
     if sys.platform != "linux":
         parser.error("the symbolic checker currently supports Linux")
     if args.trace or args.write_predicate:
@@ -86,7 +93,7 @@ def main():
 
     # A supervisor can interrupt a long CUDD operation and stop its process group.
     # The normal Dive binary and other sessions keep their own limits.
-    worker = Path(__file__).with_name("engine.py")
+    worker = Path(__file__).with_name("occupancy.py" if args.occupancy else "engine.py")
     class Cancelled(Exception):
         """Cancel without the extra grace in Popen.wait for KeyboardInterrupt."""
 
