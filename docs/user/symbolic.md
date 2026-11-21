@@ -121,6 +121,14 @@ an actual counterexample.
 
 The configured layout invariant, named `TypeInvariant` by default, supplies
 one finite bound per state variable. Select another with `--type-invariant`.
+
+Source binding skips pure closed definitions that no configuration role,
+assumption or observable startup computation can reach. A library can define
+`Permutations(Peer)` for other configurations without constructing that set
+when the selected configuration never uses it. Selecting the definition under
+`SYMMETRY` still evaluates it and applies the normal symmetry limits.
+[Bounded export and checker controls](../../conformance/reports/perf/2026-11-21-symbolic-source-binding.json).
+
 Finite scalar fields can contain integers, strings, untyped model values and records over supported scalars. Subsets and fixed-domain functions can use those finite domains. Ground assumptions must evaluate to TRUE. Boolean configuration flags can select constant branches. Each enabled Init witness must give a ground, complete assignment. Next can use bounded choices, disjunction,
 `UNCHANGED` and deterministic assignments to all variables per action
 witness. A primed value must be assigned before it is read. The expression

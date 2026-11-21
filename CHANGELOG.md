@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- [Symbolic checking](docs/user/symbolic.md#admission-and-reports) can load models with large, unused pure definitions without constructing their values during startup.
+
 - Core checks membership in [finite record message types](docs/user/checking.md) without materializing eligible record unions, and independently replays canonical traces with scalar payloads of different types.
 
 - The [EmergencyCall benchmark](docs/developer/large-models.md#enlarge-the-emergencycall-number-sets) checks four larger source configurations and exports independently validated counterexamples.
