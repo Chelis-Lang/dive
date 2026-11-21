@@ -724,6 +724,17 @@ Restarts raised the completed two-writer graph from 74,637 to 3,761,377 distinct
 
 Allowing two writer restarts instead of one raised the complete two-writer graph from **3,761,377 to 98,416,351 distinct states**. Core and TLC independently generated 398,235,951 states, reached depth 114 and exhausted the queue. On the same eight physical cores, Core took 396.33 s at 1.65 GiB peak RSS and TLC took 804.47 s at 5.02 GiB. With all three original writers and two restarts, Core reached a 30-million-state prefix in 135.87 s, with 102,653,606 generated and 6,184,868 still queued. That larger model's total size remains unknown. [Pinned configurations, per-engine commands and measurements](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
+#### The earlier four-writer WAL protocol
+
+The author's November release contains two programs. The main WAL model allows a fenced writer to restart. A separately named, earlier program uses four writers and has no restart parameter. The notes give 49 billion unique states for the newer program and 12 billion for the simpler one. The earlier program's shipped configuration keeps the fix enabled and checks six invariants. Its writer count differs from the three in the newer CFG, so the two published figures require separate reproductions. [Author's notes and configurations](https://github.com/Vanlightly/s3-wal-collection/tree/35fdc537af4d226f43b4574cded1764375f264ac/slatedb) · [TLAPS-Bench, Appendix D](https://arxiv.org/abs/2611.02849).
+
+| Writers in the earlier protocol | Distinct | Generated | Depth | Exact Core | Pinned TLC |
+|---:|---:|---:|---:|---:|---:|
+| 2 | 58,972 | 143,482 | 55 | 0.26 s | 1.43 s |
+| 3 | 9,850,105 | 34,653,324 | 84 | 54.94 s | 85.44 s |
+
+Both checkers exhausted the queue in all four runs on one dedicated EC2 host with eight workers. The three-writer exact run peaked at 0.95 GiB on Core and 8.57 GiB on TLC. These controls preserve symmetry, both values, the collector and all six invariants. The shipped four-writer CFG is the next comparison for the older program. [Commands, memory, input digests and source history](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
+
 #### Symmetry comparison costs
 
 A SlateDB successor changes a subset of 19 variables. Selecting its symmetry representative can compare the same function domains and nested values many times. Core now compares borrowed slices and stops reading at the first differing entry. It also reuses per-worker buffers for competing images. On the original configuration at five million discoveries, the three-run median fell from 19.97 to 17.92 s at eight physical cores, and from 10.12 to 9.62 s at 32. All twelve terminal reports agreed on counts, depth and pending queue. [Individual runs, profile and binary identities](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
