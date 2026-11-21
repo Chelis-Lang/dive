@@ -356,6 +356,54 @@
     },
     "host": "Same us-west-2 c7i.4xlarge as the preceding series. Evidence includes process startup, JSON decoding, Init, Next, the configured invariants and independent ending validation. Final runs were serial on CPU 2. The update-only ablation ran on CPU 3.",
     "recipe": "Use the same Prepared.tla, BadN.cfg and validate-trace command as the constructed_words series. For the late control move the only prepared value from r1 to rN in state 2. For the forged endpoint two owners prepare in one transition. All use ending invariant NonePrepared.",
-    "profile": "Parent 8,192-owner rejection: scalar comparison 15.67%, Value destruction 9.79%, function point update 4.67%, equality 4.21%, materialized identity 3.40%. Once per-owner rebuilding was removed, the same all-owner predicate was still evaluated for each candidate. Update-only and guard-only rows isolate both costs."
+    "profile": "Parent 8,192-owner rejection: scalar comparison 15.67%, Value destruction 9.79%, function point update 4.67%, equality 4.21%, materialized identity 3.40%. Once per-owner rebuilding was removed, the same all-owner predicate was still evaluated for each candidate. Update-only and guard-only rows isolate both costs.",
+    "sail_real_edit": {
+      "model": "TCommit with unconditional commit added through the Sail occupancy session; TCConsistent fails in three states. The reported concrete word is independently validated against the changed source.",
+      "cpu": 4,
+      "inputs": {
+        "Edits.tla": "ecf9b2296cbdad40e3ec84b74414d9bb6508c3157fec959b8540fa4d94e87635",
+        "addition.cfg": "dec34fcd8eb1ee93b0b49de8debcc9002540af0b64440c107e3e698d7500e5a2",
+        "word": "758eb75563d448489563134726ad57d51c2d394eceb222ca930f76086ed0199d"
+      },
+      "command": "taskset -c 4 BINARY validate-trace Edits.tla --config addition.cfg --trace WORD --output json",
+      "archive_validator_sha256": "e3daedfed7049bd91d598387bbbc16df8e435f5fef04084f7205a748585909c6",
+      "prechange": [
+        [
+          33.21,
+          122284
+        ],
+        [
+          33.08,
+          122044
+        ]
+      ],
+      "candidate": [
+        [
+          0.12,
+          122956
+        ],
+        [
+          0.12,
+          122852
+        ]
+      ],
+      "units": [
+        "wall_seconds",
+        "peak_rss_kib"
+      ],
+      "result": "valid (3 states) on every run"
+    },
+    "adversarial_controls": {
+      "end_to_end": 84,
+      "distinct_shapes": 21,
+      "profiles": [
+        "dive",
+        "tlc"
+      ],
+      "cases": "Model and sparse integer domains, missing keys, heterogeneous values, reversed comparisons, @, multiple concrete states/tables, INSTANCE and unary short circuit. All CLI reports and exit codes identical across three binaries.",
+      "result_set_sha256": "32f21048e7a35d762d9c05579d190f99e177f5e2d5b22dc0d07ed90db0d8f657",
+      "ordinary_vs_scoped": 80,
+      "cancellation": "Both profiles propagated interruption token 419 and succeeded on retry, separately for update, guard and repeated guard. Matching ResourceLimit at recursion depth 16."
+    }
   }
 }
