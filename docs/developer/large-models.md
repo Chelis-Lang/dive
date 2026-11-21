@@ -420,6 +420,14 @@ predicates, used zero fallback and reached 38,232,770 generated with
 verdict. [Binary identities, controls and per-action
 counts](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
 
+Without the state cutoff, the destination guard answered 319,126,840
+action demands within the 1,800 s run. The checker ran 305,199,122
+direct action and 210,575,907 state evaluations. The run reached
+1,568,061 distinct states and 364,992,824 generated at depth
+5, with 1,386,078 still queued. The time limit stopped atom labeling at the second periodic
+check, with all four properties still open. Peak RSS was 1.99 GiB. [Terminal report and resource
+limit](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
+
 ### What occupies memory at the same discovery prefix?
 
 Each of the six previously memory-limited configurations reached the same

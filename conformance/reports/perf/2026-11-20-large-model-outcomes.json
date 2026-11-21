@@ -1595,6 +1595,56 @@
           }
         },
         "ratchet": "Three W1 small-tier temporal clock/cache controls agree with the pinned goldens.",
+        "without_state_cutoff": {
+          "binary_sha256": "45144468f5b258c3c96b986148b5c9f2baca763ac31f76bdcde4062af39c281f",
+          "exit": 5,
+          "verdict": "stopped",
+          "stop": "time",
+          "stage": {
+            "capture_completed": false,
+            "stage": "atoms"
+          },
+          "statistics": {
+            "depth": 5,
+            "distinct": 1568061,
+            "exhaustive": false,
+            "generated": 364992824,
+            "initial_generated": 1,
+            "left_on_queue": 1386078,
+            "reported_by_tlc": false
+          },
+          "periodic": {
+            "prefix_checks": 2,
+            "last_level": 4,
+            "last_size": 1568061,
+            "final_check": false,
+            "exhausted": false
+          },
+          "property": null,
+          "properties": null,
+          "trace_validation": null,
+          "wall_seconds": 1800.1,
+          "gnu_time_peak_rss_kib": 2089548,
+          "graph_buffer_bytes": 922779866,
+          "atoms": {
+            "state_evaluations": 210575907,
+            "action_evaluations": 305199122,
+            "action_source_guards": {
+              "false_rows": 22288601,
+              "plans": 1020,
+              "probes": 23053911
+            },
+            "unchanged_target_guards": {
+              "edges": 319126840,
+              "plans": 640,
+              "probes": 436714,
+              "rows": 435646
+            },
+            "fallback": 0
+          },
+          "command": "dive check kafka/kraft_kip_996.tla --config kafka/model_liveness.cfg --library-path modules --workers 8 --seed 0 --fp 0 --max-memory 8g --time-limit 1800s --output json",
+          "scope": "The second periodic level_done entered after 615 s. The CLI stopped on time in the atom stage, while evaluating the 1,568,061-state prefix. Four external low-frequency entry/return probes attached after the first call began; the two fixed-prefix timed arms used no such probes."
+        },
         "independent_review": {
           "comparisons": 63,
           "additional_scope_and_identity_controls": 11,
