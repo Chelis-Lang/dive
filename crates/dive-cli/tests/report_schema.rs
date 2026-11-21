@@ -95,7 +95,10 @@ fn report(name: &str, config: &str, extra: &[&str], exit: i32, verdict: &str) ->
         .and_then(Value::as_object_mut)
     {
         for (stage, elapsed) in phases {
-            assert!(matches!(stage.as_str(), "atoms" | "product" | "attribution"));
+            assert!(matches!(
+                stage.as_str(),
+                "atoms" | "product" | "attribution"
+            ));
             assert!(elapsed.as_f64().is_some_and(|ms| ms >= 0.0));
             *elapsed = serde_json::json!(0.0);
         }
