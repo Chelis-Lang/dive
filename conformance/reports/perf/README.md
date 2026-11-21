@@ -33,6 +33,8 @@ The [guarded message subset measurements](2026-11-21-guarded-message-subsets.jso
 
 The [exact population searches](2026-11-21-source-occupancy.json) cover both labeled counts and BFS depth for the original TCommit at 3 through 8,192 managers, a separate cyclic source, and replayed/tampered counterexamples. The [ordinary BDD and induction record](2026-11-21-wide-source-induction.json) includes the matched 256-manager closed graph.
 
+The [population edit-session measurements](2026-11-21-occupancy-edits.json) pair fresh labeled searches, portable proofs and native replay after property and transition edits at 8,192 managers.
+
 ## 0.1.0 release records
 
 | File | Family | Question | Source | Host |

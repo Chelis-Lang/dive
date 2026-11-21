@@ -1,0 +1,886 @@
+{
+  "format": "dive-portable-occupancy-edits-v1",
+  "source": {
+    "corpus": "tlaplus/Examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f, specifications/transaction_commit",
+    "reproduce": "python3 scripts/symbolic/check_occupancy_predicate.py PATH/transaction_commit ./edits8192 8192. The module remains unchanged; Edits.tla adds the stronger safety predicate, the false property, the abort deletion and the direct-commit mutation. Each CFG retains TCTypeOK and TCConsistent, no selected symmetry, CHECK_DEADLOCK FALSE.",
+    "inputs_sha256": {
+      "1000": {
+        "Edits.tla": "ecf9b2296cbdad40e3ec84b74414d9bb6508c3157fec959b8540fa4d94e87635",
+        "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+        "addition.cfg": "4a6f90d95b7cbd4668dc78d95806e6529c0ceb7c1b3418a0b405132a0dd4ff5b",
+        "deletion.cfg": "df45f5d64de71ad31b99f54950dfc878f5602f0c102757c8d563641dbc1effe3",
+        "false.cfg": "e5b5f872abc128601361af2518efc4693b875532285cf114b47d8c6bae8c08c9",
+        "original.cfg": "0a3d2e510938671d668e5c86ecde6b52d7a284d30c061970aa9b136d94dc7512",
+        "stronger.cfg": "15ae62734fcaba538242fb8405e4c72e40fe323bedb1a9a82fcc38163de85ce9"
+      },
+      "128": {
+        "Edits.tla": "ecf9b2296cbdad40e3ec84b74414d9bb6508c3157fec959b8540fa4d94e87635",
+        "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+        "addition.cfg": "7b2c023adb1c174394b0d8041aedda9ed432f49fd91a5bd3f61e76c449131e8a",
+        "deletion.cfg": "3624601c5b4ab7dd1af93aa54bc60395d61944182625c16671057133d8020721",
+        "false.cfg": "b27121c15ab05e963cbdc054e3eccddfceb1377c54b6914b41a6d1101eb4263d",
+        "original.cfg": "1bdc04130e27be9a1f78adb7e40c763fb6e13919e4a42e30ca2d4764a27aa4b4",
+        "stronger.cfg": "a6db73fa76422bad1dd3b68770a397cdbc8fffd49dce9d777f805f48655d95a8"
+      },
+      "16": {
+        "Edits.tla": "ecf9b2296cbdad40e3ec84b74414d9bb6508c3157fec959b8540fa4d94e87635",
+        "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+        "addition.cfg": "c1f8fd348c37238ad1d16d7f7b380aa90dc35c01d72943b0613aea1736459553",
+        "deletion.cfg": "fb7af7a95bdca9fa4420063e3ce0c6321ee291de240ab8aac1599597682266f8",
+        "false.cfg": "1022792e82b6f85c049b117ee62c7886571707c27a74b7cd6c35a040952bc977",
+        "original.cfg": "5aee4ab613d1b51b60873ef793edb191b3164461273e97ad8ac60cecfc32dc4d",
+        "stronger.cfg": "32bf25e14b7b83772a2ea5ebd6cdd8010bb21b45ffe068bd9f0e4d14aeefdde9"
+      },
+      "2048": {
+        "Edits.tla": "ecf9b2296cbdad40e3ec84b74414d9bb6508c3157fec959b8540fa4d94e87635",
+        "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+        "addition.cfg": "df849f2c60e4df6afe588e8f0839719b7f7df1b283ad1021961288f4cb8b5426",
+        "deletion.cfg": "93004cafca1991749aca6a1b4d624256d7b9d02cf6d3f89265e8879bfebe9f15",
+        "false.cfg": "1b7d61d55adcbc8e45e97df19dc7354916aa2750931b8d3b9d1f9054d81a5a5a",
+        "original.cfg": "52634d1925d35f7e625820d004253c2b2e49f7bfb3d0450de3698c5e49262b37",
+        "stronger.cfg": "e649912d224cfedb1c8e8db7fc730e890bc89426bf41421ffea538a7b90afab1"
+      },
+      "3": {
+        "Edits.tla": "ecf9b2296cbdad40e3ec84b74414d9bb6508c3157fec959b8540fa4d94e87635",
+        "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+        "addition.cfg": "ffbeaf193abd6fd5db6b7b542adcf7dafbf817d5f07e6c161b90cb5742fe28f7",
+        "deletion.cfg": "a5a8fb6cd23e9070208bae891a55d95d1a1335b78de6b06f28b03887ba8aef78",
+        "false.cfg": "20b3b619de5a757bc4dda9334fc552377a0318dfb850bc64c1c20d76798aa8cb",
+        "original.cfg": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415",
+        "stronger.cfg": "13fdb757734fd5219ef9e05ac0b83e0930b8c6409e7133adf7e32b8e6d82c4ad"
+      },
+      "8192": {
+        "Edits.tla": "ecf9b2296cbdad40e3ec84b74414d9bb6508c3157fec959b8540fa4d94e87635",
+        "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+        "addition.cfg": "dec34fcd8eb1ee93b0b49de8debcc9002540af0b64440c107e3e698d7500e5a2",
+        "deletion.cfg": "f40f60c5739c8149b40b0bf31b2787e13585aa1ed32cfd33f407a2894fe964bd",
+        "false.cfg": "deac088f13a68a5c268488bdf52080d2bab2167a66ffddc2521c6acaaa5f5116",
+        "original.cfg": "aa19992f6fee677d0e34380f81c48a83ced1c37519d74a447b37aa9a271b0846",
+        "stronger.cfg": "ecb89216155aa70eaa703933c7b849e9869bc3c1a0f4ac57925ce65b8a1eac57"
+      }
+    }
+  },
+  "formulas": {
+    "original": "D=3^n+2^n-1; G=1+n*(3^n+2^(n-1)); depth=2n+1; populations=(n+1)(n+2)/2+n.",
+    "deletion": "Without abort the only reachable phases have each manager working/prepared or prepared/committed. All-prepared overlaps, so D=2^(n+1)-1. The prepare and commit edges each contribute n*2^(n-1), so G=1+n*2^n; depth=2n+1 and populations=2n+1."
+  },
+  "cases": {
+    "original3": {
+      "distinct_decimal": "34",
+      "generated_decimal": "94",
+      "depth": 7,
+      "occupancies": 13
+    },
+    "deletion8192": {
+      "distinct_decimal": "2181496271238831858925968489467565724896528323992465384863665572379442663698238590432528469050403974447914583592314050546219741640354368127221959530155109598157812597684385979077219650456096410319393703227183276393543773085218649120242581107803772602035800505071599834400020159200053071673601810595611761904701003260390951307822010624729120029694852070587102491687857837505537392558688176111235031388699890813355650281629801232211840512877009156026652987131672094484814764885624490263035515038329798452731487444864554736150055255766090413003585523401891398336994515759367703474099993801922241031310100231122542982985030684211497933259094065572643011461656860443329940648792277270503252819032336010855246871992617843382892362374812790621330809771478869665754856334814990741987023737512719940780234043647233498917241939714012527224165413430816314133150274562054044621855129820553518321041756609264822098729137509841934645964918369526854767580544896876037053955529882145431223160869381654918679983922828485482821198234852121112967527512629055222725317256766737242315987276041757075351090673579831388468867911332630140174427070940511340624008261450991669016714879307657872154161957101157825935814705560109871243122181591690345908231945854959755055477120016408237117860009555497455523707627020987681163723197304423211920616712811883642379428075737452438962997455207307232597712349644826066970877570648049502838834366024562156419458607074745609148744190457407245552727890581739612516844710297015142079238774899259733616377539325631556306158786358186287296681523477163639126005988845581509910122577636616860159297386464358317531836071130432314230805984240552311215746215874954933683056725975417398900304062463725188406171387677889314122692473408468053642205917909902394174153092373245592589072903241513018702037812047547643079065552417353957179463932660617786609330338872370156701283136673889060102874982622597668734530477190809808546911857447899050454369234808735709509220948754039536051153211762076154541415435884443954180770877171688190984232199705077807949311407887946172181861193926721535059929876829196371411927509122994711655627247666577812618008576034642849617327925342667056018465516701746119228237447562844202920397231494773710193792178378360882679117049645735082226425277587351135300680725940063860046795656930637094476488464056030379379320837645952001630875221304508540327191301750867702294246428454533210807163562938181613152937901175323994373011330951431585791",
+      "generated_decimal": "8935408726994255294160766932859149209176180015073138216401574184466197150507985266411636609230454679338658134394118351037316061758891491849101146235515328914054400400115244970300291688268170896668236608418542700107955294557055586796513612217564252577938638868773272921702482572083417381575073016199625776761655309354561336556838955518890475641630114081124771805953465702422681159920386769351618688568114752771504743553555665847139698740744229503085170635291328899009801276971517912117393469596998854462388172574165216199270626327617906331662686303854147167588329536550370113429913574612673499264246170546677936058306685682530295534629249292585545774946946500375879436897453167699981323546756448300463091187681762686496327116287233190384970996823977450150931891547402202079178849228852100877435838642779068411565022985068595311510181533412623622689383524606173366771118611744987211042987035071548711316394547240312564309872305641581997128009911897604247773001850397267686290066920987258546913214147905476537635627969954288078714992691728610192282899483716555744526283882667036980638067398982989367168482964818453054154453282572334451195937838903261876292464145644166644343447376286342455033097033974210032611828455799563656840118050221915156707234283587208139234754599139317577825106440277965542046610216158917476026846055677475399186137398220605189992437576529130424720229784145207570312714529374410763627865563236606592694102454578158015073256204113540077783973439822805452868995933376574021956562021987367868892682401077786854630026388923131032767207520162462265860120530311501864591862077999582659212482094958011668610400547350250759089381311449302266739696500223815408365800349595309665895645439851418371711678003928634630646548371081085147718475439758960206537331066360813947244842611677237324603546878146755146051852502701481808607084268177890453951817068021228161848455727816249590181375928822160051136636834573556975808150968106594510661096385776581466149769006096545939665523555377463929001637625382682436324437512895234830271415089991998701360379526709027521256903450323851407605472775492388337303255077367786338941449206442302720483363127437897112032575182203564261451634756410352104358860585217409855161947060202593116953772762637766175453663435348930896799437936997790250191588253450501570751675010787889538975696748773500433937698150997819398680064906463266981180175571971554108597233370949768031466141953794791887474433643214127080951854411577063775404033",
+      "depth": 16385,
+      "occupancies": 16385
+    },
+    "original8192": {
+      "distinct_decimal": "377849336097510674090411727821674757883523776290765114768605479472671240131991134020253509329524970318903454693124653442456979187982623009046758188864574491014569377025570478392292814401101859089551827612405802425098200845043865402056698008926981380886120122653111434093495400517580256655680006442370602517606032109879013160562763804524723526935593891002978776653071803281701643518671348100134448726361425293089155570039982209925830634197189183932971899436249063202635119722180581452556933090040582362095971606603125228965987796016989556488200931277049262913213950454412622312255141845492632848879405601409447078602495857052713475453973308996754948782091967518521958645383268441704664274646235699682373984478486417930169636851571248914276201677356364462203005283643550350772445789681274697737432917112404900765502063803791541269998329087823607252822526952360089474922080813842256750242963656982800746616206074969844446639542627819101037411445424411679290733038747563469982741197312667312667108217188299495073360689318680003237165372660852058001828022879248239211376103220658214284799600596861770464467445060807217873419157657170501289299661124541763305220454500153315350785142893360557022775473347036023918235125397301812738798858812163556777396859687803307118530136858748886473481651315540325251203720398322695196479564610338405745026810287825845747451066607653293327955067363692242414998687340908007265545975092555300363321858893870543342557078997743231750465222724880336709749718390650829944632179599843069376138467150425164789842258156431982676447841398145839023317865128965398942939760492192442185230009357203606988127369303960731174983094653165799643661426610637031159568518930123302149664905762453450415303019267635846758031456009051666089265645065747166081993929850511887791513232380274700475105591208238128005616110159489156174506821004012673109996880876607627907777576647414605178064362448914475968470022881021926925677650173193748260004774152283787649865851127086203011975528712038036404007390278319155982552056753889441751562016863494835561181019394215775391750571803109905495238737440637036570984875046514308810209705549908828875682302566323570947432879210493710523284419836888222569131561446316554153397751017168310873631058491234980859051105651825767689174550182084293000039128681297538014107411080805132213762902663684223726740860583091374985110877692881421322802753773471520459294305652805127120933664746035489773635297443859069141132908537887652219068864402828649634661632665563560700083234070626964586032409806071663365015048389967152563168370412431556078867471009309017916029407039453777769099595269365857381134364827467488496319343170047477572474815696637154168362169982060023292856300450549283862035075299499382474810214576702148348069070954709423673671673477905250874289844325421761843254313657819464490162215111835203470594616302271815287636264930271906771653466473490158707381848487459288149907426110886874575923786103246808026209857627416816329396804647835628789587001020087219964170545375697225459491060038633902129679621739636012542004124506234275793282901783750987701883735867537960085374528384971515272816134135541454432720368686033140266964051046645442881826017246343319838775942237701133419119934039564128604929470894858353580738518299920239080699149909652081564869078607837398031321825261448649878353817202954927374705620081149168266168558945823368531806447247814052192599041110515149873520488601814998694168613146013157326167984671971197925703755526365857936736000558908162886729857673070800626573885931717822238704919494249288179557029230336577662652346841716565229289705755012438051345740722155341341158130635106345330565337542728460695495425176194801687435581907111541948941578806536150596776512202008051040050232569640726326818141396531527893604059281722543693876702636202419466141983294564098172969041126243160554476163928477531395139000303467786500421104696137602727936",
+      "generated_decimal": "3095341761310807442148652874315159616581826775373947820184416087840122799161271369893916748427468556852457100846077161000607573507953647690111043083178594230391352336593473358989662735573826429661608571800828333466404461322599345373648470089129831472219096044774288868093914321040017462523330612775899975824228615044128875811330161086666535132656385155096402138341964212483699863704955683636301403966352796000986362429767534263712404555343373794778905800181752325755986900764103323259346395873612450710290199401292801875689372024971178446751342029021587561785048682122548201981994121998275648298020090686746190467911646060975828790918949347301416540422897397911731885222979735074444609737901962851798007680847760735683949665088071671105750644140903337674367019283607964473527875909069002323865050456984820947070992906680660306083826311887450990615122140793733852978561686026995767297990358278003103716279960166152965706871133207094075698474560916780476749685053420039946098615888385370625368950515206549463640970766898626586518858732837700059150975163426801575619593037583632091421078328089491623644917309938132728819049739527540746561942823932246124996365963265255959353631890582409683130576677658919107938182147254696449956240251389243857120435074562484691914998881146870877990761687576906344457860877503059519049560593287892219863259629877869328363119137649895778942607911843366849863669246696718395519352627958213020576332668058587491062223123445149057372164024178753288751665104966204062337318614494822191230751068903649744140083163590151132756393519674435194620989071690738623589989400194376029354204036596589463296593565203960861451343207189462880626896759515810765860928500966787964921085588571632029341311092554431147951006151118051435714883336723923503875415853857633939550255584602169783906162026445035533281427214233150491572215593607495432364722671363336764250664537523505694076117939535842937628805788955572669316454575420303758514765023568426180328065739269281221908272188057088520637834376391715340752351492140555970079163919060476353949165757534574366861453369586430053044108263640448415649789647654461367782576134486628975918043828782441349953206588348747881414260468891799594210859805594524110585044951718216752238067711838807428991564146007222391253962824324928216444975850394886344728182352268083149489624205103365386413802932623064387595873373907263812477836153956329893478652450982580967531543548139029102952163749586140756135342972757398502939254640842107992711006645054438411382818711565242575398458467431847571602619034928201687270398063777353140172484353588807843829966670394383264162292160758501932438736168149626560745542145021129154445293631161740609368869279351242106745461435991330074608878783633359958462621972704264540529368406233140861035125280431889512567186185925590507807579222592784449318252508931466781449297163966592407539969231081498381265848569248774610091980116089355085797607136733696989514989374746804167416264812483259665943103610480607905527913108596473274813555047452555920031854832797489134916729220243619208909792587681396061919028840756763440120461715976759061315205236354888998281961948118429885526989421274019167751646231988578925514059495562164996015983853278067277995808078346270722869280452131606254960384015661595857644783893925780906952431583421393350591664164677879215008383782562195685028020121287487207948548759400131737757227867661204424828696460274291834794047080848379737338128460079448443597805911676340435992229457726993108867061126815221156607462542332634073029090537164886205610819072958206275597460458851696092852206343763623153802324981953960110385898490617691380214587975870182476020410271619930253459021636662068932335745455265383286197329694614645250563697393832124703334715667705102885299806365945999526287435604560372168240897915542538586776045039363083315178663768220709087246535663925190541245241473664401043470973762464970709659557889",
+      "depth": 16385,
+      "occupancies": 33574913
+    }
+  },
+  "host": "Separate EC2 c7i.4xlarge for installed Sail runs, Ubuntu 24.04, 16 vCPUs / 8 physical Xeon cores. Executables use empty PATH. Each lane pinned to a distinct physical CPU; original and fresh stronger run at the same time. Linux cgroups cap each at 4,500 MiB or 1,500 MiB for the shorter lanes. GNU time process wall and peak RSS KiB including frontend, depth counting, storage and any required independent native validation. Single samples. All worker commands have explicit finite limits.",
+  "commands": {
+    "session": "sail runtime symbolic-check --strategy occupancy --dive DIVE --session DIR --module Edits.tla --config CFG --type-invariant TCTypeOK --max-orbits 34500000 --time-limit 415",
+    "direct": "dive check Edits.tla --config stronger.cfg --strategy occupancy --type-invariant TCTypeOK --prove-inductive --time-limit 30s --output json",
+    "external_replay": "dive validate-trace Edits.tla --config CFG --trace FILE --output json"
+  },
+  "scopes": "original and fresh-* use independent empty session directories. repeated and retained-* use the original 8192 candidate except retained false/addition, whose shared session was seeded at n=3. transferred* also use that n=3 file. The saved candidate is byte-identical at n=3, 1000 and 8192. The independent native replay checks source words, and tamper replaces the initial state by its successor. separate-strategy3 checks the default BDD route in the same directory. Proof rows carry no counts or depths; fresh/false labeled runs preserve their own results.",
+  "stages": {
+    "prototype_overlay": {
+      "installed": {
+        "archive_sha256": "c6461e9984e961368b4bdaf98069cfda39916fda7386ed70310f6d0f818a9eb8",
+        "dive_sha256": "a3d9a1a18e9fe53e6cb4ca6f0283c898ea1589f914959892731143347109c19c",
+        "exporter_sha256": "e3b4c8955de3630993a748dbf89b1bfe18fbc74fd31bf26fb7dda9d7115ecdee",
+        "worker_sha256": {
+          "check.py": "df37952c959d5de08d1d36896bc321f9997d6b9e7dc7a03083bfe7a6e5b911c5",
+          "engine.py": "3f26a34ab5b8d6be45f9f595da1ce707dff76781e3949f804b79f62d1262a8b4",
+          "finite_relation.py": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9",
+          "induction.py": "77dc5831a524e78659d8d7ccd1c3c88fc9b680a0a95c4616e18c77a7912842b8",
+          "occupancy.py": "e49d6cda270193c4fa203c0de34ed33918586f3c9c105a9481f8f19912014b13",
+          "occupancy_predicate.py": "5433abc5b31b715105bf9fb2cd12df8343235841aead4d56c675b44c7634dea4",
+          "occupancy_source.py": "bcabd96ebeca8ccfcbb2e062c8201cdc816fb7eff6486433c3ccc78587ddb23f",
+          "worker_process.py": "310294e83ac7f4155e1e077dd2841a0a0f0dab35b77cdcd80eb8aeca3baaf32a"
+        }
+      },
+      "sail_sha256": "7245783c2df29f5bce265a220d90ba2d0180f769295c3c7a7a7a9c9a65c04076",
+      "runs": {
+        "addition-obligation128": {
+          "exit": 2,
+          "wall_s": 0.07,
+          "peak_rss_kib": 18244,
+          "proof": "inconclusive",
+          "failed_obligation": "Next closure",
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "addition.cfg"
+        },
+        "cold3": {
+          "exit": 0,
+          "wall_s": 0.1,
+          "peak_rss_kib": 18144,
+          "completed_count_case": "original3",
+          "format": "dive-occupancy-report-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "original.cfg"
+        },
+        "direct-stronger8192": {
+          "exit": 0,
+          "wall_s": 0.15,
+          "peak_rss_kib": 31852,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NoWorkingCommit"
+          ],
+          "module": "Edits.tla",
+          "config": "stronger.cfg"
+        },
+        "fresh-addition128": {
+          "exit": 1,
+          "wall_s": 0.15,
+          "peak_rss_kib": 22496,
+          "depth": 3,
+          "ending": {
+            "kind": "invariant",
+            "name": "TCConsistent"
+          },
+          "trace_validated": true,
+          "trace_bytes": 12208,
+          "trace_sha256": "4c09674d963d8c2784cc29f9704801a2118e47ae33b98b26f51b902d6c143f38",
+          "module": "Edits.tla",
+          "config": "addition.cfg"
+        },
+        "fresh-deletion8192": {
+          "exit": 0,
+          "wall_s": 0.2,
+          "peak_rss_kib": 28216,
+          "completed_count_case": "deletion8192",
+          "format": "dive-occupancy-report-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "deletion.cfg"
+        },
+        "fresh-false2048": {
+          "exit": 1,
+          "wall_s": 119.9,
+          "peak_rss_kib": 42312,
+          "depth": 2,
+          "ending": {
+            "kind": "invariant",
+            "name": "NonePrepared"
+          },
+          "trace_validated": true,
+          "trace_bytes": 133161,
+          "trace_sha256": "936c003dfaab8bf6e85b29d17c7c891e8771a24298efd1f1c5aeb5a00a4571af",
+          "module": "Edits.tla",
+          "config": "false.cfg"
+        },
+        "fresh-stronger8192": {
+          "exit": 0,
+          "wall_s": 238.33,
+          "peak_rss_kib": 2710356,
+          "completed_count_case": "original8192",
+          "format": "dive-occupancy-report-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NoWorkingCommit"
+          ],
+          "module": "Edits.tla",
+          "config": "stronger.cfg"
+        },
+        "inconclusive2048": {
+          "exit": 2,
+          "wall_s": 0.08,
+          "peak_rss_kib": 18844,
+          "proof": "inconclusive",
+          "failed_obligation": "NonePrepared",
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NonePrepared"
+          ],
+          "module": "Edits.tla",
+          "config": "false.cfg"
+        },
+        "original8192": {
+          "exit": 0,
+          "wall_s": 248.72,
+          "peak_rss_kib": 2710304,
+          "completed_count_case": "original8192",
+          "format": "dive-occupancy-report-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "original.cfg"
+        },
+        "repeated8192": {
+          "exit": 0,
+          "wall_s": 0.15,
+          "peak_rss_kib": 31696,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "original.cfg"
+        },
+        "replay128-tamper": {
+          "exit": 1,
+          "wall_s": 0.0,
+          "peak_rss_kib": 22528,
+          "result": "invalid",
+          "length": 3,
+          "failed_check": "init"
+        },
+        "replay128-trace": {
+          "exit": 0,
+          "wall_s": 0.07,
+          "peak_rss_kib": 22604,
+          "result": "valid",
+          "length": 3
+        },
+        "replay2048-tamper": {
+          "exit": 1,
+          "wall_s": 0.02,
+          "peak_rss_kib": 44860,
+          "result": "invalid",
+          "length": 2,
+          "failed_check": "init"
+        },
+        "replay2048-trace": {
+          "exit": 0,
+          "wall_s": 120.33,
+          "peak_rss_kib": 42364,
+          "result": "valid",
+          "length": 2
+        },
+        "retained-addition128": {
+          "exit": 1,
+          "wall_s": 0.25,
+          "peak_rss_kib": 22516,
+          "depth": 3,
+          "ending": {
+            "kind": "invariant",
+            "name": "TCConsistent"
+          },
+          "trace_validated": true,
+          "trace_bytes": 12208,
+          "trace_sha256": "4c09674d963d8c2784cc29f9704801a2118e47ae33b98b26f51b902d6c143f38",
+          "module": "Edits.tla",
+          "config": "addition.cfg"
+        },
+        "retained-deletion8192": {
+          "exit": 0,
+          "wall_s": 0.15,
+          "peak_rss_kib": 28132,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "deletion.cfg"
+        },
+        "retained-false2048": {
+          "exit": 1,
+          "wall_s": 119.9,
+          "peak_rss_kib": 42456,
+          "depth": 2,
+          "ending": {
+            "kind": "invariant",
+            "name": "NonePrepared"
+          },
+          "trace_validated": true,
+          "trace_bytes": 133161,
+          "trace_sha256": "936c003dfaab8bf6e85b29d17c7c891e8771a24298efd1f1c5aeb5a00a4571af",
+          "module": "Edits.tla",
+          "config": "false.cfg"
+        },
+        "retained-stronger8192": {
+          "exit": 0,
+          "wall_s": 0.15,
+          "peak_rss_kib": 31932,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NoWorkingCommit"
+          ],
+          "module": "Edits.tla",
+          "config": "stronger.cfg"
+        },
+        "separate-strategy3": {
+          "exit": 0,
+          "wall_s": 0.25,
+          "peak_rss_kib": 55904,
+          "completed_count_case": "original3",
+          "format": "dive-symbolic-report-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "original.cfg"
+        },
+        "transferred-delete8192": {
+          "exit": 0,
+          "wall_s": 0.15,
+          "peak_rss_kib": 28112,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "deletion.cfg"
+        },
+        "transferred8192": {
+          "exit": 0,
+          "wall_s": 0.15,
+          "peak_rss_kib": 32084,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NoWorkingCommit"
+          ],
+          "module": "Edits.tla",
+          "config": "stronger.cfg"
+        }
+      },
+      "certificate": {
+        "bytes": 125,
+        "sha256": "4bde049a0ad6235731d9c336f1dab28167e1dbe441323adb4e85829abf6c5472",
+        "value": {
+          "format": "dive-occupancy-support-v1",
+          "statuses": [
+            "working",
+            "prepared",
+            "committed",
+            "aborted"
+          ],
+          "masks": [
+            1,
+            2,
+            3,
+            4,
+            6,
+            8,
+            9,
+            10,
+            11
+          ]
+        }
+      },
+      "scope": "Exploratory source overlay on the earlier guard-integration native executables. Its packaged BDD engine predates the deleted-transition region implementation. It also preceded the stricter Sail result-field contract, nested-JSON handling and native pair-quantifier optimization. Its timings and outcomes describe only the measured runs."
+    },
+    "reviewed_release": {
+      "installed": {
+        "archive_sha256": "3b4d271101278a2e7c934956042a8c537bcfc30d7d63efb2eb75d2037f0602cd",
+        "dive_sha256": "e3daedfed7049bd91d598387bbbc16df8e435f5fef04084f7205a748585909c6",
+        "exporter_sha256": "1e726275b64d2a5a68a301592d5148beba8265c332e944bb12e5ba72e3d462a8",
+        "worker_sha256": {
+          "check.py": "df37952c959d5de08d1d36896bc321f9997d6b9e7dc7a03083bfe7a6e5b911c5",
+          "engine.py": "c856b73da8b709623a7baf9fd33383e7d54084f5f43177eaa7724c5bebc3993a",
+          "finite_relation.py": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9",
+          "induction.py": "77dc5831a524e78659d8d7ccd1c3c88fc9b680a0a95c4616e18c77a7912842b8",
+          "occupancy.py": "e49d6cda270193c4fa203c0de34ed33918586f3c9c105a9481f8f19912014b13",
+          "occupancy_predicate.py": "aafac700d924994a056e9c73ff937474e8d142efbec2e8c553a07b23ed263d68",
+          "occupancy_source.py": "bcabd96ebeca8ccfcbb2e062c8201cdc816fb7eff6486433c3ccc78587ddb23f",
+          "worker_process.py": "310294e83ac7f4155e1e077dd2841a0a0f0dab35b77cdcd80eb8aeca3baaf32a"
+        }
+      },
+      "sail_sha256": "cbb6342c5ad826e50f26c8128e12b727fa79afd3778607a753e5523e6bfda82a",
+      "runs": {
+        "addition-obligation128": {
+          "exit": 2,
+          "wall_s": 0.06,
+          "peak_rss_kib": 18292,
+          "proof": "inconclusive",
+          "failed_obligation": "Next closure",
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "addition.cfg"
+        },
+        "cold3": {
+          "exit": 0,
+          "wall_s": 0.1,
+          "peak_rss_kib": 18076,
+          "completed_count_case": "original3",
+          "format": "dive-occupancy-report-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "original.cfg"
+        },
+        "direct-stronger8192": {
+          "exit": 0,
+          "wall_s": 0.14,
+          "peak_rss_kib": 31920,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NoWorkingCommit"
+          ],
+          "module": "Edits.tla",
+          "config": "stronger.cfg"
+        },
+        "fresh-addition128": {
+          "exit": 1,
+          "wall_s": 0.1,
+          "peak_rss_kib": 22616,
+          "depth": 3,
+          "ending": {
+            "kind": "invariant",
+            "name": "TCConsistent"
+          },
+          "trace_validated": true,
+          "trace_bytes": 12208,
+          "trace_sha256": "4c09674d963d8c2784cc29f9704801a2118e47ae33b98b26f51b902d6c143f38",
+          "module": "Edits.tla",
+          "config": "addition.cfg"
+        },
+        "fresh-addition8192": {
+          "exit": 1,
+          "wall_s": 22.92,
+          "peak_rss_kib": 122888,
+          "depth": 3,
+          "ending": {
+            "kind": "invariant",
+            "name": "TCConsistent"
+          },
+          "trace_validated": true,
+          "trace_bytes": 807931,
+          "trace_sha256": "758eb75563d448489563134726ad57d51c2d394eceb222ca930f76086ed0199d",
+          "module": "Edits.tla",
+          "config": "addition.cfg"
+        },
+        "fresh-deletion8192": {
+          "exit": 0,
+          "wall_s": 0.2,
+          "peak_rss_kib": 28012,
+          "completed_count_case": "deletion8192",
+          "format": "dive-occupancy-report-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "deletion.cfg"
+        },
+        "fresh-false2048": {
+          "exit": 1,
+          "wall_s": 0.15,
+          "peak_rss_kib": 44984,
+          "depth": 2,
+          "ending": {
+            "kind": "invariant",
+            "name": "NonePrepared"
+          },
+          "trace_validated": true,
+          "trace_bytes": 133161,
+          "trace_sha256": "936c003dfaab8bf6e85b29d17c7c891e8771a24298efd1f1c5aeb5a00a4571af",
+          "module": "Edits.tla",
+          "config": "false.cfg"
+        },
+        "fresh-false8192": {
+          "exit": 1,
+          "wall_s": 0.25,
+          "peak_rss_kib": 104448,
+          "depth": 2,
+          "ending": {
+            "kind": "invariant",
+            "name": "NonePrepared"
+          },
+          "trace_validated": true,
+          "trace_bytes": 538665,
+          "trace_sha256": "0ed7e7df7b91d0e19bd63da1b95397031f10f4ffc5860ba740ece497a1c03f85",
+          "module": "Edits.tla",
+          "config": "false.cfg"
+        },
+        "fresh-stronger8192": {
+          "exit": 0,
+          "wall_s": 216.63,
+          "peak_rss_kib": 2710464,
+          "completed_count_case": "original8192",
+          "format": "dive-occupancy-report-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NoWorkingCommit"
+          ],
+          "module": "Edits.tla",
+          "config": "stronger.cfg"
+        },
+        "inconclusive2048": {
+          "exit": 2,
+          "wall_s": 0.08,
+          "peak_rss_kib": 18884,
+          "proof": "inconclusive",
+          "failed_obligation": "NonePrepared",
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NonePrepared"
+          ],
+          "module": "Edits.tla",
+          "config": "false.cfg"
+        },
+        "original8192": {
+          "exit": 0,
+          "wall_s": 220.3,
+          "peak_rss_kib": 2710324,
+          "completed_count_case": "original8192",
+          "format": "dive-occupancy-report-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "original.cfg"
+        },
+        "repeated8192": {
+          "exit": 0,
+          "wall_s": 0.15,
+          "peak_rss_kib": 32100,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "original.cfg"
+        },
+        "replay-addition8192-tamper": {
+          "exit": 1,
+          "wall_s": 0.07,
+          "peak_rss_kib": 124848,
+          "result": "invalid",
+          "length": 3,
+          "failed_check": "init"
+        },
+        "replay-addition8192-trace": {
+          "exit": 0,
+          "wall_s": 35.64,
+          "peak_rss_kib": 122360,
+          "result": "valid",
+          "length": 3
+        },
+        "replay-false8192-tamper": {
+          "exit": 1,
+          "wall_s": 0.06,
+          "peak_rss_kib": 104404,
+          "result": "invalid",
+          "length": 2,
+          "failed_check": "init"
+        },
+        "replay-false8192-trace": {
+          "exit": 0,
+          "wall_s": 0.07,
+          "peak_rss_kib": 104288,
+          "result": "valid",
+          "length": 2
+        },
+        "replay128-tamper": {
+          "exit": 1,
+          "wall_s": 0.0,
+          "peak_rss_kib": 22348,
+          "result": "invalid",
+          "length": 3,
+          "failed_check": "init"
+        },
+        "replay128-trace": {
+          "exit": 0,
+          "wall_s": 0.01,
+          "peak_rss_kib": 22692,
+          "result": "valid",
+          "length": 3
+        },
+        "replay2048-tamper": {
+          "exit": 1,
+          "wall_s": 0.02,
+          "peak_rss_kib": 44844,
+          "result": "invalid",
+          "length": 2,
+          "failed_check": "init"
+        },
+        "replay2048-trace": {
+          "exit": 0,
+          "wall_s": 0.02,
+          "peak_rss_kib": 44932,
+          "result": "valid",
+          "length": 2
+        },
+        "retained-addition128": {
+          "exit": 1,
+          "wall_s": 0.19,
+          "peak_rss_kib": 22564,
+          "depth": 3,
+          "ending": {
+            "kind": "invariant",
+            "name": "TCConsistent"
+          },
+          "trace_validated": true,
+          "trace_bytes": 12208,
+          "trace_sha256": "4c09674d963d8c2784cc29f9704801a2118e47ae33b98b26f51b902d6c143f38",
+          "module": "Edits.tla",
+          "config": "addition.cfg"
+        },
+        "retained-addition8192": {
+          "exit": 1,
+          "wall_s": 23.07,
+          "peak_rss_kib": 122840,
+          "depth": 3,
+          "ending": {
+            "kind": "invariant",
+            "name": "TCConsistent"
+          },
+          "trace_validated": true,
+          "trace_bytes": 807931,
+          "trace_sha256": "758eb75563d448489563134726ad57d51c2d394eceb222ca930f76086ed0199d",
+          "module": "Edits.tla",
+          "config": "addition.cfg"
+        },
+        "retained-deletion8192": {
+          "exit": 0,
+          "wall_s": 0.15,
+          "peak_rss_kib": 28004,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "deletion.cfg"
+        },
+        "retained-false2048": {
+          "exit": 1,
+          "wall_s": 0.24,
+          "peak_rss_kib": 45104,
+          "depth": 2,
+          "ending": {
+            "kind": "invariant",
+            "name": "NonePrepared"
+          },
+          "trace_validated": true,
+          "trace_bytes": 133161,
+          "trace_sha256": "936c003dfaab8bf6e85b29d17c7c891e8771a24298efd1f1c5aeb5a00a4571af",
+          "module": "Edits.tla",
+          "config": "false.cfg"
+        },
+        "retained-false8192": {
+          "exit": 1,
+          "wall_s": 0.39,
+          "peak_rss_kib": 104536,
+          "depth": 2,
+          "ending": {
+            "kind": "invariant",
+            "name": "NonePrepared"
+          },
+          "trace_validated": true,
+          "trace_bytes": 538665,
+          "trace_sha256": "0ed7e7df7b91d0e19bd63da1b95397031f10f4ffc5860ba740ece497a1c03f85",
+          "module": "Edits.tla",
+          "config": "false.cfg"
+        },
+        "retained-stronger8192": {
+          "exit": 0,
+          "wall_s": 0.15,
+          "peak_rss_kib": 31728,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NoWorkingCommit"
+          ],
+          "module": "Edits.tla",
+          "config": "stronger.cfg"
+        },
+        "separate-strategy3": {
+          "exit": 0,
+          "wall_s": 0.25,
+          "peak_rss_kib": 56088,
+          "completed_count_case": "original3",
+          "format": "dive-symbolic-report-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "original.cfg"
+        },
+        "transferred-delete8192": {
+          "exit": 0,
+          "wall_s": 0.15,
+          "peak_rss_kib": 28232,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "module": "Edits.tla",
+          "config": "deletion.cfg"
+        },
+        "transferred8192": {
+          "exit": 0,
+          "wall_s": 0.15,
+          "peak_rss_kib": 31708,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "predicate_format": "dive-occupancy-support-v1",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NoWorkingCommit"
+          ],
+          "module": "Edits.tla",
+          "config": "stronger.cfg"
+        }
+      },
+      "certificate": {
+        "bytes": 125,
+        "sha256": "4bde049a0ad6235731d9c336f1dab28167e1dbe441323adb4e85829abf6c5472",
+        "value": {
+          "format": "dive-occupancy-support-v1",
+          "statuses": [
+            "working",
+            "prepared",
+            "committed",
+            "aborted"
+          ],
+          "masks": [
+            1,
+            2,
+            3,
+            4,
+            6,
+            8,
+            9,
+            10,
+            11
+          ]
+        }
+      },
+      "scope": "Complete candidate archive produced by the normal Linux package scripts from the reviewed repository sources, including the protected-main native pair-quantifier integration. The eight installed worker modules byte-matched the source, the archives transferred byte-for-byte onto the measuring host, and the public executable/independent native validator came from that archive."
+    }
+  },
+  "review": {
+    "independent_projection": "6,688 explicit labeled assignments, 943 support/edge queries through four statuses and six participants; all observed successor sets agreed. Sixteen small labeled CLI controls agreed on verdict, both counts and depth. The CI fixture also checks 2,001 count vectors, 26,312 moves and 3,552 support/edge queries through five statuses and eight participants.",
+    "negative": "A safe specification gives an inconclusive abstract proof for simultaneous B and C; exact labeled BFS certifies the actual graph. Bad words, caller paths, wrong formats, corrupt/deep candidates, contradictory counts or witnesses, and unsuccessful publication preserved or revalidated evidence as appropriate. The independent release review compared all eight worker files, both native executable digests and Sail identity."
+  },
+  "source_bound_prototype": {
+    "method": "Separate c7i.4xlarge before final release integration, CPU4 with 3,900 MiB address-space and 4,250 MiB cgroup limits, 380 s per new process. Original published source and enlarged RM. The direct check computed the least support closure, the counted search wrote the candidate, and a new process verified it. All saved bytes matched the reviewed artifact certificate.",
+    "runs": {
+      "T3-direct": {
+        "exit": 0,
+        "wall_s": 0.09,
+        "peak_rss_kib": 19164,
+        "proof": "inductive-safety"
+      },
+      "T3-cold": {
+        "exit": 0,
+        "wall_s": 0.09,
+        "peak_rss_kib": 18128,
+        "count_case": "original3"
+      },
+      "T3-verify": {
+        "exit": 0,
+        "wall_s": 0.09,
+        "peak_rss_kib": 18016,
+        "proof": "inductive-safety"
+      },
+      "T1000-direct": {
+        "exit": 0,
+        "wall_s": 0.09,
+        "peak_rss_kib": 18148,
+        "proof": "inductive-safety"
+      },
+      "T1000-cold": {
+        "exit": 0,
+        "wall_s": 0.94,
+        "peak_rss_kib": 60628,
+        "distinct_decimal": "1322070819480806636890455259752144365965422032752148167664920368226828597346704899540778313850608061963909777696872582355950954582100618911865342725257953674027620225198320803888729860300827514483874650608188636146742995932678430512499070056757597185739867403057464132562505635672985624992996836506787589077753408999763159864926991202242455671742787389505973542671744384049800542091741991748600881855507827985255215384941165728921582126433707999671044197784797489606108523289376",
+        "generated_decimal": "1322070819480806636890455259752144365965422032752148167664920368226828597346704899540778313850608061963909777696872582355950954582100618911865342725257953674027620225198320803883372317264896177879132525362888627093935971874150762475280318114905841930115186790591472238484026345035012260405231102380851862649291838781770871077577703800275171784330671896795436240140558813110823451015218754256809911221808444205672443411902634271635983887590436915840829281958485296187505689254689001",
+        "depth": 2001,
+        "occupancies": 502501
+      },
+      "T1000-verify": {
+        "exit": 0,
+        "wall_s": 0.09,
+        "peak_rss_kib": 18308,
+        "proof": "inductive-safety"
+      },
+      "T8192-direct": {
+        "exit": 0,
+        "wall_s": 0.14,
+        "peak_rss_kib": 31696,
+        "proof": "inductive-safety"
+      },
+      "T8192-cold": {
+        "exit": 0,
+        "wall_s": 216.5,
+        "peak_rss_kib": 2710324,
+        "count_case": "original8192"
+      },
+      "T8192-verify": {
+        "exit": 0,
+        "wall_s": 0.14,
+        "peak_rss_kib": 31644,
+        "proof": "inductive-safety"
+      }
+    }
+  }
+}
