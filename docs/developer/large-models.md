@@ -42,6 +42,8 @@ identifies the inputs and peak memory. Run the seven-key reduced check with
 `scripts/symbolic/check_source.py --growth`. For the concrete check, remove
 `SYMMETRY TxIdSymmetric` from the expanded configuration and use `check.py`.
 
+Growing **the released Large configuration** from three to four keys retains all three transactions, two values, both safety invariants and transaction symmetry. The installed symbolic checker exhausted it in **1,997.42 s** at **1.06 GiB** peak RSS, depth 37: **592,287,802,857 symmetry representatives and 16,831,060,919,470 generated**. The independent transaction-history formula matches both counts. Its separate concrete-state prediction is 3,552,493,680,513. The earlier seven-key experiment uses two transactions. [Inputs and reproduction](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
+
 ## Transaction commit
 
 Lamport's published `transaction_commit/TCommit.tla` includes a global
@@ -741,6 +743,8 @@ If only the obligations change, the checker can keep the completed reachability 
 On QuarantineEqualsProposer the same edit sequence retained **76,749,192 distinct states** and 391,849,185 generated at depth 43. After a 562.05 s cold check, the unchanged repeat took 0.81 s and the added invariant 6.83 s. The coordinates-only control took 531.15 and 537.00 s on those edits. The false edit produced an independently valid two-state trace in 0.76 s. Whole-session peak RSS was 1.14 GiB for both. [Per-edit and whole-session measurements](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
 
 Adding an unconditional self-loop to the released PaxosLease Base relation raised the generated count from 1,709,874 to 2,200,911. Replacing that loop with a second Tick action gave 1,804,652. Removing the duplicate restored the original count. All four revisions exhausted 491,037 distinct states at depth 29. Rechecking the three edits took 1.46, 1.67 and 0.93 s versus 43.79, 41.86 and 42.05 s with fresh searches that reused only the finite coordinates. [Model edits, exact counts, memory and per-revision times](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
+
+A reset that returns *all* variables to their admitted initial values is a genuine non-stuttering edit. On PaxosLease Base, adding it took 1.44 s instead of 35.50 s with the previous checker; removing it took 1.31 s instead of 34.08 s. A second edit cleared a full network at MaxTime, enlarging the graph from 491,037 to 598,541 states. Fresh exact Core independently confirmed the reset and drain counts and depths. The drain saved nine layer images on addition and eight on removal, yet took 42.37/35.76 s versus 40.12/34.12 s previously. Across the five-revision batch, wall time fell from 194.83 to 128.86 s and peak RSS rose from 420 to 541 MiB. Retaining the layers paid off for the reset; many changed destinations can still require most of a fresh search. [Per-revision times, counts and control](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
 
 The same three transition edits on QuarantineEqualsProposer took 2.10, 2.13 and 0.86 s after a 471.49 s cold check. Fresh searches seeded with the same finite coordinates took 427.07, 417.56 and 415.67 s. All runs kept 76,749,192 distinct states at depth 43. The generated counts were 391,849,185 initially, 468,598,377 with the self-loop, 402,564,377 with the duplicate Tick, and 391,849,185 after reverting. [Paired revisions and peak memory](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
 

@@ -1678,5 +1678,338 @@
       ],
       "finding": "A reachable admitted source with four messages can produce an emission beyond the six-slot representation. The checker refused. The diagnostic replay distinguished overflow from an unrelated invalid encoding."
     }
+  },
+  "refined_changed_destinations": {
+    "model": "Source-generated PaxosLeaseChecked wrappers. Reset adds an unconditional simultaneous assignment to the original Init. Drain adds: now = MaxTime AND Cardinality(network) = MaxNetwork, then clear network and leave every other variable unchanged. Replace SPECIFICATION Spec by EditedSpec == Init /\\ [][Next \\/ EditedAction]_vars; preserve constants, constraints, all invariants and deadlock setting.",
+    "order": [
+      "original",
+      "Reset",
+      "original",
+      "Drain",
+      "original"
+    ],
+    "common": "One installed source-driven process pinned to CPU 0 per batch, --type-invariant TypeOK --refine-domains and four --recheck MODULE CFG arguments; 12 GiB / 4800 s cap. Two c7i.4xlarge nodes; timings compare variants only within a node. Each entry records wall seconds reported per revision; process wall and GNU time peak RSS cover the entire batch.",
+    "matched_host": {
+      "input_sha256": {
+        "reference/libexec/dive-symbolic/engine.py": "35b63528e8c35af1ed9b6b35c4dc9721afeccedb8155a78d1aa6f694cd647a84",
+        "verified/libexec/dive-symbolic/engine.py": "67703bd0e778deb020e713ef920c52e5ed031f9d635cb74359f5b6aabeccf83b",
+        "verified/dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+        "verified/libexec/dive-symbolic/symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+        "verified/spec/BaseChanged.cfg": "3b4f9817c9ad09eefd6fba771bf8e9b5b4fa50a105716a63649d2669c4e8b5b0",
+        "verified/spec/PaxosLeaseBase.cfg": "03f0be6f3ae3faa879415477994958e480fdb88d7186f4dd9fc4f0577235c711",
+        "verified/spec/PaxosLeaseQuarantineEqualsProposer.cfg": "5f69288c3b80cbab777da4aa4f573fd9e8e42527ce77297e29adf192a2c804f2",
+        "verified/spec/PaxosLeaseRetry.cfg": "3df08aeb5bd1771b0ed045e8436fad72dba04371c86240b265e1107841a351d7",
+        "verified/spec/QuarantineEqualsProposerChanged.cfg": "19239e06b6702dd428503766cd7f68f2efc48aece05261e39c9a49d54be42892",
+        "verified/spec/Drain.tla": "226d4d41a6326561a865222647970cc067c64202cca74333ac807eb44230c7bd",
+        "verified/spec/PaxosLease.tla": "3ac9f462afc48698eac87519530abc227c9f47d44d305bed31104543e3c6ca1a",
+        "verified/spec/PaxosLeaseChecked.tla": "52070f65a049c576a707dbb99c54078a2f45887f4c689b8b85fb3f4bc4e7b679",
+        "verified/spec/Reset.tla": "5b98fc2652b88c36b27c9de9b02c831bcae5ea99e393adb9ed50b210829449ea",
+        "verified/spec/WithIdle.tla": "14945c8517c6ac77399a9f18e980a9d6c1c4a63eaf199a0aae96d4ec6b20b1a3",
+        "verified/spec/WithTick.tla": "f35b83acdfce19444b46e24b1a2a0c12b95858a6c0530fdeabd6e223d83c0409"
+      },
+      "baseline": {
+        "exit": 0,
+        "process_wall_seconds": 194.83,
+        "peak_rss_kib": 430400,
+        "revisions": [
+          {
+            "verdict": "success",
+            "seconds": 50.788282,
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "refinement_rounds": 11,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          },
+          {
+            "verdict": "success",
+            "seconds": 35.497933,
+            "distinct": 491037,
+            "generated": 2200911,
+            "depth": 29,
+            "reused": false,
+            "refinement_rounds": 2,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          },
+          {
+            "verdict": "success",
+            "seconds": 34.077826,
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "refinement_rounds": 2,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          },
+          {
+            "verdict": "success",
+            "seconds": 40.123783,
+            "distinct": 598541,
+            "generated": 2016104,
+            "depth": 29,
+            "reused": false,
+            "refinement_rounds": 2,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 478066
+          },
+          {
+            "verdict": "success",
+            "seconds": 34.122015,
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "refinement_rounds": 2,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          }
+        ]
+      },
+      "candidate": {
+        "exit": 0,
+        "process_wall_seconds": 128.86,
+        "peak_rss_kib": 554292,
+        "revisions": [
+          {
+            "verdict": "success",
+            "seconds": 47.775605,
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "refinement_rounds": 11,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          },
+          {
+            "verdict": "success",
+            "seconds": 1.440579,
+            "distinct": 491037,
+            "generated": 2200911,
+            "depth": 29,
+            "reused": true,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          },
+          {
+            "verdict": "success",
+            "seconds": 1.30715,
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": true,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          },
+          {
+            "verdict": "success",
+            "seconds": 42.365844,
+            "distinct": 598541,
+            "generated": 2016104,
+            "depth": 29,
+            "reused": false,
+            "reused_layer_images": 9,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 478066
+          },
+          {
+            "verdict": "success",
+            "seconds": 35.764967,
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reused_layer_images": 8,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          }
+        ]
+      }
+    },
+    "layer_only_experiment": {
+      "input_sha256": {
+        "product/spec/PaxosLease.tla": "3ac9f462afc48698eac87519530abc227c9f47d44d305bed31104543e3c6ca1a",
+        "product/spec/PaxosLeaseChecked.tla": "52070f65a049c576a707dbb99c54078a2f45887f4c689b8b85fb3f4bc4e7b679",
+        "product/spec/Reset.tla": "5b98fc2652b88c36b27c9de9b02c831bcae5ea99e393adb9ed50b210829449ea",
+        "product/spec/Drain.tla": "226d4d41a6326561a865222647970cc067c64202cca74333ac807eb44230c7bd",
+        "product/spec/BaseChanged.cfg": "3b4f9817c9ad09eefd6fba771bf8e9b5b4fa50a105716a63649d2669c4e8b5b0",
+        "product/spec/QuarantineEqualsProposerChanged.cfg": "19239e06b6702dd428503766cd7f68f2efc48aece05261e39c9a49d54be42892",
+        "candidate/libexec/dive-symbolic/engine.py": "341dcaa596e9de6ebe1f06d333fa55e746cf8c37e33745f2a0977998c668f73e",
+        "product/libexec/dive-symbolic/engine.py": "35b63528e8c35af1ed9b6b35c4dc9721afeccedb8155a78d1aa6f694cd647a84",
+        "product/dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1"
+      },
+      "baseline": {
+        "exit": 0,
+        "process_wall_seconds": 264.29,
+        "peak_rss_kib": 378084,
+        "revisions": [
+          {
+            "verdict": "success",
+            "seconds": 69.473045,
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "refinement_rounds": 11,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          },
+          {
+            "verdict": "success",
+            "seconds": 47.875154,
+            "distinct": 491037,
+            "generated": 2200911,
+            "depth": 29,
+            "reused": false,
+            "refinement_rounds": 2,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          },
+          {
+            "verdict": "success",
+            "seconds": 46.143781,
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "refinement_rounds": 2,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          },
+          {
+            "verdict": "success",
+            "seconds": 54.263857,
+            "distinct": 598541,
+            "generated": 2016104,
+            "depth": 29,
+            "reused": false,
+            "refinement_rounds": 2,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 478066
+          },
+          {
+            "verdict": "success",
+            "seconds": 46.326329,
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "refinement_rounds": 2,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          }
+        ]
+      },
+      "layer_images_without_root_proof": {
+        "exit": 0,
+        "process_wall_seconds": 210.19,
+        "peak_rss_kib": 547956,
+        "revisions": [
+          {
+            "verdict": "success",
+            "seconds": 69.039237,
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "refinement_rounds": 11,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          },
+          {
+            "verdict": "success",
+            "seconds": 23.497582,
+            "distinct": 491037,
+            "generated": 2200911,
+            "depth": 29,
+            "reused": false,
+            "reused_layer_images": 29,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          },
+          {
+            "verdict": "success",
+            "seconds": 21.879192,
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reused_layer_images": 29,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          },
+          {
+            "verdict": "success",
+            "seconds": 51.562724,
+            "distinct": 598541,
+            "generated": 2016104,
+            "depth": 29,
+            "reused": false,
+            "reused_layer_images": 9,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 478066
+          },
+          {
+            "verdict": "success",
+            "seconds": 43.999971,
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reused_layer_images": 8,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "reachable_bdd_nodes": 390276
+          }
+        ]
+      }
+    },
+    "fresh_core": {
+      "command": "dive check Reset.tla (or Drain.tla) --config BaseChanged.cfg --store exact --workers 4 --seed 0 --fp 0 --time-limit 900s --max-memory 9g --output json",
+      "rows": [
+        {
+          "model": "Reset",
+          "verdict": "success",
+          "statistics": {
+            "depth": 29,
+            "distinct": 491037,
+            "generated": 2200911,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "exact_states": 491037,
+          "wall_seconds": 3.52,
+          "peak_rss_kib": 268464
+        },
+        {
+          "model": "Drain",
+          "verdict": "success",
+          "statistics": {
+            "depth": 29,
+            "distinct": 598541,
+            "generated": 2016104,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "exact_states": 598541,
+          "wall_seconds": 3.45,
+          "peak_rss_kib": 276348
+        }
+      ]
+    },
+    "differential_controls": "Source fragment, TLC goldens, exact Core and installed-path tests passed. An independently written 22-revision two-root fixture compared 17 successful revisions and five validated violations against fresh explicit Core, including excluded roots/emissions, simultaneous assignments, newly reachable coordinates, changed constraints and shortcuts."
   }
 }
