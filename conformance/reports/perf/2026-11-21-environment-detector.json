@@ -231,5 +231,136 @@
       "wall_seconds": 0.99,
       "peak_rss_kib": 61988
     }
-  ]
+  ],
+  "fair_progress": {
+    "scope": "Source argument and finite overapproximating pair monitor, independent of the concrete state count. Both original temporal properties hold with the pinned timings, although the configured state invariant is violated.",
+    "monitor": "python3 scripts/perf/scale/detector/check_progress.py MODEL",
+    "clock_classes": 10,
+    "maximum_consecutive_steps_without": {
+      "send": 5,
+      "predict": 8,
+      "receive": 3
+    },
+    "pair_states": 400,
+    "maximum_silent_complete_epochs": 10,
+    "control": "Disabling mandatory old-box delivery leaves a cycle in the silence graph.",
+    "mutants": {
+      "accuracy": {
+        "property": "EventuallyStrongAccuracy",
+        "verdict": "liveness-violation",
+        "length": 36,
+        "ending": {
+          "back_to": 16,
+          "kind": "lasso"
+        },
+        "core_statistics": {
+          "depth": 36,
+          "distinct": 36,
+          "generated": 55,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc_counts": [
+          "55",
+          "36",
+          "0"
+        ],
+        "tlc_violated": [
+          "Error: Temporal property EventuallyStrongAccuracy was violated."
+        ],
+        "core": {
+          "wall_seconds": 0.05,
+          "peak_rss_kib": 42492
+        },
+        "tlc": {
+          "wall_seconds": 1.37,
+          "peak_rss_kib": 107856
+        },
+        "mutant_replay": {
+          "command": "validate-trace",
+          "length": 36,
+          "notes": [],
+          "result": "valid",
+          "schema_version": 4
+        },
+        "original_replay": {
+          "command": "validate-trace",
+          "failure": {
+            "check": "next",
+            "detail": "the step into this state does not satisfy the next-state relation line 304, col 10 to line 304, col 13 of module EnvironmentController",
+            "state": 10
+          },
+          "length": 36,
+          "notes": [],
+          "result": "invalid",
+          "schema_version": 4
+        },
+        "sha256": {
+          "EnvironmentController.tla": "11fc3d5d1158dda74f5fde8edcabd7d710cf7f8b10c201526b03d65b0ecf4a0c",
+          "EPFailureDetector.tla": "34407972eef86a8353374086558ede7a1ae611794ff399ca528112b431414b25",
+          "Schedule.tla": "0d5de66c04f6d897eedc180c06aea7f5e528ac8aeaf2448fa8cbae9c86f254f4",
+          "Schedule.cfg": "869d5c71d389b8508179f2576058e79bed67c21dcdb0463033c321a0854bed67"
+        }
+      },
+      "completeness": {
+        "property": "StrongCompleteness",
+        "verdict": "liveness-violation",
+        "length": 28,
+        "ending": {
+          "back_to": 13,
+          "kind": "lasso"
+        },
+        "core_statistics": {
+          "depth": 28,
+          "distinct": 28,
+          "generated": 38,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc_counts": [
+          "38",
+          "28",
+          "0"
+        ],
+        "tlc_violated": [
+          "Error: Temporal property StrongCompleteness was violated."
+        ],
+        "core": {
+          "wall_seconds": 0.05,
+          "peak_rss_kib": 48688
+        },
+        "tlc": {
+          "wall_seconds": 1.34,
+          "peak_rss_kib": 110780
+        },
+        "mutant_replay": {
+          "command": "validate-trace",
+          "length": 28,
+          "notes": [],
+          "result": "valid",
+          "schema_version": 4
+        },
+        "original_replay": {
+          "command": "validate-trace",
+          "failure": {
+            "check": "next",
+            "detail": "the step into this state does not satisfy the next-state relation line 304, col 10 to line 304, col 13 of module EnvironmentController",
+            "state": 12
+          },
+          "length": 28,
+          "notes": [],
+          "result": "invalid",
+          "schema_version": 4
+        },
+        "sha256": {
+          "EnvironmentController.tla": "27d4468fd8dae883b066b2e9aba0b3bae1402260e373362ed7b79935c0480372",
+          "EPFailureDetector.tla": "b1cb1d74516de47d50dd2c2a3ea813680c17e1d8b4c9740c88075ef41ab98743",
+          "Schedule.tla": "877f8f4ec5872623c68fc0c31ebb12d193b4c2df11e2a37b79878aabf9b64016",
+          "Schedule.cfg": "869d5c71d389b8508179f2576058e79bed67c21dcdb0463033c321a0854bed67"
+        }
+      }
+    }
+  }
 }
