@@ -19,6 +19,8 @@ The scripts that produced the records are in
 The [peer comparison panel and source pins](../../../docs/internal/survey/verification-workloads.md)
 extend this evidence to native checkers, implementation traces and proofs.
 
+[EmergencyCall source growth](2026-11-21-source-whole-growth.json) records three installed CLI runs up to 1.40 trillion distinct states, the single-line source edits, worker and source digests, wall time, peak RSS and the alternate search's 64 policy cells.
+
 The [source-driven EmergencyCall measurements](2026-11-21-source-whole-values.json) contain the installed Linux worker identities, monolithic and 64-cell counts, wall time, peak RSS, independent exact comparisons and trace controls.
 
 The [compiled finite safety comparison](2026-11-21-compiled-finite-safety.json) records the exact Core and compiled KVS Medium runs, binding and compilation cost, same-host tlx, TCommit, and the named SlateDB holdout refusal.
