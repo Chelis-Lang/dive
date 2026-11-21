@@ -1364,6 +1364,10 @@ fn check_step(m: &mut Machine, code: &Code, c: &Check) -> Result<bool, Error> {
 }
 
 impl Sink for Explorer<'_> {
+    fn exhaustive(&self) -> bool {
+        !self.initial
+    }
+
     fn emit(&mut self, m: &mut Machine, _code: &Code) -> Result<(), Error> {
         // One poll per initial state: the budget can stop a long `Init`
         // enumeration between its states.

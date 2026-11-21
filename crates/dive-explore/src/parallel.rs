@@ -459,6 +459,10 @@ impl WorkerSink<'_, '_> {
 }
 
 impl Sink for WorkerSink<'_, '_> {
+    fn exhaustive(&self) -> bool {
+        true
+    }
+
     fn emit(&mut self, m: &mut Machine, _code: &Code) -> Result<(), Error> {
         self.take_warnings(m);
         self.emitted = self
