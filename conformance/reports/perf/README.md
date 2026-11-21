@@ -25,6 +25,8 @@ The [compiled finite safety comparison](2026-11-21-compiled-finite-safety.json) 
 
 The [Linux allocator comparison](2026-11-21-linux-allocator-arenas.json) records the mimalloc 3.3.2 and 3.7.0 arena probes on Intel and Graviton, original Flint time to 233 million exact states, ordinary Sailfish, and paired KVS, SlateDB and EWD998 runs. The `fixed_release` object contains the 3.7.0 results.
 
+The [frontier storage comparison](2026-11-21-frontier-scale-controls.json) records the same work on Byzantine Paxos and SlateDB in three storage modes and all three terminal BPConProof runs under a 6 GiB limit.
+
 The [KRaft pre-vote measurements](2026-11-21-kafka-liveness.json) contain the replayable witness for infinitely many reachable states in the released liveness CFG and the smaller configurations that both engines exhausted.
 
 The [poison queue comparisons](2026-11-21-poison-queue.json) cover the original five-by-five deadlock witnesses, complete small fair graphs and a checked projection of ordinary message identities.
