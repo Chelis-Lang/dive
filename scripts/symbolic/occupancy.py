@@ -118,6 +118,8 @@ def run(args):
             failed = "invalid support predicate: " + str(error)
         return {"proof": "inconclusive" if failed else "inductive-safety", "failed_obligation": failed,
                 "predicate_format": occupancy_predicate.FORMAT, "invariants": model.invariants}
+    if len(model.ids) > 8192:
+        raise Unsupported("exact search owner count exceeds 8192")
     row, trace = search(model, args.max_orbits or 1_000_000)
     if row["verdict"] == "success" and args.write_predicate:
         try:
