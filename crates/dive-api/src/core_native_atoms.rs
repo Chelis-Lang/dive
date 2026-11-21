@@ -965,6 +965,7 @@ impl NativeReader for Reader<'_, '_> {
         {
             // Audit still independently evaluates each certified edge below.
             check(&self.atoms.control, control)?;
+            self.atoms.compiled[proof.atom].exhausted_in_a_row = 0;
             self.atoms.unchanged_edges += 1;
             Some(false)
         } else {
@@ -2497,7 +2498,15 @@ P == <>(x=2)
                             .action_row_false(atom, source, count, control)
                             .expect("source proof")
                     );
-                    assert!(reader.unchanged.is_some());
+                    let proof = reader.unchanged.expect("certified prefix");
+                    reader.atoms.compiled[proof.atom].exhausted_in_a_row = FUEL_STRIKES - 1;
+                    assert_eq!(
+                        reader
+                            .predicate(atom, source, Some(source), control)
+                            .expect("quiet prefix success"),
+                        Some(false)
+                    );
+                    assert_eq!(reader.atoms.compiled[proof.atom].exhausted_in_a_row, 0);
                     // The captured rows are fixed, but the other closure and source have no certificate.
                     let hits = reader.atoms.unchanged_edges;
                     reader
