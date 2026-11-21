@@ -122,3 +122,142 @@ fn temporal_capture_reports_inline_width_only_for_wide_cheap_initial_frontiers()
     }
     std::fs::remove_dir_all(dir).expect("remove fixture");
 }
+
+#[test]
+fn conditional_diagnostics_preserve_source_order_and_membership_demand() {
+    let dir = std::env::temp_dir().join(format!("dive-ordered-prints-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).expect("private directory");
+    let file = dir.join("Messages.tla");
+    let config = file.with_extension("cfg");
+    for (generator, invariant, should_print) in [
+        (r"x' \in {x, 16}", "x >= 0", false),
+        (
+            r#"PrintT(<<"source",x>>) /\ x' \in {x, 16}"#,
+            "x >= 0",
+            true,
+        ),
+        (
+            r"x' \in {x, 16}",
+            r#"IF x = 16 THEN PrintT("one new state") ELSE TRUE"#,
+            true,
+        ),
+        (
+            r#"IF x = 4 THEN PrintT("late") /\ x'=16 ELSE x' \in {x, 16}"#,
+            "x >= 0",
+            true,
+        ),
+    ] {
+        std::fs::write(&file, format!("---- MODULE Messages ----\nEXTENDS Naturals,TLC\nVARIABLE x\nInit == x \\in 0..7\nNext == {generator}\nInv == {invariant} /\\ (IF x < 0 THEN PrintT(x) ELSE TRUE)\n====\n")).expect("module");
+        std::fs::write(&config, "INIT Init\nNEXT Next\nINVARIANT Inv\n").expect("config");
+        for compat_tlc in [false, true] {
+            for max_states in [None, Some(8)] {
+                let check = |width, sequential| {
+                    check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(config.clone()),
+                        workers: Some(width),
+                        sequential,
+                        seed: Some(0),
+                        fp: Some(0),
+                        compat_tlc,
+                        max_states,
+                        ..CheckRequest::default()
+                    })
+                    .expect("model check")
+                    .to_json()
+                };
+                let serial = check(1, false);
+                let inline = check(8, true);
+                assert_eq!(inline["options"]["workers"]["used"], 1);
+                assert_eq!(inline["options"]["workers"]["sequential"], true);
+                assert_eq!(inline["output"], serial["output"]);
+                if max_states.is_none() {
+                    assert_eq!(serial["verdict"], "success", "{serial}");
+                    assert_eq!(serial["statistics"]["distinct"], 9);
+                    assert_eq!(
+                        !serial["output"].as_array().expect("output").is_empty(),
+                        should_print
+                    );
+                }
+                for width in [2, 8] {
+                    let parallel = check(width, false);
+                    for key in [
+                        "verdict",
+                        "statistics",
+                        "output",
+                        "warnings",
+                        "property",
+                        "exit_code",
+                        "counterexample",
+                    ] {
+                        assert_eq!(serial[key], parallel[key], "{generator} {invariant} {key}");
+                    }
+                    assert_eq!(parallel["options"]["workers"]["used"], width);
+                }
+            }
+        }
+    }
+    std::fs::remove_dir_all(dir).expect("cleanup");
+}
+
+#[test]
+fn ordered_print_workers_publish_only_warnings_reached_at_commit() {
+    let dir = std::env::temp_dir().join(format!("dive-print-warnings-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).expect("private directory");
+    let file = dir.join("WarningCases.tla");
+    let config = file.with_extension("cfg");
+    for (init, next, inv, view, expected) in [
+        (
+            r"x \in 0..3 /\ y=0",
+            r#"IF x<0 THEN PrintT("inactive") /\ UNCHANGED <<x,y>> ELSE UNCHANGED <<x,y>>"#,
+            r"ENABLED (x'=x+1 /\ UNCHANGED x /\ y'=y)",
+            "",
+            "invariant-violation",
+        ),
+        (
+            r"x \in 0..3 /\ y=0 /\ PrintT(x)",
+            r"x'=x /\ y'=1",
+            r"IF y=1 THEN ~(ENABLED (x'=x+1 /\ UNCHANGED x /\ y'=y)) ELSE TRUE",
+            "VIEW V\n",
+            "success",
+        ),
+    ] {
+        std::fs::write(&file, format!("---- MODULE WarningCases ----\nEXTENDS Naturals,TLC\nVARIABLES x,y\nInit == {init}\nNext == {next}\nInv == {inv}\nV == x\n====\n")).expect("module");
+        std::fs::write(
+            &config,
+            format!("INIT Init\nNEXT Next\nINVARIANT Inv\n{view}"),
+        )
+        .expect("config");
+        for compat_tlc in [false, true] {
+            let check = |width| {
+                check_file(&CheckRequest {
+                    file: file.clone(),
+                    config: Some(config.clone()),
+                    workers: Some(width),
+                    seed: Some(0),
+                    fp: Some(0),
+                    compat_tlc,
+                    store: dive_api::Store::Exact,
+                    ..CheckRequest::default()
+                })
+                .expect("model check")
+                .to_json()
+            };
+            let serial = check(1);
+            let parallel = check(8);
+            assert_eq!(serial["verdict"], expected, "{serial}");
+            for key in [
+                "verdict",
+                "statistics",
+                "output",
+                "warnings",
+                "exit_code",
+                "property",
+                "counterexample",
+            ] {
+                assert_eq!(parallel[key], serial[key], "{inv} {key}");
+            }
+        }
+    }
+    std::fs::remove_dir_all(dir).expect("cleanup");
+}

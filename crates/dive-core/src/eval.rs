@@ -86,6 +86,7 @@ pub struct Machine {
     /// What `Print` and `PrintT` printed, one line each, in evaluation
     /// order.
     pub printed: Vec<String>,
+    deferred_print: Option<bool>,
     output_limits: Option<(usize, usize)>,
     output_used: (usize, usize),
     output_failure: Option<&'static str>,
@@ -252,6 +253,7 @@ impl Machine {
             warn: true,
             warnings: Vec::new(),
             printed: Vec::new(),
+            deferred_print: None,
             output_limits: None,
             output_used: (0, 0),
             output_failure: None,
@@ -497,7 +499,18 @@ impl Machine {
         )
     }
 
+    /// Begins or ends speculative evaluation of a source with ordered output.
+    /// Returns whether a print was demanded since speculation began. The caller
+    /// must discard that source and run it again in commit order.
+    pub fn defer_prints(&mut self, enabled: bool) -> bool {
+        std::mem::replace(&mut self.deferred_print, enabled.then_some(false)) == Some(true)
+    }
+
     pub(crate) fn print(&mut self, text: String) -> Result<(), Error> {
+        if let Some(requested) = &mut self.deferred_print {
+            *requested = true;
+            return Err(Error::stop());
+        }
         if let Some((events, bytes)) = self.output_limits {
             let total = self.output_used.1.checked_add(text.len());
             let failure = if self.output_used.0 >= events {

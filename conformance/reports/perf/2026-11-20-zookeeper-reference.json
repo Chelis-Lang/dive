@@ -485,6 +485,75 @@
             "peak_rss_kib": 2871232,
             "workers": 8
           }
+        },
+        {
+          "paper_parameters": [
+            3,
+            2,
+            1,
+            1
+          ],
+          "MaxTimeoutFailures": 2,
+          "cfg_sha256": "d03b0ac252b13c51323af3ebb1dc44bceda1e7b26cb97d30a322a9b8e6479127",
+          "same_as_paper_count_and_depth": false,
+          "core": {
+            "exit_code": 5,
+            "wall_seconds": 1500.07,
+            "peak_rss_kib": 1138852,
+            "workers_used": 1,
+            "print_events": 0,
+            "verdict": "stopped",
+            "depth": 42,
+            "generated": 66833056,
+            "distinct": 32107526,
+            "queued": 2804190,
+            "stop": "time"
+          },
+          "tlc": {
+            "exit_code": 0,
+            "wall_seconds": 1247.82,
+            "peak_rss_kib": 5683500,
+            "workers": 8,
+            "verdict": "success",
+            "depth": 59,
+            "generated": 97096950,
+            "distinct": 44272435,
+            "queued": 0
+          }
+        },
+        {
+          "paper_parameters": [
+            3,
+            2,
+            2,
+            0
+          ],
+          "MaxTimeoutFailures": 2,
+          "cfg_sha256": "ac765be7b45416bf9be880b16200dd745e5651a79d2da7572b4563e131ec73c9",
+          "same_as_paper_count_and_depth": false,
+          "core": {
+            "exit_code": 0,
+            "wall_seconds": 391.24,
+            "peak_rss_kib": 367816,
+            "workers_used": 1,
+            "print_events": 0,
+            "verdict": "success",
+            "depth": 52,
+            "generated": 17345585,
+            "distinct": 7363789,
+            "queued": 0
+          },
+          "tlc": {
+            "exit_code": 0,
+            "wall_seconds": 218.74,
+            "peak_rss_kib": 3761424,
+            "workers": 8,
+            "verdict": "success",
+            "depth": 52,
+            "generated": 17345585,
+            "distinct": 7363789,
+            "queued": 0
+          }
         }
       ]
     },
@@ -528,5 +597,91 @@
       ]
     }
   ],
-  "interpretation": "RecorderSetFailure increments both counters on Restart, and CheckRestart includes CheckTimeout. Neither tested mapping recovers the two-server restart rows. Reproduction of a larger restart run requires the missing exact paper configuration."
+  "interpretation": "RecorderSetFailure increments both counters on Restart, and CheckRestart includes CheckTimeout. Neither tested mapping recovers the two-server restart rows. Reproduction of a larger restart run requires the missing exact paper configuration.",
+  "ordered_diagnostic_workers": {
+    "host": "Isolated r7i.16xlarge; sequential fresh processes, 32 physical cores per arm, taskset 0-31; Core 424 GiB sampled cap, TLC 128 GiB maximum heap; same source recipe, oracle and seed as the paper reconstruction above.",
+    "binary_sha256": {
+      "zab-ordered": "76c15c97e9c65c1152fcc1752b91cfc616f15520bfb3b885ba178da9748f9946",
+      "zab-word": "9b15672d212f1192a74c50d4b61cb74e1c093a564ffb7911889b5c08bb989ed0",
+      "ordered-print-qualified.patch": "55a47e04d211442caa94881fb412435b93a9349a4a23df029ca754d0a2cece57"
+    },
+    "controls": [
+      {
+        "cfg": "s3t2f1r0e3",
+        "measurements": {
+          "word1": {
+            "wall_seconds": 12.38,
+            "peak_rss_kib": 158392,
+            "workers_used": 1
+          },
+          "ordered1": {
+            "wall_seconds": 1.2,
+            "peak_rss_kib": 1051044,
+            "workers_used": 32
+          },
+          "tlc1": {
+            "wall_seconds": 7.05,
+            "peak_rss_kib": 28749304,
+            "workers_used": 32
+          }
+        },
+        "statistics": {
+          "depth": 43,
+          "distinct": 251332,
+          "generated": 610035,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      {
+        "cfg": "four-1",
+        "measurements": {
+          "word1": {
+            "wall_seconds": 612.76,
+            "peak_rss_kib": 460276,
+            "workers_used": 1
+          },
+          "ordered1": {
+            "wall_seconds": 51.74,
+            "peak_rss_kib": 3620944,
+            "workers_used": 32
+          },
+          "tlc1": {
+            "wall_seconds": 133.97,
+            "peak_rss_kib": 48582172,
+            "workers_used": 32
+          }
+        },
+        "statistics": {
+          "depth": 64,
+          "distinct": 6634696,
+          "generated": 21393294,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      }
+    ],
+    "adversarial_checks": {
+      "scope": "40 independent source fixtures, each in both profiles and both fingerprint/exact stores; base at width 1, candidate at widths 1 and 4",
+      "matched_observables": 160,
+      "matched_fields": [
+        "process exit",
+        "verdict",
+        "statistics",
+        "messages",
+        "property",
+        "ordered output",
+        "warnings",
+        "counterexample"
+      ],
+      "trace_validations_per_checker": {
+        "valid": 28,
+        "refused_effectful_next_or_partial_replay": 12,
+        "refused_enabled_for_deadlock": 4
+      },
+      "detail": "The independent base and candidate validators agreed on every trace, including all 16 named refusals. Width forcing, reached-output refusals, duplicate VIEW identities, Init warnings, disk/checkpoint and timed prefixes were exercised."
+    }
+  }
 }
