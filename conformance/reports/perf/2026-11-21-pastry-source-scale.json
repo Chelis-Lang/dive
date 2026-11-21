@@ -1,0 +1,1085 @@
+{
+  "schema": "dive-pastry-source-scale-v1",
+  "archive": "https://homepages.loria.fr/SMerz/projects/pastry/lupastryplus.zip",
+  "archive_sha256": "1919350f4103ea98141c7b2b1d3f7cfe14f2c96c1ff40a59e43299f2d58a0e81",
+  "source_scope": {
+    "archive_lines": 35029,
+    "archive_modules": 16,
+    "input_lines_in_top_level_closure": 34596,
+    "input_modules_in_closure": 15,
+    "total_modules_in_closure": 28,
+    "largest_module": [
+      "ProofInvariants.tla",
+      21764
+    ],
+    "model": "Pastry.tla",
+    "proof_root": "ProofCorrectness.tla",
+    "cfg_supplied_by_author": false
+  },
+  "history": "The 2013 thesis points to www.mpi-inf.mpg.de/~tianlu/fmPastry/. The 2013-07-25 Wayback index references fm.html. The retrieved successful-capture index listed only the home page and tools.html. The 2016 LuPastry+ proof archive explicitly describes subsequent revisions. The 2015 author paper, doi:10.1007/978-3-319-25942-0_19 reference 10, names tiit.lu/fmPastry/. The live URL returned 404 and the Wayback CDX prefix query returned no successful captures.",
+  "comparison": "Dedicated c7i.4xlarge, us-east-2. Each process pinned to one logical CPU. Probe groups used different CPU affinities and could overlap others on this instance. Timing fields are GNU time wall seconds and RSS KiB; Java and Dive timings include process startup. Frontend comparison starts a new process per edit. Semantic analysis does not reprove theorems.",
+  "inputs": {
+    "upstream_routing_table_sha256": "15d8dbff481af23bac398e6c880b79291c8b805cfdf939fb248d73eead96fcdc",
+    "bounded_routing_table_sha256": "aac3ce17b1c47adfeda40e6949bc88dc2392787493e5dc9582b005de113785a4",
+    "counted_routing_table_sha256": "c9f739fdf3c5e0aa065eadbb5b4629debe7c563dd163febf55398e9ad444db06",
+    "library_and_executable_sha256": {
+      "plus.zip": "1919350f4103ea98141c7b2b1d3f7cfe14f2c96c1ff40a59e43299f2d58a0e81",
+      "dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+      "java": "f5aed21d3a0b0f4b05d3a3f9fe71263916d5bc0d47b53aa52a3340b90f0b4805",
+      "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+      "Folds.tla": "aa59063fd600bb640b2ae24dc85ef770277ef5bf7955092b76b8b471790086da",
+      "FunctionTheorems.tla": "f89871fb5b35d2fc54f583b12adb489dd6660be7aced67ab295fba0d4999c116",
+      "Functions.tla": "b54ff63b7c76c327525c17c188d5f9f5e53d92f3fd701f5e2ba54f0f54391063",
+      "NaturalsInduction.tla": "08f52420cdaaf11292ed366782b5ce5b596bb7cbe789526a1cfd8806dbf98624",
+      "TLAPS.tla": "9afe54984062748a0568966434cc0945d682f8cd89fdbc38f73b5579751b0c55",
+      "WellFoundedInduction.tla": "6f2f274c2e987d1edcf004d8e37b053f1f82b912e66d6a51bae0af8012ddcbec"
+    },
+    "tlaps_library_revision": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37",
+    "bounded_edit": "In SharedDigitsAux replace the commented binder after CHOOSE g by its active expression \\in [RTRows -> 0..RTRowCount]. Retain the function equation.",
+    "counted_definition": "SharedDigitsAux(i,j) == [n \\in RTRows |-> Cardinality({k \\in 1..n : IthDigit(i, RTRowCount-k+1) = IthDigit(j, RTRowCount-k+1)})]",
+    "error_edit": "Change TheBetterNode(i,j) == j to TheBetterNode(i,j) == MissingRoutingResult(j) in RoutingTable.tla.",
+    "configs": {
+      "case-2-NextMC.cfg": "INIT Init\nNEXT NextMC\nCONSTANTS\n A = {0}\n NullNode = NullNode\n B = 1\n M = 2\n L = 1\nINVARIANTS TypeInvariant CorrectDelivery\nCHECK_DEADLOCK FALSE\n",
+      "case-1-NextMC.cfg": "INIT Init\nNEXT NextMC\nCONSTANTS\n A = {0}\n NullNode = NullNode\n B = 1\n M = 1\n L = 1\nINVARIANTS TypeInvariant CorrectDelivery\nCHECK_DEADLOCK FALSE\n",
+      "case-2-Next.cfg": "INIT Init\nNEXT Next\nCONSTANTS\n A = {0}\n NullNode = NullNode\n B = 1\n M = 2\n L = 1\nINVARIANTS TypeInvariant CorrectDelivery\nCHECK_DEADLOCK FALSE\n",
+      "case-1-Next.cfg": "INIT Init\nNEXT Next\nCONSTANTS\n A = {0}\n NullNode = NullNode\n B = 1\n M = 1\n L = 1\nINVARIANTS TypeInvariant CorrectDelivery\nCHECK_DEADLOCK FALSE\n",
+      "three-ready.cfg": "INIT Init\nNEXT NextMC\nCONSTANTS\n A = {0, 1, 2}\n NullNode = NullNode\n B = 1\n M = 2\n L = 1\nINVARIANTS TypeInvariant CorrectDelivery\nCHECK_DEADLOCK FALSE\n"
+    },
+    "community_modules_revision": "78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3"
+  },
+  "commands": {
+    "semantic": "dive analyze ROOT --library-path LIB --output json; java -Xmx2g -XX:ActiveProcessorCount=1 -DTLA-Library=LIB -cp JAR tla2sany.SANY ROOT",
+    "explicit": "dive check Pastry.tla --config CFG --library-path LIB --store exact --workers 1 --compat=tlc --fp 0 --seed 0 --max-memory 2g --time-limit BUDGET --output json",
+    "tlc": "java -Xmx1900m -XX:+UseParallelGC -XX:ActiveProcessorCount=1 -DTLA-Library=LIB -cp JAR tlc2.TLC -workers 1 -fp 0 -seed 0 -metadir SCRATCH -config CFG Pastry.tla",
+    "budgets_seconds": {
+      "original": 280,
+      "changed": 420,
+      "three_initially_ready": 270,
+      "all_id_pairs": 90
+    },
+    "protocol_properties": [
+      "TypeInvariant",
+      "CorrectDelivery"
+    ],
+    "explicit_deadlock": false,
+    "correctness_probe": "ASSUME \\A i,j \\in I : SharedDigitsAux(i,j) = Counted(i,j), comparing the entire functions of row index. Check x=0 with stuttering successor. The checked domains are all 4, 16, 64, and 256 ordered pairs respectively.",
+    "recurrence_checks": "ASSUME all ordered (i,j) in I satisfy the function domain RTRows and the source recurrence at every index. Each ring uses B=1 and 2^M IDs. Both operators checked independently, 150 s checker budget, 155 s external cutoff. Every success covers all such pairs; the single stuttering state is only a driver.",
+    "four_worker_counted": "Four-node NextMC, counted implementation, A={0}, four workers, CPUs 10-13, 2 GiB checker limit/1900m Java heap, 2400 seconds. Same CFG and properties as the corresponding single-worker run.",
+    "prepare": "python3 scripts/perf/scale/lupastry.py lupastryplus.zip DEST --bits M --ready ID... --definition published|bounded|counted --next Next|NextMC"
+  },
+  "original": {
+    "bind-Pastry-dive": {
+      "exit": 0,
+      "wall_seconds": 0.02,
+      "peak_rss_kib": 21660,
+      "accepted": true,
+      "modules": [
+        "Naturals",
+        "Sequences",
+        "FiniteSets",
+        "TLC",
+        "Integers",
+        "Reals",
+        "TLAPS",
+        "Ring",
+        "LeafSet",
+        "RoutingTable",
+        "Messages",
+        "InitialStates",
+        "Actions",
+        "Pastry"
+      ],
+      "diagnostics": []
+    },
+    "bind-Pastry-sany": {
+      "exit": 0,
+      "wall_seconds": 0.9,
+      "peak_rss_kib": 73808,
+      "accepted": true
+    },
+    "bind-ProofCorrectness-dive": {
+      "exit": 0,
+      "wall_seconds": 0.52,
+      "peak_rss_kib": 175368,
+      "accepted": true,
+      "modules": [
+        "Naturals",
+        "Sequences",
+        "FiniteSets",
+        "TLC",
+        "Integers",
+        "Reals",
+        "TLAPS",
+        "Ring",
+        "LeafSet",
+        "RoutingTable",
+        "Messages",
+        "InitialStates",
+        "Actions",
+        "Pastry",
+        "Folds",
+        "Functions",
+        "NaturalsInduction",
+        "WellFoundedInduction",
+        "FiniteSetTheorems",
+        "FunctionTheorems",
+        "ProofRingProperties",
+        "ProofBasicTypes",
+        "ProofTypeInvariant",
+        "ProofLSProperties",
+        "ProofLSCoverageProperties",
+        "ProofProperties",
+        "ProofInvariants",
+        "ProofCorrectness"
+      ],
+      "diagnostics": []
+    },
+    "bind-ProofCorrectness-sany": {
+      "exit": 0,
+      "wall_seconds": 7.14,
+      "peak_rss_kib": 479856,
+      "accepted": true
+    },
+    "ring-1-Next-dive": {
+      "exit": 3,
+      "wall_seconds": 0.04,
+      "peak_rss_kib": 33156,
+      "verdict": "unsupported",
+      "statistics": null,
+      "message": "an unbounded quantifier or CHOOSE"
+    },
+    "ring-1-Next-tlc": {
+      "exit": 1,
+      "wall_seconds": 1.68,
+      "peak_rss_kib": 106556,
+      "verdict": "model evaluation error",
+      "reason": "unbounded CHOOSE in RoutingTable line 38"
+    },
+    "ring-1-NextMC-dive": {
+      "exit": 3,
+      "wall_seconds": 0.04,
+      "peak_rss_kib": 33440,
+      "verdict": "unsupported",
+      "statistics": null,
+      "message": "an unbounded quantifier or CHOOSE"
+    },
+    "ring-1-NextMC-tlc": {
+      "exit": 1,
+      "wall_seconds": 1.67,
+      "peak_rss_kib": 106372,
+      "verdict": "model evaluation error",
+      "reason": "unbounded CHOOSE in RoutingTable line 38"
+    },
+    "ring-2-Next-dive": {
+      "exit": 3,
+      "wall_seconds": 0.04,
+      "peak_rss_kib": 33292,
+      "verdict": "unsupported",
+      "statistics": null,
+      "message": "an unbounded quantifier or CHOOSE"
+    },
+    "ring-2-Next-tlc": {
+      "exit": 1,
+      "wall_seconds": 1.79,
+      "peak_rss_kib": 107720,
+      "verdict": "model evaluation error",
+      "reason": "unbounded CHOOSE in RoutingTable line 38"
+    },
+    "ring-2-NextMC-dive": {
+      "exit": 3,
+      "wall_seconds": 0.05,
+      "peak_rss_kib": 33144,
+      "verdict": "unsupported",
+      "statistics": null,
+      "message": "an unbounded quantifier or CHOOSE"
+    },
+    "ring-2-NextMC-tlc": {
+      "exit": 1,
+      "wall_seconds": 2.01,
+      "peak_rss_kib": 109156,
+      "verdict": "model evaluation error",
+      "reason": "unbounded CHOOSE in RoutingTable line 38"
+    }
+  },
+  "alternating_frontends": {
+    "counted-1-dive": {
+      "exit": 0,
+      "wall_seconds": 0.4,
+      "peak_rss_kib": 175472,
+      "accepted": true,
+      "modules": [
+        "Naturals",
+        "Sequences",
+        "FiniteSets",
+        "TLC",
+        "Integers",
+        "Reals",
+        "TLAPS",
+        "Ring",
+        "LeafSet",
+        "RoutingTable",
+        "Messages",
+        "InitialStates",
+        "Actions",
+        "Pastry",
+        "Folds",
+        "Functions",
+        "NaturalsInduction",
+        "WellFoundedInduction",
+        "FiniteSetTheorems",
+        "FunctionTheorems",
+        "ProofRingProperties",
+        "ProofBasicTypes",
+        "ProofTypeInvariant",
+        "ProofLSProperties",
+        "ProofLSCoverageProperties",
+        "ProofProperties",
+        "ProofInvariants",
+        "ProofCorrectness"
+      ],
+      "diagnostics": []
+    },
+    "counted-1-sany": {
+      "exit": 0,
+      "wall_seconds": 5.18,
+      "peak_rss_kib": 515900,
+      "accepted": true
+    },
+    "counted-2-dive": {
+      "exit": 0,
+      "wall_seconds": 0.4,
+      "peak_rss_kib": 175460,
+      "accepted": true,
+      "modules": [
+        "Naturals",
+        "Sequences",
+        "FiniteSets",
+        "TLC",
+        "Integers",
+        "Reals",
+        "TLAPS",
+        "Ring",
+        "LeafSet",
+        "RoutingTable",
+        "Messages",
+        "InitialStates",
+        "Actions",
+        "Pastry",
+        "Folds",
+        "Functions",
+        "NaturalsInduction",
+        "WellFoundedInduction",
+        "FiniteSetTheorems",
+        "FunctionTheorems",
+        "ProofRingProperties",
+        "ProofBasicTypes",
+        "ProofTypeInvariant",
+        "ProofLSProperties",
+        "ProofLSCoverageProperties",
+        "ProofProperties",
+        "ProofInvariants",
+        "ProofCorrectness"
+      ],
+      "diagnostics": []
+    },
+    "counted-2-sany": {
+      "exit": 0,
+      "wall_seconds": 5.16,
+      "peak_rss_kib": 522548,
+      "accepted": true
+    },
+    "counted-3-dive": {
+      "exit": 0,
+      "wall_seconds": 0.4,
+      "peak_rss_kib": 175408,
+      "accepted": true,
+      "modules": [
+        "Naturals",
+        "Sequences",
+        "FiniteSets",
+        "TLC",
+        "Integers",
+        "Reals",
+        "TLAPS",
+        "Ring",
+        "LeafSet",
+        "RoutingTable",
+        "Messages",
+        "InitialStates",
+        "Actions",
+        "Pastry",
+        "Folds",
+        "Functions",
+        "NaturalsInduction",
+        "WellFoundedInduction",
+        "FiniteSetTheorems",
+        "FunctionTheorems",
+        "ProofRingProperties",
+        "ProofBasicTypes",
+        "ProofTypeInvariant",
+        "ProofLSProperties",
+        "ProofLSCoverageProperties",
+        "ProofProperties",
+        "ProofInvariants",
+        "ProofCorrectness"
+      ],
+      "diagnostics": []
+    },
+    "counted-3-sany": {
+      "exit": 0,
+      "wall_seconds": 5.13,
+      "peak_rss_kib": 527624,
+      "accepted": true
+    },
+    "error-control-1-dive": {
+      "exit": 1,
+      "wall_seconds": 0.22,
+      "peak_rss_kib": 161024,
+      "accepted": false,
+      "modules": [
+        "Naturals",
+        "Sequences",
+        "FiniteSets",
+        "TLC",
+        "Integers",
+        "Reals",
+        "TLAPS",
+        "Ring",
+        "LeafSet",
+        "RoutingTable",
+        "Messages",
+        "InitialStates",
+        "Actions",
+        "Pastry",
+        "Folds",
+        "Functions",
+        "NaturalsInduction",
+        "WellFoundedInduction",
+        "FiniteSetTheorems",
+        "FunctionTheorems",
+        "ProofRingProperties",
+        "ProofBasicTypes",
+        "ProofTypeInvariant",
+        "ProofLSProperties",
+        "ProofLSCoverageProperties",
+        "ProofProperties",
+        "ProofInvariants",
+        "ProofCorrectness"
+      ],
+      "diagnostics": [
+        {
+          "code": "DIVE-E0100",
+          "message": "unknown operator `MissingRoutingResult`"
+        }
+      ]
+    },
+    "error-control-1-sany": {
+      "exit": 0,
+      "wall_seconds": 3.84,
+      "peak_rss_kib": 327192,
+      "accepted": false,
+      "diagnostic": "Unknown operator: `MissingRoutingResult'."
+    },
+    "plus-1-dive": {
+      "exit": 0,
+      "wall_seconds": 0.4,
+      "peak_rss_kib": 175308,
+      "accepted": true,
+      "modules": [
+        "Naturals",
+        "Sequences",
+        "FiniteSets",
+        "TLC",
+        "Integers",
+        "Reals",
+        "TLAPS",
+        "Ring",
+        "LeafSet",
+        "RoutingTable",
+        "Messages",
+        "InitialStates",
+        "Actions",
+        "Pastry",
+        "Folds",
+        "Functions",
+        "NaturalsInduction",
+        "WellFoundedInduction",
+        "FiniteSetTheorems",
+        "FunctionTheorems",
+        "ProofRingProperties",
+        "ProofBasicTypes",
+        "ProofTypeInvariant",
+        "ProofLSProperties",
+        "ProofLSCoverageProperties",
+        "ProofProperties",
+        "ProofInvariants",
+        "ProofCorrectness"
+      ],
+      "diagnostics": []
+    },
+    "plus-1-sany": {
+      "exit": 0,
+      "wall_seconds": 5.13,
+      "peak_rss_kib": 493488,
+      "accepted": true
+    },
+    "plus-2-dive": {
+      "exit": 0,
+      "wall_seconds": 0.4,
+      "peak_rss_kib": 175452,
+      "accepted": true,
+      "modules": [
+        "Naturals",
+        "Sequences",
+        "FiniteSets",
+        "TLC",
+        "Integers",
+        "Reals",
+        "TLAPS",
+        "Ring",
+        "LeafSet",
+        "RoutingTable",
+        "Messages",
+        "InitialStates",
+        "Actions",
+        "Pastry",
+        "Folds",
+        "Functions",
+        "NaturalsInduction",
+        "WellFoundedInduction",
+        "FiniteSetTheorems",
+        "FunctionTheorems",
+        "ProofRingProperties",
+        "ProofBasicTypes",
+        "ProofTypeInvariant",
+        "ProofLSProperties",
+        "ProofLSCoverageProperties",
+        "ProofProperties",
+        "ProofInvariants",
+        "ProofCorrectness"
+      ],
+      "diagnostics": []
+    },
+    "plus-2-sany": {
+      "exit": 0,
+      "wall_seconds": 5.18,
+      "peak_rss_kib": 548316,
+      "accepted": true
+    },
+    "plus-3-dive": {
+      "exit": 0,
+      "wall_seconds": 0.4,
+      "peak_rss_kib": 175460,
+      "accepted": true,
+      "modules": [
+        "Naturals",
+        "Sequences",
+        "FiniteSets",
+        "TLC",
+        "Integers",
+        "Reals",
+        "TLAPS",
+        "Ring",
+        "LeafSet",
+        "RoutingTable",
+        "Messages",
+        "InitialStates",
+        "Actions",
+        "Pastry",
+        "Folds",
+        "Functions",
+        "NaturalsInduction",
+        "WellFoundedInduction",
+        "FiniteSetTheorems",
+        "FunctionTheorems",
+        "ProofRingProperties",
+        "ProofBasicTypes",
+        "ProofTypeInvariant",
+        "ProofLSProperties",
+        "ProofLSCoverageProperties",
+        "ProofProperties",
+        "ProofInvariants",
+        "ProofCorrectness"
+      ],
+      "diagnostics": []
+    },
+    "plus-3-sany": {
+      "exit": 0,
+      "wall_seconds": 5.15,
+      "peak_rss_kib": 529036,
+      "accepted": true
+    }
+  },
+  "changed_model_and_all_pairs": {
+    "audit-1-dive": {
+      "exit": 0,
+      "wall_seconds": 0.01,
+      "peak_rss_kib": 25408,
+      "verdict": "success",
+      "statistics": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 2,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "audit-1-tlc": {
+      "exit": 0,
+      "wall_seconds": 1.19,
+      "peak_rss_kib": 87512,
+      "statistics": {
+        "generated": 2,
+        "distinct": 1,
+        "left_on_queue": 0,
+        "depth": 1
+      },
+      "verdict": "success"
+    },
+    "audit-2-dive": {
+      "exit": 0,
+      "wall_seconds": 0.01,
+      "peak_rss_kib": 25516,
+      "verdict": "success",
+      "statistics": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 2,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "audit-2-tlc": {
+      "exit": 0,
+      "wall_seconds": 1.23,
+      "peak_rss_kib": 85944,
+      "statistics": {
+        "generated": 2,
+        "distinct": 1,
+        "left_on_queue": 0,
+        "depth": 1
+      },
+      "verdict": "success"
+    },
+    "audit-3-dive": {
+      "exit": 0,
+      "wall_seconds": 0.03,
+      "peak_rss_kib": 25516,
+      "verdict": "success",
+      "statistics": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 2,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "audit-3-tlc": {
+      "exit": 0,
+      "wall_seconds": 1.4,
+      "peak_rss_kib": 95824,
+      "statistics": {
+        "generated": 2,
+        "distinct": 1,
+        "left_on_queue": 0,
+        "depth": 1
+      },
+      "verdict": "success"
+    },
+    "audit-4-dive": {
+      "exit": 0,
+      "wall_seconds": 0.49,
+      "peak_rss_kib": 25484,
+      "verdict": "success",
+      "statistics": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 2,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "audit-4-tlc": {
+      "exit": 0,
+      "wall_seconds": 2.01,
+      "peak_rss_kib": 160772,
+      "statistics": {
+        "generated": 2,
+        "distinct": 1,
+        "left_on_queue": 0,
+        "depth": 1
+      },
+      "verdict": "success"
+    },
+    "ring-1-Next-bounded-dive": {
+      "exit": 0,
+      "wall_seconds": 0.07,
+      "peak_rss_kib": 60572,
+      "verdict": "success",
+      "statistics": {
+        "depth": 17,
+        "distinct": 190,
+        "generated": 1268,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "ring-1-Next-bounded-tlc": {
+      "exit": 0,
+      "wall_seconds": 2.39,
+      "peak_rss_kib": 141384,
+      "statistics": {
+        "generated": 1268,
+        "distinct": 190,
+        "left_on_queue": 0,
+        "depth": 17
+      },
+      "verdict": "success"
+    },
+    "ring-1-Next-counted-dive": {
+      "exit": 0,
+      "wall_seconds": 0.08,
+      "peak_rss_kib": 60560,
+      "verdict": "success",
+      "statistics": {
+        "depth": 17,
+        "distinct": 190,
+        "generated": 1268,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "ring-1-Next-counted-tlc": {
+      "exit": 0,
+      "wall_seconds": 2.54,
+      "peak_rss_kib": 138528,
+      "statistics": {
+        "generated": 1268,
+        "distinct": 190,
+        "left_on_queue": 0,
+        "depth": 17
+      },
+      "verdict": "success"
+    },
+    "ring-1-NextMC-bounded-dive": {
+      "exit": 0,
+      "wall_seconds": 0.05,
+      "peak_rss_kib": 56324,
+      "verdict": "success",
+      "statistics": {
+        "depth": 11,
+        "distinct": 14,
+        "generated": 40,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "ring-1-NextMC-bounded-tlc": {
+      "exit": 0,
+      "wall_seconds": 1.88,
+      "peak_rss_kib": 106136,
+      "statistics": {
+        "generated": 40,
+        "distinct": 14,
+        "left_on_queue": 0,
+        "depth": 11
+      },
+      "verdict": "success"
+    },
+    "ring-1-NextMC-counted-dive": {
+      "exit": 0,
+      "wall_seconds": 0.05,
+      "peak_rss_kib": 58568,
+      "verdict": "success",
+      "statistics": {
+        "depth": 11,
+        "distinct": 14,
+        "generated": 40,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "ring-1-NextMC-counted-tlc": {
+      "exit": 0,
+      "wall_seconds": 1.64,
+      "peak_rss_kib": 106176,
+      "statistics": {
+        "generated": 40,
+        "distinct": 14,
+        "left_on_queue": 0,
+        "depth": 11
+      },
+      "verdict": "success"
+    },
+    "ring-2-Next-bounded-dive": {
+      "exit": 5,
+      "wall_seconds": 420.16,
+      "peak_rss_kib": 654068,
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 17,
+        "distinct": 1138948,
+        "exhaustive": false,
+        "generated": 14699670,
+        "initial_generated": 1,
+        "left_on_queue": 461672,
+        "reported_by_tlc": false
+      },
+      "message": "stopped during safety-search after 420015 ms: the time limit is 420000 ms",
+      "stop": {
+        "elapsed_ms": 420094,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 420000,
+        "observed": 420015,
+        "phase": "safety-search",
+        "resource": "time",
+        "unit": "ms"
+      }
+    },
+    "ring-2-Next-bounded-tlc": {
+      "exit": 124,
+      "wall_seconds": 425.05,
+      "peak_rss_kib": 990744,
+      "last_periodic_sample": {
+        "depth": 16,
+        "generated": 9476361,
+        "distinct": 736945,
+        "left_on_queue": 286671
+      },
+      "verdict": "timeout"
+    },
+    "ring-2-Next-counted-dive": {
+      "exit": 5,
+      "wall_seconds": 420.17,
+      "peak_rss_kib": 672504,
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 17,
+        "distinct": 1233725,
+        "exhaustive": false,
+        "generated": 16164351,
+        "initial_generated": 1,
+        "left_on_queue": 494504,
+        "reported_by_tlc": false
+      },
+      "message": "stopped during safety-search after 420025 ms: the time limit is 420000 ms",
+      "stop": {
+        "elapsed_ms": 420110,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 420000,
+        "observed": 420025,
+        "phase": "safety-search",
+        "resource": "time",
+        "unit": "ms"
+      }
+    },
+    "ring-2-Next-counted-tlc": {
+      "exit": 124,
+      "wall_seconds": 425.06,
+      "peak_rss_kib": 1002808,
+      "last_periodic_sample": {
+        "depth": 16,
+        "generated": 9219171,
+        "distinct": 721405,
+        "left_on_queue": 282628
+      },
+      "verdict": "timeout"
+    },
+    "ring-2-NextMC-bounded-dive": {
+      "exit": 0,
+      "wall_seconds": 280.52,
+      "peak_rss_kib": 286548,
+      "verdict": "success",
+      "statistics": {
+        "depth": 49,
+        "distinct": 555691,
+        "generated": 13271201,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "ring-2-NextMC-bounded-tlc": {
+      "exit": 124,
+      "wall_seconds": 425.06,
+      "peak_rss_kib": 999120,
+      "last_periodic_sample": {
+        "depth": 40,
+        "generated": 9657716,
+        "distinct": 458010,
+        "left_on_queue": 46387
+      },
+      "verdict": "timeout"
+    },
+    "ring-2-NextMC-counted-dive": {
+      "exit": 0,
+      "wall_seconds": 276.68,
+      "peak_rss_kib": 286652,
+      "verdict": "success",
+      "statistics": {
+        "depth": 49,
+        "distinct": 555691,
+        "generated": 13271201,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "ring-2-NextMC-counted-tlc": {
+      "exit": 124,
+      "wall_seconds": 425.04,
+      "peak_rss_kib": 998452,
+      "last_periodic_sample": {
+        "depth": 40,
+        "generated": 9069837,
+        "distinct": 436725,
+        "left_on_queue": 49322
+      },
+      "verdict": "timeout"
+    }
+  },
+  "three_initially_ready": {
+    "ring-2-NextMC-bounded-dive": {
+      "exit": 0,
+      "wall_seconds": 0.65,
+      "peak_rss_kib": 140404,
+      "verdict": "success",
+      "statistics": {
+        "depth": 18,
+        "distinct": 71,
+        "generated": 654,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "ring-2-NextMC-bounded-tlc": {
+      "exit": 0,
+      "wall_seconds": 2.12,
+      "peak_rss_kib": 127800,
+      "statistics": {
+        "generated": 654,
+        "distinct": 71,
+        "left_on_queue": 0,
+        "depth": 18
+      },
+      "verdict": "success"
+    },
+    "ring-2-NextMC-counted-dive": {
+      "exit": 0,
+      "wall_seconds": 0.57,
+      "peak_rss_kib": 156800,
+      "verdict": "success",
+      "statistics": {
+        "depth": 18,
+        "distinct": 71,
+        "generated": 654,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "ring-2-NextMC-counted-tlc": {
+      "exit": 0,
+      "wall_seconds": 2.23,
+      "peak_rss_kib": 131084,
+      "statistics": {
+        "generated": 654,
+        "distinct": 71,
+        "left_on_queue": 0,
+        "depth": 18
+      },
+      "verdict": "success"
+    }
+  },
+  "four_worker_counted": {
+    "four-node-dive": {
+      "exit": 0,
+      "wall_seconds": 91.23,
+      "peak_rss_kib": 324656,
+      "verdict": "success",
+      "statistics": {
+        "depth": 49,
+        "distinct": 555691,
+        "generated": 13271201,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "four-node-tlc": {
+      "exit": 0,
+      "wall_seconds": 125.71,
+      "peak_rss_kib": 1038676,
+      "statistics": {
+        "generated": 13271201,
+        "distinct": 555691,
+        "left_on_queue": 0,
+        "depth": 49
+      },
+      "verdict": "success"
+    }
+  },
+  "recurrence_checks": {
+    "digits-4-bounded-dive": {
+      "exit": 0,
+      "wall_seconds": 0.4,
+      "peak_rss_kib": 25512,
+      "verdict": "success",
+      "statistics": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 2,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "digits-4-bounded-tlc": {
+      "exit": 0,
+      "wall_seconds": 1.78,
+      "peak_rss_kib": 175716,
+      "statistics": {
+        "generated": 2,
+        "distinct": 1,
+        "left_on_queue": 0,
+        "depth": 1
+      },
+      "verdict": "success"
+    },
+    "digits-4-counted-dive": {
+      "exit": 0,
+      "wall_seconds": 0.02,
+      "peak_rss_kib": 25396,
+      "verdict": "success",
+      "statistics": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 2,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "digits-4-counted-tlc": {
+      "exit": 0,
+      "wall_seconds": 1.13,
+      "peak_rss_kib": 94580,
+      "statistics": {
+        "generated": 2,
+        "distinct": 1,
+        "left_on_queue": 0,
+        "depth": 1
+      },
+      "verdict": "success"
+    },
+    "digits-5-bounded-dive": {
+      "exit": 0,
+      "wall_seconds": 19.07,
+      "peak_rss_kib": 26816,
+      "verdict": "success",
+      "statistics": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 2,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "digits-5-bounded-tlc": {
+      "exit": 0,
+      "wall_seconds": 6.98,
+      "peak_rss_kib": 735440,
+      "statistics": {
+        "generated": 2,
+        "distinct": 1,
+        "left_on_queue": 0,
+        "depth": 1
+      },
+      "verdict": "success"
+    },
+    "digits-5-counted-dive": {
+      "exit": 0,
+      "wall_seconds": 0.08,
+      "peak_rss_kib": 25608,
+      "verdict": "success",
+      "statistics": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 2,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "digits-5-counted-tlc": {
+      "exit": 0,
+      "wall_seconds": 1.28,
+      "peak_rss_kib": 111764,
+      "statistics": {
+        "generated": 2,
+        "distinct": 1,
+        "left_on_queue": 0,
+        "depth": 1
+      },
+      "verdict": "success"
+    },
+    "digits-6-bounded-dive": {
+      "exit": 124,
+      "wall_seconds": 155.0,
+      "peak_rss_kib": 63720,
+      "verdict": "external deadline",
+      "final_checker_report": false
+    },
+    "digits-6-bounded-tlc": {
+      "exit": 124,
+      "wall_seconds": 155.03,
+      "peak_rss_kib": 753024,
+      "verdict": "timeout"
+    },
+    "digits-6-counted-dive": {
+      "exit": 0,
+      "wall_seconds": 0.36,
+      "peak_rss_kib": 25604,
+      "verdict": "success",
+      "statistics": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 2,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "digits-6-counted-tlc": {
+      "exit": 0,
+      "wall_seconds": 1.39,
+      "peak_rss_kib": 133548,
+      "statistics": {
+        "generated": 2,
+        "distinct": 1,
+        "left_on_queue": 0,
+        "depth": 1
+      },
+      "verdict": "success"
+    }
+  },
+  "historical_simple_four_nodes": {
+    "source": "Lu thesis pp. 127\u2013128",
+    "configuration": "simplified LuPastry with routing tables removed",
+    "distinct": 504624,
+    "generated": 16064479,
+    "depth": 49,
+    "reported_wall_seconds": 8100
+  }
+}
