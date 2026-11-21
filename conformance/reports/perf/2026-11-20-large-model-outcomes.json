@@ -705,6 +705,108 @@
           "counterexample": null
         }
       },
+      "nonstuttering_source_guards": {
+        "command": "dive check kraft_kip_996.tla --config model_liveness.cfg --library-path MODULES --workers 8 --seed 0 --fp 0 --max-memory 8g --time-limit TIME --output json",
+        "host": "AWS c7i.4xlarge",
+        "profile": "dive",
+        "input": "Unedited holdout-kafka model and configuration at the pin above.",
+        "comparison_180s": {
+          "capture": {
+            "distinct": 181983,
+            "generated": 36103626,
+            "depth": 4,
+            "queued": 165409
+          },
+          "result": "All three runs stopped on time while labelling atoms for the first periodic check.",
+          "before": {
+            "action_evaluations": 91859906,
+            "state_evaluations": 1273881
+          },
+          "per_edge_experiment": {
+            "action_evaluations": 14204056,
+            "state_evaluations": 2547762,
+            "false_edge_reuses": 183740294
+          },
+          "whole_source_experiment": {
+            "action_evaluations": 38420455,
+            "state_evaluations": 11828895,
+            "source_probes": 1069324,
+            "false_action_rows": 1024398,
+            "fallbacks": 0,
+            "sampled_peak_bytes": 2662887424
+          }
+        },
+        "whole_source_experiment_1200s": {
+          "elapsed_ms": 649613,
+          "result": "DIVE-L0038 during graph capture after the first periodic check returned",
+          "limit": "8 GiB sampled process memory",
+          "observed_bytes": 8670658560,
+          "distinct": 1378619,
+          "generated": 268295930,
+          "depth": 5,
+          "queued": 1239090,
+          "prefix_checks": 1,
+          "last_prefix_size": 181983,
+          "action_evaluations": 71333304,
+          "state_evaluations": 47497563,
+          "source_probes": 4226370,
+          "false_action_rows": 4143409,
+          "per_edge_reuses": 0,
+          "fallbacks": 0,
+          "exhaustive": false,
+          "counterexample": null
+        },
+        "release_candidate": {
+          "collector": "implicit original rows",
+          "time_limit_s": 600,
+          "max_states": 200000,
+          "elapsed_ms": 301905,
+          "result": "DIVE-L0038 at the state cap during graph capture following the first periodic check",
+          "depth": 5,
+          "distinct": 200000,
+          "generated": 38232770,
+          "queued": 182506,
+          "prefix_checks": 1,
+          "last_prefix_size": 181983,
+          "source_probes": 4226370,
+          "false_action_rows": 4143409,
+          "action_evaluations": 71333304,
+          "state_evaluations": 47497563,
+          "fallbacks": 0,
+          "sampled_peak_bytes": 2369155072,
+          "exhaustive": false,
+          "counterexample": null
+        },
+        "first_prefix_collector_profile": {
+          "action_label_count": 292,
+          "action_runs": 225593,
+          "buffer_capacity_bytes": {
+            "actions": 536870912,
+            "ordinals": 134217728,
+            "original_directory": 2097152,
+            "original_overrides": 0,
+            "retained_root_handles": 44040192,
+            "targets": 268435456
+          },
+          "closed_rows": 16574,
+          "contiguous_target_runs": 14190303,
+          "distinct_source_destination_pairs_among_generated": 14190303,
+          "implicit_stutters": 16574,
+          "ordinal_cells_different_from_source_position": 0,
+          "original_row_override_cells": 0,
+          "physical_edges": 36120199,
+          "rows_with_ordinal_equal_to_source_position": 16574,
+          "single_action_rows": 0,
+          "states": 181983,
+          "target_cells_by_64edge_block_delta_width": [
+            15579276,
+            19951842,
+            572507
+          ],
+          "scope": "Temporary read-only instrumentation at the first original periodic boundary on the implicit-original-rows collector. Runs and source/destination pairs exclude the implicit stutters. Capacities are allocated vector space, not process RSS."
+        },
+        "scope": "The paired experiments use the same collector. The longer experiment used the same whole-source prototype. The shipped implementation omits the per-edge lookup, which supplied no additional truth after whole-row proofs."
+      },
       "merged_main_harness": {
         "dive": {
           "outcome": "unsupported",
