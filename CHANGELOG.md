@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- [Symbolic checking](docs/user/symbolic.md#admission-and-reports) can load models with large, unused pure definitions without constructing their values during startup.
+
 - Core checks membership in [finite record message types](docs/user/checking.md) without materializing eligible record unions, and independently replays canonical traces with scalar payloads of different types.
 
 - Core can check larger [bounded existential actions](docs/user/checking.md) by compiling their pure parameterized expressions once per slot layout.

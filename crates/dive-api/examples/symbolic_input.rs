@@ -58,7 +58,7 @@ fn run(module: &Path, config: &Path) -> Result<Value, String> {
         .into_config()
         .ok_or("invalid configuration")?;
     check_config(&cfg)?;
-    let m = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc())
+    let m = dive_model::bind_reachable(ir.clone(), &cfg, &dive_model::BindOptions::tlc())
         .map_err(|e| format!("{e:?}"))?;
     let symmetry = m
         .prepare_symmetry(

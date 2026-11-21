@@ -41,7 +41,15 @@ pub(crate) struct Deferral {
     pub assumptions: Vec<DefId>,
 }
 
-pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Mode {
+    /// Leave pure values reached by native roles to the Core compiler.
+    Core,
+    /// Keep all used values and assumptions on their ordinary startup path.
+    UnusedOnly,
+}
+
+pub(crate) fn candidates(b: &Binder<'_>, mode: Mode) -> Deferral {
     let cfg = b.cfg;
     let mut named: HashSet<DefId> = HashSet::new();
     let mut roles = Vec::new();
@@ -89,7 +97,7 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
         }
     }
     let ir = &*b.t.ir;
-    let assumptions = pure_assumptions(b);
+    let assumptions = deferred_assumptions(b, mode);
     for m in 0..ir.modules().len() {
         let module = ir.module(dive_ir::ModuleId(u32::try_from(m).unwrap_or(u32::MAX)));
         evaluator_roots.extend(
@@ -123,6 +131,7 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
         .copied()
         .filter(|d| {
             !by_roles.position.contains(d)
+                && (mode == Mode::Core || !by_roles.value.contains(d))
                 && !by_evaluator.value.contains(d)
                 && !by_evaluator.position.contains(d)
                 && !named.contains(d)
@@ -162,7 +171,10 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
 /// evaluates its `ASSUME`s before the dive-eval evaluator checks the others,
 /// so it takes only those no impure `ASSUME` precedes, and stops at the first
 /// that is not `TRUE` itself.
-fn pure_assumptions(b: &Binder<'_>) -> Vec<DefId> {
+fn deferred_assumptions(b: &Binder<'_>, mode: Mode) -> Vec<DefId> {
+    if mode == Mode::UnusedOnly {
+        return Vec::new();
+    }
     let ir = &*b.t.ir;
     let root = ir.module(ir.root());
     root.assumptions

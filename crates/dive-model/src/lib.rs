@@ -326,6 +326,40 @@ pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model,
     bind_in(ir, cfg, opts, false, None, false).map_err(ControlledBindError::into_uncontrolled)
 }
 
+/// Binds the model as [`bind`] does, skipping startup evaluation of pure
+/// definitions unreachable from configured behavior, assumptions and all
+/// other startup evaluations. Used definitions keep their ordinary values.
+/// This supports consumers that export configured behavior from bound IR.
+///
+/// # Examples
+/// ```
+/// # fn export(ir: std::sync::Arc<dive_ir::Ir>, cfg: &dive_config::ModelConfig)
+/// # -> Result<(), Box<dive_model::Failure>> {
+/// let model = dive_model::bind_reachable(ir, cfg, &dive_model::BindOptions::tlc())?;
+/// assert!(model.deferred_constants.is_empty());
+/// # Ok(()) }
+/// ```
+///
+/// # Errors
+/// As [`bind`].
+pub fn bind_reachable(
+    ir: Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &BindOptions,
+) -> Result<Model, Box<Failure>> {
+    bind_in_deferring(
+        ir,
+        cfg,
+        opts,
+        false,
+        None,
+        false,
+        Some(defer::Mode::UnusedOnly),
+        false,
+    )
+    .map_err(ControlledBindError::into_uncontrolled)
+}
+
 /// Binds `ir` to `cfg` for Core: as [`bind`], except that the pure
 /// constant-level definitions used only as values by the roles the core
 /// compiles are not evaluated at start-up. They are listed in
@@ -346,8 +380,17 @@ pub fn bind_deferring_constants(
     cfg: &ModelConfig,
     opts: &BindOptions,
 ) -> Result<Model, Box<Failure>> {
-    bind_in_deferring(ir, cfg, opts, false, None, false, true, false)
-        .map_err(ControlledBindError::into_uncontrolled)
+    bind_in_deferring(
+        ir,
+        cfg,
+        opts,
+        false,
+        None,
+        false,
+        Some(defer::Mode::Core),
+        false,
+    )
+    .map_err(ControlledBindError::into_uncontrolled)
 }
 
 /// Binds a fresh model with typed cooperative evaluator control.
@@ -421,7 +464,7 @@ fn bind_replay_in(
         predicates_only,
         control,
         fallible_errors,
-        false,
+        None,
         concrete,
     )
 }
@@ -438,7 +481,7 @@ fn bind_in_deferring(
     predicates_only: bool,
     control: Option<Arc<dyn dive_eval::HostControl>>,
     fallible_errors: bool,
-    defer: bool,
+    defer: Option<defer::Mode>,
     concrete: bool,
 ) -> Result<Model, ControlledBindError> {
     dive_eval::validate_ir(&ir).map_err(|error| {
@@ -481,14 +524,7 @@ fn bind_in_deferring(
     let names = Arc::new(feed);
     let mut b = bind::Binder::new(ir, cfg, opts, names, control, fallible_errors)
         .map_err(|error| error.with_output(Vec::new()))?;
-    if defer && !predicates_only {
-        b.defer = Some(defer::Deferral {
-            skip: std::collections::HashSet::new(),
-            evaluate: std::collections::HashSet::new(),
-            assumptions: Vec::new(),
-        });
-    }
-    let result = run(&mut b, predicates_only);
+    let result = run(&mut b, predicates_only, defer.filter(|_| !predicates_only));
     b.drain_prints();
     match result {
         Ok(model) => Ok(model),
@@ -497,7 +533,11 @@ fn bind_in_deferring(
 }
 
 #[allow(clippy::too_many_lines, reason = "ordered binding phases")]
-fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
+fn run(
+    b: &mut bind::Binder<'_>,
+    predicates_only: bool,
+    defer: Option<defer::Mode>,
+) -> bind::R<Model> {
     b.process_spec()?;
     // SpecProcessor snapshots defns immediately after processSpec, before
     // constant definitions replace their entries with values.
@@ -532,6 +572,7 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
             control::StepError::Interrupted(dive_eval::EvalError::interrupted(interruption))
         })?;
     }
+    b.defer = defer.map(|mode| defer::candidates(b, mode));
     b.process_constant_defns()?;
     b.process_config()?;
     if let Some(name) = &b.cfg.periodic {
