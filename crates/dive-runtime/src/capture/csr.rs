@@ -512,21 +512,17 @@ pub type CsrCaptureInput<'a, O = &'a [Option<u64>]> = CsrCaptureColumns<'a, O, &
 pub type CsrCaptureColumns<'a, O = CsrOrdinals<'a>, A = CsrActions<'a>> =
     CsrStorage<'a, O, A, &'a [u32]>;
 
-/// Borrowed producer arrays with selectable ordinal, action and original row storage.
-///
-/// Row ids identify opaque retained state rows, not semantically equal values.
-/// This metadata neither evaluates states nor proves a temporal property.
+/// Borrowed producer columns with a dense target slice. The fixed target field
+/// accepts arrays and chained slice coercions, including a borrowed `Arc<Vec<u32>>`.
+pub type CsrStorage<'a, O = CsrOrdinals<'a>, A = CsrActions<'a>, R = CsrEdgeRows<'a>> =
+    GraphColumns<'a, O, A, R, &'a [u32]>;
+
+/// Borrowed producer metadata. Row IDs identify opaque retained state rows.
 #[derive(Clone, Copy, Debug)]
-pub struct CsrStorage<
-    'a,
-    O = CsrOrdinals<'a>,
-    A = CsrActions<'a>,
-    R = CsrEdgeRows<'a>,
-    T = &'a [u32],
-> {
+pub struct GraphColumns<'a, O, A, R, T> {
     /// One start offset per representative, followed by the total edge count.
     pub offsets: &'a [usize],
-    /// Dense representative destination ids, including implicit stutters.
+    /// Representative destination IDs, including implicit stutters.
     pub targets: T,
     /// Original generation ordinals; only implicit stutters have no ordinal.
     pub ordinals: O,
@@ -548,7 +544,7 @@ pub struct CsrStorage<
 
 /// Borrowed graph with checked-column views including a packed or dense target prefix.
 pub type CsrTargetStorage<'a> =
-    CsrStorage<'a, CsrOrdinals<'a>, CsrActions<'a>, CsrEdgeRows<'a>, CsrTargets<'a>>;
+    GraphColumns<'a, CsrOrdinals<'a>, CsrActions<'a>, CsrEdgeRows<'a>, CsrTargets<'a>>;
 
 impl<
     'a,
@@ -556,10 +552,10 @@ impl<
     A: Into<CsrActions<'a>>,
     R: Into<CsrEdgeRows<'a>>,
     T: Into<CsrTargets<'a>>,
-> CsrStorage<'a, O, A, R, T>
+> GraphColumns<'a, O, A, R, T>
 {
     fn columns(self) -> CsrTargetStorage<'a> {
-        CsrStorage {
+        CsrTargetStorage {
             offsets: self.offsets,
             targets: self.targets.into(),
             ordinals: self.ordinals.into(),
@@ -575,7 +571,7 @@ impl<
 }
 
 impl<'a, T: Copy + Into<CsrTargets<'a>>>
-    CsrStorage<'a, CsrOrdinals<'a>, CsrActions<'a>, CsrEdgeRows<'a>, T>
+    GraphColumns<'a, CsrOrdinals<'a>, CsrActions<'a>, CsrEdgeRows<'a>, T>
 {
     /// Looks up the retained original row for a physical edge, including stutters.
     #[must_use]
@@ -608,12 +604,22 @@ impl<'a> CsrCapture<'a> {
             impl Into<CsrOrdinals<'a>>,
             impl Into<CsrActions<'a>>,
             impl Into<CsrEdgeRows<'a>>,
-            impl Into<CsrTargets<'a>>,
         >,
         limits: Limits,
         control: &EvaluationControl,
     ) -> Result<Self, Verdict> {
-        let input = input.columns();
+        Self::checked_targets(input.columns(), limits, control)
+    }
+
+    /// Checks a graph with a bounded-read target column under the same limits as [`Self::checked`].
+    ///
+    /// # Errors
+    /// The same malformed input, limits and interruption as [`Self::checked`].
+    pub fn checked_targets(
+        input: CsrTargetStorage<'a>,
+        limits: Limits,
+        control: &EvaluationControl,
+    ) -> Result<Self, Verdict> {
         poll(control)?;
         let states = input.representatives.len();
         let edges = input.targets.len();
@@ -893,14 +899,26 @@ impl<'a> CsrComplete<'a> {
             impl Into<CsrOrdinals<'a>>,
             impl Into<CsrActions<'a>>,
             impl Into<CsrEdgeRows<'a>>,
-            impl Into<CsrTargets<'a>>,
         >,
         safety: CheckResult,
         options: CheckOptions,
         limits: Limits,
         control: &EvaluationControl,
     ) -> Result<Self, Verdict> {
-        let input = input.columns();
+        Self::from_target_producer(input.columns(), safety, options, limits, control)
+    }
+
+    /// Finalizes producer EOF with a bounded-read target column.
+    ///
+    /// # Errors
+    /// The same malformed input, limits and interruption as [`Self::from_producer`].
+    pub fn from_target_producer(
+        input: CsrTargetStorage<'a>,
+        safety: CheckResult,
+        options: CheckOptions,
+        limits: Limits,
+        control: &EvaluationControl,
+    ) -> Result<Self, Verdict> {
         if safety.verdict != Verdict::Success {
             return Err(safety.verdict);
         }
@@ -914,7 +932,7 @@ impl<'a> CsrComplete<'a> {
             limits,
             Some(control),
         )?;
-        let graph = CsrCapture::checked(input, limits, control)?;
+        let graph = CsrCapture::checked_targets(input, limits, control)?;
         if graph.closed_rows() != graph.state_count() {
             return Err(bug("CSR EOF has unexpanded sources"));
         }
@@ -969,7 +987,6 @@ impl<'a> CsrPrefix<'a> {
             impl Into<CsrOrdinals<'a>>,
             impl Into<CsrActions<'a>>,
             impl Into<CsrEdgeRows<'a>>,
-            impl Into<CsrTargets<'a>>,
         >,
         level: u64,
         safety: CheckResult,
@@ -977,7 +994,21 @@ impl<'a> CsrPrefix<'a> {
         limits: Limits,
         control: &EvaluationControl,
     ) -> Result<Self, Verdict> {
-        let input = input.columns();
+        Self::from_target_producer(input.columns(), level, safety, options, limits, control)
+    }
+
+    /// Finalizes a committed prefix with a bounded-read target column.
+    ///
+    /// # Errors
+    /// The same malformed input, limits and interruption as [`Self::from_producer`].
+    pub fn from_target_producer(
+        input: CsrTargetStorage<'a>,
+        level: u64,
+        safety: CheckResult,
+        options: CheckOptions,
+        limits: Limits,
+        control: &EvaluationControl,
+    ) -> Result<Self, Verdict> {
         if safety.verdict != Verdict::Success {
             return Err(safety.verdict);
         }
@@ -1003,7 +1034,7 @@ impl<'a> CsrPrefix<'a> {
         {
             return Err(bug("inconsistent CSR prefix frontier/statistics"));
         }
-        let graph = CsrCapture::checked(input, limits, control)?;
+        let graph = CsrCapture::checked_targets(input, limits, control)?;
         Ok(Self {
             graph,
             evidence: PrefixEvidence::new(safety, options, stats, level),

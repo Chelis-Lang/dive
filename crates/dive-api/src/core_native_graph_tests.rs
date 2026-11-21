@@ -175,8 +175,8 @@ fn native_rows_keep_seen_originals_gaps_duplicates_and_stutters() {
                     assert_eq!(values.metrics()["admitted_rows"], 80);
                     assert_eq!(values.metrics()["cache_entries"], 0);
                     assert_eq!(values.metrics()["cache_bytes"], 0);
-                    let csr =
-                        CsrCapture::checked(graph.input(), graph.limits(), &control).expect("CSR");
+                    let csr = CsrCapture::checked_targets(graph.input(), graph.limits(), &control)
+                        .expect("CSR");
                     assert_eq!((out.stats.generated, out.stats.distinct), (96, 16));
                     assert_eq!(csr.roots(), &(0..16).collect::<Vec<_>>());
                     assert_eq!(graph.retained_rows, 80, "no global semantic alias dedupe");
@@ -276,7 +276,8 @@ fn native_new_targets_and_exact_seen_rows_reuse_first_discovery_rows() {
             assert_eq!(out.verdict, dive_explore::Verdict::Success);
             let control = Arc::clone(&sink.control);
             let (graph, _) = sink.finish();
-            let csr = CsrCapture::checked(graph.input(), graph.limits(), &control).expect("CSR");
+            let csr =
+                CsrCapture::checked_targets(graph.input(), graph.limits(), &control).expect("CSR");
             assert_eq!(graph.state_count(), 3);
             assert_eq!(graph.retained_rows, 3);
             assert_eq!(graph.edge_rows.rows.len(), 0);
@@ -337,7 +338,7 @@ fn native_resource_refusals_do_not_produce_completed_graphs() {
             let control = Arc::clone(&sink.control);
             let (graph, _) = sink.finish();
             let safety = crate::core_engine::result(reason.clone(), &options, &prepared.model.ir);
-            let complete = CsrComplete::from_producer(
+            let complete = CsrComplete::from_target_producer(
                 graph.input(),
                 safety,
                 options.clone(),
@@ -479,7 +480,8 @@ fn native_completed_level_prefix_keeps_empty_frontier_rows() {
     let options = options(false);
     let control = EvaluationControl::new(&options.budget, Phase::Capture).expect("control");
     let mut on_level = |level, graph: &NativeGraph, _: &mut NativeValues<'_>, _: Stats| {
-        CsrCapture::checked(graph.input(), graph.limits(), &control).expect("completed boundary");
+        CsrCapture::checked_targets(graph.input(), graph.limits(), &control)
+            .expect("completed boundary");
         Ok(level == 2)
     };
     let mut sink = NativeSink::new(
@@ -499,7 +501,8 @@ fn native_completed_level_prefix_keeps_empty_frontier_rows() {
     );
     assert_eq!(out.verdict, dive_explore::Verdict::PrefixStop { level: 2 });
     let (graph, _) = sink.finish();
-    let csr = CsrCapture::checked(graph.input(), graph.limits(), &control).expect("prefix CSR");
+    let csr =
+        CsrCapture::checked_targets(graph.input(), graph.limits(), &control).expect("prefix CSR");
     // There is no post-Init level callback. Level two has expanded x=0 and
     // x=1 and discovered the still-unexpanded x=2 frontier.
     assert_eq!(csr.state_count(), 3);
@@ -516,7 +519,7 @@ fn native_completed_level_prefix_keeps_empty_frontier_rows() {
         left_on_queue: out.stats.left_on_queue,
     });
     assert!(
-        CsrComplete::from_producer(
+        CsrComplete::from_target_producer(
             graph.input(),
             safety,
             options.clone(),
@@ -542,7 +545,7 @@ fn native_callback_shape_failure_stops_without_selecting_a_prefix() {
     let mut on_level = |_, graph: &NativeGraph, _: &mut NativeValues<'_>, _: Stats| {
         let mut malformed = graph.input();
         malformed.closed_rows = graph.state_count() + 1;
-        CsrCapture::checked(malformed, graph.limits(), &control).map(|_| false)
+        CsrCapture::checked_targets(malformed, graph.limits(), &control).map(|_| false)
     };
     let mut sink = NativeSink::new(
         &prepared.model,
