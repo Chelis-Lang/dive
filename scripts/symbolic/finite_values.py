@@ -34,8 +34,19 @@ def order(value):
     return (type(value).__name__, value)
 
 
-def whole_record_layout(ir, expr):
+def supported_configuration(document):
+    return document["format"] == "dive-symbolic-input-v2" and not any(
+        document[key]
+        for key in ("specification", "constraints", "overrides", "assumptions", "symmetry", "constants")
+    )
+
+
+def whole_record_layout(document, expr):
     """Select only a layout that binds an unprimed variable to a whole record set."""
+
+    if not supported_configuration(document):
+        return False
+    ir = document["ir"]
 
     def node(index):
         return unpack(ir["exprs"][index]["expr"])
@@ -63,23 +74,7 @@ class FiniteValueModel(SourceModel):
     """Use one finite value alphabet per source variable, including whole records."""
 
     def __init__(self, document, layout_expr):
-        require(
-            document["format"] == "dive-symbolic-input-v2", "unknown exporter format"
-        )
-        require(
-            not any(
-                document[key]
-                for key in (
-                    "specification",
-                    "constraints",
-                    "overrides",
-                    "assumptions",
-                    "symmetry",
-                    "constants",
-                )
-            ),
-            "expected finite INIT/NEXT safety configuration",
-        )
+        require(supported_configuration(document), "expected finite INIT/NEXT safety configuration")
         self.doc = document
         self.ir = document["ir"]
         self.b = cudd.BDD(memory_estimate=1 << 30)

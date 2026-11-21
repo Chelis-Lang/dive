@@ -1809,7 +1809,7 @@ def check_revisions(args, revisions, owner):
             if not eligible or len(layout) != 1:
                 raise
             from finite_values import FiniteValueModel, whole_record_layout
-            if not whole_record_layout(doc["ir"], layout[0]):
+            if not whole_record_layout(doc, layout[0]):
                 raise
             model = FiniteValueModel(doc, layout[0])
         if args.verify_predicate or args.prove_inductive:
