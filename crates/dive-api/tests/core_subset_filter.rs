@@ -136,3 +136,55 @@ fn a_partial_guard_preserves_the_empty_subset_counterexample() {
     assert_eq!(core["verdict"], "invariant-violation", "{core:#}");
     assert_eq!(core["statistics"]["depth"], 2);
 }
+
+/// Heterogeneous payloads are ordinary TLA+ values. Reconstructing the
+/// eligible set during independent replay must use the active comparison profile.
+#[test]
+fn replay_accepts_a_guarded_subset_of_records_with_mixed_payloads() {
+    use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
+
+    let run = run_config("GuardedAction", "MixedGuard");
+    assert_eq!(run["verdict"], "invariant-violation");
+    let trace = TraceDoc::from_json(&run["counterexample"]["trace"]).expect("lossless trace");
+    let model = SpecModel::from_source(
+        "GuardedAction.tla",
+        include_str!("fixtures/core-subset-filter/GuardedAction.tla"),
+        include_str!("fixtures/core-subset-filter/MixedGuard.cfg"),
+        &TraceOptions::default(),
+    )
+    .expect("independent model");
+    assert_eq!(model.validate(&trace).validation, Validation::Valid);
+}
+
+/// TLC reports the empty witness without observing a deferred register write.
+/// Replay may inspect the outer slot's representation but must not force it.
+#[test]
+fn replay_leaves_the_deferred_operand_of_an_empty_witness_unforced() {
+    use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
+    use serde_json::json;
+
+    let model = SpecModel::from_source(
+        "Provider.tla",
+        r"---- MODULE Provider ----
+EXTENDS TLC
+VARIABLE x
+Init == x = 0
+Next == /\ x = 0
+        /\ \E r \in { {u \in SUBSET {1, 2} : TLCSet(0, u)} } :
+             \E s \in SUBSET { {}, {1}, {2}, {3} } :
+                /\ \A m \in s : m = r
+                /\ x' = 1
+Inv == x = 0
+====",
+        "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+        &TraceOptions {
+            compat_tlc: true,
+            ..TraceOptions::default()
+        },
+    )
+    .expect("independent model");
+    let trace = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":1})])
+        .expect("pinned TLC witness")
+        .with_ending(Ending::Invariant("Inv".into()));
+    assert_eq!(model.validate(&trace).validation, Validation::Valid);
+}

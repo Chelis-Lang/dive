@@ -1902,6 +1902,14 @@ impl Core {
         ))
     }
 
+    pub(crate) fn filtered_set(&self, values: Vec<Value>) -> Result<Value> {
+        Ok(if self.opts.comparisons == Comparisons::Tla {
+            Value::set_canonical(values, self.ctx)?
+        } else {
+            Value::set(values, self.ctx)?
+        })
+    }
+
     fn eval_filter(
         self: &Arc<Self>,
         env: &mut Env,
@@ -1944,11 +1952,7 @@ impl Core {
             }
             // `new SetEnumValue(vals, inVal.isNormalized())`: enumerating a set
             // enumeration normalizes it, so the result is normalized.
-            return Ok(Ev::V(if self.opts.comparisons == Comparisons::Tla {
-                Value::set_canonical(out, self.ctx)?
-            } else {
-                Value::set(out, self.ctx)?
-            }));
+            return Ok(Ev::V(self.filtered_set(out)?));
         }
         let f = Filter {
             core: self.clone(),
