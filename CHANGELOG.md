@@ -5,6 +5,8 @@ are in git history.
 
 ## Unreleased
 
+- Named symbolic proofs can infer and certify finite layouts for sources without a default layout operator.
+
 - Symbolic proofs accept equality between Boolean-valued table cells and Boolean expressions.
 
 - Fresh named symbolic checks try the requested invariant directly before searching for a closed predicate.

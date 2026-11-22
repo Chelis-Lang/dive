@@ -31,7 +31,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("module", type=Path)
     parser.add_argument("config", type=Path)
-    parser.add_argument("--type-invariant", default="TypeInvariant")
+    parser.add_argument("--type-invariant")
     parser.add_argument("--exporter", default="target/release/examples/symbolic_input")
     parser.add_argument("--dive", default="target/release/dive")
     parser.add_argument(
@@ -78,6 +78,8 @@ def main():
     parser.add_argument("--max-memory", type=positive_mib, metavar="MIB",
                         help="virtual address-space limit inherited by the worker and each child")
     args = parser.parse_args()
+    if args.type_invariant is None and not args.property_proof:
+        args.type_invariant = "TypeInvariant"
     auto = args.auto_core_args is not None
     if auto and args.max_memory is None and not any(
         a == "--max-memory" or a.startswith("--max-memory=") for a in args.auto_core_args

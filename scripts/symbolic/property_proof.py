@@ -26,7 +26,7 @@ class PropertyModel(SourceModel):
 
     cluster_record_fields = True
 
-    def __init__(self, doc, layout, prop, manager):
+    def __init__(self, doc, layout, prop, manager, inferred=None):
         selected = [(name, body) for name, body in doc["invariants"] if name == prop]
         require(len(selected) == 1, "expected one configured invariant named " + prop)
         # This proof checks the labeled relation. Symmetry is a search reduction,
@@ -40,7 +40,89 @@ class PropertyModel(SourceModel):
         self.initial_recipes = []
         self.step_recipes = []
         self.trace_points = []
+        self.infer_layout = layout is None and not any(
+            d["name"] == "TypeInvariant" and d["scope"] == "TopLevel" for d in doc["ir"]["defs"]
+        )
+        self.inferred = inferred
+        self.escapes = {}
+        self.layout_domain = None
         super().__init__({**doc, "invariants": selected, "check_deadlock": False, "symmetry": None}, layout, manager)
+
+    def layout_types(self, name):
+        if not self.infer_layout:
+            return super().layout_types("TypeInvariant" if name is None else name)
+        if self.inferred is not None:
+            return self.inferred
+        found = {}
+        for index, (guard, values) in enumerate(self.branches(self.doc["init"], {}, True, self.b.true, {})):
+            require(index < 100000, "Init exceeds 100000 expanded witnesses")
+            if guard == self.b.false:
+                continue
+            require(guard == self.b.true and values.keys() == set(self.names), "incomplete inferred Init layout")
+            for name, value in values.items():
+                bound = self.value_layout(value)
+                found[name] = self.join_layout(found[name], bound) if name in found else bound
+        require(found.keys() == set(self.names), "no initial values for inferred layout")
+        return found
+
+    def value_layout(self, value):
+        if isinstance(value, cudd.Function):
+            require(value in (self.b.true, self.b.false), "nonground Boolean in inferred Init layout")
+            return Members((k, self.b.true) for k in self.boolean_atom(value))
+        if isinstance(value, (Atom, Members)):
+            require(all(present in (self.b.true, self.b.false) for present in value.values()),
+                    "nonground value in inferred Init layout")
+            domain = Members((k, present) for k, present in value.items() if present == self.b.true)
+            return PowerSet(domain) if isinstance(value, Members) else domain
+        if isinstance(value, Function):
+            codomain = None
+            for member in value.values():
+                bound = self.value_layout(member)
+                codomain = bound if codomain is None else self.join_layout(codomain, bound)
+            return FunctionSpace(Members((k, self.b.true) for k in value), codomain or Members())
+        raise ValueError("unsupported value in inferred Init layout")
+
+    def join_layout(self, left, right):
+        require(type(left) is type(right), "inconsistent shapes in inferred layout")
+        if isinstance(left, FunctionSpace):
+            require(left.domain == right.domain, "changing function domain in inferred layout")
+            return FunctionSpace(left.domain, self.join_layout(left.codomain, right.codomain))
+        if isinstance(left, PowerSet):
+            return PowerSet(self.join_layout(left.domain, right.domain))
+        return Members(left | right)
+
+    def layout_escape(self, path, outside, guard, reason):
+        if not self.infer_layout or guard is None:
+            super().layout_escape(path, outside, guard, reason)
+            return
+        if not outside:
+            return
+        if self.layout_domain is None:
+            self.layout_domain = self.conjunction(
+                ~self.encoding(fields, index)
+                for fields, choices in self.layout.values() if choices
+                for index, key in enumerate(choices) if self.padding(key)
+            )
+        active = guard & self.layout_domain
+        for key, predicate in outside.items():
+            bad = active & predicate
+            if bad != self.b.false:
+                self.escapes.setdefault(path[0], set()).add(key)
+                self.invalid_sources |= bad
+
+    def grow_layout(self):
+        def grow(bound, keys):
+            if isinstance(bound, FunctionSpace):
+                return FunctionSpace(bound.domain, grow(bound.codomain, keys))
+            domain = Members((key, self.b.true) for key in keys)
+            extra = PowerSet(domain) if isinstance(bound, PowerSet) else domain
+            learned = self.join_layout(bound, extra)
+            domain = learned.domain if isinstance(learned, PowerSet) else learned
+            require(len(domain) <= 256, "inferred layout exceeds 256 alternatives at one field")
+            return learned
+
+        return {name: grow(bound, self.escapes[name]) if name in self.escapes else bound
+                for name, bound in self.types.items()}
 
     def layout_expression(self, name):
         defs = [i for i, d in enumerate(self.ir["defs"]) if d["name"] == name and d["scope"] == "TopLevel"]
@@ -345,6 +427,19 @@ def check_properties(args):
         gc.collect()
 
 
+def bind_property(doc, layout, prop, manager):
+    # A trial layout only proposes new alternatives. Use the relation for a
+    # proof or witness only once no original guarded assignment escapes it.
+    inferred = None
+    for _ in range(8):
+        model = PropertyModel(doc, layout, prop, manager, inferred)
+        if not model.escapes:
+            return model
+        inferred = model.grow_layout()
+    names = ", ".join(sorted(model.escapes))
+    raise ValueError(f"cannot certify inferred finite layout: enabled assignment leaves bounds for {names}")
+
+
 def check_revisions(args, manager):
     previous = states = None
     checked = set()
@@ -352,9 +447,11 @@ def check_revisions(args, manager):
         start = time.monotonic()
         bound = run_helper([args.exporter, module, config], "Dive frontend", args.max_memory)
         require(bound.returncode == 0, "Dive frontend: " + bound.stderr.strip())
-        model = PropertyModel(json.loads(bound.stdout), args.type_invariant, args.property_proof, manager)
+        model = bind_property(json.loads(bound.stdout), args.type_invariant, args.property_proof, manager)
         row = dict(format="dive-property-proof-v1", module=str(module), config=str(config),
                    property=args.property_proof, projected_integers=sorted(model.counters))
+        if model.infer_layout:
+            row["layout"] = "inferred"
         relevant = support(model)
         row["support_bits"] = len(relevant)
         row["support_variables"] = sorted({path[0] for path, (bits, _) in model.layout.items()

@@ -122,7 +122,7 @@ class SourceModel(FiniteRelation):
             require(holds, f"ASSUME {name or index} did not evaluate to TRUE")
         if doc["specification"] is not None:
             self.check_specification(doc["specification"])
-        types = self.infer_types(self.layout_expression(type_invariant))
+        types = self.layout_types(type_invariant)
         atoms = ()
         self.symmetry = doc["symmetry"] is not None
         if self.symmetry:
@@ -237,6 +237,9 @@ class SourceModel(FiniteRelation):
         decls = [expr for prop, expr in self.doc["invariants"] if prop == name]
         require(len(decls) == 1, "expected a configured finite layout invariant named " + name)
         return decls[0]
+
+    def layout_types(self, name):
+        return self.infer_types(self.layout_expression(name))
 
     def infer_types(self, role):
         """Read finite bounds from a conjunction of state-variable type declarations."""
@@ -1102,7 +1105,7 @@ class SourceModel(FiniteRelation):
                     visit(schema[k], value[k], (*path, k))
             elif isinstance(schema, Members):
                 require(isinstance(value, Members), "expected a finite set")
-                invalid = self.b.false
+                outside = {}
                 for k in value.keys() - schema.keys():
                     bit = value[k] if guard is None or not self.refining else value[k] & guard
                     if bit == self.b.false:
@@ -1114,22 +1117,16 @@ class SourceModel(FiniteRelation):
                             ident = (path, k)
                             self.missing[ident] = self.missing.get(ident, self.b.false) | bit
                     else:
-                        invalid |= bit
-                if guard is None or not self.refining:
-                    require(invalid == self.b.false, "set assignment outside finite layout")
-                else:
-                    self.invalid_sources |= guard & invalid
+                        outside[k] = bit
+                self.layout_escape(path, outside, guard, "set assignment outside finite layout")
                 for k in schema:
                     fields, _ = self.layout[(*path, k)]
                     out[fields[0].var] = value.get(k, self.b.false)
             else:
                 fields, alphabet = self.layout[path]
                 require(isinstance(value, Atom), "scalar assignment outside finite layout")
-                invalid = self.any(v for k, v in value.items() if k not in alphabet)
-                if guard is None or not self.refining:
-                    require(invalid == self.b.false, "scalar assignment outside finite layout")
-                else:
-                    self.invalid_sources |= guard & invalid
+                outside = {k: v for k, v in value.items() if k not in alphabet}
+                self.layout_escape(path, outside, guard, "scalar assignment outside finite layout")
                 for bit, var in enumerate(fields):
                     out[var.var] = self.any(
                         value.get(k, self.b.false) for j, k in enumerate(alphabet) if j & (1 << bit)
@@ -1138,6 +1135,15 @@ class SourceModel(FiniteRelation):
         for name, value in assigned.items():
             visit(self.state[name], value, (name,))
         return out
+
+    def layout_escape(self, _path, outside, guard, reason):
+        if not outside:
+            return
+        invalid = self.any(outside.values())
+        if guard is None or not self.refining:
+            require(invalid == self.b.false, reason)
+        else:
+            self.invalid_sources |= guard & invalid
 
     def decode(self, point):
         def scalar(key):

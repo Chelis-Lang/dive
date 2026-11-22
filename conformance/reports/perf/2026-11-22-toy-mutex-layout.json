@@ -1,0 +1,127 @@
+{
+  "issue": 1318,
+  "host": "Dedicated EC2 c7i.4xlarge, 8 physical cores / 16 vCPUs, Intel Xeon Platinum 8488C, Linux 7.0.0-1018-aws, OpenJDK 21.0.13.1 and Python 3.12.3. Dive uses the bundled CPython 3.11.14 and CUDD 3.0.0.",
+  "peer_commit": "0cbd95f0002af10f70f25c87638e8f2673229f2e",
+  "config": "toy_mutex/2/ToyMutex.cfg",
+  "source_sha256": "f8a2f7c1ba9bac7d06734c3acba43c1ad8523e46cb7d4cae8d2cd0a41554d31b",
+  "cfg_sha256": "68fc79e1013d3a184d6a75501b732f15cc96e167f436e2696231ad3a934b1361",
+  "implementation_sha256": {
+    "dive": "f5698833dbd559e72393df6f91b2b87ea09da3f2442eee9f56ce8f8cf57c7fee",
+    "check.py": "baf4ec4c2f690de1c86e72c6f60498cb8d6b47fc32faf670a3a30d151bb0304c",
+    "engine.py": "81d9529979409675c645b26efcdf18b7b88624a4d59183e2b77b1fbf5c640085",
+    "property_proof.py": "59b802a0ed80e44df6169ab706615f892c5f4a1460e09c195b3aa4f91ad99e38",
+    "obligation_receipt.py": "5dbe473ef848223999034e4b8037124dad6405bf9295576db3e31e0e0e9ddec9",
+    "symbolic_input": "71f5802e07c88cc24561283a19cbab253ee62c53af467f0df3be4d7c3aa96048"
+  },
+  "command": "dive check ToyMutex.tla --config ToyMutex.cfg --strategy symbolic --property-proof Mutex --output json",
+  "original_refusal": "expected one source layout operator named TypeOK when the previous panel supplied --type-invariant TypeOK",
+  "comparison_method": "Five cold alternating pairs from recomp_property_panel.py with --seconds 30 --config toy_mutex/2/ToyMutex.cfg --cgroup-parent GROUP. The adapter omitted the layout flag. Peak counts the whole process family.",
+  "summary": {
+    "dive": {
+      "median_s": 0.224,
+      "range_s": [
+        0.222,
+        0.276
+      ],
+      "max_peak_cgroup_bytes": 60878848
+    },
+    "recomp": {
+      "median_s": 1.828,
+      "range_s": [
+        1.775,
+        1.881
+      ],
+      "max_peak_cgroup_bytes": 631459840
+    }
+  },
+  "runs": [
+    {
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.276,
+        "peak_cgroup_bytes": 60878848,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.828,
+        "peak_cgroup_bytes": 631459840,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.881,
+        "peak_cgroup_bytes": 584290304,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.226,
+        "peak_cgroup_bytes": 54222848,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.222,
+        "peak_cgroup_bytes": 54226944,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.83,
+        "peak_cgroup_bytes": 528297984,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.775,
+        "peak_cgroup_bytes": 534888448,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.224,
+        "peak_cgroup_bytes": 54226944,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.222,
+        "peak_cgroup_bytes": 54222848,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.781,
+        "peak_cgroup_bytes": 555872256,
+        "result": "property-satisfied"
+      }
+    }
+  ],
+  "controls": {
+    "old_explicit_invocation": "still refuses the absent named TypeOK",
+    "unbounded_counter_mutation": "enabled assignment leaves bounds for globalVar",
+    "independent_exact_range_witness": "with the counter guard removed, exact Core reaches globalVar = 2 and validates the word against the original candidate range 0..Max",
+    "double_entry_mutation": "both inferred named proof and single-worker exact Core report Mutex at depth 3, and the named word replays independently",
+    "transfer": "GrantTable infers a Boolean map; exact Core and named proof agree on the original and double-grant mutation"
+  },
+  "controls_command": "python3 scripts/symbolic/test_inferred_layout.py DIVE --toy-mutex RECOMP/benchmarks/tla/toy_mutex/2/ToyMutex.tla"
+}
