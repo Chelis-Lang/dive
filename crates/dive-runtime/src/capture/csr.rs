@@ -2,6 +2,7 @@
 
 use super::CsrTargets;
 use std::ops::Range;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use dive_eval::HostControl;
 
@@ -590,7 +591,10 @@ pub struct CsrCapture<'a> {
     input: CsrTargetStorage<'a>,
     limits: Limits,
     concrete: usize,
+    validation_id: u64,
 }
+
+static NEXT_VALIDATION: AtomicU64 = AtomicU64::new(1);
 
 impl<'a> CsrCapture<'a> {
     /// Checks structural invariants under the actual armed run control.
@@ -709,11 +713,24 @@ impl<'a> CsrCapture<'a> {
                 .ok_or_else(|| limit("CSR concrete successors"))?;
         }
         poll(control)?;
+        // Zero declines identity-dependent uses if the process exhausts its IDs.
+        let validation_id = NEXT_VALIDATION
+            .try_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1))
+            .unwrap_or(0);
         Ok(Self {
             input,
             limits,
             concrete,
+            validation_id,
         })
+    }
+
+    /// Whether both views come from the same successful structural validation.
+    /// Copies retain this identity. Independently checked captures decline, even
+    /// when all their columns share storage. Completion requires separate evidence.
+    #[must_use]
+    pub const fn same_validation(&self, other: &Self) -> bool {
+        self.validation_id != 0 && self.validation_id == other.validation_id
     }
 
     /// Number of representative vertices, including the unexpanded frontier.
@@ -858,6 +875,17 @@ impl<'a> CsrCapture<'a> {
             .representatives
             .get(vertex)
             .map(|&row| row as usize)
+    }
+
+    /// Zero-based producer action for a physical original in a closed source.
+    /// Unnamed originals, frontier positions and the implicit stutter have none.
+    #[must_use]
+    pub fn original_action(&self, source: usize, position: usize) -> Option<u32> {
+        let range = self.outgoing_range(source)?;
+        if position >= range.len().saturating_sub(1) {
+            return None;
+        }
+        self.input.actions.at(range.start + position)
     }
 
     /// Generated original row at a source's physical generated-edge position.

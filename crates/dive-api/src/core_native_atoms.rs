@@ -21,11 +21,14 @@ use dive_runtime::budget::EvaluationControl;
 use crate::core_native_graph::NativeGraph;
 use crate::core_native_values::NativeValues;
 
+pub(crate) mod bound_next;
+mod emissions;
 mod prefix;
 
 struct Compiled {
     batch: Option<dive_core::compile::ActionBatch>,
     column: Option<prefix::Column>,
+    emission: Option<(usize, dive_core::compile::ClosedEnabled)>,
     identity: *const PredicateAtom,
     plan: dive_core::plan::Plan,
     false_guard: Option<dive_core::plan::P>,
@@ -126,6 +129,9 @@ pub(crate) struct NativeAtoms {
     prefix_owner: Option<Arc<()>>,
     prefix_bytes: usize,
     prefix_cells_reused: u64,
+    live_emissions: bool,
+    emission_hits: [u64; 2],
+    emission_peak_bytes: usize,
     projected: dive_core::memo::Memo,
     projected_state_hits: u64,
     projected_enabled_hits: u64,
@@ -310,6 +316,15 @@ impl NativeAtoms {
             result.compiled.push(Compiled {
                 batch: false_guard.batch,
                 column: None,
+                emission: false_guard.closed_enabled.and_then(|cert| {
+                    let action = match atom.test {
+                        AtomTest::Enabled { .. } => atom.pred.expr,
+                        AtomTest::NegatedEnabled { action } => action,
+                        _ => return None,
+                    };
+                    bound_next::action_index(model, action, &atom.pred.scope)
+                        .map(|index| (index, cert))
+                }),
                 enabled_prefix: false_guard.enabled_prefix.and_then(|(p, reads)| {
                     Projection::new(Some(reads), model.ir.vars().len(), &mut key_lengths)
                         .map(|site| (p, site))
@@ -360,6 +375,9 @@ impl NativeAtoms {
             prefix_owner: None,
             prefix_bytes: 0,
             prefix_cells_reused: 0,
+            live_emissions: false,
+            emission_hits: [0; 2],
+            emission_peak_bytes: 0,
             projected: dive_core::memo::Memo::default(),
             projected_state_hits: 0,
             projected_enabled_hits: 0,
@@ -426,6 +444,8 @@ impl NativeAtoms {
             "unchanged_target_guards":{"plans":self.compiled.iter().filter(|p|p.unchanged_guard.is_some()).count(),"probes":self.unchanged_probes,"rows":self.unchanged_rows,"edges":self.unchanged_edges},
             "action_source_guards": {"plans": self.compiled.iter().filter(|p| p.false_guard.is_some()).count(),
                 "probes": self.guard_probes, "false_rows": self.guard_rows},
+            "closed_enabled": {"plans": self.compiled.iter().filter(|c|c.emission.is_some()).count(),
+                "absent": self.emission_hits[0], "present": self.emission_hits[1], "peak_mask_bytes": self.emission_peak_bytes},
             "periodic_prefix": {"cells_reused": self.prefix_cells_reused, "table_bytes":self.prefix_bytes},
             "projected_truth": {"state_hits": self.projected_state_hits, "enabled_hits": self.projected_enabled_hits,
                 "enabled_prefix_false": self.disabled_prefixes, "guard_hits": self.projected_guard_hits, "stutters": self.stutter_hits, "table_bytes": self.projected.bytes()},
@@ -1119,6 +1139,8 @@ struct UnchangedTarget {
 pub(crate) struct Reader<'a, 'model> {
     prefix: Option<bool>,
     prefix_validated: usize,
+    emissions: emissions::Rows,
+    emission_capture: Option<dive_runtime::capture::CsrCapture<'a>>,
     proofs: RowProofs<'a>,
     pub(crate) values: &'a mut NativeValues<'model>,
     atoms: &'a mut NativeAtoms,
@@ -1134,11 +1156,22 @@ impl<'a, 'model> Reader<'a, 'model> {
         Self {
             prefix: None,
             prefix_validated: 0,
+            emissions: emissions::Rows::default(),
+            emission_capture: None,
             proofs: RowProofs::new(graph),
             unchanged: None,
             values,
             atoms,
         }
+    }
+}
+
+impl<'a> Reader<'a, '_> {
+    /// Only the live explorer can pair this reader with its own checked capture.
+    /// Copy the borrowed view so subsequent callers cannot replace columns while
+    /// sharing the same offsets. Edit reuse and simulation do not opt in.
+    pub(crate) fn live_emission_capture(&mut self, csr: &dive_runtime::capture::CsrCapture<'a>) {
+        self.emission_capture = Some(*csr);
     }
 }
 
@@ -1151,6 +1184,7 @@ impl Reader<'_, '_> {
 
 impl Drop for Reader<'_, '_> {
     fn drop(&mut self) {
+        self.atoms.emission_peak_bytes = self.atoms.emission_peak_bytes.max(self.emissions.bytes());
         let total = &mut self.atoms.row_proofs;
         total.scans += self.proofs.metrics.scans;
         total.hits += self.proofs.metrics.hits;
@@ -1332,6 +1366,18 @@ impl NativeReader for Reader<'_, '_> {
         }
         Ok(bits)
     }
+
+    fn closed_state_predicate(
+        &mut self,
+        atom: &PredicateAtom,
+        graph: &dive_runtime::capture::CsrCapture<'_>,
+        source: usize,
+        before: usize,
+        control: &EvaluationControl,
+    ) -> Result<Option<bool>, AnalysisError> {
+        self.emitted_truth(atom, graph, source, before, control)
+    }
+
     fn action_row_false(
         &mut self,
         atom: &PredicateAtom,
@@ -1901,6 +1947,242 @@ P == <>(gate=1)
                 assert_eq!(reader.atoms.reuse.action, 2);
             });
         }
+    }
+
+    fn committed_frontier<'a>(
+        action_labels: &'a [String],
+        limits: dive_runtime::capture::Limits,
+        control: &EvaluationControl,
+    ) -> dive_runtime::capture::CsrCapture<'a> {
+        dive_runtime::capture::CsrCapture::checked(
+            dive_runtime::capture::CsrCaptureInput {
+                roots: &[0],
+                offsets: &[0, 2, 2],
+                targets: &[1, 0],
+                ordinals: &[Some(0), None][..],
+                actions: &[Some(0), None][..],
+                edge_rows: &[1, 0],
+                representatives: &[0, 1],
+                action_labels,
+                retained_rows: 2,
+                closed_rows: 1,
+            },
+            limits,
+            control,
+        )
+        .expect("committed frontier")
+    }
+
+    #[test]
+    fn closed_emissions_bind_arguments_and_skip_only_quiet_complete_originals() {
+        use dive_runtime::capture::CsrCapture;
+        let src = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLES x, r
+vars == <<x,r>>
+Init == x=0 /\ r = <<0,0>>
+A(i) == /\ x=i
+        /\ x'=1-i
+        /\ r'=[r EXCEPT ![1]=@]
+Stut == UNCHANGED <<x,r>>
+Other == /\ x'=1-x /\ UNCHANGED r
+Next == (\E i \in 0..1: A(i)) \/ Other \/ Stut
+Spec == Init /\ [][Next]_vars /\ (\A i \in 0..1: WF_vars(A(i))) /\ WF_vars(Stut)
+P == <>(x=1)
+====";
+        with_wrappers(src, false, |prepared, driver, atoms, control| {
+            let options = dive_runtime::CheckOptions::dive(0);
+            atoms.enable_live_emissions(&prepared.model, &options);
+            let (graph, mut values) = capture(prepared, &options);
+            let csr =
+                CsrCapture::checked_targets(graph.input(), graph.limits(), control).expect("csr");
+            // A caller can construct another checked view over the same
+            // offsets with every generated action tag missing. Only the
+            // original producer view may supply semantic evidence.
+            let unknown_actions = vec![None; *csr.offsets().last().expect("edge count")];
+            let replaced = CsrCapture::checked_targets(
+                dive_runtime::capture::CsrTargetStorage {
+                    actions: dive_runtime::capture::CsrActions::Expanded(&unknown_actions),
+                    ..graph.input()
+                },
+                graph.limits(),
+                control,
+            )
+            .expect("another shape-valid view");
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            reader.live_prefix(true);
+            reader.live_emission_capture(&csr);
+            reader.atoms.audit = true;
+            let mut answers = Vec::new();
+            for atom in driver
+                .native_predicates()
+                .filter(|a| matches!(a.test, AtomTest::Enabled { .. }))
+            {
+                let mut row = Vec::new();
+                for source in 0..csr.state_count() {
+                    let before = csr.representative_row(source).expect("rep");
+                    assert_eq!(
+                        reader
+                            .closed_state_predicate(atom, &replaced, source, before, control)
+                            .expect("substituted capture"),
+                        None
+                    );
+                    row.push(
+                        reader
+                            .closed_state_predicate(atom, &csr, source, before, control)
+                            .expect("audit"),
+                    );
+                }
+                answers.push(row);
+                assert_eq!(
+                    reader
+                        .closed_state_predicate(atom, &csr, csr.closed_rows(), 0, control)
+                        .expect("open"),
+                    None
+                );
+            }
+            // A checked committed prefix retains a real representative with an
+            // empty frontier row. That empty row is no evidence of disabledness.
+            let partial = committed_frontier(graph.input().action_labels, graph.limits(), control);
+            reader.live_emission_capture(&partial);
+            let atom = driver
+                .native_predicates()
+                .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
+                .expect("fairness");
+            assert_eq!(
+                reader
+                    .closed_state_predicate(atom, &partial, 1, 1, control)
+                    .expect("frontier"),
+                None
+            );
+            answers.sort();
+            assert_eq!(
+                answers,
+                [
+                    vec![Some(false), Some(false)],
+                    vec![Some(false), Some(true)],
+                    vec![Some(true), Some(false)]
+                ]
+            );
+            assert_eq!(reader.atoms.emission_hits, [2, 4]);
+            drop(reader);
+            let mut read_missing = Reader::new(&graph, &mut values, atoms);
+            read_missing.live_prefix(true);
+            read_missing.live_emission_capture(&replaced);
+            assert_eq!(
+                read_missing
+                    .closed_state_predicate(atom, &replaced, 0, 0, control)
+                    .expect("missing tags"),
+                None
+            );
+        });
+    }
+
+    #[test]
+    fn missing_update_from_an_earlier_action_vetoes_later_emission_reuse() {
+        use dive_runtime::capture::CsrCapture;
+        // Repeated callers share a memoizable noisy source computation. Its
+        // first miss survives every frame/reset and all duplicate emissions.
+        let src = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLES x,r
+vars == <<x,r>>
+Init == x=0 /\ r = <<0,0>>
+Noisy == [r EXCEPT ![3]=0]
+A == /\ x'=1-x /\ r'=Noisy
+Other == /\ x'=x /\ r'=Noisy
+Conflict == /\ x'=1-x /\ UNCHANGED x /\ UNCHANGED r
+Next == A \/ Other \/ Conflict
+Spec == Init /\ [][Next]_vars /\ WF_vars(A) /\ WF_vars(Conflict)
+P == <>(x=1)
+====";
+        with_wrappers(src, false, |prepared, driver, atoms, control| {
+            let options = dive_runtime::CheckOptions::dive(0);
+            atoms.enable_live_emissions(&prepared.model, &options);
+            let (graph, mut values) = capture(prepared, &options);
+            assert!(prepared.store.saw_missing_update());
+            let csr =
+                CsrCapture::checked_targets(graph.input(), graph.limits(), control).expect("csr");
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            reader.live_prefix(true);
+            reader.live_emission_capture(&csr);
+            for atom in driver
+                .native_predicates()
+                .filter(|a| matches!(a.test, AtomTest::Enabled { .. }))
+            {
+                assert_eq!(
+                    reader
+                        .closed_state_predicate(atom, &csr, 0, 0, control)
+                        .expect("decline"),
+                    None
+                );
+            }
+            assert_eq!(reader.atoms.emission_hits, [0, 0]);
+        });
+    }
+
+    #[test]
+    fn compile_time_update_miss_and_empty_assignment_domain_preserve_fallback() {
+        use dive_runtime::capture::CsrCapture;
+        let src = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLES x,r
+vars == <<x,r>>
+Init == x=0 /\ r = <<0,0>>
+Flip == /\ x'=1-x /\ r'=IF x=0 THEN [<<0,0>> EXCEPT ![3]=1] ELSE r
+Empty == /\ x=0 /\ x' \in {} /\ UNCHANGED r
+BadGuard == /\ [r EXCEPT ![3]=0] /= r /\ UNCHANGED <<x,r>>
+Next == Flip \/ Empty \/ BadGuard
+Spec == Init /\ [][Next]_vars /\ WF_vars(Flip) /\ WF_vars(Empty) /\ WF_vars(BadGuard)
+P == <> (x=1)
+====";
+        with_wrappers(src, false, |prepared, driver, atoms, control| {
+            assert!(
+                prepared.store.saw_missing_update(),
+                "the literal EXCEPT was folded before exploration"
+            );
+            let options = dive_runtime::CheckOptions::dive(0);
+            atoms.enable_live_emissions(&prepared.model, &options);
+            let (graph, mut values) = capture(prepared, &options);
+            let csr =
+                CsrCapture::checked_targets(graph.input(), graph.limits(), control).expect("csr");
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            reader.live_prefix(true);
+            reader.live_emission_capture(&csr);
+            for atom in driver
+                .native_predicates()
+                .filter(|a| matches!(a.test, AtomTest::Enabled { .. }))
+            {
+                assert_eq!(
+                    reader
+                        .closed_state_predicate(atom, &csr, 0, 0, control)
+                        .expect("decline"),
+                    None
+                );
+                let index =
+                    bound_next::action_index(&prepared.model, atom.pred.expr, &atom.pred.scope)
+                        .expect("original action");
+                let branch = &prepared.model.actions[index];
+                if branch.label().starts_with("<BadGuard ") {
+                    let source = reader
+                        .values
+                        .read_retained(&graph, 0, control)
+                        .expect("source");
+                    let printed = dive_eval::capture::PrintCapture::start();
+                    assert!(
+                        !atom
+                            .evaluate(&prepared.model, &dive_eval::St::state(source))
+                            .expect("reference disabled")
+                    );
+                    assert!(
+                        printed
+                            .take()
+                            .iter()
+                            .any(|line| line.warning && line.text.contains("2144"))
+                    );
+                }
+            }
+        });
     }
 
     #[test]

@@ -640,6 +640,10 @@ pub struct BoundGuards {
     /// The nonstuttering subscript is a direct tuple of materialized
     /// variables in a fresh frame under canonical comparison.
     pub direct_stutter: bool,
+    /// An unrestricted source-guard prefix followed by disjoint, exhaustive
+    /// destination writes. Reuse also requires a matching producer, full
+    /// coverage, materialized rows and the indicated EXCEPT diagnostic checks.
+    pub closed_enabled: Option<ClosedEnabled>,
     /// Sufficient source variables for a quiet state truth on materialized
     /// inputs in this exact bound plan. Independent of the retained graph.
     pub state_reads: Option<u64>,
@@ -651,6 +655,17 @@ pub struct BoundGuards {
     /// false result applies only under the original bound scope, source and
     /// that variable's exact value.
     pub unchanged: Option<(P, usize)>,
+}
+
+/// Diagnostic and subscript certificate for an individually bound generator.
+#[derive(Clone, Copy)]
+pub struct ClosedEnabled {
+    /// None for plain ENABLED, otherwise the canonical direct variable mask.
+    pub subscript: Option<u64>,
+    /// The assignment expressions contain no EXCEPT that can warn.
+    pub quiet_suffix: bool,
+    /// Source guards have no warning-capable EXCEPT, including nested searches.
+    pub quiet_guards: bool,
 }
 
 /// Compile source and single-destination-variable prefixes for a bound atom.
@@ -2848,6 +2863,7 @@ impl Compiler<'_> {
         let p = match test {
             BoundTest::Enabled(sub) => {
                 let p = self.enabled(Some(r.expr), sub, env, Mode::Plain)?;
+                self.bound_guards.closed_enabled = self.closed_enabled(p);
                 self.bound_guards.state_reads = self.enabled_atom_reads(p);
                 self.bound_guards.enabled_prefix = self.enabled_prefix(p)?;
                 p

@@ -609,6 +609,22 @@ physical row. These paths share an 8 MiB allowance for projected truth keys.
 The `projected_truth` counters distinguish state hits, enabledness hits,
 false generator prefixes, action guard hits and stutters.
 
+For an unrestricted one-worker check in the default profile, Core can answer
+`ENABLED` from the original successors of a fully expanded source. It matches
+the whole action definition and its bound argument values. For example, each
+elevator car has its own copy of `OpenElevatorDoors(e)`. For a fairness
+subscript, Core checks whether any original emission of that exact branch
+changes a subscript variable. Several branches can reach the same state.
+
+This applies to actions whose source conditions precede assignments to every
+state variable. If an assignment uses `EXCEPT`, Core tracks missing update
+keys across compilation and exploration so that memoization cannot hide a
+warning. Startup diagnostics also select the ordinary evaluator. An unexpanded frontier state, a filtered graph, an uncertain binding
+or a possible diagnostic uses the ordinary evaluator. The
+`core.metrics.liveness.atoms.closed_enabled` counters report the number of
+matched plans, queries answered from absent and present branches, and peak
+bytes used for the source masks.
+
 When a periodic check returns without finding a violation, later checks on the
 same growing native graph can reuse completed predicate columns. Core saves
 state labels through the previous vertex count and action labels through the

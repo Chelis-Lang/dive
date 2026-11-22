@@ -231,6 +231,13 @@ impl StateSource for NativeStates<'_, '_> {
         // the first original per destination. Retain that physical position;
         // searching the outgoing row again for every destination is quadratic.
         let (before, after) = self.predicate_rows(source, target)?;
+        if target.is_none()
+            && let Some(value) =
+                self.read
+                    .closed_state_predicate(atom, self.graph, source, before, self.control)?
+        {
+            return Ok(Some(value));
+        }
         self.read.predicate(atom, before, after, self.control)
     }
 

@@ -2627,6 +2627,7 @@ impl Machine {
             } else {
                 compare::miss(&self.heap, key, v.keys())?;
             }
+            self.heap.store().note_missing_update();
             if self.refuse_unrecorded_warnings {
                 return Err(Error::unsupported(
                     "an EXCEPT key outside the function's domain, where the reference prints warning 2144",
