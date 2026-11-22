@@ -317,7 +317,11 @@ impl NativeAtoms {
                 continue;
             }
             result.compiled.push(Compiled {
-                producer: if false_guard.batch.is_some() {
+                producer: if false_guard
+                    .batch
+                    .as_ref()
+                    .is_some_and(dive_core::compile::ActionBatch::accepts_generated_image)
+                {
                     bound_next::action_index(model, atom.pred.expr, &atom.pred.scope)
                 } else {
                     None

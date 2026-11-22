@@ -115,7 +115,15 @@ fn function_image(terms: &[Term], width: usize) -> bool {
             Term::Reset(_) => continue,
             Term::Guard(_) if writes == 0 => continue,
             Term::Guard(_) => return false,
-            Term::Match(variable, _) => 1u64 << variable,
+            Term::Match(variable, _) => {
+                let Some(bit) = u32::try_from(*variable)
+                    .ok()
+                    .and_then(|v| 1u64.checked_shl(v))
+                else {
+                    return false;
+                };
+                bit
+            }
             Term::CopyTuple(mask) => *mask,
         };
         if mask & writes != 0 {
@@ -127,6 +135,12 @@ fn function_image(terms: &[Term], width: usize) -> bool {
 }
 
 impl ActionBatch {
+    /// Whether each state variable has one source-defined write after the guard prefix.
+    #[must_use]
+    pub fn accepts_generated_image(&self) -> bool {
+        self.complete_image
+    }
+
     /// Evaluates this plan on the original source and target rows, in its owning machine.
     /// All handles must already have been proved materialized in the same store.
     /// Any error or visible event leaves ordinary per-edge evaluation in charge.
@@ -251,4 +265,21 @@ fn same(m: &Machine, before: &[Handle], after: &[Handle], mut mask: u64) -> bool
         mask &= mask - 1;
     }
     true
+}
+
+#[cfg(test)]
+mod image_tests {
+    use super::{Term, function_image};
+
+    #[test]
+    fn only_complete_disjoint_writes_can_borrow_the_produced_image() {
+        assert!(function_image(
+            &[Term::Guard(0), Term::Match(0, 1), Term::CopyTuple(6)],
+            3
+        ));
+        assert!(!function_image(&[Term::Match(0, 0), Term::Guard(1)], 1));
+        assert!(!function_image(&[Term::Match(0, 0), Term::CopyTuple(1)], 1));
+        assert!(!function_image(&[Term::CopyTuple(1)], 2));
+        assert!(!function_image(&[Term::Match(64, 0)], 65));
+    }
 }

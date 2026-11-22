@@ -43,6 +43,7 @@
         "atoms": {
           "action_batches": {
             "plans": 0,
+            "producer_images": 0,
             "rows": 0
           },
           "action_evaluations": 0,
