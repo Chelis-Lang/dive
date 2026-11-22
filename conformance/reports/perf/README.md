@@ -123,6 +123,8 @@ The [population edit-session measurements](2026-11-21-occupancy-edits.json) pair
 
 [Complete finite TwoPhase induction](2026-11-22-twophase-induction.json) records the learned clauses, every checked action binding, and independent TLC certification on both manager counts.
 
+[MongoLoglessDynamicRaft reconfiguration induction](2026-11-22-mongo-reconfiguration-induction.json) checks the published three-server election property through reconfiguration and records all constraint crossings, replay controls and proof costs.
+
 [Bounded AsyncRaft election induction](2026-11-22-asyncraft-election-induction.json) records original-action closure, boundary checks, genuine voting histories, and both reachable double-election mutations.
 
 [Portable finite induction](2026-11-22-portable-finite-induction.json) records complete TwoPhase and AsyncRaft certificates through separate Dive and Sail processes, including edits, authentication, refusals and matched cold checks.
