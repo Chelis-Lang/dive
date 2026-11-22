@@ -125,6 +125,10 @@ def run(args):
     template = Path(__file__).with_name("packed_worker.rs.in").read_text()
     document = json.loads(exported.stdout)
     text, layout = lower(document, args.type_invariant, template)
+    return search(args, rustc, document, text, layout)
+
+
+def search(args, rustc, document, text, layout):
     folder = Path(args.scratch)
     source = folder / "worker.rs"
     binary = folder / "worker"

@@ -71,14 +71,14 @@ fn options(args: &[String], command: &mut Command) -> Result<(), String> {
         }
     }
     match strategy {
-        Some("symbolic") => {}
+        Some("symbolic" | "auto") => {}
         Some("occupancy") => {
             command.arg("--occupancy");
         }
         Some("compiled") => {
             command.arg("--compiled");
         }
-        _ => return Err("--strategy expects symbolic, occupancy or compiled".to_owned()),
+        _ => return Err("--strategy expects auto, symbolic, occupancy or compiled".to_owned()),
     }
     let module = module.ok_or_else(|| "missing TLA+ module".to_owned())?;
     let config = config.unwrap_or_else(|| module.with_extension("cfg"));
@@ -86,7 +86,71 @@ fn options(args: &[String], command: &mut Command) -> Result<(), String> {
     Ok(())
 }
 
-pub(super) fn run(args: &[String], err: &mut impl std::io::Write) -> ExitCode {
+// Only a single explicit selector may be removed. Leave duplicates for the
+// regular strategy parser to reject, even when the first selector is auto.
+fn without_auto(args: &[String]) -> Option<Vec<String>> {
+    let mut selectors = args
+        .iter()
+        .enumerate()
+        .filter(|(_, arg)| arg.as_str() == "--strategy" || arg.starts_with("--strategy="));
+    let (start, flag) = selectors.next()?;
+    if selectors.next().is_some() {
+        return None;
+    }
+    let count = match flag.as_str() {
+        "--strategy=auto" => 1,
+        "--strategy" if args.get(start + 1).is_some_and(|s| s == "auto") => 2,
+        _ => return None,
+    };
+    let mut ordinary = args.to_vec();
+    ordinary.drain(start..start + count);
+    Some(ordinary)
+}
+
+// Core owns every other option, including non-JSON reporting, compatibility,
+// limits on state counts and changes to the model's search path.
+fn finite_request(args: &[String]) -> bool {
+    if std::env::vars_os().any(|(key, _)| {
+        matches!(
+            key.to_str(),
+            Some("DIVE_COMPAT" | "DIVE_CORE_OPT" | "DIVE_CHAOS" | "DIVE_NATIVE_ATOM_AUDIT")
+        )
+    }) {
+        return false;
+    }
+    let mut it = args.iter();
+    while let Some(arg) = it.next() {
+        if !arg.starts_with('-') {
+            continue;
+        }
+        let (key, inline) = arg
+            .split_once('=')
+            .map_or((arg.as_str(), None), |(k, v)| (k, Some(v)));
+        let value = inline.or_else(|| it.next().map(String::as_str));
+        match (key, value) {
+            ("--config" | "--time-limit", Some(_)) | ("--output", Some("json")) => {}
+            ("--max-memory", Some(v)) if v != "auto" => {}
+            ("--workers", Some(v)) if v.parse::<u8>().is_ok_and(|w| (1..=8).contains(&w)) => {}
+            _ => return false,
+        }
+    }
+    true
+}
+
+fn ordinary(
+    args: &[String],
+    out: &mut impl std::io::Write,
+    err: &mut impl std::io::Write,
+) -> ExitCode {
+    let _ = writeln!(err, "dive: auto selected Core");
+    super::check_command(args, out, err)
+}
+
+pub(super) fn run(
+    args: &[String],
+    out: &mut impl std::io::Write,
+    err: &mut impl std::io::Write,
+) -> ExitCode {
     let Ok(dive) = std::env::current_exe() else {
         return super::simulation_usage_error(err, "could not locate the running Dive executable");
     };
@@ -94,10 +158,37 @@ pub(super) fn run(args: &[String], err: &mut impl std::io::Write) -> ExitCode {
         return super::simulation_usage_error(err, "could not locate the Dive installation");
     };
     let worker = bin.join("libexec/dive-symbolic");
-    let mut command = Command::new(worker.join("python/bin/python3.11"));
+    let python = worker.join("python/bin/python3.11");
+    let mut command = Command::new(&python);
+    let mut auto = without_auto(args);
+    if let Some(core) = &mut auto {
+        if !finite_request(core) {
+            return ordinary(core, out, err);
+        }
+        // Both the finite worker and its Core alternative use exact identity.
+        if !core
+            .iter()
+            .any(|a| a == "--output" || a.starts_with("--output="))
+        {
+            core.extend(["--output".to_owned(), "json".to_owned()]);
+        }
+        core.extend(["--store".to_owned(), "exact".to_owned()]);
+        if !cfg!(target_os = "linux")
+            || !python.is_file()
+            || !worker.join("symbolic_input").is_file()
+            || !worker.join("auto.py").is_file()
+        {
+            return ordinary(core, out, err);
+        }
+        command
+            .arg("-Es")
+            .arg(worker.join("check.py"))
+            .arg("--auto-core-args")
+            .arg(serde_json::Value::from(core.clone()).to_string());
+    } else {
+        command.arg("-Es").arg(worker.join("check.py"));
+    }
     command
-        .arg("-Es")
-        .arg(worker.join("check.py"))
         .arg("--exporter")
         .arg(worker.join("symbolic_input"))
         .arg("--dive")
@@ -125,6 +216,9 @@ pub(super) fn run(args: &[String], err: &mut impl std::io::Write) -> ExitCode {
                 .unwrap_or(4),
         ),
         Err(error) => {
+            if let Some(core) = auto {
+                return ordinary(&core, out, err);
+            }
             let _ = writeln!(
                 err,
                 "symbolic worker unavailable in this installation: {error}"

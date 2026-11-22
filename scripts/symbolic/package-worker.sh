@@ -36,7 +36,7 @@ tar xzf dd.tgz
 "$py" -Es -m pip --isolated install --no-deps dd-0.6.0/dist/*.whl
 "$py" -Es -c 'from dd import cudd; assert cudd.BDD().true.dag_size == 1'
 install -m 644 cudd-cudd-3.0.0/LICENSE worker/licenses/LICENSE.cudd
-install -m 644 "$source_dir"/{check,compiled,engine,finite_relation,finite_values,induction,occupancy,occupancy_predicate,occupancy_source,packed_codegen,property_proof,worker_process}.py worker/
+install -m 644 "$source_dir"/{auto,check,compiled,engine,finite_relation,finite_values,induction,occupancy,occupancy_predicate,occupancy_source,packed_codegen,property_proof,worker_process}.py worker/
 install -m 644 "$source_dir/packed_worker.rs.in" worker/
 install -m 755 "$exporter" worker/symbolic_input
 mkdir -p "$(dirname "$destination")"

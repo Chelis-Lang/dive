@@ -71,6 +71,8 @@ expected difference. The 48 larger configurations in that set ran 3.2×
 faster by geometric mean. The methods and per-model timings are in the
 [release performance results](docs/developer/release-performance-results.md).
 
+Use [automatic strategy selection](docs/user/symbolic.md#choose-a-strategy-automatically) to run a finite safety configuration with its original module and CFG.
+
 The optional finite symbolic checker completed KeyValueStore Large with
 594,616,815 distinct states. The large-model measurements include timings,
 memory, independent checks and explicit scaling results.

@@ -1,0 +1,137 @@
+{
+  "question": "Cold exhaustive selection on an original module and CFG. Each timed child ran alone on CPUs 0\u20137 (eight physical cores); no warm compiled artifact.",
+  "host": "EC2 c7i.4xlarge, Xeon Platinum 8488C, 8 cores/16 threads, Ubuntu 24.04, kernel 7.0.0-1018-aws, vm.max_map_count=1048576; CPython 3.12, dd 0.6.0, Rust 1.99.0.",
+  "inputs": {
+    "examples": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "directory": "specifications/KeyValueStore",
+    "hashes": "2026-11-21-compiled-finite-safety.json"
+  },
+  "commands": [
+    "cargo build --release --locked -p dive-cli -p dive-api --bin dive --example symbolic_input",
+    "/usr/bin/time -f '%e %M' taskset -c 0-7 dive check MCKVS.tla --config MCKVSSafetyMedium.cfg --strategy auto --workers 8 --max-memory 24g --time-limit 100s --output json",
+    "For Large use MCKVSSafetyLarge.cfg. For direct replace auto with compiled or symbolic, omit --workers for symbolic. The final confirmations and direct controls used 120s.",
+    "python3 scripts/symbolic/test_auto.py DIVE",
+    "bash scripts/symbolic/test-installed.sh DIVE"
+  ],
+  "artifacts": {
+    "scripts/symbolic/auto.py": "f8930154fa9e81fc6543603b06507d5fee9e3b8ce3e660ad2a82ef3d25cdde04",
+    "scripts/symbolic/check.py": "03aff290e30df3c4d7d44fb14d357a8aa30652875223f49ddb0edcebdbf800f5",
+    "scripts/symbolic/engine.py": "ba57736f5c2c222dfd1f298d6628746bd6c95177fa1cae86d133da4095d0ca43",
+    "crates/dive-cli/src/symbolic.rs": "0aea2b53a8ce7df0628920f9a611869ae5976b73ad46050607bd7baed92a76ab"
+  },
+  "trials": [
+    {
+      "trial": "0-Medium",
+      "wall_s": 1.56,
+      "peak_rss_KiB": 571200,
+      "strategy": "compiled",
+      "distinct": 17220672,
+      "generated": 365609473,
+      "depth": 22,
+      "workers_used": 8,
+      "membership_bits": 4294967296
+    },
+    {
+      "trial": "1-Large",
+      "wall_s": 41.22,
+      "peak_rss_KiB": 628680,
+      "strategy": "symbolic",
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "depth": 30
+    },
+    {
+      "trial": "2-Medium",
+      "wall_s": 1.56,
+      "peak_rss_KiB": 570776,
+      "strategy": "compiled",
+      "distinct": 17220672,
+      "generated": 365609473,
+      "depth": 22,
+      "workers_used": 8,
+      "membership_bits": 4294967296
+    },
+    {
+      "trial": "3-Large",
+      "wall_s": 40.27,
+      "peak_rss_KiB": 628660,
+      "strategy": "symbolic",
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "depth": 30
+    },
+    {
+      "trial": "4-Medium",
+      "wall_s": 1.55,
+      "peak_rss_KiB": 569124,
+      "strategy": "compiled",
+      "distinct": 17220672,
+      "generated": 365609473,
+      "depth": 22,
+      "workers_used": 8,
+      "membership_bits": 4294967296
+    },
+    {
+      "trial": "5-Large",
+      "wall_s": 39.86,
+      "peak_rss_KiB": 628636,
+      "strategy": "symbolic",
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "depth": 30
+    },
+    {
+      "trial": "direct-compiled",
+      "wall_s": 45.58,
+      "peak_rss_KiB": 5056356,
+      "strategy": "compiled",
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "depth": 30,
+      "workers_used": 8,
+      "membership_bits": 23299718715
+    },
+    {
+      "trial": "direct-symbolic",
+      "wall_s": 39.36,
+      "peak_rss_KiB": 633548,
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "depth": 30
+    },
+    {
+      "trial": "final-Large",
+      "wall_s": 40.87,
+      "peak_rss_KiB": 628672,
+      "strategy": "symbolic",
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "depth": 30
+    },
+    {
+      "trial": "final-Medium",
+      "wall_s": 1.6,
+      "peak_rss_KiB": 572524,
+      "strategy": "compiled",
+      "distinct": 17220672,
+      "generated": 365609473,
+      "depth": 22,
+      "workers_used": 8,
+      "membership_bits": 4294967296
+    }
+  ],
+  "method": "Numbered trials used the initial selector; final trials also require a coupled update and include the Core trace replay path. Compare final rows to the same-host direct controls. Direct decision-diagram rows omit strategy in their report. Compiler and interpreter start cold each time. RSS from GNU time is a process maximum, not summed memory.",
+  "controls": {
+    "tcommit32": {
+      "strategy": "occupancy",
+      "distinct": 1853024483819136,
+      "generated": 59296714762735649,
+      "depth": 65,
+      "occupancies": 593
+    },
+    "tcommit32_recipe": "Replace the three RM values in TCommit.cfg by r1..r32, then check TCommit.tla with --strategy auto. The independent formula in check_transaction_commit.py matches all three counts.",
+    "machines": "Non-TCommit status table; auto found AllOff false, independently validated at depth 2.",
+    "cells": "Different two-coordinate model: packed and exact Core both returned 23 distinct/46 generated/depth 2. A failing Empty predicate validated. With independent single-bit writes on 22 coordinates, BDD returned 4,194,304 distinct/92,274,689 generated/depth 23.",
+    "routing": "Original temporal property, explicit native state cap, 1 ms wall stop, duplicate selector, no compiler in PATH. See test_auto.py and test-installed.sh."
+  }
+}
