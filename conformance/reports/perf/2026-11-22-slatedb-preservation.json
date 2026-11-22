@@ -1,0 +1,94 @@
+{
+  "source": "Vanlightly/s3-wal-collection @ 35fdc537af4d226f43b4574cded1764375f264ac; module and CFG digests in the reproducer",
+  "core": "c3f6a8a49",
+  "question": "Do the six public invariants imply preservation at entry to READY on the fixed model? Can the entry obligation itself survive the immediately preceding replay action?",
+  "scope": "Synthetic initial states over four writers, two distinct values, one collector, MaxWriterRestarts = 1. All six published invariants are checked before and after the original action. The eight cases are one-step fixed/unsafe controls. Every CTI was independently validated against the complete Next and independently rejected under the original Init.",
+  "command": "python3 scripts/perf/scale/slatedb_history.py PATH_TO_SPEC_DIRECTORY --dive DIVE",
+  "host": "Isolated Linux EC2 c7i.4xlarge, exact Core, one worker, seed/fp 0, 1 GiB, 10 s per case. No throughput claim.",
+  "cases": [
+    {
+      "phase": "VALIDATE_AFTER_REPLAY",
+      "epoch": 1,
+      "data": "<<>>",
+      "fix": true,
+      "action": "ValidateEpochAfterReplay",
+      "verdict": "invariant-violation",
+      "depth": 2,
+      "violated": "ConsistentMachineData",
+      "full_next_replay": "valid",
+      "original_init_replay": "invalid"
+    },
+    {
+      "phase": "VALIDATE_AFTER_REPLAY",
+      "epoch": 1,
+      "data": "<<other>>",
+      "fix": true,
+      "action": "ValidateEpochAfterReplay",
+      "verdict": "invariant-violation",
+      "depth": 2,
+      "violated": "ConsistentMachineData",
+      "full_next_replay": "valid",
+      "original_init_replay": "invalid"
+    },
+    {
+      "phase": "VALIDATE_AFTER_REPLAY",
+      "epoch": 1,
+      "data": "<<val>>",
+      "fix": true,
+      "action": "ValidateEpochAfterReplay",
+      "verdict": "success",
+      "depth": 2
+    },
+    {
+      "phase": "VALIDATE_AFTER_REPLAY",
+      "epoch": 2,
+      "data": "<<other>>",
+      "fix": true,
+      "action": "ValidateEpochAfterReplay",
+      "verdict": "success",
+      "depth": 2
+    },
+    {
+      "phase": "REPLAY_WAL",
+      "epoch": 1,
+      "data": "<<>>",
+      "fix": false,
+      "action": "ReplayWAL",
+      "verdict": "invariant-violation",
+      "depth": 2,
+      "violated": "ConsistentMachineData",
+      "full_next_replay": "valid",
+      "original_init_replay": "invalid"
+    },
+    {
+      "phase": "REPLAY_WAL",
+      "epoch": 1,
+      "data": "<<>>",
+      "fix": true,
+      "action": "ReplayWAL",
+      "verdict": "success",
+      "depth": 2
+    },
+    {
+      "phase": "REPLAY_WAL",
+      "epoch": 1,
+      "data": "<<>>",
+      "fix": true,
+      "action": "ReplayWAL",
+      "verdict": "invariant-violation",
+      "depth": 2,
+      "violated": "EntrySafe",
+      "full_next_replay": "valid",
+      "original_init_replay": "invalid"
+    },
+    {
+      "phase": "FENCED",
+      "epoch": 2,
+      "data": "<<val>>",
+      "fix": true,
+      "action": "RestartFencedWriter",
+      "verdict": "success",
+      "depth": 2
+    }
+  ]
+}

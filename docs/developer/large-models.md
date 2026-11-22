@@ -1893,6 +1893,28 @@ that every writer entering READY has the matching prefix, including after a
 restart or a garbage-collection step. The fix-off witness is a regression
 control for that proof.
 
+On the fixed four-writer model the six configured invariants together are
+**insufficient as an induction hypothesis**. A writer can start in
+`VALIDATE_AFTER_REPLAY` with a current manifest, matching epoch and an
+incomplete or incorrect local copy of a one-entry committed history. All
+six invariants hold in that state. The original `ValidateEpochAfterReplay`
+moves it to `READY` and violates `ConsistentMachineData`. Independent replay
+accepted both two-state words under the full original `Next` and rejected
+their synthetic starting states under the original `Init`. These are
+counterexamples to induction. The reachable fix-off bug above is a separate
+result.
+
+A candidate lemma requiring the right prefix and length when post-replay
+refresh completes moves the failed obligation to `ReplayWAL`. In the
+fixed model an exhausted replay cursor can enter post-replay validation
+with stale local data under the proposed hypotheses. The next strengthening
+must relate data already applied at the cursor to committed WAL entries and
+the loaded snapshot. The original restart action reset the writer-local
+fields while retaining a one-entry committed history in the separate fenced
+control. The four-writer safety proof remains open.
+[Eight source-bound controls and replay outcomes](../../conformance/reports/perf/2026-11-22-slatedb-preservation.json)
+· [Reproducer](../../scripts/perf/scale/slatedb_history.py).
+
 ## Reproduce the comparisons
 
 Build the checker's exporter and validator and install the Python dependencies
