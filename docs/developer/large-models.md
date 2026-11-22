@@ -1871,6 +1871,15 @@ avoided all three closure sweeps. On lockserv the warm and cold Sail checks both
 took 0.354 s at 20 clients. Binding the edited source and starting the worker
 still cost time. [Run a named-property check](../user/symbolic.md#prove-one-configured-state-invariant) · [Sail CLI](https://github.com/Chelis-Lang/sail/pull/792).
 
+On a separate five-transaction KVS configuration with two keys and two values,
+initially proving `TxLifecycle` cost 87.765 s. A fresh Sail/Dive process that
+restricted the imported `OpenTx` guard reused 40 of 45 certified transition
+images. Its median fell from 505 to 355 ms versus rechecking the same predicate
+with every image. Expanding a write guard reused 25 of 65 and fell from 555 to
+454 ms. The unsigned and authenticated paths broke even at four transactions.
+For TCommit at 100 managers the respective worker times were 0.69 and 0.72 s.
+[Trust boundary and key setup](../user/symbolic.md#reuse-certified-action-obligations-in-another-process) · [Source histories, fault controls and timing data](https://github.com/Chelis-Lang/sail/pull/794).
+
 ### Transfer a SlateDB witness to a larger configuration
 
 The restart-capable **four-writer fix-off configuration violates

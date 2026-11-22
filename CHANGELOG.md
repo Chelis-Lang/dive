@@ -5,6 +5,8 @@ are in git history.
 
 ## Unreleased
 
+- Named symbolic proofs can [reuse authenticated transition obligations in a new process](docs/user/symbolic.md#reuse-certified-action-obligations-in-another-process).
+
 ### Added
 
 - [Match partial etcd Raft event logs](docs/user/traces.md#match-an-etcd-implementation-log) against the upstream trace and protocol specifications, with independently replayable complete states.
