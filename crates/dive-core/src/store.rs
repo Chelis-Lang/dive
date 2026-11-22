@@ -537,6 +537,7 @@ pub struct Store {
     hashcons: bool,
     semantics: Semantics,
     poisoned: AtomicBool,
+    missing_update: AtomicBool,
     /// The model's names, for printing ([`Store::set_printer`]).
     printer: OnceLock<crate::print::Printer>,
     /// Whether the plan may build an interval or a lazy set
@@ -633,6 +634,7 @@ impl Store {
             hashcons,
             semantics,
             poisoned: AtomicBool::new(false),
+            missing_update: AtomicBool::new(false),
             printer: OnceLock::new(),
             lazy_sets: AtomicBool::new(false),
             draws: OnceLock::new(),
@@ -645,6 +647,18 @@ impl Store {
     /// call wins.
     pub fn set_printer(&self, printer: crate::print::Printer) {
         let _ = self.printer.set(printer);
+    }
+
+    pub(crate) fn note_missing_update(&self) {
+        self.missing_update.store(true, Ordering::Relaxed);
+    }
+
+    /// Whether a machine sharing this store has ever observed an EXCEPT key miss.
+    /// Monotone from construction, including compiler folds and evaluations
+    /// that populate memo entries. This is a diagnostic veto only.
+    #[must_use]
+    pub fn saw_missing_update(&self) -> bool {
+        self.missing_update.load(Ordering::Relaxed)
     }
 
     /// Records that the plan may build a value TLC keeps as an interval or

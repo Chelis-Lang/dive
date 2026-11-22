@@ -32,6 +32,8 @@ The scripts that produced the records are in
 
 [Early component search](2026-11-22-fairness-plan-selection.json) reduces the default three-floor Elevator check from 3.59 s to 2.94 s and peak RSS from 100 MiB to 74 MiB. Manyan took 1.33 s on the same complete graph. The record includes the two-floor hold and the four-floor counterexample.
 
+[Closed-row enabledness](2026-11-22-closed-enabled.json) records all model arguments, original and masked fairness, per-run label and product time, native evaluations, peak RSS and independent word controls. Across three paired runs, median Core time fell from 3.15 s to 2.65 s at three floors and from 10.87 s to 9.37 s at four. Manyan took 1.12 s and 6.64 s on the same host. The original CoffeeCan 100-bean model exercises a second source, and constrained SimpleAllocator preserves its ordinary evaluation.
+
 [Four-floor Elevator](2026-11-22-factored-streett.json) records the native counterexample, the independent Manyan word, damaged-cycle controls, host, phase timings and compact reproduction commands.
 
 [Grouped fairness on Elevator](2026-11-22-fairness-components.json) records one-worker wall time, phase timings, the matching Manyan comparison and an independently validated four-floor counterexample. See [fairness](../../../docs/user/temporal.md#fairness).

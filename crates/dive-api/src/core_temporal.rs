@@ -350,6 +350,9 @@ fn check_configured_inner(
     };
     // With every atom native, values are read only for an actual fallback,
     // source-row check or report; admission waits for that read.
+    if !start.has_diagnostics() {
+        atoms.enable_live_emissions(&model, options);
+    }
     let defer_admission = atoms.all_native();
     let mut on_level = |level: u64, graph: &NativeGraph, values: &mut NativeValues<'_>, stats| {
         // Final-only and not-yet-due levels do not scan any retained CSR.
@@ -359,6 +362,7 @@ fn check_configured_inner(
         let csr = CsrCapture::checked_targets(graph.input(), graph.limits(), &control)?;
         let mut read = crate::core_native_atoms::Reader::new(graph, values, &mut atoms);
         read.live_prefix(true);
+        read.live_emission_capture(&csr);
         Ok(graph_check.level_native_with_reader(level, &csr, stats, &mut read))
     };
     let mut sink = match NativeSink::new(
@@ -749,6 +753,7 @@ fn finish(
             graph.limits(),
             control,
         )?;
+        read.live_emission_capture(complete.graph());
         Ok(graph_check
             .finish_native_with_reader(complete, &mut read)
             .map_err(|f| *f))
