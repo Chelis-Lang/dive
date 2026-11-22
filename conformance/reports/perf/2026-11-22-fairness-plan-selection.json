@@ -1,0 +1,745 @@
+{
+  "question": "When ordinary decomposition already succeeds, will a component search beat separate fairness alternatives for complete passing graphs?",
+  "baseline": "fa0ec59ba206bd27e19ae1411654233575164433",
+  "changes": "The baseline already includes projected native atom truth, prefix label reuse and a Streett component search when decomposition exhausts its work limit. The candidate additionally chooses that search after successful ordinary planning when a residual has at least eight alternatives and at least three positive top-level Streett pairs can be extracted. Both arms use the default periodic schedule.",
+  "examples_revision": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "commands": [
+    "Use the original pinned Examples specifications/MultiCarElevator/Elevator.tla with ElevatorLivenessMedium.cfg, ElevatorLivenessLarge.cfg, or the Large CFG edited only from FloorCount = 3 to FloorCount = 4.",
+    "dive check Elevator.tla --config CFG --workers 1 --seed 0 --fp 0 --compat dive --time-limit 100s --max-memory 8g --output json; GNU time -f \"%e %M\" measures fresh-process wall seconds and peak process RSS in KiB.",
+    "Extract counterexample.trace, validate with the baseline dive validate-trace Elevator.tla --config CFG --trace word.json --seed 0 --fp 0 --output json, change only ending.back_to to the recorded value and repeat. The trace hashes cover sorted-key compact JSON plus a newline.",
+    "The fair ring source and both PROPERTY selections are recorded below. For SimpleAllocator, use FairAllocatorHoldout.tla and the one-active-client/one-resource CFG from 2026-11-22-streett-component-search.json, then set Active to {c1,c2} and Resources to {r1,r2} for the second control."
+  ],
+  "host": "Dedicated AWS c7i.4xlarge, Ubuntu 24.04.5 LTS x86_64, Intel Xeon Platinum 8488C; Rust 1.99.0 release. One checker at a time. Three repetitions per arm and model in alternating arm order.",
+  "inputs_sha256": {
+    "Elevator.tla": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+    "ElevatorLivenessMedium.cfg": "3e6d67656512a5d2e4795c7de9c13d510096608e506c56f31f0fa4eb618d9290",
+    "ElevatorLivenessLarge.cfg": "f41449494507bb7def26453fd0bfc46a3928b6436de0da8d6aa888a13aed410c",
+    "four-floor.cfg": "707f56c9952ed53cee5dda44b20ed51224f0035039c73cd96a51ea02d34c0c49"
+  },
+  "executables_sha256": {
+    "baseline": "900c80656fdcc2baa8df07a22ec09ecc530e0e38b3197e9b17d8ca6537a5f792",
+    "candidate": "30d34793ed422d202eebed78e8de6b049a6e326a9e5d2a0ccf8fddebc9f71f22"
+  },
+  "medians": {
+    "Medium": {
+      "baseline": {
+        "wall_s": 0.26,
+        "peak_rss_kib": 39204,
+        "product_ms": 43.237
+      },
+      "candidate": {
+        "wall_s": 0.23,
+        "peak_rss_kib": 32928,
+        "product_ms": 16.157
+      }
+    },
+    "Large": {
+      "baseline": {
+        "wall_s": 3.59,
+        "peak_rss_kib": 102472,
+        "product_ms": 923.652
+      },
+      "candidate": {
+        "wall_s": 2.94,
+        "peak_rss_kib": 75968,
+        "product_ms": 295.258
+      }
+    },
+    "Four": {
+      "baseline": {
+        "wall_s": 10.04,
+        "peak_rss_kib": 196636,
+        "product_ms": 1639.182
+      },
+      "candidate": {
+        "wall_s": 9.57,
+        "peak_rss_kib": 196620,
+        "product_ms": 1634.222
+      }
+    }
+  },
+  "runs": [
+    {
+      "arm": "baseline",
+      "size": "Medium",
+      "repeat": 1,
+      "wall_s": 0.26,
+      "peak_rss_kib": 38728,
+      "phases_ms": {
+        "atoms": 143.669,
+        "product": 43.078
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 4122,
+      "generated": 14296,
+      "depth": 36
+    },
+    {
+      "arm": "candidate",
+      "size": "Medium",
+      "repeat": 1,
+      "wall_s": 0.23,
+      "peak_rss_kib": 33080,
+      "phases_ms": {
+        "atoms": 142.213,
+        "product": 15.87
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 4122,
+      "generated": 14296,
+      "depth": 36
+    },
+    {
+      "arm": "baseline",
+      "size": "Large",
+      "repeat": 1,
+      "wall_s": 3.59,
+      "peak_rss_kib": 104784,
+      "phases_ms": {
+        "atoms": 1942.906,
+        "product": 921.072
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39
+    },
+    {
+      "arm": "candidate",
+      "size": "Large",
+      "repeat": 1,
+      "wall_s": 2.93,
+      "peak_rss_kib": 76144,
+      "phases_ms": {
+        "atoms": 1918.133,
+        "product": 295.258
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39
+    },
+    {
+      "arm": "baseline",
+      "size": "Four",
+      "repeat": 1,
+      "wall_s": 10.04,
+      "peak_rss_kib": 196636,
+      "phases_ms": {
+        "atoms": 6147.09,
+        "attribution": 21.019,
+        "product": 1641.856
+      },
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "exit": 13,
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20
+    },
+    {
+      "arm": "candidate",
+      "size": "Four",
+      "repeat": 1,
+      "wall_s": 10.03,
+      "peak_rss_kib": 196620,
+      "phases_ms": {
+        "atoms": 6137.89,
+        "attribution": 20.26,
+        "product": 1642.567
+      },
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "exit": 13,
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20
+    },
+    {
+      "arm": "candidate",
+      "size": "Medium",
+      "repeat": 2,
+      "wall_s": 0.23,
+      "peak_rss_kib": 32920,
+      "phases_ms": {
+        "atoms": 143.153,
+        "product": 16.178
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 4122,
+      "generated": 14296,
+      "depth": 36
+    },
+    {
+      "arm": "baseline",
+      "size": "Medium",
+      "repeat": 2,
+      "wall_s": 0.26,
+      "peak_rss_kib": 39204,
+      "phases_ms": {
+        "atoms": 144.399,
+        "product": 43.237
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 4122,
+      "generated": 14296,
+      "depth": 36
+    },
+    {
+      "arm": "candidate",
+      "size": "Large",
+      "repeat": 2,
+      "wall_s": 2.94,
+      "peak_rss_kib": 75968,
+      "phases_ms": {
+        "atoms": 1927.316,
+        "product": 291.453
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39
+    },
+    {
+      "arm": "baseline",
+      "size": "Large",
+      "repeat": 2,
+      "wall_s": 3.63,
+      "peak_rss_kib": 102452,
+      "phases_ms": {
+        "atoms": 1943.389,
+        "product": 954.41
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39
+    },
+    {
+      "arm": "candidate",
+      "size": "Four",
+      "repeat": 2,
+      "wall_s": 9.55,
+      "peak_rss_kib": 196752,
+      "phases_ms": {
+        "atoms": 5754.691,
+        "attribution": 19.691,
+        "product": 1620.318
+      },
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "exit": 13,
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20
+    },
+    {
+      "arm": "baseline",
+      "size": "Four",
+      "repeat": 2,
+      "wall_s": 10.08,
+      "peak_rss_kib": 196680,
+      "phases_ms": {
+        "atoms": 6206.468,
+        "attribution": 20.123,
+        "product": 1620.472
+      },
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "exit": 13,
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20
+    },
+    {
+      "arm": "baseline",
+      "size": "Medium",
+      "repeat": 3,
+      "wall_s": 0.26,
+      "peak_rss_kib": 39360,
+      "phases_ms": {
+        "atoms": 144.767,
+        "product": 43.738
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 4122,
+      "generated": 14296,
+      "depth": 36
+    },
+    {
+      "arm": "candidate",
+      "size": "Medium",
+      "repeat": 3,
+      "wall_s": 0.23,
+      "peak_rss_kib": 32928,
+      "phases_ms": {
+        "atoms": 143.064,
+        "product": 16.157
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 4122,
+      "generated": 14296,
+      "depth": 36
+    },
+    {
+      "arm": "baseline",
+      "size": "Large",
+      "repeat": 3,
+      "wall_s": 3.59,
+      "peak_rss_kib": 102472,
+      "phases_ms": {
+        "atoms": 1936.173,
+        "product": 923.652
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39
+    },
+    {
+      "arm": "candidate",
+      "size": "Large",
+      "repeat": 3,
+      "wall_s": 2.98,
+      "peak_rss_kib": 75532,
+      "phases_ms": {
+        "atoms": 1960.444,
+        "product": 297.851
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39
+    },
+    {
+      "arm": "baseline",
+      "size": "Four",
+      "repeat": 3,
+      "wall_s": 9.71,
+      "peak_rss_kib": 196560,
+      "phases_ms": {
+        "atoms": 5880.8,
+        "attribution": 20.8,
+        "product": 1639.182
+      },
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "exit": 13,
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20
+    },
+    {
+      "arm": "candidate",
+      "size": "Four",
+      "repeat": 3,
+      "wall_s": 9.57,
+      "peak_rss_kib": 176160,
+      "phases_ms": {
+        "atoms": 5755.974,
+        "attribution": 19.247,
+        "product": 1634.222
+      },
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "exit": 13,
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20
+    }
+  ],
+  "controls": {
+    "baseline": {
+      "original": {
+        "length": 102,
+        "back_to": 2,
+        "result": "valid",
+        "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc",
+        "exit": 0
+      },
+      "damaged": {
+        "length": 102,
+        "back_to": 0,
+        "result": "invalid",
+        "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca",
+        "exit": 1
+      }
+    },
+    "candidate": {
+      "original": {
+        "length": 102,
+        "back_to": 2,
+        "result": "valid",
+        "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc",
+        "exit": 0
+      },
+      "damaged": {
+        "length": 102,
+        "back_to": 0,
+        "result": "invalid",
+        "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca",
+        "exit": 1
+      }
+    }
+  },
+  "interpretation": "Two- and three-floor checks exhaust the same behavior graph. The four-floor case already selected factored search on both builds; its timing is a control. Its time to a counterexample includes a partial graph. Separate component-search and projection baselines are indexed in README.md.",
+  "same_host_peer": {
+    "source": "2026-11-22-projected-fairness.json",
+    "checker": "Manyan",
+    "revision": "a39816a873a2c2aabc00dbcef50908e996f3d44b",
+    "median": {
+      "Medium": {
+        "wall_s": 0.11,
+        "rss_kib": 10460
+      },
+      "Large": {
+        "wall_s": 1.33,
+        "rss_kib": 46652
+      },
+      "Four": {
+        "wall_s": 7.46,
+        "rss_kib": 270136
+      }
+    },
+    "scope": "Same dedicated host and original inputs, three separately recorded runs. Time to a four-floor witness can cover different prefixes."
+  },
+  "exploratory": {
+    "description": "Earlier prototype attempted factoring whenever the sum of successful ordinary alternatives reached eight. Combined production improvements plus prototype below. These samples informed the choice; the alternating panel above uses the final selection and explicit-limits rules.",
+    "early": {
+      "exe_sha256": "bf7a900e4cbdc784d16e78b89f1c1720ef288d3cb57ac1afefd158c00477ccdb",
+      "runs": {
+        "Medium": [
+          {
+            "wall_s": 0.23,
+            "rss_kib": 33136,
+            "phases_ms": {
+              "atoms": 144.217,
+              "product": 16.02
+            },
+            "exit": 0
+          },
+          {
+            "wall_s": 0.23,
+            "rss_kib": 32800,
+            "phases_ms": {
+              "atoms": 144.564,
+              "product": 16.44
+            },
+            "exit": 0
+          }
+        ],
+        "Large": [
+          {
+            "wall_s": 2.96,
+            "rss_kib": 75824,
+            "phases_ms": {
+              "atoms": 1940.57,
+              "product": 295.616
+            },
+            "exit": 0
+          },
+          {
+            "wall_s": 2.96,
+            "rss_kib": 76084,
+            "phases_ms": {
+              "atoms": 1942.087,
+              "product": 297.18
+            },
+            "exit": 0
+          }
+        ],
+        "Four": [
+          {
+            "wall_s": 9.82,
+            "rss_kib": 198564,
+            "phases_ms": {
+              "atoms": 5968.587,
+              "attribution": 19.329,
+              "product": 1632.406
+            },
+            "exit": 13
+          },
+          {
+            "wall_s": 9.61,
+            "rss_kib": 196656,
+            "phases_ms": {
+              "atoms": 5801.899,
+              "attribution": 19.575,
+              "product": 1625.431
+            },
+            "exit": 13
+          }
+        ]
+      }
+    },
+    "combined": {
+      "exe_sha256": "a2003024cc5e2d4bf44aca6ef88863e780d2afee1e4527da6cc916854f75b5ee",
+      "runs": {
+        "Medium": [
+          {
+            "wall_s": 0.26,
+            "rss_kib": 39272,
+            "phases_ms": {
+              "atoms": 145.729,
+              "product": 41.351
+            },
+            "exit": 0
+          },
+          {
+            "wall_s": 0.26,
+            "rss_kib": 39172,
+            "phases_ms": {
+              "atoms": 144.44,
+              "product": 41.022
+            },
+            "exit": 0
+          },
+          {
+            "wall_s": 0.26,
+            "rss_kib": 39276,
+            "phases_ms": {
+              "atoms": 144.98,
+              "product": 41.484
+            },
+            "exit": 0
+          }
+        ],
+        "Large": [
+          {
+            "wall_s": 3.53,
+            "rss_kib": 108524,
+            "phases_ms": {
+              "atoms": 1937.62,
+              "product": 860.014
+            },
+            "exit": 0
+          },
+          {
+            "wall_s": 3.62,
+            "rss_kib": 108904,
+            "phases_ms": {
+              "atoms": 2028.388,
+              "product": 862.81
+            },
+            "exit": 0
+          },
+          {
+            "wall_s": 3.55,
+            "rss_kib": 102568,
+            "phases_ms": {
+              "atoms": 1938.756,
+              "product": 879.381
+            },
+            "exit": 0
+          }
+        ],
+        "Four": [
+          {
+            "wall_s": 9.61,
+            "rss_kib": 196400,
+            "phases_ms": {
+              "atoms": 5801.322,
+              "attribution": 19.493,
+              "product": 1613.157
+            },
+            "exit": 13
+          },
+          {
+            "wall_s": 9.62,
+            "rss_kib": 175888,
+            "phases_ms": {
+              "atoms": 5789.915,
+              "attribution": 20.526,
+              "product": 1634.859
+            },
+            "exit": 13
+          },
+          {
+            "wall_s": 9.69,
+            "rss_kib": 196392,
+            "phases_ms": {
+              "atoms": 5875.899,
+              "attribution": 19.348,
+              "product": 1624.975
+            },
+            "exit": 13
+          }
+        ]
+      }
+    }
+  },
+  "additional_controls": {
+    "source": "---- MODULE FairRing ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nStep(i) == /\\ x = i\n           /\\ x' = (i + 1) % 3\nNext == \\E i \\in 0..2 : Step(i)\nSpec == Init /\\ [][Next]_x /\\ (\\A i \\in 0..2 : SF_x(Step(i)))\nReturns == []<>(x = 0)\nUnreachable == <>(x = 3)\n====\n",
+    "configuration": "SPECIFICATION Spec\nPROPERTY PROP\nCHECK_DEADLOCK FALSE\n",
+    "cases": [
+      {
+        "property": "Returns",
+        "arm": "before",
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "depth": 3,
+          "distinct": 3,
+          "generated": 4,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        }
+      },
+      {
+        "property": "Returns",
+        "arm": "after",
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "depth": 3,
+          "distinct": 3,
+          "generated": 4,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        }
+      },
+      {
+        "property": "Unreachable",
+        "arm": "before",
+        "verdict": "liveness-violation",
+        "exit": 13,
+        "statistics": {
+          "depth": 3,
+          "distinct": 3,
+          "generated": 4,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "length": 3,
+        "validations": [
+          {
+            "back_to": 0,
+            "result": "valid",
+            "exit": 0,
+            "sha256": "b1a704c56169ba5febc61f3054b06a253d4437299310aad840d9c718b1451eab"
+          },
+          {
+            "back_to": 1,
+            "result": "invalid",
+            "exit": 1,
+            "sha256": "b5bdc2493d290fe3adf6e2fab9b9303d9a505e3855a9c4e5ff40e34359873b75"
+          }
+        ]
+      },
+      {
+        "property": "Unreachable",
+        "arm": "after",
+        "verdict": "liveness-violation",
+        "exit": 13,
+        "statistics": {
+          "depth": 3,
+          "distinct": 3,
+          "generated": 4,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "length": 3,
+        "validations": [
+          {
+            "back_to": 0,
+            "result": "valid",
+            "exit": 0,
+            "sha256": "b1a704c56169ba5febc61f3054b06a253d4437299310aad840d9c718b1451eab"
+          },
+          {
+            "back_to": 1,
+            "result": "invalid",
+            "exit": 1,
+            "sha256": "b5bdc2493d290fe3adf6e2fab9b9303d9a505e3855a9c4e5ff40e34359873b75"
+          }
+        ]
+      }
+    ],
+    "allocator": [
+      {
+        "arm": "before",
+        "config": "one",
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "depth": 3,
+          "distinct": 3,
+          "generated": 43,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        }
+      },
+      {
+        "arm": "after",
+        "config": "one",
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "depth": 3,
+          "distinct": 3,
+          "generated": 43,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        }
+      },
+      {
+        "arm": "before",
+        "config": "two",
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "depth": 5,
+          "distinct": 64,
+          "generated": 2503,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        }
+      },
+      {
+        "arm": "after",
+        "config": "two",
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "depth": 5,
+          "distinct": 64,
+          "generated": 2503,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        }
+      }
+    ]
+  }
+}

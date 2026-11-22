@@ -1255,6 +1255,51 @@ struct PreparedGroup {
     alternatives: Vec<CycleConditions>,
 }
 
+fn prepare_groups(
+    groups: Vec<formula::SolutionGroup>,
+    limits: formula::Limits,
+) -> Result<Vec<PreparedGroup>, formula::FormulaError> {
+    groups
+        .into_iter()
+        .map(|group| {
+            Ok(PreparedGroup {
+                tableau: formula::compile_residual(&group.core, limits)?,
+                alternatives: group.alternatives,
+            })
+        })
+        .collect()
+}
+
+impl PreparedProperty {
+    /// A successful ordinary plan remains authoritative if optional factoring cannot
+    /// compact its alternatives. Three independent pairs can replace eight searches.
+    fn prefer_component_search(&mut self, limits: formula::Limits) -> Result<(), AnalysisError> {
+        if !self.streett.is_empty() || !self.groups.iter().any(|g| g.alternatives.len() >= 8) {
+            return Ok(());
+        }
+        let candidate = formula::streett(&self.plan.formula, limits).and_then(|factored| {
+            if factored.pairs.len() < 3 {
+                return Ok(None);
+            }
+            Ok(Some((
+                prepare_groups(factored.groups, limits)?,
+                factored.pairs,
+            )))
+        });
+        match candidate {
+            Ok(Some((groups, pairs))) => {
+                self.groups = groups;
+                self.streett = pairs;
+            }
+            Err(formula::FormulaError::Limit(crate::budget::EXHAUSTED)) => {
+                return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
+            }
+            Ok(None) | Err(_) => {}
+        }
+        Ok(())
+    }
+}
+
 fn startup_normalization(
     inputs: &[(&crate::formula::Formula, usize)],
     fairness: usize,
@@ -1388,17 +1433,7 @@ fn prepare(
                 }
                 Err(e) => return Err(AnalysisError::Tableau(e)),
             };
-            let groups = groups
-                .into_iter()
-                .map(|group| {
-                    let tableau = formula::compile_residual(&group.core, limits.formula)
-                        .map_err(AnalysisError::Tableau)?;
-                    Ok(PreparedGroup {
-                        tableau,
-                        alternatives: group.alternatives,
-                    })
-                })
-                .collect::<Result<_, AnalysisError>>()?;
+            let groups = prepare_groups(groups, limits.formula).map_err(AnalysisError::Tableau)?;
             Ok(PreparedProperty {
                 plan,
                 groups,

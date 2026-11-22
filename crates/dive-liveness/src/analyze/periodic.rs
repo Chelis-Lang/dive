@@ -414,12 +414,48 @@ fn budget_failure(
     failure
 }
 
+/// Counted product or attribution budgets can depend on the selected cycle.
+fn uncapped_component_search(
+    limits: Limits,
+    policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
+) -> bool {
+    matches!(
+        policy,
+        AcceptancePolicy::Buffers {
+            bytes: usize::MAX,
+            work: usize::MAX
+        }
+    ) && matches!(graph_labels, GraphLabelPolicy::NoCellLimit)
+        && limits.formula == crate::formula::Limits::default()
+        && matches!(
+            limits.capture,
+            capture::Limits {
+                states: usize::MAX,
+                edges: usize::MAX,
+                generated: u64::MAX,
+                successors_per_unit: u64::MAX
+            }
+        )
+        && limits.atom_cells == usize::MAX
+        && matches!(
+            limits.product,
+            crate::product::Limits {
+                vertices: usize::MAX,
+                edges: usize::MAX,
+                acceptance_cells: usize::MAX,
+                steps: usize::MAX,
+            }
+        )
+}
+
 /// Validates the context and plans every property once, before capture.
 fn planned(
     model: &Model,
     options: &CheckOptions,
     limits: Limits,
     checks: Checks,
+    prefer_components: bool,
 ) -> Result<
     (
         std::sync::Arc<dive_runtime::budget::EvaluationControl>,
@@ -459,16 +495,25 @@ fn planned(
                 checks,
             )
         })?;
-        prepare(model, limits, &control).map_err(|error| {
-            failure(
-                error,
-                Stage::Planning,
-                None,
-                EvaluationErrors::default(),
-                Some(false),
-                checks,
-            )
-        })?
+        prepare(model, limits, &control)
+            .and_then(|mut plans| {
+                if prefer_components {
+                    for plan in &mut plans {
+                        plan.prefer_component_search(limits.formula)?;
+                    }
+                }
+                Ok(plans)
+            })
+            .map_err(|error| {
+                failure(
+                    error,
+                    Stage::Planning,
+                    None,
+                    EvaluationErrors::default(),
+                    Some(false),
+                    checks,
+                )
+            })?
     };
     Ok((control, plans))
 }
@@ -478,3 +523,82 @@ fn planned(
     reason = "keep producer outcomes and their distinct failure evidence together"
 )]
 pub mod external;
+
+#[cfg(test)]
+mod chooser_tests {
+    use super::*;
+
+    #[test]
+    fn counted_owners_retain_their_existing_search_plan() {
+        let (unlimited, max) = (usize::MAX, u64::MAX);
+        let limits = Limits {
+            product: crate::product::Limits {
+                vertices: unlimited,
+                edges: unlimited,
+                acceptance_cells: unlimited,
+                steps: unlimited,
+            },
+            capture: capture::Limits {
+                states: unlimited,
+                edges: unlimited,
+                generated: max,
+                successors_per_unit: max,
+            },
+            atom_cells: unlimited,
+            ..Limits::default()
+        };
+        let policy = AcceptancePolicy::Buffers {
+            bytes: unlimited,
+            work: unlimited,
+        };
+        let labels = GraphLabelPolicy::NoCellLimit;
+        assert!(uncapped_component_search(limits, policy, labels));
+        assert!(!uncapped_component_search(
+            limits,
+            AcceptancePolicy::Cells,
+            labels
+        ));
+        assert!(!uncapped_component_search(
+            limits,
+            AcceptancePolicy::Buffers {
+                bytes: 0,
+                work: unlimited
+            },
+            labels
+        ));
+        assert!(!uncapped_component_search(
+            limits,
+            policy,
+            GraphLabelPolicy::Cells(0)
+        ));
+        for bounded in [
+            Limits {
+                product: crate::product::Limits {
+                    steps: 0,
+                    ..limits.product
+                },
+                ..limits
+            },
+            Limits {
+                capture: capture::Limits {
+                    states: 1,
+                    ..limits.capture
+                },
+                ..limits
+            },
+            Limits {
+                formula: crate::formula::Limits {
+                    expansion_steps: 0,
+                    ..limits.formula
+                },
+                ..limits
+            },
+            Limits {
+                atom_cells: 0,
+                ..limits
+            },
+        ] {
+            assert!(!uncapped_component_search(bounded, policy, labels));
+        }
+    }
+}

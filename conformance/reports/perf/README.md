@@ -24,6 +24,8 @@ The scripts that produced the records are in
 
 [Four-floor Elevator prefix placement](2026-11-22-elevator-prefix-placement.json) compares seven replayable thresholds, three independent CLI runs per selected setting, holding controls, peak RSS and both original/damaged word replays. At 100,000 states the CLI median was 6.40 s, versus 9.73 s for its default and 7.46 s for Manyan.
 
+[Early component search](2026-11-22-fairness-plan-selection.json) compares default Core on the two- and three-floor passing graphs and the four-floor counterexample with the atom-label improvements enabled.
+
 [Four-floor Elevator](2026-11-22-factored-streett.json) records the native counterexample, the independent Manyan word, damaged-cycle controls, host, phase timings and compact reproduction commands.
 
 [Grouped fairness on Elevator](2026-11-22-fairness-components.json) records one-worker wall time, phase timings, the matching Manyan comparison and an independently validated four-floor counterexample. See [fairness](../../../docs/user/temporal.md#fairness).

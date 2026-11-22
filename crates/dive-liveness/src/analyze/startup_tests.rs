@@ -248,3 +248,108 @@ fn intrinsic_dnf_overflow_refuses_but_incomplete_optional_work_does_not_prove_ze
     assert!(startup_normalization(&[(&formula, 62)], 0, incomplete)?.is_none());
     Ok(())
 }
+
+#[test]
+fn component_choice_requires_three_positive_pairs_in_one_wide_group() -> TestResult {
+    use formula::{Atom, Formula, Node};
+
+    // Each distinct SF choice doubles the ordinary group's alternatives.
+    // Negating the conjunction moves its clauses outside the eligible context.
+    for (pairs, width, negated, expect_pairs) in [
+        (0, 8, false, 0),
+        (1, 8, false, 0),
+        (2, 8, false, 0),
+        (3, 1, false, 3),
+        (3, 70, false, 3),
+        (6, 8, false, 6),
+        (4, 8, true, 0),
+    ] {
+        let mut nodes = Vec::new();
+        let mut clauses = Vec::new();
+        for i in 0..pairs {
+            let n = nodes.len();
+            nodes.extend([
+                Node::Atom(Atom {
+                    kind: AtomKind::State,
+                    index: i,
+                }),
+                Node::Always(n),
+                Node::Eventually(n + 1),
+                Node::Atom(Atom {
+                    kind: AtomKind::Action,
+                    index: i,
+                }),
+                Node::Eventually(n + 3),
+                Node::Always(n + 4),
+                Node::Or(vec![n + 2, n + 5]),
+            ]);
+            clauses.push(n + 6);
+        }
+        // Unrelated FG alternatives alone do not justify factoring. The wide case
+        // exceeds the optional one-word condition index.
+        let mut choices = Vec::new();
+        for i in 0..width {
+            let n = nodes.len();
+            nodes.extend([
+                Node::Atom(Atom {
+                    kind: AtomKind::State,
+                    index: pairs + i,
+                }),
+                Node::Always(n),
+                Node::Eventually(n + 1),
+            ]);
+            choices.push(n + 2);
+        }
+        clauses.push(nodes.len());
+        nodes.push(Node::Or(choices));
+        nodes.push(Node::And(clauses));
+        if negated {
+            nodes.push(Node::Not(nodes.len() - 1));
+        }
+        let root = nodes.len() - 1;
+        let formula = Formula::new(nodes, root)?;
+        let limits = formula::Limits::default();
+        let mut property = PreparedProperty {
+            groups: prepare_groups(formula::decompose(&formula, limits)?, limits)?,
+            streett: Vec::new(),
+            plan: Plan {
+                formula,
+                atoms: Vec::new(),
+            },
+            frozen_prefix: None,
+        };
+        let original = property
+            .groups
+            .iter()
+            .map(|g| g.alternatives.len())
+            .sum::<usize>();
+        if !negated {
+            assert_eq!(original, width << pairs);
+            property.prefer_component_search(formula::Limits {
+                expansion_steps: 0,
+                ..limits
+            })?;
+            assert!(
+                property.streett.is_empty(),
+                "optional planning limit retains the original"
+            );
+        }
+        if pairs == 3 {
+            let watchdog = crate::budget::expired_for_test();
+            let _scope = crate::budget::enter(watchdog.budget());
+            assert!(matches!(
+                property.prefer_component_search(limits),
+                Err(AnalysisError::Limit(crate::budget::EXHAUSTED))
+            ));
+        }
+        property.prefer_component_search(limits)?;
+        assert_eq!(property.streett.len(), expect_pairs);
+        let selected = property
+            .groups
+            .iter()
+            .map(|g| g.alternatives.len())
+            .sum::<usize>();
+        assert_eq!(selected, original >> expect_pairs);
+    }
+    Ok(())
+}
