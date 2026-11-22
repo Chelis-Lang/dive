@@ -1055,6 +1055,19 @@ fn labels_with_reuse<'a>(
                 consumed = true;
                 continue;
             }
+            if !eager
+                && matches!(graph, OriginalEdges::Native(_))
+                && let Some(mut bits) = states.action_row(pred, v)?
+            {
+                while bits != 0 {
+                    labels
+                        .set_action(index, v, bits.trailing_zeros() as usize, true)
+                        .map_err(AnalysisError::Product)?;
+                    bits &= bits - 1;
+                }
+                consumed = true;
+                continue;
+            }
             let targets = selected_originals(graph, v, states, eager)?;
             if graph.len(v) == Some(0) {
                 continue;

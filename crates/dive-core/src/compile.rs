@@ -53,6 +53,9 @@ mod generator;
 
 #[path = "compile_atom_reads.rs"]
 mod atom_reads;
+#[path = "compile_action_batch.rs"]
+mod batch;
+pub use batch::ActionBatch;
 
 #[path = "compile_split.rs"]
 mod split;
@@ -629,6 +632,8 @@ pub fn compile_bound_test_with_guard(
 /// Exact necessary action prefixes retained by optional native atom checks.
 #[derive(Default)]
 pub struct BoundGuards {
+    /// Complete source-ordered action test for small materialized successor rows.
+    pub batch: Option<ActionBatch>,
     /// An ENABLED query over the original generator's leading source-only
     /// items, and their read mask. Only a quiet false proves the full query false.
     pub enabled_prefix: Option<(P, u64)>,
@@ -2870,6 +2875,9 @@ impl Compiler<'_> {
                     // Bound-test compilation disables folding, so the
                     // projected wrappers retain their ordinary fuel charges.
                     self.bound_guards.direct_stutter = true;
+                    if self.with_target_guard {
+                        self.bound_guards.batch = self.action_batch(action, same);
+                    }
                     self.bound_guards.source = self.necessary_guard(action, 0, 0)?;
                     self.bound_guards.guard_reads = self
                         .bound_guards

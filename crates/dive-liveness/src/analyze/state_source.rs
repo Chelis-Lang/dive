@@ -62,6 +62,14 @@ pub(super) trait StateSource {
         Ok(None)
     }
 
+    fn action_row(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+        _source: usize,
+    ) -> Result<Option<u64>, AnalysisError> {
+        Ok(None)
+    }
+
     fn action_row_false(
         &mut self,
         _atom: &crate::plan::PredicateAtom,
@@ -224,6 +232,14 @@ impl StateSource for NativeStates<'_, '_> {
         // searching the outgoing row again for every destination is quadratic.
         let (before, after) = self.predicate_rows(source, target)?;
         self.read.predicate(atom, before, after, self.control)
+    }
+
+    fn action_row(
+        &mut self,
+        atom: &crate::plan::PredicateAtom,
+        source: usize,
+    ) -> Result<Option<u64>, AnalysisError> {
+        self.read.action_row(atom, self.graph, source, self.control)
     }
 
     fn action_row_false(

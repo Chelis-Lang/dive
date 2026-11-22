@@ -41,6 +41,10 @@
           "product": 0.0
         },
         "atoms": {
+          "action_batches": {
+            "plans": 0,
+            "rows": 0
+          },
           "action_evaluations": 0,
           "action_source_guards": {
             "false_rows": 0,

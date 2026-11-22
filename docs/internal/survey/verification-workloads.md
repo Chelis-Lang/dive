@@ -504,6 +504,8 @@ For the fairness run, use the Dive corpus pin of Examples. The script verifies t
 
 ## Quantified fairness on larger models
 
+With batched action labels, ordinary Core took 2.04 s on the three-floor proof and 6.91 s to a validated four-floor violation. Manyan took 1.32 s and 7.77 s in five alternating cold processes per checker. On five floors Core reached a valid 146-state word after 667,943 distinct states in 149.59 s. Manyan exhausted its graph of 1,051,289 states and reported a different valid word in 38.79 s. Core spent 124.56 s in product search and 14.72 s evaluating graph predicates. The four-server Kafka control exhausted 28,440 states under both builds and used the ordinary evaluator. [Per-process times, memory, source identities and damaged-witness controls](../../../conformance/reports/perf/2026-11-22-batched-fairness-actions.json)
+
 On original three-floor Elevator Large, ordinary Core exhausts all 50,653 states in 2.94 s at one worker. Manyan takes 1.33 s. Choosing component search for independent fairness alternatives cut Core's median product time from 924 ms to 295 ms and peak RSS from 100 MiB to 74 MiB. Atom labeling still takes 1.93 s. [Three-floor plan selection and remaining gap](../../../conformance/reports/perf/2026-11-22-fairness-plan-selection.json)
 
 Adding a fourth floor exposes a violation. Ordinary Core takes 9.62 s, down from 19.08 s before native label reuse and component search. Manyan takes 7.46 s. Its 202-state word and Core's 102-state word both pass an independent validator and both fail after changing their closing targets. [Matched cold runs, phase times and peak RSS](../../../conformance/reports/perf/2026-11-22-projected-fairness.json)

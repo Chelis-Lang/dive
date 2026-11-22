@@ -24,6 +24,7 @@ use crate::core_native_values::NativeValues;
 mod prefix;
 
 struct Compiled {
+    batch: Option<dive_core::compile::ActionBatch>,
     column: Option<prefix::Column>,
     identity: *const PredicateAtom,
     plan: dive_core::plan::Plan,
@@ -141,6 +142,7 @@ pub(crate) struct NativeAtoms {
     fallback: u64,
     eligible_state: usize,
     eligible_action: usize,
+    batch_rows: u64,
     guard_probes: u64,
     unchanged_probes: u64,
     unchanged_rows: u64,
@@ -306,6 +308,7 @@ impl NativeAtoms {
                 continue;
             }
             result.compiled.push(Compiled {
+                batch: false_guard.batch,
                 column: None,
                 enabled_prefix: false_guard.enabled_prefix.and_then(|(p, reads)| {
                     Projection::new(Some(reads), model.ir.vars().len(), &mut key_lengths)
@@ -378,6 +381,7 @@ impl NativeAtoms {
             fallback: 0,
             eligible_state: 0,
             eligible_action: 0,
+            batch_rows: 0,
             guard_probes: 0,
             unchanged_probes: 0,
             unchanged_rows: 0,
@@ -418,6 +422,7 @@ impl NativeAtoms {
 
     pub(crate) fn metrics(&self) -> serde_json::Value {
         serde_json::json!({"total_atoms": self.total, "eligible_atoms": self.eligible,
+            "action_batches":{"plans":self.compiled.iter().filter(|p|p.batch.is_some()).count(),"rows":self.batch_rows},
             "unchanged_target_guards":{"plans":self.compiled.iter().filter(|p|p.unchanged_guard.is_some()).count(),"probes":self.unchanged_probes,"rows":self.unchanged_rows,"edges":self.unchanged_edges},
             "action_source_guards": {"plans": self.compiled.iter().filter(|p| p.false_guard.is_some()).count(),
                 "probes": self.guard_probes, "false_rows": self.guard_rows},
@@ -1258,6 +1263,75 @@ impl NativeReader for Reader<'_, '_> {
         Ok(native)
     }
 
+    fn action_row(
+        &mut self,
+        atom: &PredicateAtom,
+        graph: &dive_runtime::capture::CsrCapture<'_>,
+        source: usize,
+        control: &EvaluationControl,
+    ) -> Result<Option<u64>, AnalysisError> {
+        let Some(index) = self.atoms.position(atom) else {
+            return Ok(None);
+        };
+        let compiled = &self.atoms.compiled[index];
+        let Some(batch) = &compiled.batch else {
+            return Ok(None);
+        };
+        let retained = self.proofs.graph;
+        if !std::ptr::eq(graph.offsets(), retained.input().offsets)
+            || self.atoms.fuel != NATIVE_FUEL
+            || compiled.exhausted_in_a_row >= FUEL_STRIKES
+            || self.proofs.metrics.certified != retained.input().retained_rows as u64
+            || !retained.owns_store(self.atoms.machine.heap.store())
+            || self.atoms.machine.heap.poisoned()
+        {
+            return Ok(None);
+        }
+        let range = graph
+            .outgoing_range(source)
+            .ok_or(AnalysisError::Inconsistent("native action batch row"))?;
+        let len = range.len();
+        if !(2..=16).contains(&len) {
+            return Ok(None);
+        }
+        let before = graph
+            .representative_row(source)
+            .ok_or(AnalysisError::Inconsistent("native action batch source"))?;
+        let source_row = retained.row(before)?;
+        let mut rows = [source_row; 16];
+        let mut ids = [before; 16];
+        for pos in 0..len - 1 {
+            let Some(original) = graph.original_row(source, pos) else {
+                return Ok(None);
+            };
+            let to = graph
+                .target(range.start + pos)
+                .ok_or(AnalysisError::Inconsistent("native action batch target"))?;
+            if graph.representative_row(to) != Some(original) {
+                return Ok(None);
+            }
+            rows[pos] = retained.row(original)?;
+            ids[pos] = original;
+        }
+        check(&self.atoms.control, control)?;
+        let bits = batch.evaluate(
+            &compiled.plan,
+            &mut self.atoms.machine,
+            source_row,
+            &rows[..len],
+            self.atoms.fuel,
+        );
+        check(&self.atoms.control, control)?;
+        if let Some(bits) = bits {
+            self.atoms.batch_rows += 1;
+            if self.atoms.audit {
+                for (pos, &after) in ids[..len].iter().enumerate() {
+                    self.audit(atom, before, Some(after), bits & (1 << pos) != 0, control)?;
+                }
+            }
+        }
+        Ok(bits)
+    }
     fn action_row_false(
         &mut self,
         atom: &PredicateAtom,
@@ -1283,7 +1357,12 @@ impl NativeReader for Reader<'_, '_> {
             .atoms
             .false_guard(atom, self.proofs.graph.row(before)?, control)?;
         self.atoms.guard_rows += u64::from(answer);
-        if !answer {
+        if !answer
+            && self
+                .atoms
+                .position(atom)
+                .is_none_or(|index| self.atoms.compiled[index].batch.is_none())
+        {
             self.unchanged = self.atoms.unchanged_target_guard(
                 atom,
                 before,
@@ -2879,6 +2958,101 @@ P == <>(x=1)
                 assert_eq!(atoms.metrics()["audit"], true);
             });
         }
+    }
+
+    #[test]
+    fn action_batch_matches_each_original_with_overlapping_branches_and_partial_subscript() {
+        use dive_runtime::capture::CsrCapture;
+        let text = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLES x,y
+vars == <<x,y>>
+Init == x=0 /\ y=0
+Act(k) == /\ x'=k /\ y'=1-y
+Next == Act(0) \/ Act(1) \/ Act(1)
+Spec == Init /\ [][Next]_vars /\ WF_<<x>>(Act(0)) /\ SF_<<x>>(Act(1))
+P == <> (y=2)
+====";
+        with_wrappers(text, false, |prepared, driver, atoms, control| {
+            let options = dive_runtime::CheckOptions::dive(0);
+            let (graph, mut values) = capture(prepared, &options);
+            let csr = CsrCapture::checked_targets(graph.input(), graph.limits(), control)
+                .expect("valid captured row");
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            reader.atoms.audit = true;
+            for row in 0..graph.input().retained_rows {
+                assert!(
+                    reader
+                        .proofs
+                        .closed(&reader.atoms.machine.heap, row)
+                        .expect("closed")
+                );
+            }
+            let mut seen = (0, 0);
+            for atom in driver
+                .native_predicates()
+                .filter(|atom| matches!(atom.test, AtomTest::Nonstuttering { .. }))
+            {
+                for source in 0..csr.closed_rows() {
+                    let bits = reader
+                        .action_row(atom, &csr, source, control)
+                        .expect("audited physical row")
+                        .expect("batch admitted");
+                    seen.0 += bits.count_ones();
+                    seen.1 += usize::from(bits == 0);
+                }
+            }
+            assert!(seen.0 > 0 && seen.1 > 0);
+            assert!(reader.atoms.audit_mismatch().is_none());
+        });
+    }
+
+    #[test]
+    fn action_batch_declines_a_demanded_type_error_and_skips_an_unreachable_one() {
+        let text = r#"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLES x,y
+vars == <<x,y>>
+Init == x=0 /\ y=0
+Next == x'=1-x /\ y'=0
+Act == /\ x'=1 /\ y'="bad"
+Spec == Init /\ [][Next]_vars /\ WF_vars(Act)
+P == <> (y=2)
+===="#;
+        with_wrappers(text, false, |_prepared, driver, atoms, _control| {
+            let atom = driver
+                .native_predicates()
+                .find(|a| matches!(a.test, AtomTest::Nonstuttering { .. }))
+                .expect("action");
+            let index = atoms.position(atom).expect("compiled");
+            let compiled = &atoms.compiled[index];
+            let batch = compiled.batch.as_ref().expect("deterministic plan");
+            let zero = Handle::int(0).expect("inline zero");
+            let one = Handle::int(1).expect("inline one");
+            let before = [zero, zero];
+            let mismatch = [zero, one];
+            let reaches_error = [one, zero];
+            assert_eq!(
+                batch.evaluate(
+                    &compiled.plan,
+                    &mut atoms.machine,
+                    &before,
+                    &[&before, &mismatch],
+                    NATIVE_FUEL
+                ),
+                Some(0)
+            );
+            assert_eq!(
+                batch.evaluate(
+                    &compiled.plan,
+                    &mut atoms.machine,
+                    &before,
+                    &[&mismatch, &reaches_error],
+                    NATIVE_FUEL
+                ),
+                None
+            );
+        });
     }
 
     #[test]

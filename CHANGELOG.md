@@ -5,6 +5,8 @@ are in git history.
 
 ## Unreleased
 
+- Core evaluates eligible [fairness actions](docs/user/temporal.md#fairness) across original transitions sharing a source. Three-floor Elevator took 2.04 seconds and the four-floor counterexample took 6.91 seconds on the benchmark host.
+
 - Core evaluates finite predecessor function equations in the default profile, including the released LuPastry+ routing table.
 
 - Named symbolic proofs can infer and certify finite layouts for sources without a default layout operator.
