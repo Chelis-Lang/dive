@@ -1,0 +1,313 @@
+{
+  "binary_sha256": "7fea24218d106522f7ab1a68573749414ab9707f12b348520e0b7998be827b0c",
+  "input_sha256": {
+    "Elevator.tla": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+    "n7.cfg": "a75424aeb60b0e1ed5d4c06a35b23d9e4c00678da6ffd81879e1cebc89811e62",
+    "n8.cfg": "8e47b6d02a43b7da679a04d8b521c9dfdae7c51407f2e492002361ee6f48ac43",
+    "seven.json": "a6a233951764ff943c957213c8365aff281d24cd47358dc1c11c4467d84f6e83",
+    "MCRealTimeHourClock.tla": "1228de54f974e17a0f9ce400ecc45464f7183eec8539f416a65cf60e8a4b61fd",
+    "MCRealTimeHourClock.cfg": "b26012ee5ada7f610272add600fcc72d536df7136937428a38d5a3587a4230d8",
+    "HourClock.tla": "985903176db4725f9cf25df84ad84dcd53ba94be80d26298b87ec86fbc9b08b3",
+    "slower/MCRealTimeHourClock.tla": "3151717158e9ed2e24ee26691814158676392f9016abea5b8a6c1cfbd89f8a61",
+    "slower/MCRealTimeHourClock.cfg": "b26012ee5ada7f610272add600fcc72d536df7136937428a38d5a3587a4230d8",
+    "fairness/MCRealTimeHourClock.tla": "c5792d9b45fef2c94882c128f13dd97cb4edfee9a45d53ca9e99b2f3b07d92a0",
+    "fairness/MCRealTimeHourClock.cfg": "381950af5429cb5c015f95150436f4235c8b9d048686f64c09b48f8c4677f820",
+    "fixed/MCRealTimeHourClock.tla": "cb07923c8b0013ff04235634349b53659b8600e4c99216defde64fcdca3f5419",
+    "fixed/MCRealTimeHourClock.cfg": "b26012ee5ada7f610272add600fcc72d536df7136937428a38d5a3587a4230d8",
+    "stale/MCRealTimeHourClock.tla": "3151717158e9ed2e24ee26691814158676392f9016abea5b8a6c1cfbd89f8a61",
+    "stale/MCRealTimeHourClock.cfg": "b5b5e0a1b57b4d47f3f4f6cb283601c4b744810b32ef6afe3575d7680b3259f6"
+  },
+  "samples": [
+    {
+      "case": "same-elevator",
+      "result": "valid",
+      "failure": null,
+      "wall_ms": 83.542,
+      "peak_rss_kib": 30476,
+      "exit": 0,
+      "repair": {
+        "candidate_validation": null,
+        "gaps": 0,
+        "generated": 0,
+        "reason": null,
+        "search_ms": 0.0,
+        "status": "unchanged",
+        "validation_ms": 65.37608
+      },
+      "length": 249,
+      "word_sha256": "a6a233951764ff943c957213c8365aff281d24cd47358dc1c11c4467d84f6e83"
+    },
+    {
+      "case": "old-seven-on-eight",
+      "result": "invalid",
+      "failure": {
+        "check": "next",
+        "detail": "the step into this state does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+        "state": 19
+      },
+      "wall_ms": 24.637,
+      "peak_rss_kib": 30448,
+      "exit": 1
+    },
+    {
+      "case": "map-seven-anchors",
+      "wall_ms": 7.134
+    },
+    {
+      "case": "mapped-anchors",
+      "result": "invalid",
+      "failure": {
+        "check": "next",
+        "detail": "the step into this state does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+        "state": 9
+      },
+      "wall_ms": 23.505,
+      "peak_rss_kib": 30380,
+      "exit": 1
+    },
+    {
+      "case": "repair-eight",
+      "result": "valid",
+      "failure": null,
+      "wall_ms": 118.351,
+      "peak_rss_kib": 35028,
+      "exit": 0,
+      "repair": {
+        "candidate_validation": null,
+        "gaps": 13,
+        "generated": 189,
+        "reason": null,
+        "search_ms": 16.162930999999997,
+        "status": "repaired",
+        "validation_ms": 85.836514
+      },
+      "length": 262,
+      "word_sha256": "7c38d6c67b8d3858567aee18460a795567071596da2352b4a274b976f1197536"
+    },
+    {
+      "case": "fresh-eight",
+      "result": "valid",
+      "failure": null,
+      "wall_ms": 84.701,
+      "peak_rss_kib": 32392,
+      "exit": 0
+    },
+    {
+      "case": "damaged-eight",
+      "result": "invalid",
+      "failure": {
+        "check": "next",
+        "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+        "state": 261
+      },
+      "wall_ms": 34.961,
+      "peak_rss_kib": 32468,
+      "exit": 1
+    },
+    {
+      "case": "cold-original-clock",
+      "verdict": "liveness-violation",
+      "counts": {
+        "depth": 2,
+        "distinct": 216,
+        "generated": 696,
+        "initial_generated": 72,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "wall_ms": 8.873,
+      "peak_rss_kib": 26604,
+      "exit": 13
+    },
+    {
+      "case": "same-clock",
+      "result": "valid",
+      "failure": null,
+      "wall_ms": 6.726,
+      "peak_rss_kib": 20016,
+      "exit": 0,
+      "repair": {
+        "candidate_validation": null,
+        "gaps": 0,
+        "generated": 0,
+        "reason": null,
+        "search_ms": 0.0,
+        "status": "unchanged",
+        "validation_ms": 1.6844029999999999
+      },
+      "length": 2,
+      "word_sha256": "b63cfeac7949db81540e248a5f75ba0e56bffd184a23a5d22ddf43ad4ad56fab"
+    },
+    {
+      "case": "broken-clock",
+      "result": "invalid",
+      "failure": {
+        "check": "next",
+        "detail": "the step into this state does not satisfy the next-state relation line 23, col 12 to line 27, col 43 of module MCRealTimeHourClock",
+        "state": 1
+      },
+      "wall_ms": 6.787,
+      "peak_rss_kib": 20020,
+      "exit": 1
+    },
+    {
+      "case": "repair-clock",
+      "result": "valid",
+      "failure": null,
+      "wall_ms": 9.71,
+      "peak_rss_kib": 20504,
+      "exit": 0,
+      "repair": {
+        "candidate_validation": null,
+        "gaps": 1,
+        "generated": 6,
+        "reason": null,
+        "search_ms": 1.040067,
+        "status": "repaired",
+        "validation_ms": 3.3242130000000003
+      },
+      "length": 4,
+      "word_sha256": "0706410f379d7c6c90c940d02467791fd504d5d3b65e1abe59f6f57f1c02321f"
+    },
+    {
+      "case": "fresh-clock",
+      "result": "valid",
+      "failure": null,
+      "wall_ms": 6.958,
+      "peak_rss_kib": 19948,
+      "exit": 0
+    },
+    {
+      "case": "damaged-clock",
+      "result": "invalid",
+      "failure": {
+        "check": "next",
+        "detail": "the step into this state does not satisfy the next-state relation line 23, col 12 to line 27, col 43 of module MCRealTimeHourClock",
+        "state": 1
+      },
+      "wall_ms": 6.92,
+      "peak_rss_kib": 20092,
+      "exit": 1
+    },
+    {
+      "case": "fairness",
+      "result": "invalid",
+      "failure": {
+        "check": "next",
+        "detail": "the step into this state does not satisfy the next-state relation line 43, col 27 to line 43, col 33 of module MCRealTimeHourClock",
+        "state": 1
+      },
+      "wall_ms": 9.325,
+      "peak_rss_kib": 20452,
+      "exit": 1,
+      "repair": {
+        "candidate_validation": {
+          "command": "validate-trace",
+          "failure": {
+            "check": "fairness",
+            "detail": "behavior temporal conjunct line 43, col 52 to line 43, col 87 of module MCRealTimeHourClock is false on this word",
+            "state": 0
+          },
+          "length": 4,
+          "notes": [],
+          "result": "invalid",
+          "schema_version": 4
+        },
+        "gaps": 1,
+        "generated": 6,
+        "reason": "replacement failed independent validation",
+        "search_ms": 1.1199249999999998,
+        "status": "unrepaired",
+        "validation_ms": 3.234938
+      }
+    },
+    {
+      "case": "fixed",
+      "result": "invalid",
+      "failure": {
+        "check": "next",
+        "detail": "the step into this state does not satisfy the next-state relation line 23, col 12 to line 27, col 43 of module MCRealTimeHourClock",
+        "state": 1
+      },
+      "wall_ms": 8.873,
+      "peak_rss_kib": 20280,
+      "exit": 1,
+      "repair": {
+        "candidate_validation": {
+          "command": "validate-trace",
+          "failure": {
+            "check": "temporal",
+            "detail": "temporal property ErrorTemporal holds on this word",
+            "state": 0
+          },
+          "length": 4,
+          "notes": [],
+          "result": "invalid",
+          "schema_version": 4
+        },
+        "gaps": 1,
+        "generated": 6,
+        "reason": "replacement failed independent validation",
+        "search_ms": 1.117745,
+        "status": "unrepaired",
+        "validation_ms": 3.07212
+      }
+    },
+    {
+      "case": "ordinary-fallback-fixed",
+      "verdict": "success",
+      "counts": {
+        "depth": 4,
+        "distinct": 216,
+        "generated": 576,
+        "initial_generated": 72,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "wall_ms": 6.186,
+      "peak_rss_kib": 19000,
+      "exit": 0
+    },
+    {
+      "case": "stale",
+      "result": "invalid",
+      "failure": {
+        "check": "ending",
+        "detail": "the model has no temporal property named `ErrorTemporal`",
+        "state": 0
+      },
+      "wall_ms": 6.44,
+      "peak_rss_kib": 19944,
+      "exit": 1,
+      "repair": {
+        "candidate_validation": null,
+        "gaps": 0,
+        "generated": 0,
+        "reason": null,
+        "search_ms": 0.0,
+        "status": "unrepaired",
+        "validation_ms": 1.2453239999999999
+      }
+    }
+  ],
+  "machine": {
+    "type": "dedicated EC2 c7i.4xlarge, x86_64 Linux",
+    "region": "us-east-2",
+    "build": "release, LTO off, 16 codegen units",
+    "examples": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "search_limits": "30 s, sampled process RSS + swap 512 MiB, 32768 generated, 4096 retained search nodes per gap, 4096 word states, 128 gaps, four transitions per gap"
+  },
+  "command": "python3 scripts/perf/scale/temporal-repair-panel.py DIVE EXAMPLES/specifications WORKDIR [--seven-word PINNED_WORD]",
+  "cold_seven": {
+    "seconds": 246.1,
+    "rss_kib": 1555192,
+    "build": "preceding main, LTO off",
+    "view": "regenerated donor for this experiment, 300 s limit"
+  },
+  "cold_eight": {
+    "seconds": 360.06,
+    "outcome": "stopped",
+    "record": "2026-11-22-elevator-seven.json"
+  },
+  "interpretation": "Fresh processes for each row. The clock input edit still has a fast ordinary check. The 8-floor repair reused an explicit map of 7 old floor numbers; the source supplied every intervening step. These results certify the named properties of an actual word. Counts inside the repair object count only visited generator occurrences. A repaired candidate was independently rejected after the changed fairness or property. A fresh check proved the fixed clock."
+}
