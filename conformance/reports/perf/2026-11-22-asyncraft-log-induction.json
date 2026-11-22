@@ -656,5 +656,33 @@
       "certificate_bytes": 1588,
       "certificate_sha256": "4c3ce7c20a53eeddef800c2697abfc127850a77d0169b07ef71b0efdc5b003e7"
     }
-  ]
+  ],
+  "independent_review": {
+    "host": "Separate process and private source directory on the dedicated c7i.4xlarge, isolated time window. Peak RSS was not captured for these solver repeats.",
+    "three_servers_three_messages": {
+      "seconds": 38.35,
+      "feasible": 48,
+      "crossing_constraint": 18,
+      "certificate_bytes": 1607,
+      "certificate_sha256": "4a64982114f2da706efcf9eb0efa5f484e16bd61e6aff86bfb922690f8c2ad07"
+    },
+    "two_servers_three_messages": {
+      "seconds": 8.91,
+      "feasible": 40,
+      "crossing_constraint": 12,
+      "certificate_bytes": 1607,
+      "certificate_sha256": "5c8d93bced7882417753c2407d7d2d8f9a3bb656edd503f06fab782611fce1d0"
+    },
+    "three_pending_mutant": {
+      "capacity_two_result": "proved",
+      "capacity_two_seconds": 23.5,
+      "capacity_three_result": "inconclusive: ClientRequestAction alternative 1 destination safety",
+      "capacity_three_seconds": 21.9
+    },
+    "controls": [
+      "Independent source projection, third distinct message, duplicate cardinality and guarded read controls",
+      "Genuine original and mutant words passed independent validation; incorrect-capacity, original-against-mutant and damaged controls were rejected",
+      "Original two-server, three-message scenario independently exhausted under TLC in the peer records"
+    ]
+  }
 }
