@@ -18,6 +18,8 @@ The scripts that produced the records are in
 
 [The 46 bounded peer configurations](2026-11-22-bounded-peers.json), [Core's explicit prefix on the same inputs](2026-11-22-explicit-prefix.json), [Elevator fairness controls](2026-11-22-elevator-fairness.json) and [the published Recomp-Verify and Scimitar artifacts](2026-11-22-published-peer-artifacts.json) have a shared [reproduction guide and interpretation](../../../docs/internal/survey/verification-workloads.md#bounded-checking-fairness-and-proofs).
 
+[Streett component search](2026-11-22-streett-component-search.json) compares the exact factored fairness searches on four-floor Elevator and a constrained public allocator. It includes elapsed time, peak RSS, phase timings, concrete word replay and source configuration.
+
 [Four-floor Elevator](2026-11-22-factored-streett.json) records the native counterexample, the independent Manyan word, damaged-cycle controls, host, phase timings and compact reproduction commands.
 
 [Grouped fairness on Elevator](2026-11-22-fairness-components.json) records one-worker wall time, phase timings, the matching Manyan comparison and an independently validated four-floor counterexample. See [fairness](../../../docs/user/temporal.md#fairness).

@@ -1,0 +1,496 @@
+{
+  "question": "Can ordinary Core reduce product search on the original four-floor Elevator by deciding factored Streett pairs on recurrent components?",
+  "host": "Dedicated AWS c7i.4xlarge, us-east-2; Intel Xeon Platinum 8488C (16 vCPUs), Ubuntu 24.04.5 LTS x86_64, pinned Rust 1.99.0 release profile.",
+  "baseline_source": "f27aa806a",
+  "examples_revision": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "manyan_revision": "a39816a873a2c2aabc00dbcef50908e996f3d44b",
+  "method": "Fresh serial processes on one dedicated host with one worker, seed 0, fp 0. Four floors uses three runs per arm ordered base/candidate, candidate/base, base/candidate. Wall time measures Python monotonic time around the command, excluding independent replay. Max process RSS is GNU time, in KiB. A short build and focused test on separate CPUs overlapped part of the panel; no competing checker ran. The three-floor and additional-source results are single controls.",
+  "commands": [
+    "Apply only FloorCount = 3 -> 4 to the pinned Examples specifications/MultiCarElevator/ElevatorLivenessLarge.cfg to create four.cfg.",
+    "dive check Elevator.tla --config four.cfg --workers 1 --seed 0 --fp 0 --time-limit 75s --max-memory 8g --output json > run.json",
+    "Use the same command with ElevatorLivenessLarge.cfg for the three-floor passing control.",
+    "Extract .counterexample.trace from run.json and run the pre-change dive validate-trace Elevator.tla --config four.cfg --trace word.json --seed 0 --fp 0 --output json. Change only ending.back_to to 0 and repeat. Trace hashes use sorted-key compact JSON plus newline.",
+    "For the allocator, place the recorded wrapper beside the pinned specifications/allocator/SimpleAllocator.tla and pass the recorded CFG to FairAllocatorHoldout.tla. Compare Manyan with -workers 1 -fp 0 -seed 0 -config allocator.cfg FairAllocatorHoldout.tla."
+  ],
+  "baseline_profile": {
+    "method": "One sample run with perf record -e cpu-clock -F 99. Scoped timing was a separate run with timers at discovery, ordering, repeated row construction, prefix search, SCC traversal and covering walk generation. Both used the original four-floor input and retained the expected violation.",
+    "search_alternative_cpu_pct": 7.48,
+    "conditioned_truth_cpu_pct": 6.39,
+    "residual_products": 19,
+    "scc_searches": 162,
+    "covering_walks": 74,
+    "scc_vertices_visited_across_searches": 22964384,
+    "seconds": {
+      "scc": 3.25179,
+      "prefix": 0.487722,
+      "discovery": 0.322281,
+      "order": 0.147399,
+      "repeated_rows": 0.278611,
+      "covering_walks": 0.010831
+    }
+  },
+  "executables_sha256": {
+    "base": "cf619b82b5ff9eee74cd92024cedf4a6b84da7110eacd5929a4fd0453e74c566",
+    "final": "2d81e0aacc14ea7b1d08a9fd5acf4c42b9545c0b63c0cd0cc56e7a708a63ed89",
+    "manyan": "355d9b0eb50c721206aaa1b8a62885525f857c5141db5003af33a9b7a723971b"
+  },
+  "inputs_sha256": {
+    "Elevator.tla": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+    "four.cfg": "707f56c9952ed53cee5dda44b20ed51224f0035039c73cd96a51ea02d34c0c49",
+    "ElevatorLivenessLarge.cfg": "f41449494507bb7def26453fd0bfc46a3928b6436de0da8d6aa888a13aed410c",
+    "SimpleAllocator.tla": "39180889fb44ea7cbba47e97c2fa727a54c43f8f7ff983caf61d67eb0a2db0e3",
+    "FairAllocatorHoldout.tla": "defd202f1fece912d2bc1670c5775fdc1e615bb8a505f36e9123eab0ae201d15",
+    "allocator.cfg": "bda8927da1f7d0094b3604b8b58039e72f607eaf9f81ed03408a58413fc36bed"
+  },
+  "four_floor_medians": {
+    "base": {
+      "wall_s": 18.53462,
+      "product_ms": 4556.161811,
+      "atoms_ms": 11717.505167,
+      "peak_rss_kib": 175292
+    },
+    "final": {
+      "wall_s": 15.29637,
+      "product_ms": 1583.115899,
+      "atoms_ms": 11576.104642,
+      "peak_rss_kib": 175844
+    }
+  },
+  "runs": [
+    {
+      "arm": "base",
+      "module": "Elevator",
+      "cfg": "four.cfg",
+      "rep": 0,
+      "wall_s": 18.36647,
+      "peak_rss_kib": 175376,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "statistics": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 11668.140019999999,
+        "attribution": 20.495752999999997,
+        "product": 4529.529271
+      },
+      "witness_states": 114,
+      "closing_target": 2,
+      "original_word": {
+        "sha256": "d10b9065ecf2f452dfdf2f59494ed3f1a9a658b30dab6f3b7513a6622e8c41fd",
+        "result": "valid",
+        "exit": 0,
+        "notes": []
+      },
+      "damaged_word": {
+        "sha256": "808fa0daaef43472cd5667d8c7daccbeb763059fa625c24e0877594dd1256c4c",
+        "result": "invalid",
+        "exit": 1,
+        "notes": []
+      }
+    },
+    {
+      "arm": "final",
+      "module": "Elevator",
+      "cfg": "four.cfg",
+      "rep": 0,
+      "wall_s": 15.56165,
+      "peak_rss_kib": 176000,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "statistics": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 11781.633556,
+        "attribution": 19.781321000000002,
+        "product": 1590.768629
+      },
+      "witness_states": 102,
+      "closing_target": 2,
+      "original_word": {
+        "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc",
+        "result": "valid",
+        "exit": 0,
+        "notes": []
+      },
+      "damaged_word": {
+        "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca",
+        "result": "invalid",
+        "exit": 1,
+        "notes": []
+      }
+    },
+    {
+      "arm": "final",
+      "module": "Elevator",
+      "cfg": "four.cfg",
+      "rep": 1,
+      "wall_s": 15.28311,
+      "peak_rss_kib": 175824,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "statistics": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 11497.998221000002,
+        "attribution": 18.689947,
+        "product": 1583.115899
+      },
+      "witness_states": 102,
+      "closing_target": 2,
+      "original_word": {
+        "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc",
+        "result": "valid",
+        "exit": 0,
+        "notes": []
+      },
+      "damaged_word": {
+        "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca",
+        "result": "invalid",
+        "exit": 1,
+        "notes": []
+      }
+    },
+    {
+      "arm": "base",
+      "module": "Elevator",
+      "cfg": "four.cfg",
+      "rep": 1,
+      "wall_s": 18.53462,
+      "peak_rss_kib": 175292,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "statistics": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 11717.505167,
+        "attribution": 20.506497,
+        "product": 4604.186786
+      },
+      "witness_states": 114,
+      "closing_target": 2,
+      "original_word": {
+        "sha256": "d10b9065ecf2f452dfdf2f59494ed3f1a9a658b30dab6f3b7513a6622e8c41fd",
+        "result": "valid",
+        "exit": 0,
+        "notes": []
+      },
+      "damaged_word": {
+        "sha256": "808fa0daaef43472cd5667d8c7daccbeb763059fa625c24e0877594dd1256c4c",
+        "result": "invalid",
+        "exit": 1,
+        "notes": []
+      }
+    },
+    {
+      "arm": "base",
+      "module": "Elevator",
+      "cfg": "four.cfg",
+      "rep": 2,
+      "wall_s": 18.7841,
+      "peak_rss_kib": 175228,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "statistics": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 12027.441740000002,
+        "attribution": 21.691174,
+        "product": 4556.161811
+      },
+      "witness_states": 114,
+      "closing_target": 2,
+      "original_word": {
+        "sha256": "d10b9065ecf2f452dfdf2f59494ed3f1a9a658b30dab6f3b7513a6622e8c41fd",
+        "result": "valid",
+        "exit": 0,
+        "notes": []
+      },
+      "damaged_word": {
+        "sha256": "808fa0daaef43472cd5667d8c7daccbeb763059fa625c24e0877594dd1256c4c",
+        "result": "invalid",
+        "exit": 1,
+        "notes": []
+      }
+    },
+    {
+      "arm": "final",
+      "module": "Elevator",
+      "cfg": "four.cfg",
+      "rep": 2,
+      "wall_s": 15.29637,
+      "peak_rss_kib": 175844,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "statistics": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 11576.104642,
+        "attribution": 19.502132,
+        "product": 1575.3115819999998
+      },
+      "witness_states": 102,
+      "closing_target": 2,
+      "original_word": {
+        "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc",
+        "result": "valid",
+        "exit": 0,
+        "notes": []
+      },
+      "damaged_word": {
+        "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca",
+        "result": "invalid",
+        "exit": 1,
+        "notes": []
+      }
+    },
+    {
+      "arm": "base",
+      "module": "Elevator",
+      "cfg": "ElevatorLivenessLarge.cfg",
+      "rep": "large",
+      "wall_s": 4.07578,
+      "peak_rss_kib": 99796,
+      "exit": 0,
+      "verdict": "success",
+      "property": null,
+      "statistics": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 2511.520911,
+        "product": 858.7008189999999
+      }
+    },
+    {
+      "arm": "final",
+      "module": "Elevator",
+      "cfg": "ElevatorLivenessLarge.cfg",
+      "rep": "large",
+      "wall_s": 4.0099,
+      "peak_rss_kib": 100524,
+      "exit": 0,
+      "verdict": "success",
+      "property": null,
+      "statistics": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 2472.459136,
+        "product": 825.13188
+      }
+    },
+    {
+      "arm": "base",
+      "module": "FairAllocatorHoldout",
+      "cfg": "allocator.cfg",
+      "rep": "holdout",
+      "wall_s": 0.22059,
+      "peak_rss_kib": 292496,
+      "exit": 0,
+      "verdict": "success",
+      "property": null,
+      "statistics": {
+        "depth": 3,
+        "distinct": 3,
+        "generated": 43,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 0.371027,
+        "product": 0.049771
+      }
+    },
+    {
+      "arm": "final",
+      "module": "FairAllocatorHoldout",
+      "cfg": "allocator.cfg",
+      "rep": "holdout",
+      "wall_s": 0.21888,
+      "peak_rss_kib": 293600,
+      "exit": 0,
+      "verdict": "success",
+      "property": null,
+      "statistics": {
+        "depth": 3,
+        "distinct": 3,
+        "generated": 43,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 0.379246,
+        "product": 0.06047
+      }
+    }
+  ],
+  "two_floor_controls": [
+    {
+      "case": "small-fair",
+      "module_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "99b3a1c26fe43dbaaf00fe57228a836c2f7e3e59ad00404f184885716558a6e2",
+      "manyan": {
+        "wall_s": 0.00551,
+        "exit": 0,
+        "peak_rss_kib": 3868,
+        "status": "success",
+        "generated": 68,
+        "distinct": 36
+      },
+      "dive": {
+        "wall_s": 0.01734,
+        "exit": 0,
+        "peak_rss_kib": 26856,
+        "status": "success",
+        "property": null,
+        "distinct": 36,
+        "generated": 68,
+        "depth": 12
+      }
+    },
+    {
+      "case": "small-no-move-SF",
+      "module_sha256": "c6e3199e16ddf3f44bee6e2573bccc2826df09ae77725aca62a93ae8634176e6",
+      "cfg_sha256": "99b3a1c26fe43dbaaf00fe57228a836c2f7e3e59ad00404f184885716558a6e2",
+      "replay": {
+        "result": "valid",
+        "exit": 0
+      },
+      "initial_stutter_replay": {
+        "result": "invalid",
+        "exit": 1
+      },
+      "original_fairness_replay": {
+        "result": "invalid",
+        "exit": 1
+      },
+      "manyan": {
+        "wall_s": 0.00482,
+        "exit": 13,
+        "peak_rss_kib": 3980,
+        "status": "violation",
+        "generated": 68,
+        "distinct": 36
+      },
+      "dive": {
+        "wall_s": 0.02371,
+        "exit": 13,
+        "peak_rss_kib": 35200,
+        "status": "liveness-violation",
+        "property": "TemporalInvariant",
+        "distinct": 36,
+        "generated": 68,
+        "depth": 12,
+        "witness_states": 6,
+        "ending": {
+          "back_to": 5,
+          "kind": "lasso"
+        }
+      }
+    },
+    {
+      "case": "medium-fair",
+      "module_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "3e6d67656512a5d2e4795c7de9c13d510096608e506c56f31f0fa4eb618d9290",
+      "manyan": {
+        "wall_s": 0.07905,
+        "exit": 0,
+        "peak_rss_kib": 10396,
+        "status": "success",
+        "generated": 14296,
+        "distinct": 4122
+      },
+      "dive": {
+        "wall_s": 0.27682,
+        "exit": 0,
+        "peak_rss_kib": 39112,
+        "status": "success",
+        "property": null,
+        "distinct": 4122,
+        "generated": 14296,
+        "depth": 36
+      }
+    }
+  ],
+  "public_allocator": {
+    "module": "https://github.com/tlaplus/Examples/blob/6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/allocator/SimpleAllocator.tla",
+    "scope": "All 14 clients retain the original strong-fairness assumptions. CONSTRAINT allows requests and allocations for one active client and one resource. Both original invariants and InfOftenSatisfied are checked on the constrained graph.",
+    "wrapper": "---- MODULE FairAllocatorHoldout ----\nEXTENDS SimpleAllocator\nCONSTANT Active\nActiveOnly == \\A c \\in Clients \\ Active : unsat[c] = {} /\\ alloc[c] = {}\n====\n",
+    "cfg": "CONSTANTS\n Clients = {c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14}\n Active = {c1}\n Resources = {r1}\nSPECIFICATION SimpleAllocator\nINVARIANTS TypeInvariant ResourceMutex\nPROPERTY InfOftenSatisfied\nCONSTRAINT ActiveOnly\nCHECK_DEADLOCK FALSE\n",
+    "manyan": {
+      "verdict": "success",
+      "exit": 0,
+      "generated": 43,
+      "distinct": 3,
+      "depth": 3,
+      "peak_rss_kib": 4696,
+      "elapsed_resolution": "below GNU time 0.01 s resolution"
+    }
+  },
+  "focused_small_core_ratchet": {
+    "baseline": "conformance/baselines/small-core-dive-w1.json",
+    "workers": 1,
+    "filters": [
+      "ElevatorLivenessMedium.cfg",
+      "MCLiveWriteThroughCache.cfg",
+      "ConfiguredReplyFails.cfg",
+      "ConfiguredReplyHolds.cfg"
+    ],
+    "agree": 4,
+    "regressions": 0
+  }
+}

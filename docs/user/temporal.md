@@ -510,21 +510,31 @@ same Large configuration in 1.31 s.
 Strong fairness permits either an action to become permanently disabled or the
 action to occur infinitely often. When expanding independent choices exhausts
 the formula work limit, Core can keep these pairs separate if they occur as
-conjuncts. It searches the residual property and inspects each candidate cycle.
-If a cycle violates a pair, Core checks both ways of meeting it. An accepting
-cycle goes through the ordinary property attribution and independent validation.
-A holding outcome requires all branches to finish. A nested disjunction can
-still reach the formula work limit.
+conjuncts. Core first considers the strongly connected components of each
+reachable tableau product. If an action never occurs inside a component, it
+must be disabled on every edge of an accepting cycle there. Core removes
+edges that fail that condition, then checks the smaller components. In a
+surviving component, the witness finder constructs a cycle that visits each
+required event. Property attribution and independent replay use the original
+states and edges, including the closing edge.
 
-On Elevator with four floors, two people and two elevators, ordinary Core
-finds a violation of `TemporalInvariant` on the original model. Its 114-state
-word took 18.74 s at one worker. Manyan found a 202-state word in 7.30 s.
-Both words pass independent validation. Changing only their closing targets
-makes both words invalid. The default Core run found the violation after
-150,372 distinct states. Manyan reported 281,976, so these timings measure
-time to a counterexample. Core in the TLC profile completed the depth-41
-graph and reported a validated violation in 100.63 s.
-[Four-floor comparison and replay instructions](../../conformance/reports/perf/2026-11-22-factored-streett.json)
+Up to 63 distinct Boolean conditions share one truth word per original edge.
+The index, component filters and cached product rows share the optional
+product memory allowance. When these buffers do not fit, Core can check
+candidate cycles individually and split a failed fairness pair into its two
+alternatives. A nested disjunction can still reach the formula work limit.
+
+On Elevator with four floors, two people and two elevators, both the component
+search and the individual-cycle search report a violation of
+`TemporalInvariant` after 150,372 distinct states. The component search finds
+a 102-state word and the individual search a 114-state word. In three
+one-worker runs per Core build on the same machine, median product time fell
+from 4.56 s to 1.58 s and median wall time from 18.53 s to 15.30 s. Manyan found a
+202-state word in 7.30 s at 281,976 distinct states. Independent replay accepts
+each original word and rejects each changed closing edge. The previously
+measured TLC-profile run completed the depth-41 graph and reported the
+violation in 100.63 s.
+[Component-search measurements and holdout](../../conformance/reports/perf/2026-11-22-streett-component-search.json) · [Earlier comparison and reproduction instructions](../../conformance/reports/perf/2026-11-22-factored-streett.json)
 
 dive can also reuse the evaluated truth of each `WF` and `SF` condition shared
 by several properties, in at most the smaller of 16 MiB and 1/256 of the

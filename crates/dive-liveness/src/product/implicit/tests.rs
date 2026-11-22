@@ -608,3 +608,87 @@ fn streett_components_match_exhaustive_alternatives_and_original_word_truth() {
     }
     assert!(cases.iter().all(|n| *n > 0));
 }
+
+#[test]
+fn an_absent_grant_can_force_a_second_persistence_filter() {
+    use super::streett_components::ComponentVerdict;
+    let f = Formula::new(
+        vec![
+            atom(AtomKind::State, 0),
+            Node::Always(0),
+            Node::Eventually(1),
+            atom(AtomKind::Action, 0),
+            Node::Eventually(3),
+            Node::Always(4),
+            Node::Or(vec![2, 5]),
+            atom(AtomKind::State, 1),
+            Node::Always(7),
+            Node::Eventually(8),
+            atom(AtomKind::Action, 1),
+            Node::Eventually(10),
+            Node::Always(11),
+            Node::Or(vec![9, 12]),
+            Node::And(vec![6, 13]),
+        ],
+        14,
+    )
+    .expect("two pairs");
+    let plan = formula::streett(&f, formula::Limits::default()).expect("factored");
+    let group = &plan.groups[0];
+    let tableau =
+        formula::compile_residual(&group.core, formula::Limits::default()).expect("tableau");
+    for has_loop in [false, true] {
+        // Removing 0's outgoing edge removes the only reachable second
+        // grant. Vertex 2 must then persist forever. Vertex 3 is unreachable.
+        let edges = vec![
+            vec![1],
+            vec![0, 2],
+            if has_loop { vec![1, 2] } else { vec![1] },
+            vec![3],
+        ];
+        let labels = Labels {
+            states: vec![
+                vec![false, true, true, true],
+                vec![false, false, true, true],
+            ],
+            actions: vec![
+                edges.iter().map(|r| vec![false; r.len()]).collect(),
+                edges
+                    .iter()
+                    .enumerate()
+                    .map(|(v, r)| vec![v == 0; r.len()])
+                    .collect(),
+            ],
+        };
+        let mut offsets = vec![0];
+        let mut targets = Vec::new();
+        for row in edges {
+            targets.extend(row);
+            offsets.push(targets.len());
+        }
+        let csr = crate::product::CsrTopology::new(&offsets, &targets, &[0]).expect("csr");
+        let product = ImplicitProduct::new(
+            &csr,
+            &tableau,
+            &labels,
+            Limits::default(),
+            AcceptancePolicy::Cells,
+        )
+        .expect("product");
+        let words = super::StreettWords::new(
+            (&csr).into(),
+            &labels,
+            &plan.pairs,
+            group.alternatives.iter(),
+        )
+        .expect("words")
+        .expect("fits");
+        let verdict = words
+            .solve(&product, &product, &group.alternatives[0], usize::MAX)
+            .expect("solve");
+        assert!(matches!(
+            (has_loop, verdict),
+            (true, ComponentVerdict::Accept(0)) | (false, ComponentVerdict::Empty)
+        ));
+    }
+}
