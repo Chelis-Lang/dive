@@ -508,3 +508,5 @@ field before quoting a number.
 | `2026-10-30-*.json`, `2026-10-31-*.json` | native temporal capacity observations and history-cost diagnostics |
 | `2026-11-01-*.json` to `2026-11-03-*.json` | integrated performance diagnostics and single adoption experiments, including rejected ones |
 | `2026-11-10-r2-procedure-e3835968.json` | the first complete R2 record (geomean 0.195x); the release record D1 repeats it on `08a14fba` |
+
+[All 34 original Recomp-Verify configurations](2026-11-22-recomp-originals.json) compare named safety results and 30-second whole-process timings with the upstream portfolio.

@@ -1,0 +1,1010 @@
+{
+  "artifact_revision": "0cbd95f0002af10f70f25c87638e8f2673229f2e",
+  "task": "Prove the original configured invariant. Each external wall budget was 30 s. No reachability cardinality is claimed.",
+  "method": "Runs in fresh process groups and temporary directories, in sequence on one dedicated EC2 Linux host, with Java 21 and Python 3.12/dd.cudd 0.6.0. One observation per checker/config. Wait polling rounds short process times upward. Per-process peak memory was not captured. Exits and deadlines are preserved.",
+  "reproduce": "python3 scripts/perf/scale/recomp_property_panel.py RECOMP --dive /path/to/dive --seconds 30",
+  "instances": "34 original CFGs, including 33 from Figure 5 plus ToyMutex",
+  "candidate_worker_hashes": {
+    "engine.py": "144c54d69642f19d23927e48a80b99406531b63cf34529981f2ba6757501873a",
+    "property_proof.py": "70a9ecdaf703d962f5ab3fe44a14fcc5b47004ee214a360c7dab66879b0a3f80",
+    "symbolic_input": "8831a01c482a4cc1fa9c8b5a18a1718004a26ea90d41d0109cbb9a0c159555bc",
+    "dive": "0dfa60576ab178ad5819bd630d2ae68a633ac0a14baa8edb5b32e17d3a8b40a7"
+  },
+  "control_correction": {
+    "config": "tcommit/3/TCommit.cfg",
+    "initial_layout": "TypeOK",
+    "initial_result": {
+      "exit": 2,
+      "wall_s": 0.265,
+      "result": "unsupported",
+      "reason": "expected one source layout operator named TypeOK"
+    },
+    "correct_layout": "TCTypeOK",
+    "corrected_baseline": {
+      "exit": 0,
+      "wall_s": 0.264,
+      "result": "inductive-safety"
+    }
+  },
+  "negative_control": "Remove the sole conjunct <<r,p>> \\in match from Respond on client_server_ae/2-4-2. Dive reports Safety violated at depth 4 and independently replays on the modified original.",
+  "rows": [
+    {
+      "config": "client_server_ae/2-4-2/client_server_ae.cfg",
+      "property": "Safety",
+      "source_sha256": "91d0a91cf1c83255c486cc5d50fd9f5ca5966dc96e293bba4599bfeee41eeb83",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.365,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.001,
+        "result": "deadline"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.314,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "client_server_ae/4-2-2/client_server_ae.cfg",
+      "property": "Safety",
+      "source_sha256": "aac42a0d31f0c2d76e87282743d6537e23232aedb8060e637b32403a9066f292",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.001,
+        "result": "deadline"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "client_server_db_ae/2-3-2/client_server_db_ae.cfg",
+      "property": "Safety",
+      "source_sha256": "9aefbc684a2792f1e9dc9f171cd8ef5d8667f1290002669663bdf70f8f295b91",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.516,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 19.027,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.515,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "client_server_db_ae/4-2-2/client_server_db_ae.cfg",
+      "property": "Safety",
+      "source_sha256": "a3236ed95b778c24354e0de966d37a13807677a2923932ac2806c8053b971ad1",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.264,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 2.12,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.001,
+        "result": "deadline"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 2.07,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "consensus/3/Consensus.cfg",
+      "property": "Inv",
+      "source_sha256": "4412a69d5f0f19aababe819d2a6ba3089e94e7c813739c37dbf3ea2e1328fe3d",
+      "cfg_sha256": "7f1b201aff42a6d76bd001a6c8957df2a6380e984fffcf475f951bd1e37f9308",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 0,
+        "wall_s": 0.264,
+        "result": "inductive-safety"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.218,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "consensus_epr/4-4/consensus_epr.cfg",
+      "property": "Safety",
+      "source_sha256": "6abb017283c13abda381721c898beb83ebce5fd6b58885e399235330b25e6035",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 2.371,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 6.704,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 2.07,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "consensus_forall/4-4/consensus_forall.cfg",
+      "property": "Safety",
+      "source_sha256": "cbc60c0fadde847938ec659cc87e561e44aff4b158b047dceaa48877b3507351",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "scalar assignment outside finite layout"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 10.776,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "scalar assignment outside finite layout"
+      }
+    },
+    {
+      "config": "consensus_wo_decide/4/consensus_wo_decide.cfg",
+      "property": "Safety",
+      "source_sha256": "1a8fe7fae2f036bbe76855f80da9033b496a22b7641060dfb4abeb2003a20a19",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "scalar assignment outside finite layout"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 11.506,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "scalar assignment outside finite layout"
+      }
+    },
+    {
+      "config": "firewall/5/firewall.cfg",
+      "property": "Inv",
+      "source_sha256": "86e3f7ec4e27f9c9696188b3283be8ac23eef4402b7765c3340d645a4b76ef32",
+      "cfg_sha256": "7f1b201aff42a6d76bd001a6c8957df2a6380e984fffcf475f951bd1e37f9308",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.264,
+        "result": "unsupported",
+        "reason": "Init choice over a non-atomic set"
+      },
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "Init choice over a non-atomic set"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 3.893,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "Init choice over a non-atomic set"
+      }
+    },
+    {
+      "config": "learning_switch_i4/4-3/learning_switch_i4.cfg",
+      "property": "Safety",
+      "source_sha256": "4ae1f4e971b57b25db8733860c7e55da82c97ce6aa9fdce1942c48f5d746e81d",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "Init choice over a non-atomic set"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.001,
+        "result": "deadline"
+      },
+      "integrated": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "Init choice over a non-atomic set"
+      }
+    },
+    {
+      "config": "learning_switch_sym/2/learning_switch.cfg",
+      "property": "Safety",
+      "source_sha256": "dd34f9a20ccb766d920b0a3b23e1724f74a8e45620e95725b30aede03199009a",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 2.028,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "learning_switch_trans/3/learning_switch.cfg",
+      "property": "Safety",
+      "source_sha256": "773efb904d2b369eb1a61576781f4e6bf3840beff11828a75f026df7b6caf89c",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.264,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": null,
+        "wall_s": 30.001,
+        "result": "deadline"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 6.862,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": null,
+        "wall_s": 30.001,
+        "result": "deadline"
+      }
+    },
+    {
+      "config": "lockserv/20/lockserv.cfg",
+      "property": "Mutex",
+      "source_sha256": "cf7a9fa627ce98e0081db3d86e993fab5df8b23d7c9c4adb41a3551d22ed4463",
+      "cfg_sha256": "68fc79e1013d3a184d6a75501b732f15cc96e167f436e2696231ad3a934b1361",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 0,
+        "wall_s": 0.365,
+        "result": "inductive-safety"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.365,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 2.975,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "lockserv_automaton/20/lockserv_automaton.cfg",
+      "property": "Mutex",
+      "source_sha256": "bc2cf4c5558d413eb350c99fd1d504477b9866be7075ff5a01e16a89a56da2f5",
+      "cfg_sha256": "68fc79e1013d3a184d6a75501b732f15cc96e167f436e2696231ad3a934b1361",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 4.027,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "lockserver/2-2/lockserver.cfg",
+      "property": "Inv",
+      "source_sha256": "ffcea6cb23ff339950253fe2253d76973108fd77c23ab0586c7aae38859cf7f2",
+      "cfg_sha256": "7f1b201aff42a6d76bd001a6c8957df2a6380e984fffcf475f951bd1e37f9308",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "mixed-type equality"
+      },
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "mixed-type equality"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.267,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "mixed-type equality"
+      }
+    },
+    {
+      "config": "majorityset_leader_election/5/majorityset_leader_election.cfg",
+      "property": "Safety",
+      "source_sha256": "646646ee09dc424ef100fb6ca5ddb1413897f70eb982defb2cd044d50fd21454",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "binder over a non-atomic set"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 1.769,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 17.762,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 1.719,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "mldr/2/MongoLoglessDynamicRaft.cfg",
+      "property": "OnePrimaryPerTerm",
+      "source_sha256": "794ab1eb9b83d83df75eb4715fa921d7d8db79e4f1e710112b030d66c44eba9e",
+      "cfg_sha256": "a97f75dcf3026048c406b6a9b5f8c42d4421a806551c29b721e32b070d3fe2b6",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR standard operator NaturalsNat"
+      },
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR standard operator NaturalsNat"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.001,
+        "result": "deadline"
+      },
+      "integrated": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR standard operator NaturalsNat"
+      }
+    },
+    {
+      "config": "naive_consensus/4-4/naive_consensus.cfg",
+      "property": "Safety",
+      "source_sha256": "a6bf69ba7babf1112f2569b9260808e360cf268ef1aec5f5c3eb78c517920b58",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.264,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 2.188,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "quorum_leader_election/6/quorum_leader_election.cfg",
+      "property": "Inv",
+      "source_sha256": "2068d25723f990180e743b1ed1a95fd176a933983171789205daecc3cada28eb",
+      "cfg_sha256": "7f1b201aff42a6d76bd001a6c8957df2a6380e984fffcf475f951bd1e37f9308",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "filter over a non-atomic set"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 6.662,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "sharded_kv/3-3-3/sharded_kv.cfg",
+      "property": "Safety",
+      "source_sha256": "1997191bebdbca3a89f70ed082037505cb7efa7c7623d8bbb19d2fbb78782d73",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "Init choice over a non-atomic set"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 3.327,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "Init choice over a non-atomic set"
+      }
+    },
+    {
+      "config": "sharded_kv_no_lost_keys/3-3-3/sharded_kv_no_lost_keys.cfg",
+      "property": "Safety",
+      "source_sha256": "6f1e9ea50615a4e992d7313fd68e85e69d2edd632134e822a5b7d3cddfd5aa6f",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.269,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "Init choice over a non-atomic set"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 2.423,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "Init choice over a non-atomic set"
+      }
+    },
+    {
+      "config": "simple/5/Simple.cfg",
+      "property": "PCorrect",
+      "source_sha256": "b63a39ff288ea3f6c03b94155f7195ed9250f4fdc8a2434709c569d3ca716019",
+      "cfg_sha256": "428a0a1b681e0dcd063d9dd006c001c2c72dc64506e35f9cc33199ee22c9ff8c",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.264,
+        "result": "unsupported",
+        "reason": "IR standard operator NaturalsNat"
+      },
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR standard operator NaturalsNat"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.268,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR standard operator NaturalsNat"
+      }
+    },
+    {
+      "config": "simple_decentralized_lock/4/simple_decentralized_lock.cfg",
+      "property": "Inv",
+      "source_sha256": "1cd43206c879fca2bb0a8daf9b6d9d2dc583f0f72170f22efc5bafb0eef47f95",
+      "cfg_sha256": "7f1b201aff42a6d76bd001a6c8957df2a6380e984fffcf475f951bd1e37f9308",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.264,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.521,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "simple_election/6-7/simple_election.cfg",
+      "property": "Safety",
+      "source_sha256": "0e79f3fc6b41c01ce0acf4fa81ba40b3922352dfaa0e14b1cd06e298e683512f",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.264,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 1.769,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.001,
+        "result": "deadline"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 1.77,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "simple_regular/5/SimpleRegular.cfg",
+      "property": "PCorrect",
+      "source_sha256": "83c4fa929fc9e45bebb82a525868c23ba426d5e517aa866e021d483e9f27205a",
+      "cfg_sha256": "428a0a1b681e0dcd063d9dd006c001c2c72dc64506e35f9cc33199ee22c9ff8c",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR standard operator NaturalsNat"
+      },
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR standard operator NaturalsNat"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.318,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR standard operator NaturalsNat"
+      }
+    },
+    {
+      "config": "tcommit/3/TCommit.cfg",
+      "property": "TCConsistent",
+      "source_sha256": "f034f658831b55491e8ba3572dbecf298a536b1539dec88dee2945766ad39ef4",
+      "cfg_sha256": "4f549ff13381d9e196cc0dc6e5c045e2f27ae9d5a24a0d195578e41891739b9a",
+      "layout": "TCTypeOK",
+      "previous": {
+        "exit": 0,
+        "wall_s": 0.264,
+        "result": "inductive-safety"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.168,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "toy_consensus/8-3/toy_consensus.cfg",
+      "property": "Inv",
+      "source_sha256": "394d6aeb9cc0150e10073d818d6fd7137eaf20686f0010ea8e8f4317676e98bf",
+      "cfg_sha256": "7f1b201aff42a6d76bd001a6c8957df2a6380e984fffcf475f951bd1e37f9308",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "filter over a non-atomic set"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.365,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 8.32,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.365,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "toy_consensus_epr/8-3/toy_consensus_epr.cfg",
+      "property": "Safety",
+      "source_sha256": "12ba1c60dd9d8961e2b37b41f1e880ca43497522be261de7b78535f940831e5e",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR expression Cartesian"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.566,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 9.173,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.566,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "toy_consensus_forall/6-6/toy_consensus_forall.cfg",
+      "property": "Inv",
+      "source_sha256": "9ae413e7759cce74d87bac68a4bf27b5b5fca88d878f59973685d8a8734eadb1",
+      "cfg_sha256": "7f1b201aff42a6d76bd001a6c8957df2a6380e984fffcf475f951bd1e37f9308",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "filter over a non-atomic set"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 6.993,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "toy_mutex/2/ToyMutex.cfg",
+      "property": "Mutex",
+      "source_sha256": "f8a2f7c1ba9bac7d06734c3acba43c1ad8523e46cb7d4cae8d2cd0a41554d31b",
+      "cfg_sha256": "68fc79e1013d3a184d6a75501b732f15cc96e167f436e2696231ad3a934b1361",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR standard operator NaturalsNat"
+      },
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR standard operator NaturalsNat"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.723,
+        "result": "property-satisfied"
+      },
+      "integrated": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR standard operator NaturalsNat"
+      }
+    },
+    {
+      "config": "two_phase/10/TwoPhase.cfg",
+      "property": "Consistent",
+      "source_sha256": "0f1906cff018ec94c44022a744ee2dc6a3330fe4eb0488ec8ca490e1c9b28d5f",
+      "cfg_sha256": "7241e5516ee4aea7f0edf9dbf6d2e948269a970b24e75c01a9a9ce32be55bb3b",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 0,
+        "wall_s": 0.264,
+        "result": "inductive-safety"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.001,
+        "result": "deadline"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "two_phase/9/TwoPhase.cfg",
+      "property": "Consistent",
+      "source_sha256": "61a8b9ad8cdce719b956bb3498e68b29edf18a570cc1b7e5878caa935b630c1e",
+      "cfg_sha256": "7241e5516ee4aea7f0edf9dbf6d2e948269a970b24e75c01a9a9ce32be55bb3b",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.001,
+        "result": "deadline"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.264,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "two_phase_commit/7/two_phase_commit.cfg",
+      "property": "Safety",
+      "source_sha256": "7fe30c35d54fed2de08b9a394f51e25506281031d4d2f1e73ca9cac60df6a471",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "unsupported action guard: overlapping boolean alternatives"
+      },
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "unsupported action guard: overlapping boolean alternatives"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.001,
+        "result": "deadline"
+      },
+      "integrated": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "unsupported action guard: overlapping boolean alternatives"
+      }
+    },
+    {
+      "config": "two_phase_counter/9/TwoPhaseCounter.cfg",
+      "property": "Consistent",
+      "source_sha256": "fba2a25ac500f3b9a14cbefd1df72090f68997d881c9e0ea0adb2a79a5964961",
+      "cfg_sha256": "7241e5516ee4aea7f0edf9dbf6d2e948269a970b24e75c01a9a9ce32be55bb3b",
+      "layout": "TypeOK",
+      "previous": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.264,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.001,
+        "result": "deadline"
+      },
+      "integrated": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      }
+    }
+  ],
+  "host": "EC2 c7i.4xlarge, Intel Xeon Platinum 8488C, 16 logical CPUs, Linux 7.0.0-1018-aws",
+  "integrated_confirmation": "Second pass with landed closed-guard, unchanged-table and obligation receipt changes: unchanged result on all 34. Times in the dive column isolate tuple/subset support prior to integrating those changes.",
+  "integrated_worker_sha256": {
+    "engine.py": "9952672193ea475c9582908614e99da24ee76f73afb7493b1c649157935c2632",
+    "property_proof.py": "5aa41ca906dfe33aa754de32ae1f5819b25ad3b83add24314808d887cebc5b63",
+    "induction.py": "b7ecbea58d652aeba18b8555d3d54395a273da911ef358582154a35e68682785",
+    "check.py": "d0f8536955c7884494848940740c9ef3c24ddada7047a5c067d0682e61799804"
+  },
+  "negative_reproduce": "python3 scripts/symbolic/test_property_relations.py /path/to/dive --client-server RECOMP/benchmarks/tla/client_server_ae/2-4-2/client_server_ae.tla"
+}
