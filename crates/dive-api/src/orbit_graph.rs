@@ -154,26 +154,35 @@ impl Graph {
     }
 }
 
-/// Check adjacent transpositions of the named untyped model values on the exact reachable graph.
-/// Every configured invariant and step predicate must hold on the complete original capture.
-/// No state or transition constraints, prior reduction, liveness or model effects are admitted.
-///
-/// # Errors
-/// The inputs cannot be bound, the search did not succeed completely, or a swap failed.
-pub fn certify(
+fn is_carrier(entry: &dive_config::ConstantEntry, atoms: &[String]) -> bool {
+    let dive_config::ConstantEntry::Assignment {
+        args,
+        module: None,
+        value,
+        ..
+    } = entry
+    else {
+        return false;
+    };
+    let dive_config::ConfigValue::Set(elements) = &value.value else {
+        return false;
+    };
+    args.is_empty()
+        && elements.len() == atoms.len()
+        && atoms.iter().all(|name| {
+            elements.iter().any(|member| {
+            member.value.model_value_type().is_none() &&
+                matches!(&member.value, dive_config::ConfigValue::ModelValue(atom) if atom == name)
+        })
+        })
+}
+
+fn prepare(
     file: &Path,
     config: &Path,
     atoms: &[String],
     workers: usize,
-) -> Result<serde_json::Value, String> {
-    if !(2..=4).contains(&atoms.len())
-        || !atoms.windows(2).all(|p| p[0] < p[1])
-        || !(1..=256).contains(&workers)
-    {
-        return Err(
-            "expected two to four sorted distinct carrier atoms and 1 to 256 workers".into(),
-        );
-    }
+) -> Result<(core_engine::Prepared, Symmetry), String> {
     let analysis =
         crate::analyze_file(file, &AnalyzeOptions::default()).map_err(|e| e.to_string())?;
     let parsed = crate::parse_config_file(config).map_err(|e| e.to_string())?;
@@ -181,6 +190,11 @@ pub fn certify(
         return Err("source or CFG did not pass analysis".into());
     }
     let cfg = parsed.config().ok_or("invalid CFG")?;
+    if !cfg.constants.iter().any(|entry| is_carrier(entry, atoms)) {
+        return Err(
+            "carrier must be a configured literal set of these untyped model values".into(),
+        );
+    }
     let ir = Arc::new(dive_ir::lower(analysis.analysis()).map_err(|e| format!("lowering: {e:?}"))?);
     if let Some(reason) = core_engine::edit_input_refusal(&ir, cfg) {
         return Err(reason.into());
@@ -200,6 +214,8 @@ pub fn certify(
         || plan.view.is_some()
         || !plan.constraints.is_empty()
         || !plan.action_constraints.is_empty()
+        || prepared.model.stateful_checking().is_some()
+        || prepared.model.runtime_name_order
         || !prepared.model.temporals.is_empty()
         || !prepared.model.implied_temporals.is_empty()
         || !plan.implied_inits.is_empty()
@@ -226,10 +242,35 @@ pub fn certify(
             .map(|w| vec![(w[0], w[1]), (w[1], w[0])])
             .collect(),
     );
+    Ok((prepared, swaps))
+}
+
+/// Check adjacent transpositions of the named untyped model values on the exact reachable graph.
+/// Every configured invariant and step predicate must hold on the complete original capture.
+/// No state or transition constraints, prior reduction, liveness or model effects are admitted.
+///
+/// # Errors
+/// The inputs cannot be bound, the search did not succeed completely, or a swap failed.
+pub fn certify(
+    file: &Path,
+    config: &Path,
+    atoms: &[String],
+    workers: usize,
+) -> Result<serde_json::Value, String> {
+    if !(2..=4).contains(&atoms.len())
+        || !atoms.windows(2).all(|p| p[0] < p[1])
+        || !(1..=256).contains(&workers)
+    {
+        return Err(
+            "expected two to four sorted distinct carrier atoms and 1 to 256 workers".into(),
+        );
+    }
+    let (prepared, swaps) = prepare(file, config, atoms, workers)?;
+    let plan = &prepared.plan;
     let search = dive_explore::Config {
-        opts,
+        opts: Opts::default(),
         workers,
-        warn: options.eval.warnings,
+        warn: prepared.model.evaluator.options().warnings,
         max_states: Some(u64::from(u32::MAX)),
         max_depth: None,
         sample: None,

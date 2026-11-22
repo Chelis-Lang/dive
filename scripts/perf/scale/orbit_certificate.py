@@ -27,7 +27,7 @@ def authority():
     key = os.environ.get("DIVE_ORBIT_PROOF_KEY")
     if not key:
         return None
-    path = Path(key).resolve()
+    path = Path(key).expanduser()
     with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), "rb") as f:
         mode = os.fstat(f.fileno())
         if not stat.S_ISREG(mode.st_mode) or mode.st_uid != os.getuid() or stat.S_IMODE(mode.st_mode) not in (0o400, 0o600):
@@ -54,6 +54,14 @@ def run_checked(command, folder, seconds, memory_mib, source=None):
     return completed.stdout
 
 
+class OriginalCounterexample(ValueError):
+    """The fresh ordinary run found a failure before any graph proof is issued."""
+
+    def __init__(self, result):
+        super().__init__("original input has a counterexample")
+        self.result = result
+
+
 def counts(row):
     return tuple(row[name] for name in ("distinct", "generated", "depth"))
 
@@ -70,7 +78,8 @@ def establish(args, folder, original, identity, reduced, ordinary):
     helper = folder / ".orbit-proof-helper"
     shutil.copyfile((args.exporter if finite else args.graph_auditor).resolve(), helper)
     helper.chmod(0o500)
-    run = lambda cmd, data=None: run_checked(cmd, folder, args.seconds, args.proof_memory_mib, data)
+    def run(command, data=None):
+        return run_checked(command, folder, args.seconds, args.proof_memory_mib, data)
     namespace = dict(version=1, method=args.certify_equivariance, inputs=pins, checker=identity["binary_sha256"],
                      driver=identity["driver_sha256"], helper=digest(helper), verifier=digest(Path(__file__)),
                      layout=args.type_invariant if finite else None, workers=args.workers, platform=platform.machine(),
@@ -86,18 +95,26 @@ def establish(args, folder, original, identity, reduced, ordinary):
     if cache:
         path = cache / (context + ".json")
         try:
-            with path.open("rb") as stream:
-                raw = stream.read(65537)
+            with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), "rb") as stream:
+                raw = stream.read(65537) if stat.S_ISREG(os.fstat(stream.fileno()).st_mode) else b""
             if len(raw) <= 65536:
                 envelope = json.loads(raw)
                 prior, mac = envelope["proof"], envelope["mac"]
                 if (prior["context"] == context and isinstance(mac, str)
                         and hmac.compare_digest(mac, hmac.digest(secret, pack(prior), "sha256").hex())
-                        and (finite or tuple(prior["ordinary_counts"]) == census(reduced))):
+                        and tuple(prior["ordinary_counts"]) == census(reduced)):
                     return dict(**prior, reuse="authenticated", seconds=round(time.monotonic() - started, 6))
         except (OSError, ValueError, KeyError, TypeError):
             pass  # A cache miss or damaged receipt always requires a new proof.
 
+    # Both verifiers require a successful ordinary no-sink run on the complete
+    # original input. This also covers evaluation-order diagnostics that a
+    # mathematical relation can erase and Core's retained representations.
+    full = ordinary()
+    if full["verdict"] != "success":
+        raise OriginalCounterexample(full)
+    if counts(full["statistics"]) != census(reduced):
+        raise ValueError("ordinary original safety disagrees with reduced counts or depth")
     if finite:
         doc = run([helper, "--orbit-proof", original, "input.cfg"])
         report = json.loads(run([sys.executable, proof, "--layout", args.type_invariant,
@@ -106,17 +123,10 @@ def establish(args, folder, original, identity, reduced, ordinary):
             raise ValueError("incomplete finite proof")
     else:
         report = json.loads(run([helper, original, "input.cfg", str(args.workers), *pins["atoms"]]))
-        if report.get("method") != "reachable-graph" or counts(report) != census(reduced):
-            raise ValueError("captured original graph disagrees with reduced counts or depth")
-        # Capture retains original representations on the frontier. Bind the direct
-        # no-sink check as well. On a later call its exact observables must still
-        # agree with that invocation's fresh quotient and all its safety checks.
-        full = ordinary()
-        if full["verdict"] != "success" or counts(full["statistics"]) != counts(report):
+        if report.get("method") != "reachable-graph" or counts(report) != counts(full["statistics"]):
             raise ValueError("ordinary original safety result disagrees with graph capture")
-    result = dict(context=context, evidence=report)
-    if not finite:
-        result.update(ordinary_counts=list(counts(report)), ordinary_seconds=full["seconds"])
+    result = dict(context=context, evidence=report, ordinary_counts=list(counts(full["statistics"])),
+                  ordinary_seconds=full["seconds"])
     if cache:
         cache.mkdir(parents=True, exist_ok=True)
         signature = hmac.digest(secret, pack(result), "sha256").hex()

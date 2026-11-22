@@ -47,6 +47,22 @@ fn check_config(cfg: &dive_config::ModelConfig, orbits: bool) -> Result<(), Stri
     Ok(())
 }
 
+fn constants(m: &dive_model::Model, orbits: bool) -> Result<Vec<Value>, String> {
+    let mut constants = Vec::new();
+    for &decl in m.ir.consts() {
+        let c = m.ir.decl(decl);
+        let binding = m.evaluator.constant_binding(c.constant.ok_or("constant")?);
+        constants.push(match binding {
+            Some(ConstBinding::Value(v)) => {
+                dive_trace::value_json::to_json(&v, m.evaluator.options().ctx)?
+            }
+            None if orbits => json!({"unbound": c.name}),
+            _ => return Err(format!("unsupported constant binding {}", c.name)),
+        });
+    }
+    Ok(constants)
+}
+
 fn run(module: &Path, config: &Path, orbits: bool) -> Result<Value, String> {
     let analysis = dive_sema::analyze_file(module, &dive_sema::Options::default())
         .map_err(|e| e.to_string())?;
@@ -116,16 +132,7 @@ fn run(module: &Path, config: &Path, orbits: bool) -> Result<Value, String> {
         "atoms": r.universe().iter().map(dive_value::Atom::as_str).collect::<Vec<_>>(),
         "maps": r.maps().iter().map(dive_model::symmetry::Permutation::images).collect::<Vec<_>>()
     }));
-    let mut constants = Vec::new();
-    for &decl in ir.consts() {
-        let c = ir.decl(decl);
-        let binding = m.evaluator.constant_binding(c.constant.ok_or("constant")?);
-        constants.push(match binding {
-            Some(ConstBinding::Value(v)) => dive_trace::value_json::to_json(&v, ctx)?,
-            None if orbits => json!({"unbound": c.name}),
-            _ => return Err(format!("unsupported constant binding {}", c.name)),
-        });
-    }
+    let constants = constants(&m, orbits)?;
     let mut overrides = serde_json::Map::new();
     for (i, _) in ir.defs().iter().enumerate() {
         let id = DefId(u32::try_from(i).map_err(|e| e.to_string())?);

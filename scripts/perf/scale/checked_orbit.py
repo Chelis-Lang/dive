@@ -63,8 +63,8 @@ def value(node, rename):
     return "set", frozenset(value(child, rename) for child in node["set"])
 
 
-def check_constants(config, carrier, observers):
-    require(not observers["refusals"], "; ".join(observers["refusals"][:5]))
+def check_constants(config, carrier, observers, *, exhaustive_graph=False):
+    require(exhaustive_graph or not observers["refusals"], "; ".join(observers["refusals"][:5]))
     for option in ("symmetry", "view", "alias", "periodic", "postconditions", "rl_reward", "possible"):
         require(not config.get(option), f"unsupported configured {option}")
     constants = {}
@@ -83,7 +83,9 @@ def check_constants(config, carrier, observers):
         swap = {left: right, right: left}
         for name, val in constants.items():
             require(value(val, swap) == value(val, {}), f"{name} distinguishes {left} and {right}")
-        for name in observers["choice_domains"]:
+        # The graph proof witnesses every reached choice and hidden evaluation error.
+        # Conditional and symbolic checking still require the structural observer audit.
+        for name in (() if exhaustive_graph else observers["choice_domains"]):
             choices = constants.get(name, {}).get("set")
             require(choices is not None and all(value(x, swap) == value(x, {}) for x in choices),
                     f"CHOOSE requires a pointwise-fixed explicit domain: {name}")
@@ -116,7 +118,8 @@ def source_snapshot(args, binary, folder):
     parsed, _ = run_json(binary, ["parse", source.name, "--config", cfg.name], folder, args.seconds)
     require(parsed.get("accepted") and parsed["config"]["accepted"], "invalid original source or configuration")
     config = parsed["config"]["model"]
-    atoms = check_constants(config, args.carrier, report["orbit_observers"])
+    atoms = check_constants(config, args.carrier, report["orbit_observers"],
+                            exhaustive_graph=args.certify_equivariance == "graph")
     wrapper = "DiveDeclaredOrbit"
     operator = "DiveDeclaredOrbitGroup"
     # Pick scratch names outside the whole snapshot. Identifiers also found in
@@ -226,10 +229,16 @@ def audit(args):
                     raise Refused("uncertified reduced counterexample")
                 result["status"] = "validated-counterexample"
                 return result
-            from orbit_certificate import establish
-            result["certificate"] = establish(
-                args, folder, original, identity, reduced,
-                lambda: check(args, binary, folder, original, "input.cfg", False))
+            from orbit_certificate import OriginalCounterexample, establish
+            try:
+                result["certificate"] = establish(
+                    args, folder, original, identity, reduced,
+                    lambda: check(args, binary, folder, original, "input.cfg", False))
+            except OriginalCounterexample as failure:
+                verify_word(args, binary, folder, original, failure.result)
+                result.update(status="validated-counterexample", unreduced=failure.result,
+                              rejected_symmetry=True)
+                return result
             result["status"] = "certified-orbit"
             return result
         if args.assume_equivariance:
@@ -279,7 +288,7 @@ def main():
         parser.error("expected a positive proof budget and a proof mode for the cache")
     try:
         result = audit(args)
-    except (OSError, ValueError, subprocess.TimeoutExpired) as error:
+    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
         result = {"status": "refused", "reason": str(error)}
     print(json.dumps(result, sort_keys=True))
     return {"verified-observables": 0, "certified-orbit": 0, "conditional-orbit": 3, "prepared": 3, "validated-counterexample": 1}.get(result["status"], 2)

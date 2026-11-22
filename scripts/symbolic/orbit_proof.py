@@ -39,8 +39,10 @@ class FiniteProof(PermutedModel):
             substitution = self.permutations[generator]
             def swapped(node):
                 return self.b.let(substitution, node) if substitution else node
-            require(Counter({swapped(cube): count for cube, count in self.initial_occurrences.items()})
-                    == self.initial_occurrences, "asymmetric initial occurrence multiset")
+            renamed = Counter()
+            for cube, count in self.initial_occurrences.items():
+                renamed[swapped(cube)] += count
+            require(renamed == self.initial_occurrences, "asymmetric initial occurrence multiset")
             both = {**substitution, **{name + "_next": prime(value) for name, value in substitution.items()}}
             for name, predicate in steps:
                 require(not both or self.b.let(both, predicate) == predicate, "asymmetric step property " + name)
@@ -69,7 +71,35 @@ class FiniteProof(PermutedModel):
                     "unproved definedness for " + str(x["callee"]))
         if tag == "Quant":
             require(x["kind"] in ("Forall", "Exists"), "unproved choice or temporal binder")
-        return super().eval(i, env, assigned)
+        result = super().eval(i, env, assigned)
+        if isinstance(result, (Atom, Members)):
+            self.comparable(result)
+            for key in result:
+                self.require_scalar_or_record(key)
+        return result
+
+    def require_scalar_or_record(self, key):
+        if isinstance(key, str) or self.padding(key):
+            return
+        kind, value = key
+        if kind == "record":
+            require(value, "unproved empty record representation")
+            for _, field in value:
+                self.require_scalar_or_record(field)
+        else:
+            require(kind in ("boolean", "string", "int"), "unproved comparison domain " + kind)
+
+    def same(self, left, right):
+        # The ordinary engine may check the shapes of all keys and all cell
+        # values before comparing any particular pair. Even different domains
+        # can demand a diagnostic. Per-cell mathematical equality is insufficient.
+        require(not isinstance(left, Function) and not isinstance(right, Function),
+                "unproved whole-function comparison shape")
+        return super().same(left, right)
+
+    def pair_exclusion(self, q, env, assigned):
+        # Inspect every bound body for definedness, including optimized patterns.
+        return None
 
     def record_initial(self, cube):
         super().record_initial(cube)
@@ -101,9 +131,13 @@ def main():
     parser.add_argument("atoms", nargs="*")
     args = parser.parse_args()
     if args.identity:
-        files = [Path(__file__).with_name(n) for n in ("engine.py", "orbit_proof.py", "finite_relation.py", "worker_process.py")]
+        files = [Path(__file__).with_name(n) for n in ("engine.py", "orbit_proof.py", "finite_relation.py", "worker_process.py", "induction.py")]
         files.extend([Path(cudd.__file__), Path(sys.executable)])
-        print(json.dumps([hashlib.file_digest(path.open("rb"), "sha256").hexdigest() for path in files]))
+        digests = []
+        for path in files:
+            with path.open("rb") as stream:
+                digests.append(hashlib.file_digest(stream, "sha256").hexdigest())
+        print(json.dumps(digests))
         return
     limit_memory(args.memory_mib)
     try:
