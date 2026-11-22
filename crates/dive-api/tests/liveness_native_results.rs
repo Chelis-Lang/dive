@@ -89,12 +89,17 @@ fn periodic_final_and_real_prefix_results_preserve_distinct_producer_facts() {
 
 #[test]
 fn actual_final_and_prefix_failures_keep_their_error() {
-    // The reference analyses kept the typed atom error and its exploration;
-    // Core refuses the temporal failure report by name in both routes.
+    // Both final and prefix searches retain the reached division error.
     for options in [CheckOptions::dive(7), CheckOptions::tlc(0, 7)] {
         for periodic in [FINAL_ONLY, EVERY_LEVEL] {
             let (report, json) = core("[]<>(1 \\div (x-x)=0)", &options, periodic);
-            refused::assert_refused(&json, report.exit_code(), refused::TEMPORAL_FAILURE_REPORT);
+            refused::assert_refused(&json, report.exit_code(), "TLC_MODULE_DIVISION_BY_ZERO");
+            assert_eq!(json["execution"]["stage"], "atoms");
+            assert_eq!(
+                json["execution"]["capture_completed"],
+                periodic == FINAL_ONLY || options.profile == dive_eval::Profile::Tlc
+            );
+            assert!(json["tlc"].is_null());
         }
     }
 }

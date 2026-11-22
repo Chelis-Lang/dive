@@ -7,6 +7,8 @@ are in git history.
 
 - Core reuses [pure computed successor components](docs/developer/core/06-memoization.md#24-definitions-a-next-state-action-reads-primed) across candidates. Ordinary Flint checking improved from 3.97 to 3.48 seconds on its published small configuration.
 
+- Temporal [state-label refusals](docs/user/temporal.md#errors-while-labeling-states) now identify the property, source expression and evaluation error and retain the actual graph counts.
+
 - Core evaluates eligible [fairness actions](docs/user/temporal.md#fairness) across original transitions sharing a source. Three-floor Elevator took 2.04 seconds and the four-floor counterexample took 6.91 seconds on the benchmark host. This includes single-variable subscripts such as the published LiveHourClock.
 
 - Core keeps the component search available on larger fairness graphs. On six-floor Elevator, Core found a validated counterexample in 73.33 s at 541 MiB peak RSS. [Fairness](docs/user/temporal.md#fairness)

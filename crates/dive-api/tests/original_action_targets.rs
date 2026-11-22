@@ -124,7 +124,12 @@ fn state_nonboolean_and_uncertain_multi_property_errors_are_not_verified_tlc_err
         let spec = Spec::new("Next", property, extra)?;
         let report = core_ordinary(spec.request(true, refused::Mode::FinalShort))?;
         let value = report.to_json();
-        refused::assert_refused(&value, report.exit_code(), refused::TEMPORAL_FAILURE_REPORT);
+        let cause = if property == "NonBoolean" {
+            "liveness atom for NonBoolean"
+        } else {
+            refused::TEMPORAL_FAILURE_REPORT
+        };
+        refused::assert_refused(&value, report.exit_code(), cause);
         assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
         assert!(value["tlc"].is_null());
     }

@@ -299,15 +299,12 @@ fn class_controls(module: &str, cases: &[(&str, bool)]) {
                     &(reference["verdict"]),
                 );
                 if tlc && literal {
-                    // The retired reference engine named the mixed-shape record
-                    // comparison TLC fails on. Core's temporal path refuses at
-                    // the failure report instead (#910): still a refusal, but
-                    // not yet the comparison's name.
+                    // The state-label refusal identifies the mixed-shape comparison.
                     assert!(
                         reference["message"]
                             .as_str()
                             .expect("message")
-                            .contains("a temporal failure (core): its report is not implemented"),
+                            .contains("Attempted to check equality of record"),
                         "{reference}"
                     );
                 }
