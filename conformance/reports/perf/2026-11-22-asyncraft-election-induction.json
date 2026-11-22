@@ -1,0 +1,540 @@
+{
+  "schema": 1,
+  "pin": "https://github.com/will62794/scimitar/tree/f1b902dc0801cf435cb9dd6e6be495d5ed121787/benchmarks",
+  "driver": "scripts/perf/scale/certify_asyncraft.py",
+  "tlc": "tlc-2026.10.06.014338",
+  "dive_sha256": "8d3e35534d9d7b63b3c9ce410e8071d9d098079c190f199495a3d4c828a0162d",
+  "tool_sha256": "088f79e0cbfaccfc82c99e63900b9ccd70823c307db8a30123cc10c59b68c8d6",
+  "candidate_formula": "A complete state tuple is a member of the exact enumerated finite row set. The independent TLC wrapper builds an extensional dictionary for each variable and a set of the corresponding index tuples.",
+  "timing": "Local cold process wall and peak RSS. Ordinary Core baseline checks the bounded property without producing a replayable induction certificate. The independent one-step checks include all emitted successors and may retain states outside StateConstraint.",
+  "three_servers_two_terms_triage": {
+    "verdict": "stopped",
+    "stats": {
+      "depth": 24,
+      "distinct": 2810615,
+      "exhaustive": false,
+      "generated": 16511323,
+      "initial_generated": 1,
+      "left_on_queue": 588238,
+      "reported_by_tlc": false
+    },
+    "budget_s": 40
+  },
+  "rows": [
+    {
+      "carrier": 2,
+      "cfg": "CONSTANTS\nn1 = n1\nn2 = n2\nn3 = n3\nv1 = v1\nServer = {n1, n2}\nFollower = Follower\nCandidate = Candidate\nLeader = Leader\nNil = Nil\nRequestVoteRequest = RequestVoteRequest\nRequestVoteResponse = RequestVoteResponse\nAppendEntriesRequest = AppendEntriesRequest\nAppendEntriesResponse = AppendEntriesResponse\nEqualTerm = EqualTerm\nLessOrEqualTerm = LessOrEqualTerm\nMaxTerm = 2\nMaxLogLen = 1\nMaxMsgCount = 3\nINIT Init\nNEXT Next\nCONSTRAINT StateConstraint\nINVARIANT H_OnePrimaryPerTerm\nCHECK_DEADLOCK FALSE\n",
+      "model_sha256": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+      "rowset_sha256": "454d329230e980a0a0896d6246006931faea900ce7b20b15769a24bdbdf59619",
+      "native": {
+        "actions": [
+          {
+            "bindings": [],
+            "generated": 1790,
+            "label": "<RequestVoteAction line 542, col 22 to line 542, col 61 of module AsyncRaft>",
+            "name": "RequestVoteAction",
+            "outside": 1682
+          },
+          {
+            "bindings": [],
+            "generated": 84,
+            "label": "<UpdateTermAction line 543, col 21 to line 543, col 180 of module AsyncRaft>",
+            "name": "UpdateTermAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 628,
+            "label": "<HandleRequestVoteRequestAction line 552, col 35 to line 552, col 95 of module AsyncRaft>",
+            "name": "HandleRequestVoteRequestAction",
+            "outside": 2
+          },
+          {
+            "bindings": [],
+            "generated": 576,
+            "label": "<HandleRequestVoteResponseAction line 553, col 36 to line 553, col 98 of module AsyncRaft>",
+            "name": "HandleRequestVoteResponseAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 76,
+            "label": "<BecomeLeaderAction line 548, col 23 to line 548, col 63 of module AsyncRaft>",
+            "name": "BecomeLeaderAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 986,
+            "label": "<ClientRequestAction line 549, col 24 to line 549, col 65 of module AsyncRaft>",
+            "name": "ClientRequestAction",
+            "outside": 886
+          },
+          {
+            "bindings": [],
+            "generated": 986,
+            "label": "<AppendEntriesAction line 551, col 24 to line 551, col 70 of module AsyncRaft>",
+            "name": "AppendEntriesAction",
+            "outside": 62
+          },
+          {
+            "bindings": [],
+            "generated": 96,
+            "label": "<AcceptAppendEntriesRequestAppendAction line 555, col 43 to line 555, col 113 of module AsyncRaft>",
+            "name": "AcceptAppendEntriesRequestAppendAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 0,
+            "label": "<AcceptAppendEntriesRequestLearnCommitAction line 557, col 48 to line 557, col 123 of module AsyncRaft>",
+            "name": "AcceptAppendEntriesRequestLearnCommitAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 100,
+            "label": "<HandleAppendEntriesResponseAction line 558, col 38 to line 558, col 104 of module AsyncRaft>",
+            "name": "HandleAppendEntriesResponseAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 198,
+            "label": "<AdvanceCommitIndexAction line 550, col 29 to line 550, col 75 of module AsyncRaft>",
+            "name": "AdvanceCommitIndexAction",
+            "outside": 0
+          }
+        ],
+        "boundary": "check-target-before-filter",
+        "constraints": [
+          "StateConstraint"
+        ],
+        "expanded": 1388,
+        "generated": 5521,
+        "initial_generated": 1,
+        "outside": 2632,
+        "targets": [
+          "H_OnePrimaryPerTerm"
+        ],
+        "variables": [
+          "requestVoteRequestMsgs",
+          "requestVoteResponseMsgs",
+          "appendEntriesRequestMsgs",
+          "appendEntriesResponseMsgs",
+          "currentTerm",
+          "state",
+          "votedFor",
+          "log",
+          "commitIndex",
+          "votesGranted",
+          "nextIndex",
+          "matchIndex"
+        ]
+      },
+      "cold_discovery": {
+        "seconds": 0.263665,
+        "peak_rss_kib": 141784
+      },
+      "cold_core": {
+        "seconds": 0.036484,
+        "peak_rss_kib": 29692
+      },
+      "independent_fixed_row_native": {
+        "seconds": 0.215471,
+        "peak_rss_kib": 87164
+      },
+      "pinned_tlc": {
+        "Init": {
+          "seconds": 0.513711,
+          "peak_rss_kib": 350368,
+          "generated": 2,
+          "distinct": 1
+        },
+        "implication": {
+          "seconds": 0.556211,
+          "peak_rss_kib": 353876,
+          "generated": 2776,
+          "distinct": 1388
+        },
+        "constraint": {
+          "seconds": 0.553392,
+          "peak_rss_kib": 349992,
+          "generated": 2776,
+          "distinct": 1388
+        },
+        "all_Next": {
+          "seconds": 0.656188,
+          "peak_rss_kib": 420468,
+          "generated": 6908,
+          "distinct": 5195
+        }
+      },
+      "manifest": {
+        "source": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+        "config": "83db5bcfdddad3ab34983458807b823242be576ae09b9e45a94a79fc4e82dc5d",
+        "actions": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction",
+          "ClientRequestAction",
+          "AppendEntriesAction",
+          "AcceptAppendEntriesRequestAppendAction",
+          "AcceptAppendEntriesRequestLearnCommitAction",
+          "HandleAppendEntriesResponseAction",
+          "AdvanceCommitIndexAction"
+        ],
+        "variables": [
+          "requestVoteRequestMsgs",
+          "requestVoteResponseMsgs",
+          "appendEntriesRequestMsgs",
+          "appendEntriesResponseMsgs",
+          "currentTerm",
+          "state",
+          "votedFor",
+          "log",
+          "commitIndex",
+          "votesGranted",
+          "nextIndex",
+          "matchIndex"
+        ],
+        "target": "H_OnePrimaryPerTerm",
+        "boundary": "check-target-before-filter"
+      },
+      "election": {
+        "length": 6,
+        "replay": "valid",
+        "damaged_replay": "invalid",
+        "actions": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction"
+        ],
+        "leader": "n1",
+        "non_self_voters": [
+          "n2"
+        ],
+        "consumed_positive_vote": {
+          "mdest": {
+            "model": "n1"
+          },
+          "msource": {
+            "model": "n2"
+          },
+          "mterm": 1,
+          "mtype": {
+            "model": "RequestVoteResponse"
+          },
+          "mvoteGranted": true
+        }
+      },
+      "negative_vote": {
+        "length": 4,
+        "replay": "valid",
+        "damaged_replay": "invalid",
+        "actions": [
+          "RequestVoteAction",
+          "RequestVoteAction",
+          "HandleRequestVoteRequestAction"
+        ],
+        "negative_responses": 1
+      },
+      "mutation": {
+        "length": 9,
+        "replay": "valid",
+        "damaged_replay": "invalid",
+        "actions": [
+          "RequestVoteAction",
+          "RequestVoteAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction",
+          "BecomeLeaderAction"
+        ],
+        "guard": "/\\ votedFor[i] \\in {Nil, j}",
+        "same_term_leaders": {
+          "n1": 1,
+          "n2": 1
+        },
+        "original_replay": "invalid",
+        "dive": {
+          "seconds": 0.025613,
+          "peak_rss_kib": 29944
+        },
+        "pinned_tlc": {
+          "seconds": 0.455614,
+          "peak_rss_kib": 347984,
+          "generated": 1098,
+          "distinct": 397
+        }
+      },
+      "missing_action": "rejected",
+      "empty_channel_candidate": "closure rejected"
+    },
+    {
+      "carrier": 3,
+      "cfg": "CONSTANTS\nn1 = n1\nn2 = n2\nn3 = n3\nv1 = v1\nServer = {n1, n2, n3}\nFollower = Follower\nCandidate = Candidate\nLeader = Leader\nNil = Nil\nRequestVoteRequest = RequestVoteRequest\nRequestVoteResponse = RequestVoteResponse\nAppendEntriesRequest = AppendEntriesRequest\nAppendEntriesResponse = AppendEntriesResponse\nEqualTerm = EqualTerm\nLessOrEqualTerm = LessOrEqualTerm\nMaxTerm = 1\nMaxLogLen = 1\nMaxMsgCount = 3\nINIT Init\nNEXT Next\nCONSTRAINT StateConstraint\nINVARIANT H_OnePrimaryPerTerm\nCHECK_DEADLOCK FALSE\n",
+      "model_sha256": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+      "rowset_sha256": "35255c9016ee4801805a384e923c38c0d8e598d89e541d92af6d254743448f72",
+      "native": {
+        "actions": [
+          {
+            "bindings": [],
+            "generated": 28041,
+            "label": "<RequestVoteAction line 542, col 22 to line 542, col 61 of module AsyncRaft>",
+            "name": "RequestVoteAction",
+            "outside": 27672
+          },
+          {
+            "bindings": [],
+            "generated": 666,
+            "label": "<UpdateTermAction line 543, col 21 to line 543, col 180 of module AsyncRaft>",
+            "name": "UpdateTermAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 10854,
+            "label": "<HandleRequestVoteRequestAction line 552, col 35 to line 552, col 95 of module AsyncRaft>",
+            "name": "HandleRequestVoteRequestAction",
+            "outside": 18
+          },
+          {
+            "bindings": [],
+            "generated": 11586,
+            "label": "<HandleRequestVoteResponseAction line 553, col 36 to line 553, col 98 of module AsyncRaft>",
+            "name": "HandleRequestVoteResponseAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 183,
+            "label": "<BecomeLeaderAction line 548, col 23 to line 548, col 63 of module AsyncRaft>",
+            "name": "BecomeLeaderAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 13470,
+            "label": "<ClientRequestAction line 549, col 24 to line 549, col 65 of module AsyncRaft>",
+            "name": "ClientRequestAction",
+            "outside": 12738
+          },
+          {
+            "bindings": [],
+            "generated": 26940,
+            "label": "<AppendEntriesAction line 551, col 24 to line 551, col 70 of module AsyncRaft>",
+            "name": "AppendEntriesAction",
+            "outside": 7710
+          },
+          {
+            "bindings": [],
+            "generated": 2184,
+            "label": "<AcceptAppendEntriesRequestAppendAction line 555, col 43 to line 555, col 113 of module AsyncRaft>",
+            "name": "AcceptAppendEntriesRequestAppendAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 252,
+            "label": "<AcceptAppendEntriesRequestLearnCommitAction line 557, col 48 to line 557, col 123 of module AsyncRaft>",
+            "name": "AcceptAppendEntriesRequestLearnCommitAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 2442,
+            "label": "<HandleAppendEntriesResponseAction line 558, col 38 to line 558, col 104 of module AsyncRaft>",
+            "name": "HandleAppendEntriesResponseAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 2661,
+            "label": "<AdvanceCommitIndexAction line 550, col 29 to line 550, col 75 of module AsyncRaft>",
+            "name": "AdvanceCommitIndexAction",
+            "outside": 0
+          }
+        ],
+        "boundary": "check-target-before-filter",
+        "constraints": [
+          "StateConstraint"
+        ],
+        "expanded": 13837,
+        "generated": 99280,
+        "initial_generated": 1,
+        "outside": 48138,
+        "targets": [
+          "H_OnePrimaryPerTerm"
+        ],
+        "variables": [
+          "requestVoteRequestMsgs",
+          "requestVoteResponseMsgs",
+          "appendEntriesRequestMsgs",
+          "appendEntriesResponseMsgs",
+          "currentTerm",
+          "state",
+          "votedFor",
+          "log",
+          "commitIndex",
+          "votesGranted",
+          "nextIndex",
+          "matchIndex"
+        ]
+      },
+      "cold_discovery": {
+        "seconds": 4.197006,
+        "peak_rss_kib": 2023640
+      },
+      "cold_core": {
+        "seconds": 0.247169,
+        "peak_rss_kib": 32008
+      },
+      "independent_fixed_row_native": {
+        "seconds": 3.282963,
+        "peak_rss_kib": 1184296
+      },
+      "pinned_tlc": {
+        "Init": {
+          "seconds": 1.445296,
+          "peak_rss_kib": 585836,
+          "generated": 2,
+          "distinct": 1
+        },
+        "implication": {
+          "seconds": 1.683963,
+          "peak_rss_kib": 742000,
+          "generated": 27674,
+          "distinct": 13837
+        },
+        "constraint": {
+          "seconds": 1.569869,
+          "peak_rss_kib": 599548,
+          "generated": 27674,
+          "distinct": 13837
+        },
+        "all_Next": {
+          "seconds": 2.518708,
+          "peak_rss_kib": 947804,
+          "generated": 113116,
+          "distinct": 73822
+        }
+      },
+      "manifest": {
+        "source": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+        "config": "77585dce86c58c1434bbc013680688c3eff86e21d3e92f43788db5ca6c77d748",
+        "actions": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction",
+          "ClientRequestAction",
+          "AppendEntriesAction",
+          "AcceptAppendEntriesRequestAppendAction",
+          "AcceptAppendEntriesRequestLearnCommitAction",
+          "HandleAppendEntriesResponseAction",
+          "AdvanceCommitIndexAction"
+        ],
+        "variables": [
+          "requestVoteRequestMsgs",
+          "requestVoteResponseMsgs",
+          "appendEntriesRequestMsgs",
+          "appendEntriesResponseMsgs",
+          "currentTerm",
+          "state",
+          "votedFor",
+          "log",
+          "commitIndex",
+          "votesGranted",
+          "nextIndex",
+          "matchIndex"
+        ],
+        "target": "H_OnePrimaryPerTerm",
+        "boundary": "check-target-before-filter"
+      },
+      "election": {
+        "length": 6,
+        "replay": "valid",
+        "damaged_replay": "invalid",
+        "actions": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction"
+        ],
+        "leader": "n1",
+        "non_self_voters": [
+          "n2"
+        ],
+        "consumed_positive_vote": {
+          "mdest": {
+            "model": "n1"
+          },
+          "msource": {
+            "model": "n2"
+          },
+          "mterm": 1,
+          "mtype": {
+            "model": "RequestVoteResponse"
+          },
+          "mvoteGranted": true
+        }
+      },
+      "negative_vote": {
+        "length": 6,
+        "replay": "valid",
+        "damaged_replay": "invalid",
+        "actions": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "RequestVoteAction",
+          "HandleRequestVoteRequestAction"
+        ],
+        "negative_responses": 1
+      },
+      "mutation": {
+        "length": 10,
+        "replay": "valid",
+        "damaged_replay": "invalid",
+        "actions": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "RequestVoteAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction",
+          "BecomeLeaderAction"
+        ],
+        "guard": "/\\ votedFor[i] \\in {Nil, j}",
+        "same_term_leaders": {
+          "n1": 1,
+          "n3": 1
+        },
+        "original_replay": "invalid",
+        "dive": {
+          "seconds": 0.030609,
+          "peak_rss_kib": 32048
+        },
+        "pinned_tlc": {
+          "seconds": 0.506632,
+          "peak_rss_kib": 340804,
+          "generated": 2666,
+          "distinct": 848
+        }
+      },
+      "missing_action": "rejected",
+      "empty_channel_candidate": "closure rejected"
+    }
+  ]
+}

@@ -107,6 +107,8 @@ The [population edit-session measurements](2026-11-21-occupancy-edits.json) pair
 
 [Complete finite TwoPhase induction](2026-11-22-twophase-induction.json) records the learned clauses, every checked action binding, and independent TLC certification on both manager counts.
 
+[Bounded AsyncRaft election induction](2026-11-22-asyncraft-election-induction.json) records original-action closure, boundary checks, genuine voting histories, and both reachable double-election mutations.
+
 [Finite lemma discovery](2026-11-22-lemma-discovery.json) records predicates derived from counterexamples to induction on TwoPhase and AsyncRaft, checked against the pinned TLC and the published formulas.
 
 ## 0.1.0 release records

@@ -1927,6 +1927,26 @@ reachable set. The weakened induction trial reproduces a two-state
 failure and the independent validator rejects a damaged word.
 [Formulas, exact configurations, timings and controls](../../conformance/reports/perf/2026-11-22-twophase-induction.json).
 
+### Certify bounded AsyncRaft elections
+
+The [AsyncRaft driver](../../scripts/perf/scale/certify_asyncraft.py) uses the
+released initializer, transition relation and state constraint. It checks
+two servers with terms up to 2 and three servers with terms up to 1. Both
+cases limit each log to one entry and each message channel to three messages.
+The certificate enumerates admitted states with exact values. Every
+generated successor must satisfy election safety, including successors
+outside the constraint. In-domain successors must also belong to the
+predicate. The checker expands only in-domain states.
+
+Pinned TLC reconstructs the finite predicate and checks original Init,
+target implication and one step of original Next from every admitted
+prestate. The independent check has no queue constraint during this last
+step, so boundary successors also reach the safety predicate. The original
+six-state execution records a positive non-self vote and elects a leader.
+Removing the vote-uniqueness guard produces reachable same-term double
+elections on both carriers. The independent validator rejects damaged words.
+[Configurations, branch and boundary counts, and replay controls](../../conformance/reports/perf/2026-11-22-asyncraft-election-induction.json).
+
 ## Prove a property on the original Recomp-Verify models
 
 The published four-process portfolio proved the 20-client lock server in 2 s
