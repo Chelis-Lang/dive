@@ -50,6 +50,11 @@ pub(crate) fn action_index(model: &Model, expr: ExprId, scope: &Scope) -> Option
                     _ => None,
                 },
                 Expr::Bool(b) => Some(Value::Bool(*b)),
+                Expr::Str(s) => model.names.get(s).map(Value::Str),
+                Expr::Const(c) => match ev.constant_binding(*c)? {
+                    dive_eval::ConstBinding::Value(v) => Some(v),
+                    dive_eval::ConstBinding::Def(_) => None,
+                },
                 Expr::Num(n) => n.parse().ok().map(Value::Int),
                 _ => None,
             }

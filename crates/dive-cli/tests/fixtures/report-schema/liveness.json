@@ -48,6 +48,12 @@
             "probes": 0
           },
           "audit": false,
+          "closed_enabled": {
+            "absent": 0,
+            "peak_mask_bytes": 0,
+            "plans": 0,
+            "present": 0
+          },
           "eligibility": "source-scoped effect-free Core plans without fresh strings over materialized rows; identity-scoped fairness queries",
           "eligible_action_atoms": 0,
           "eligible_atoms": 1,

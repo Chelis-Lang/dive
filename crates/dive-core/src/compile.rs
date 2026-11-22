@@ -635,10 +635,9 @@ pub struct BoundGuards {
     /// The nonstuttering subscript is a direct tuple of materialized
     /// variables in a fresh frame under canonical comparison.
     pub direct_stutter: bool,
-    /// A prefix of diagnostic-free source guards followed solely by disjoint,
-    /// exhaustive assignments. An absent unrestricted producer branch can
-    /// certify false. When the suffix is also quiet, original successors may
-    /// establish truth using the direct subscript mask (zero for plain ENABLED).
+    /// An unrestricted source-guard prefix followed by disjoint, exhaustive
+    /// destination writes. Reuse also requires a matching producer, full
+    /// coverage, materialized rows and the indicated EXCEPT diagnostic checks.
     pub closed_enabled: Option<ClosedEnabled>,
     /// Sufficient source variables for a quiet state truth on materialized
     /// inputs in this exact bound plan. Independent of the retained graph.
@@ -658,7 +657,7 @@ pub struct BoundGuards {
 pub struct ClosedEnabled {
     /// None for plain ENABLED, otherwise the canonical direct variable mask.
     pub subscript: Option<u64>,
-    /// Every assignment can be skipped on a successful original emission.
+    /// The assignment expressions contain no EXCEPT that can warn.
     pub quiet_suffix: bool,
     /// Source guards have no warning-capable EXCEPT, including nested searches.
     pub quiet_guards: bool,

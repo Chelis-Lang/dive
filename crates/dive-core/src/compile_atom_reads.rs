@@ -271,9 +271,14 @@ impl Compiler<'_> {
                     {
                         leaves.iter().fold(0, |mask, &(v, _)| mask | (1u64 << v))
                     }
-                    Node::Eq(a, b) => {
-                        match (&self.code.nodes[*a as usize], &self.code.nodes[*b as usize]) {
-                            (Node::Var(v), Node::Primed(w)) if v == w => 1u64 << v,
+                    Node::Eq(before, after) => {
+                        match (
+                            &self.code.nodes[*before as usize],
+                            &self.code.nodes[*after as usize],
+                        ) {
+                            (Node::Var(source), Node::Primed(target)) if source == target => {
+                                1u64 << source
+                            }
                             _ => return None,
                         }
                     }
@@ -359,6 +364,13 @@ impl Compiler<'_> {
             } => {
                 let nested = self.source_guard_update(*body, depth, work)?
                     | self.contains_update(*body_p, depth, work)?;
+                binds.iter().try_fold(nested, |seen, b| {
+                    Some(seen | self.contains_update(b.domain, depth, work)?)
+                })
+            }
+            GNode::FcnAction { binds, arg, body } => {
+                let nested = self.contains_update(*arg, depth, work)?
+                    | self.source_guard_update(*body, depth, work)?;
                 binds.iter().try_fold(nested, |seen, b| {
                     Some(seen | self.contains_update(b.domain, depth, work)?)
                 })

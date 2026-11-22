@@ -1991,6 +1991,69 @@ P == <>(x=1)
     }
 
     #[test]
+    fn compile_time_update_miss_and_empty_assignment_domain_preserve_fallback() {
+        use dive_runtime::capture::CsrCapture;
+        let src = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLES x,r
+vars == <<x,r>>
+Init == x=0 /\ r = <<0,0>>
+Flip == /\ x'=1-x /\ r'=IF x=0 THEN [<<0,0>> EXCEPT ![3]=1] ELSE r
+Empty == /\ x=0 /\ x' \in {} /\ UNCHANGED r
+BadGuard == /\ [r EXCEPT ![3]=0] /= r /\ UNCHANGED <<x,r>>
+Next == Flip \/ Empty \/ BadGuard
+Spec == Init /\ [][Next]_vars /\ WF_vars(Flip) /\ WF_vars(Empty) /\ WF_vars(BadGuard)
+P == <> (x=1)
+====";
+        with_wrappers(src, false, |prepared, driver, atoms, control| {
+            assert!(
+                prepared.store.saw_missing_update(),
+                "the literal EXCEPT was folded before exploration"
+            );
+            let options = dive_runtime::CheckOptions::dive(0);
+            atoms.enable_live_emissions(&prepared.model, &options);
+            let (graph, mut values) = capture(prepared, &options);
+            let csr =
+                CsrCapture::checked_targets(graph.input(), graph.limits(), control).expect("csr");
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            reader.live_prefix(true);
+            for atom in driver
+                .native_predicates()
+                .filter(|a| matches!(a.test, AtomTest::Enabled { .. }))
+            {
+                assert_eq!(
+                    reader
+                        .closed_state_predicate(atom, &csr, 0, 0, control)
+                        .expect("decline"),
+                    None
+                );
+                let index =
+                    bound_next::action_index(&prepared.model, atom.pred.expr, &atom.pred.scope)
+                        .expect("original action");
+                let branch = &prepared.model.actions[index];
+                if branch.label().starts_with("<BadGuard ") {
+                    let source = reader
+                        .values
+                        .read_retained(&graph, 0, control)
+                        .expect("source");
+                    let printed = dive_eval::capture::PrintCapture::start();
+                    assert!(
+                        !atom
+                            .evaluate(&prepared.model, &dive_eval::St::state(source))
+                            .expect("reference disabled")
+                    );
+                    assert!(
+                        printed
+                            .take()
+                            .iter()
+                            .any(|line| line.warning && line.text.contains("2144"))
+                    );
+                }
+            }
+        });
+    }
+
+    #[test]
     fn periodic_column_requires_its_capture_even_when_the_store_and_shape_match() {
         use dive_runtime::capture::CsrCapture;
 
