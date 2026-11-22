@@ -1,0 +1,247 @@
+{
+  "study": "Parallel Core resident exact membership on Flint LeanP1",
+  "issue": 1291,
+  "baseline_revision": "7468103f49dbb7848ca800a94b46ba870640e8fb",
+  "node": "Dedicated c7i.4xlarge, Ubuntu 24.04.5 LTS, eight physical Intel Xeon Platinum 8488C cores (16 vCPUs). CPU affinity 0-7 uses one thread per physical core; no concurrent model checks.",
+  "build": "rustc 1.99.0, CARGO_PROFILE_RELEASE_LTO=off CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16 cargo build --release --locked -p dive-cli --bin dive",
+  "inputs": "See 2026-11-21-flint-leanp1.json for the pinned LeanP1 module and original one-barrier cfg recipe. TwoBarriers.cfg changes only MaxBarriers from 1 to 2. Both retain the eight invariant and two action-property declarations.",
+  "identity_sha256": {
+    "LeanP1.tla": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+    "LeanP1Size3L1W3.cfg": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+    "TwoBarriers.cfg": "57e6078dd07297b19887f87d5b08bddebd455a249d1b725eb7b5a5bf59746775",
+    "base": "0253a1a37ad61fd60e3718d89c66913d08d08bf60f525c3f41495dcc0c262296",
+    "hits": "79b4ee95a79a867f504e84691f28524ca9394bf20418461883d5067d8dc7a063"
+  },
+  "command": "taskset -c 0-7 ./ARM check LeanP1.tla --config CFG --store exact --compat=tlc --workers 8 --seed 0 --fp 0 --max-memory 24g --time-limit LIMIT --output json",
+  "timing": "Fresh CLI processes. GNU time %e and %M. Three alternating baseline/candidate trials on one barrier. One sequential baseline/candidate pair on two barriers. LIMIT was 120s and 280s respectively.",
+  "rows": [
+    {
+      "arm": "base",
+      "barriers": 1,
+      "wall_seconds": 6.69,
+      "peak_rss_kib": 352832,
+      "expand_ms": 5984,
+      "commit_ms": 664,
+      "conjuncts": {
+        "parent_skipped": 59627193,
+        "total": 70346592
+      },
+      "exact": 449595,
+      "statistics": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "arm": "base",
+      "barriers": 1,
+      "wall_seconds": 6.63,
+      "peak_rss_kib": 349144,
+      "expand_ms": 5939,
+      "commit_ms": 657,
+      "conjuncts": {
+        "parent_skipped": 59627193,
+        "total": 70346592
+      },
+      "exact": 449595,
+      "statistics": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "arm": "base",
+      "barriers": 1,
+      "wall_seconds": 6.65,
+      "peak_rss_kib": 347252,
+      "expand_ms": 5963,
+      "commit_ms": 651,
+      "conjuncts": {
+        "parent_skipped": 59627193,
+        "total": 70346592
+      },
+      "exact": 449595,
+      "statistics": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "arm": "base",
+      "barriers": 2,
+      "wall_seconds": 117.25,
+      "peak_rss_kib": 1034244,
+      "expand_ms": 104331,
+      "commit_ms": 12868,
+      "conjuncts": {
+        "parent_skipped": 1020041652,
+        "total": 1200847788
+      },
+      "exact": 7924117,
+      "statistics": {
+        "depth": 40,
+        "distinct": 7924117,
+        "generated": 33356883,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "arm": "hits",
+      "barriers": 1,
+      "wall_seconds": 6.38,
+      "peak_rss_kib": 351764,
+      "expand_ms": 5888,
+      "commit_ms": 457,
+      "conjuncts": {
+        "parent_skipped": 39347533,
+        "total": 47467296
+      },
+      "exact": 449595,
+      "statistics": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "arm": "hits",
+      "barriers": 1,
+      "wall_seconds": 6.33,
+      "peak_rss_kib": 346912,
+      "expand_ms": 5842,
+      "commit_ms": 453,
+      "conjuncts": {
+        "parent_skipped": 39347533,
+        "total": 47467296
+      },
+      "exact": 449595,
+      "statistics": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "arm": "hits",
+      "barriers": 1,
+      "wall_seconds": 6.35,
+      "peak_rss_kib": 338388,
+      "expand_ms": 5850,
+      "commit_ms": 462,
+      "conjuncts": {
+        "parent_skipped": 39347533,
+        "total": 47467296
+      },
+      "exact": 449595,
+      "statistics": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "arm": "hits",
+      "barriers": 2,
+      "wall_seconds": 110.6,
+      "peak_rss_kib": 1047608,
+      "expand_ms": 102376,
+      "commit_ms": 8177,
+      "conjuncts": {
+        "parent_skipped": 676284247,
+        "total": 817137432
+      },
+      "exact": 7924117,
+      "statistics": {
+        "depth": 40,
+        "distinct": 7924117,
+        "generated": 33356883,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "exit_code": 0
+    }
+  ],
+  "counterexamples": [
+    {
+      "module": "BarrierFault",
+      "workers": 1,
+      "property": "BarrierBound",
+      "verdict": "invariant-violation",
+      "exit_code": 12,
+      "length": 4,
+      "valid": "valid",
+      "corrupt_final_step": "invalid"
+    },
+    {
+      "module": "BarrierFault",
+      "workers": 8,
+      "property": "BarrierBound",
+      "verdict": "invariant-violation",
+      "exit_code": 12,
+      "length": 4,
+      "valid": "valid",
+      "corrupt_final_step": "invalid"
+    },
+    {
+      "module": "DuplicateStep",
+      "workers": 1,
+      "property": "Monotone",
+      "verdict": "action-property-violation",
+      "exit_code": 13,
+      "length": 2,
+      "valid": "valid",
+      "corrupt_final_step": "invalid"
+    },
+    {
+      "module": "DuplicateStep",
+      "workers": 8,
+      "property": "Monotone",
+      "verdict": "action-property-violation",
+      "exit_code": 13,
+      "length": 2,
+      "valid": "valid",
+      "corrupt_final_step": "invalid"
+    }
+  ],
+  "fault_recipe": "Rename LeanP1 to BarrierFault and insert BarrierBound == barriers = 0 before the module footer, then append INVARIANT BarrierBound to TwoBarriers.cfg. DuplicateStep extends Integers with VARIABLE x, Init == x \\in 0..1, Next == x' = 1-x, and Monotone == [][x' > x]_x; configure INIT Init, NEXT Next, PROPERTY Monotone. For each, run ARM check as above at 1 and 8 workers and pass counterexample.trace to ARM validate-trace with the same module, config, profile, seed and fp. Repeat after setting the final state's barriers or x to 9.",
+  "counterexample_replay": "The invalid replay rejected the final step in all four cases."
+}

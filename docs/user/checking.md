@@ -545,7 +545,10 @@ duplicate candidates even when the model contains thousands of action guards.
 [LuPastry+ measurements](../developer/large-models.md#lupastry-parallel-invariant-checking).
 
 With `--store exact`, Core grows the resident hash index one shard at a time.
-Each matching hash still requires equality of the full state. Peak memory also
+Each matching hash still requires equality of the full state. In parallel resident
+safety search, workers check step properties even on transitions to previously
+visited states. Once a worker confirms full equality with an earlier committed
+state, it can skip repeating that state’s invariants. Peak memory also
 depends on the queued states and the values shared between them.
 [Exact-store measurements](../developer/large-models.md#resident-exact-state-identities).
 
