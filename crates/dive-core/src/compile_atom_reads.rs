@@ -102,7 +102,7 @@ impl Compiler<'_> {
             }
             GNode::Scope { body, .. } => self.atom_writes(*body, all, w, depth + 1, work)?,
             GNode::Guard(p) | GNode::LabelGuard(p, _) => {
-                w.reads |= self.atom_reads_within(*p, work)?
+                w.reads |= self.atom_reads_within(*p, work)?;
             }
             GNode::Assign { var, rhs } => {
                 let bit = 1u64 << var;

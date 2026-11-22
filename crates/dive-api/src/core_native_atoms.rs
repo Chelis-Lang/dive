@@ -1512,6 +1512,50 @@ mod tests {
     }
 
     #[test]
+    fn enabled_projects_copied_variables_only_after_checking_its_actual_source() {
+        let source = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLES gate, payload
+vars == <<gate,payload>>
+Init == gate = 0 /\ payload = 0
+Next == gate' \in 0..2 /\ payload' \in 0..3
+Act == /\ IF gate=2 THEN 1 \div 0=0 ELSE gate=0
+       /\ gate'=1 /\ UNCHANGED payload
+Spec == Init /\ [][Next]_vars /\ WF_vars(Act)
+P == <>(gate=1)
+====";
+        with_wrappers(source, false, |prepared, driver, atoms, control| {
+            let atom = driver
+                .native_predicates()
+                .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
+                .expect("bound enabledness");
+            let opts = dive_runtime::CheckOptions::dive(0);
+            let (graph, mut values) = capture(prepared, &opts);
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            for row in 0..graph.input().retained_rows {
+                let gate = graph.row(row).expect("row")[0].as_int().expect("gate");
+                let expected = match gate {
+                    0 => Some(true),
+                    1 => Some(false),
+                    _ => None,
+                };
+                assert_eq!(
+                    reader.predicate(atom, row, None, control).expect("query"),
+                    expected
+                );
+            }
+            assert_eq!(reader.atoms.projected_enabled_hits, 6);
+            assert_eq!(reader.atoms.fallbacks.error, 4);
+            reader.atoms.fuel = 0;
+            assert_eq!(
+                reader.predicate(atom, 0, None, control).expect("fuel"),
+                None
+            );
+            assert_eq!(reader.atoms.projected_enabled_hits, 6);
+        });
+    }
+
+    #[test]
     fn actual_reader_reuses_independent_source_target_proofs_and_rejects_copied_atoms() {
         let tuple = vec!["0"; 2200].join(",");
         let source = format!(
