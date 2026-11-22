@@ -370,9 +370,8 @@ impl Product {
                 Ok((0..tableau.promise_count)
                     .map(|p| {
                         input
-                            .order
                             .iter()
-                            .map(|&old| tableau.nodes[node].fulfilled[p])
+                            .map(|(_, node)| tableau.nodes[node].fulfilled[p])
                             .collect()
                     })
                     .collect::<Vec<Vec<bool>>>())
