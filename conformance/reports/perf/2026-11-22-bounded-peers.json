@@ -1,0 +1,1084 @@
+{
+  "schema": "dive-bounded-peers-v1",
+  "examples": "ca168055339d5cbcee95b7eefcb97c1ee59f9914",
+  "manyan": "a39816a873a2c2aabc00dbcef50908e996f3d44b",
+  "apalache": "0.63.0",
+  "tlapm_library": "c8ddc44a80b621989f96a9ee2c371301c52b109f",
+  "community_modules": "202611060952",
+  "linux": "7.0.0-1018-aws",
+  "arch": "x86_64",
+  "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+  "java": "openjdk version \"21.0.13.1\" 2026-11-17",
+  "binaries_sha256": {
+    "manyan": "89f6da894a58220f7607853ca3907122f692fe66e507c148e1898731b8b4fcf1",
+    ".obj/apalache-0.63.0/bin/apalache-mc": "f8d4643705369d0642d9345a479e7cc8b7929710dc966e7f9a374bf03e526fe4",
+    ".obj/apalache-0.63.0/lib/apalache.jar": "f2d43f2e279a657be50b2ecec3a013ba2915266008a2562b38412c3269347dc9"
+  },
+  "transition_bound": 5,
+  "seconds_per_process": 90,
+  "processes_per_cell": 1,
+  "checker_workers": "both upstream defaults; neither bounded CLI exposes a worker count here",
+  "measurement": "one fresh process per tool/config; monotonic wall seconds; GNU time maximum RSS, KiB",
+  "rows": [
+    {
+      "cfg": "specifications/CigaretteSmokers/APCigaretteSmokers.cfg",
+      "module": "specifications/CigaretteSmokers/APCigaretteSmokers.tla",
+      "cfg_sha256": "e2c79167e24cbfd383f4f499a7f104c31e5f18ae10b0727b51e5ae11320a9c83",
+      "module_sha256": "80d8f65ff08a20a3e6aae6c2bf1c44f9aa5ee3d3fe6f52af0f501ea139dda9c0",
+      "invariants": [
+        "TypeOK",
+        "AtMostOne"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00783,
+        "peak_rss_kib": 5084
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.28995,
+        "peak_rss_kib": 293024
+      }
+    },
+    {
+      "cfg": "specifications/CoffeeCan/APCoffeeCan.cfg",
+      "module": "specifications/CoffeeCan/APCoffeeCan.tla",
+      "cfg_sha256": "47b87131aab41a7f7c1994dad45a1f284105eab3d2f942f671c0a47a0a594052",
+      "module_sha256": "1de47b998ded67418cdab386f9ddde0122dcdaf553b8cca126c670045d67dbc3",
+      "invariants": [
+        "TypeInvariant"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 1.89921,
+        "peak_rss_kib": 248004
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.01245,
+        "peak_rss_kib": 7388
+      }
+    },
+    {
+      "cfg": "specifications/DieHard/APDieHarder.cfg",
+      "module": "specifications/DieHard/APDieHarder.tla",
+      "cfg_sha256": "8a155aefb3af798525d9cf2c6f289b121211d6ba5de893d926b55a8d1b61a591",
+      "module_sha256": "13717bfa8f60570945a471643dc201d3d359225f71d0613bdf6190f059d557ee",
+      "invariants": [
+        "TypeOK"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.042,
+        "peak_rss_kib": 9252
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 3.81609,
+        "peak_rss_kib": 270860
+      }
+    },
+    {
+      "cfg": "specifications/DiningPhilosophers/APDiningPhilosophersPCal.cfg",
+      "module": "specifications/DiningPhilosophers/APDiningPhilosophersPCal.tla",
+      "cfg_sha256": "6a1b270b020b214dd17ee351f6649f0cf7b292f43bb446b052a343f56a42c51d",
+      "module_sha256": "9c96956338e67e839deed112df2aabc39ddb4a3fe67d924e23800f20e55b7652",
+      "invariants": [
+        "TypeOK",
+        "ExclusiveAccess"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 8.72557,
+        "peak_rss_kib": 365652
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00828,
+        "peak_rss_kib": 6596
+      }
+    },
+    {
+      "cfg": "specifications/Disruptor/APDisruptor_MPMC.cfg",
+      "module": "specifications/Disruptor/APDisruptor_MPMC.tla",
+      "cfg_sha256": "a70bcab9f3f9f6d3b235d9c8d07d8ad89f49ad582c024d8feacc7d001eae2165",
+      "module_sha256": "70eebb2719fbc179fce99f3593c8ef586337ebad909f9ec58bb6ed29104ac87c",
+      "invariants": [
+        "NoDataRaces"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00888,
+        "peak_rss_kib": 7376
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 4.51629,
+        "peak_rss_kib": 325112
+      }
+    },
+    {
+      "cfg": "specifications/Disruptor/APDisruptor_SPMC.cfg",
+      "module": "specifications/Disruptor/APDisruptor_SPMC.tla",
+      "cfg_sha256": "a70bcab9f3f9f6d3b235d9c8d07d8ad89f49ad582c024d8feacc7d001eae2165",
+      "module_sha256": "f2b561d7ce07b39fd044ec5bd3e2df60d4dcbbb9fe17d3e5906138723757e23b",
+      "invariants": [
+        "NoDataRaces"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.76955,
+        "peak_rss_kib": 312276
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00639,
+        "peak_rss_kib": 6100
+      }
+    },
+    {
+      "cfg": "specifications/EinsteinRiddle/Einstein.cfg",
+      "module": "specifications/EinsteinRiddle/Einstein.tla",
+      "cfg_sha256": "6bece524ff8b28c0a33791ee4c9a364e40b482647820605572b3f38e42be5dc7",
+      "module_sha256": "3831e713ca0e61f9917a334c4bf7797dc51f2ad1dfdbe9418ff086d18ccf62ef",
+      "invariants": [
+        "FindSolution"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "Error FindSolution 1",
+        "exit": 12,
+        "wall_s": 0.01417,
+        "peak_rss_kib": 8920
+      },
+      "apalache": {
+        "outcome": "Error FindSolution 1",
+        "exit": 12,
+        "wall_s": 2.71985,
+        "peak_rss_kib": 349004
+      }
+    },
+    {
+      "cfg": "specifications/FiniteMonotonic/APCRDT.cfg",
+      "module": "specifications/FiniteMonotonic/APCRDT.tla",
+      "cfg_sha256": "f5a26bae3043fbb50984a5d61df4d6d5c6e812fa72fa4bd5a1e0251d10816339",
+      "module_sha256": "b5c3a2809bbacca0a40a126029a13145e0bcd93ca12b52580feafe2ce517729b",
+      "invariants": [
+        "TypeOK",
+        "Safety"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 17.08641,
+        "peak_rss_kib": 352076
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.01677,
+        "peak_rss_kib": 6576
+      }
+    },
+    {
+      "cfg": "specifications/FiniteMonotonic/APReplicatedLog.cfg",
+      "module": "specifications/FiniteMonotonic/APReplicatedLog.tla",
+      "cfg_sha256": "94787b8cccae81847c1bd45ad84ccc72ff0e09756028e049e8983d8ba0336432",
+      "module_sha256": "e61f90b0c13bb4bb1a766d7e8ed193a529842228a8a8e0e8d6cc28acc556b40d",
+      "invariants": [
+        "Safety"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00567,
+        "peak_rss_kib": 5360
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.14467,
+        "peak_rss_kib": 269472
+      }
+    },
+    {
+      "cfg": "specifications/FlashProtocol/APFlashWithMutex.cfg",
+      "module": "specifications/FlashProtocol/APFlashWithMutex.tla",
+      "cfg_sha256": "24068575cb139969f2f2ae88f8160d44bf280fbf02647032d933a84828be0b40",
+      "module_sha256": "d90063f6a9aef1cf51f9b1bb451460487b2d38e7e82d68a0d4eaf48cfc83106a",
+      "invariants": [
+        "TypeOK",
+        "CacheStateProp",
+        "CacheDataProp",
+        "MemDataProp",
+        "Lemma_1",
+        "Lemma_2",
+        "Lemma_3",
+        "Lemma_4",
+        "Lemma_5"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 61.13423,
+        "peak_rss_kib": 555220
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.70451,
+        "peak_rss_kib": 22688
+      }
+    },
+    {
+      "cfg": "specifications/GermanProtocol/APGermanCMPWithMutex.cfg",
+      "module": "specifications/GermanProtocol/APGermanCMPWithMutex.tla",
+      "cfg_sha256": "57d65fbf96851eb2175a0185a82ab0ff1defea18b11f762a4a0e3bec2cc924b7",
+      "module_sha256": "a38d5bf745bcedc4b5d759927e800e212962687aa10e468dbae196d84d94e7ae",
+      "invariants": [
+        "TypeOK",
+        "Coherence",
+        "Lemma_1"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00907,
+        "peak_rss_kib": 6216
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.7807,
+        "peak_rss_kib": 296316
+      }
+    },
+    {
+      "cfg": "specifications/GermanProtocol/APGermanControl.cfg",
+      "module": "specifications/GermanProtocol/APGermanControl.tla",
+      "cfg_sha256": "83fd498d17ba7ffd82ad0e349b446371b2ca39691cb89c952db1bff042dca635",
+      "module_sha256": "036775f601fc1ecd258ee9154f251f91757ae3173d1a95446bfb5c365788b66f",
+      "invariants": [
+        "TypeOK",
+        "Coherence"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.5141,
+        "peak_rss_kib": 287556
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00985,
+        "peak_rss_kib": 6096
+      }
+    },
+    {
+      "cfg": "specifications/GermanProtocol/APGermanData.cfg",
+      "module": "specifications/GermanProtocol/APGermanData.tla",
+      "cfg_sha256": "9fadf76c3a66a8fa807bf77a5c5d276e7a1dae385b64201acb5e41800075f687",
+      "module_sha256": "35ce7ae00bffee9c43ffe9b36de1d3383c7b2c65809b4686fdb84c309d488a7a",
+      "invariants": [
+        "TypeOK",
+        "Coherence",
+        "DataProp",
+        "TransactionConsistency",
+        "DirectoryAccurate",
+        "ExclusiveIsolation",
+        "WritebackCarriesLatest"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.01864,
+        "peak_rss_kib": 8148
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 3.66502,
+        "peak_rss_kib": 395076
+      }
+    },
+    {
+      "cfg": "specifications/MisraReachability/APParReach.cfg",
+      "module": "specifications/MisraReachability/APParReach.tla",
+      "cfg_sha256": "f90ea4628f6abef0821b2d064cf4c2115c706483114c6bd0b7b10004525ced62",
+      "module_sha256": "332a28d6cce37977f41f0738da3037683a45b33225f364f4575c9354730c0caa",
+      "invariants": [
+        "Inv"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 3.08672,
+        "peak_rss_kib": 339568
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00917,
+        "peak_rss_kib": 6364
+      }
+    },
+    {
+      "cfg": "specifications/MissionariesAndCannibals/APMissionariesAndCannibals.cfg",
+      "module": "specifications/MissionariesAndCannibals/APMissionariesAndCannibals.tla",
+      "cfg_sha256": "9fc8f0be2ffa7c8d2e7b6c6934e4b555bf7c7ba0561b0168adf713fc23179581",
+      "module_sha256": "faa5f76aa2766c48c3e546bc3a78143accf287133d1f1137859a213623370725",
+      "invariants": [
+        "TypeOK",
+        "Solution"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00614,
+        "peak_rss_kib": 5196
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.37269,
+        "peak_rss_kib": 280800
+      }
+    },
+    {
+      "cfg": "specifications/Moving_Cat_Puzzle/APCat.cfg",
+      "module": "specifications/Moving_Cat_Puzzle/APCat.tla",
+      "cfg_sha256": "3355df100b4f4681bd1f18b1cc3e00d59739cf45691ff591e8237b2da95f18e3",
+      "module_sha256": "75964cb318385a742b662f3cb272088d0bc4313bf0608de9c483311646e7ff3d",
+      "invariants": [
+        "TypeOK"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 1.87165,
+        "peak_rss_kib": 249172
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00623,
+        "peak_rss_kib": 6400
+      }
+    },
+    {
+      "cfg": "specifications/ReadersWriters/APReadersWriters.cfg",
+      "module": "specifications/ReadersWriters/APReadersWriters.tla",
+      "cfg_sha256": "72b96918d7256397680646894ccb8f5f45b44f47759ac9351970339609f0924e",
+      "module_sha256": "4274771776b2ec3d521dbdec8daa9f38fa36cef9975dee9c9a179813cf5f85be",
+      "invariants": [
+        "Safety"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00682,
+        "peak_rss_kib": 6492
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.46913,
+        "peak_rss_kib": 293616
+      }
+    },
+    {
+      "cfg": "specifications/SpanningTree/APSpanTree.cfg",
+      "module": "specifications/SpanningTree/APSpanTree.tla",
+      "cfg_sha256": "f2995ef404cae7710361166c6ffb05f9838fcc235daab67cd6bfdc87365a9a49",
+      "module_sha256": "f6fa8aa77034860d216b28db437f1ccd3ff6867054dd80e0ef67f7ffd47f7cd0",
+      "invariants": [
+        "TypeOK"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "ExecutionsTooShort",
+        "exit": 0,
+        "wall_s": 2.10465,
+        "peak_rss_kib": 273016
+      },
+      "manyan": {
+        "outcome": "ExecutionsTooShort",
+        "exit": 0,
+        "wall_s": 0.01807,
+        "peak_rss_kib": 8792
+      }
+    },
+    {
+      "cfg": "specifications/SpecifyingSystems/AsynchronousInterface/APAsynchInterface.cfg",
+      "module": "specifications/SpecifyingSystems/AsynchronousInterface/APAsynchInterface.tla",
+      "cfg_sha256": "210577143af935e631c7931bc0b24ff6f5768d6f18d42663a51a41cbd2eaa1ec",
+      "module_sha256": "934e39d49d51c91cc2ab83a4042840fccbb6f452c8e6d10b7132d0c38a360ec9",
+      "invariants": [
+        "TypeInvariant"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00333,
+        "peak_rss_kib": 3552
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 1.62878,
+        "peak_rss_kib": 240828
+      }
+    },
+    {
+      "cfg": "specifications/SpecifyingSystems/AsynchronousInterface/APChannel.cfg",
+      "module": "specifications/SpecifyingSystems/AsynchronousInterface/APChannel.tla",
+      "cfg_sha256": "210577143af935e631c7931bc0b24ff6f5768d6f18d42663a51a41cbd2eaa1ec",
+      "module_sha256": "d3c1297ecca74ed632a27e19561ff3ee035314594e6330e7b2cbace7066bbabc",
+      "invariants": [
+        "TypeInvariant"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 1.76177,
+        "peak_rss_kib": 241292
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00335,
+        "peak_rss_kib": 3924
+      }
+    },
+    {
+      "cfg": "specifications/SpecifyingSystems/Composing/APChannel.cfg",
+      "module": "specifications/SpecifyingSystems/Composing/APChannel.tla",
+      "cfg_sha256": "210577143af935e631c7931bc0b24ff6f5768d6f18d42663a51a41cbd2eaa1ec",
+      "module_sha256": "f3cac6ad99aa1122d2966ff482c7c046e0ddd38442ba7364c49227c6dd2e09d3",
+      "invariants": [
+        "TypeInvariant"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00347,
+        "peak_rss_kib": 3908
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 1.80576,
+        "peak_rss_kib": 237208
+      }
+    },
+    {
+      "cfg": "specifications/SpecifyingSystems/Composing/APHourClock.cfg",
+      "module": "specifications/SpecifyingSystems/Composing/APHourClock.tla",
+      "cfg_sha256": "1cae199360d6c8767bee3192ff11211d5fd091d1e3332957d55bab1dda8dd133",
+      "module_sha256": "b1ee6db9d303720f5302b73dee332afb1c9f11c29a86a7a4254c45cc895381c6",
+      "invariants": [
+        "HCini"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 1.52742,
+        "peak_rss_kib": 222300
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00433,
+        "peak_rss_kib": 4328
+      }
+    },
+    {
+      "cfg": "specifications/SpecifyingSystems/FIFO/APChannel.cfg",
+      "module": "specifications/SpecifyingSystems/FIFO/APChannel.tla",
+      "cfg_sha256": "210577143af935e631c7931bc0b24ff6f5768d6f18d42663a51a41cbd2eaa1ec",
+      "module_sha256": "6bb1f596600cb121576bff44f67a191da7c105fbdb8c80c155f8ccdd3429eb34",
+      "invariants": [
+        "TypeInvariant"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00335,
+        "peak_rss_kib": 3932
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 1.78519,
+        "peak_rss_kib": 241740
+      }
+    },
+    {
+      "cfg": "specifications/SpecifyingSystems/FIFO/APInnerFIFO.cfg",
+      "module": "specifications/SpecifyingSystems/FIFO/APInnerFIFO.tla",
+      "cfg_sha256": "2115f2e7b393e64b39a0a078f630baebc1bc004d14c371509e324549c74d6668",
+      "module_sha256": "8706d74891957f6d7ed84715fea05bd869212b47802dbbd96269fb4be15ed93c",
+      "invariants": [
+        "ChannelTypeInvariants"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.063,
+        "peak_rss_kib": 259584
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00495,
+        "peak_rss_kib": 5084
+      }
+    },
+    {
+      "cfg": "specifications/SpecifyingSystems/FIFO/APInnerFIFOInstanced.cfg",
+      "module": "specifications/SpecifyingSystems/FIFO/APInnerFIFOInstanced.tla",
+      "cfg_sha256": "38eadb655d7c7cd41bf724d1571e3de713a493d96add018bf28f61e417e61704",
+      "module_sha256": "f5ecc56ae0ef5bc90d114115561b1b74ebee75585f8fde00525f767ab7fbcb35",
+      "invariants": [
+        "ChannelTypeInvariants"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00557,
+        "peak_rss_kib": 5200
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.11291,
+        "peak_rss_kib": 257552
+      }
+    },
+    {
+      "cfg": "specifications/SpecifyingSystems/FIFO/APMCInnerFIFO.cfg",
+      "module": "specifications/SpecifyingSystems/FIFO/APMCInnerFIFO.tla",
+      "cfg_sha256": "1806923e7c779eae03bd3a1ec1d284fd429e2f641c1dd3327bafa2b0d5c5bd61",
+      "module_sha256": "fb588810f2c4ada66cfb2f1b3547685f93e446aa95fe183455eb7a84093be36f",
+      "invariants": [
+        "ChannelTypeInvariants"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.17942,
+        "peak_rss_kib": 261204
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00675,
+        "peak_rss_kib": 5732
+      }
+    },
+    {
+      "cfg": "specifications/SpecifyingSystems/HourClock/APHourClock.cfg",
+      "module": "specifications/SpecifyingSystems/HourClock/APHourClock.tla",
+      "cfg_sha256": "1cae199360d6c8767bee3192ff11211d5fd091d1e3332957d55bab1dda8dd133",
+      "module_sha256": "c8f348ca33893c58fc4c084b9e34543d13fcd8068fa4a078a49d3fcd59b569ea",
+      "invariants": [
+        "HCini"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00369,
+        "peak_rss_kib": 4324
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 1.45709,
+        "peak_rss_kib": 218392
+      }
+    },
+    {
+      "cfg": "specifications/SpecifyingSystems/HourClock/APHourClock2.cfg",
+      "module": "specifications/SpecifyingSystems/HourClock/APHourClock2.tla",
+      "cfg_sha256": "ef16201d92578edab67cf499cfe8627e14b23687019cc3bc1b3a2d33cda88084",
+      "module_sha256": "82cb76c07c1f66c617c1bd3879837734e234b326d1bd8a8f50b5ec4ec376f291",
+      "invariants": [
+        "HCini"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 1.48726,
+        "peak_rss_kib": 220316
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.01148,
+        "peak_rss_kib": 7228
+      }
+    },
+    {
+      "cfg": "specifications/SpecifyingSystems/Liveness/APHourClock.cfg",
+      "module": "specifications/SpecifyingSystems/Liveness/APHourClock.tla",
+      "cfg_sha256": "1cae199360d6c8767bee3192ff11211d5fd091d1e3332957d55bab1dda8dd133",
+      "module_sha256": "566751e84f3f8783b1e37b3ca978d75583af104713234000c2cc890d28f7cf54",
+      "invariants": [
+        "HCini"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.004,
+        "peak_rss_kib": 4312
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 1.46959,
+        "peak_rss_kib": 222088
+      }
+    },
+    {
+      "cfg": "specifications/SpecifyingSystems/Liveness/APLiveHourClock.cfg",
+      "module": "specifications/SpecifyingSystems/Liveness/APLiveHourClock.tla",
+      "cfg_sha256": "855482d3cbc6d03523a24ccb539c69cf98a9edeb70dfb18af5436b1339b27554",
+      "module_sha256": "c9ee67ef8357b9912750a63a869ce1183b8ca27405a8dca8c6c423a0accf82ec",
+      "invariants": [
+        "HCini"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 1.53312,
+        "peak_rss_kib": 220828
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.0042,
+        "peak_rss_kib": 4360
+      }
+    },
+    {
+      "cfg": "specifications/acp/APACP_SB.cfg",
+      "module": "specifications/acp/APACP_SB.tla",
+      "cfg_sha256": "517623bccc510b7904b3685f17e511618aa98860880efadfcf0c8fa1de9590ac",
+      "module_sha256": "90e34d935e521e19974ff9d35f55f31f8934b96242fd32fd410d7b0c87f09b27",
+      "invariants": [
+        "TypeInv"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.01049,
+        "peak_rss_kib": 7364
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 4.06438,
+        "peak_rss_kib": 367112
+      }
+    },
+    {
+      "cfg": "specifications/barriers/APBarrier.cfg",
+      "module": "specifications/barriers/APBarrier.tla",
+      "cfg_sha256": "f540df1090b1ca0986763b26a2ccffb133f15b991fa777b43b9127f4200c5a29",
+      "module_sha256": "09e60969912d06bdbb88e391d821acb8e29718f78e6a15352a758ea826f4090a",
+      "invariants": [
+        "TypeOK"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.19695,
+        "peak_rss_kib": 267464
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00435,
+        "peak_rss_kib": 4452
+      }
+    },
+    {
+      "cfg": "specifications/bcastFolklore/APbcastFolklore.cfg",
+      "module": "specifications/bcastFolklore/APbcastFolklore.tla",
+      "cfg_sha256": "854f946de04525fd519498d4fb26bf4b76d6d1091f23154e56780a4d5178991a",
+      "module_sha256": "d1a2ba74d6cdb1b80c3e48a1e16548dd160631eb43df71959858b6d10ecd5ad1",
+      "invariants": [
+        "TypeOK"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00959,
+        "peak_rss_kib": 6608
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 3.94568,
+        "peak_rss_kib": 322280
+      }
+    },
+    {
+      "cfg": "specifications/bosco/APbosco.cfg",
+      "module": "specifications/bosco/APbosco.tla",
+      "cfg_sha256": "57d21f0e97a0e5afdcad23833d4b5356cc9210c004019d48d793b749377ab718",
+      "module_sha256": "be3a14daab5b7c0402aa7acf50f0841c073382ce69bb3b3138a2d626e73db47c",
+      "invariants": [
+        "TypeOK",
+        "Lemma3_0",
+        "Lemma3_1",
+        "Lemma4_0",
+        "Lemma4_1"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 23.61466,
+        "peak_rss_kib": 465756
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.06255,
+        "peak_rss_kib": 9252
+      }
+    },
+    {
+      "cfg": "specifications/c1cs/APc1cs.cfg",
+      "module": "specifications/c1cs/APc1cs.tla",
+      "cfg_sha256": "66da9a9c13e1f1d22c238460fbf381c438961ecc073ee6b225a6b358671da0ff",
+      "module_sha256": "d09488e62cdf94f7313e62e521cea9d7b62150cd4ce457659d3435dbc6e90270",
+      "invariants": [
+        "TypeOK",
+        "Validity",
+        "Agreement",
+        "WeakAgreement"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.33841,
+        "peak_rss_kib": 28324
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 4.62197,
+        "peak_rss_kib": 401556
+      }
+    },
+    {
+      "cfg": "specifications/chang_roberts/APChangRoberts.cfg",
+      "module": "specifications/chang_roberts/APChangRoberts.tla",
+      "cfg_sha256": "2be4e803efd01745131a8d14efb22f00c4a10b2c53191a713f6c580b266152fe",
+      "module_sha256": "cc5e6adf949b003f353eeb4b8e5ea6499b99bc477fd7dc799c045b9e83221366",
+      "invariants": [
+        "TypeOK",
+        "Correctness"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 9.26303,
+        "peak_rss_kib": 341012
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00794,
+        "peak_rss_kib": 5800
+      }
+    },
+    {
+      "cfg": "specifications/ewd426/APTokenRing.cfg",
+      "module": "specifications/ewd426/APTokenRing.tla",
+      "cfg_sha256": "e96675fa2462e4760ccddd47e0021a42949a2246a0f6fee7aceb4eb2947e6947",
+      "module_sha256": "0b2f2e0ec93a3d9ae34575883f75fefd9303ca59b42c82c0a0dcf16612565724",
+      "invariants": [
+        "TypeOK"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.01235,
+        "peak_rss_kib": 9184
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 4.33009,
+        "peak_rss_kib": 308264
+      }
+    },
+    {
+      "cfg": "specifications/ewd840/APEWD840.cfg",
+      "module": "specifications/ewd840/APEWD840.tla",
+      "cfg_sha256": "873b1fd00d46d200063b3d8b08e11ada4b5c162bf9ad7282065e205e419d7bef",
+      "module_sha256": "821ef5e07819ebf6d923c99112a3a5b75ebc6cb36f7b8e1f1be51ea09e29e90b",
+      "invariants": [
+        "TypeOK",
+        "TerminationDetection"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.97211,
+        "peak_rss_kib": 303088
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00643,
+        "peak_rss_kib": 5860
+      }
+    },
+    {
+      "cfg": "specifications/ewd840/APSyncTerminationDetection.cfg",
+      "module": "specifications/ewd840/APSyncTerminationDetection.tla",
+      "cfg_sha256": "9e9cbae370cca28b5ef9388cefba4470c89dcd7a0c5434bb43529d8cd1ead17f",
+      "module_sha256": "08cee0501a38644345ca7d61ec7e7b7b20c445d3c6251a94834c2818890f24ae",
+      "invariants": [
+        "TypeOK",
+        "TDCorrect"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00927,
+        "peak_rss_kib": 7448
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.69817,
+        "peak_rss_kib": 307916
+      }
+    },
+    {
+      "cfg": "specifications/glowingRaccoon/APclean.cfg",
+      "module": "specifications/glowingRaccoon/APclean.tla",
+      "cfg_sha256": "b3ab8d4f26222781edb189df79e8d01fbe5cb9afbaadc73e47c2e4535eb0d57b",
+      "module_sha256": "d11d3186ab9403c013dc12b78935021f769f9aba036047cf801a04a676a88d70",
+      "invariants": [
+        "TypeOK",
+        "primerPositive",
+        "preservationInvariant"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 1.84181,
+        "peak_rss_kib": 260476
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00655,
+        "peak_rss_kib": 5952
+      }
+    },
+    {
+      "cfg": "specifications/glowingRaccoon/APstages.cfg",
+      "module": "specifications/glowingRaccoon/APstages.tla",
+      "cfg_sha256": "4820d9245365ce6cac8db4338d78acd68dc711c4f00c20bd3d1d2d37f3b6112d",
+      "module_sha256": "1a977e6718c316b30e8b570db81dda842535d463e05de46e5bbe413a34058a7f",
+      "invariants": [
+        "TypeOK"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00485,
+        "peak_rss_kib": 5344
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.02684,
+        "peak_rss_kib": 267020
+      }
+    },
+    {
+      "cfg": "specifications/lamport_mutex/APLamportMutex.cfg",
+      "module": "specifications/lamport_mutex/APLamportMutex.tla",
+      "cfg_sha256": "82cf4051c034a613336fde9709a11259a4a8581ca4b600890d07b9af1b6af1b9",
+      "module_sha256": "4d894d361a203b91900400e0db5e9a2886ee690389311bd6944b7688194233e4",
+      "invariants": [
+        "Mutex"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 17.42314,
+        "peak_rss_kib": 489112
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.01139,
+        "peak_rss_kib": 10544
+      }
+    },
+    {
+      "cfg": "specifications/nbacg_guer01/APnbacg_guer01.cfg",
+      "module": "specifications/nbacg_guer01/APnbacg_guer01.tla",
+      "cfg_sha256": "90dfb8e21116b74fe50c9de3c0420cb5c50fefba28dd2ee5ce2637ae8da68a65",
+      "module_sha256": "0e7528e77217c97ad63ad2387cee2044f307d9becc20ecd5d46ff7887ba55c4a",
+      "invariants": [
+        "TypeOK"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.10385,
+        "peak_rss_kib": 8288
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 7.64507,
+        "peak_rss_kib": 364960
+      }
+    },
+    {
+      "cfg": "specifications/spanning/APspanning.cfg",
+      "module": "specifications/spanning/APspanning.tla",
+      "cfg_sha256": "e62536c56344905f04964b168b002ec635bf980025a851e3e654c62197505285",
+      "module_sha256": "40fe5524348094ba798effb2c0abd80c91f089f5f6b1aa62cac8a85547888c13",
+      "invariants": [
+        "TypeOK"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.35817,
+        "peak_rss_kib": 275508
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.00551,
+        "peak_rss_kib": 5456
+      }
+    },
+    {
+      "cfg": "specifications/tcp/APtcp.cfg",
+      "module": "specifications/tcp/APtcp.tla",
+      "cfg_sha256": "6e1b5e4125d62115c782a9fbc409bec77b636f3f6d4a98612d5c534bdec5e319",
+      "module_sha256": "4dcaeb65d34b733433a7909af31ed903cf36186ce71172c461656c075a3d1ba3",
+      "invariants": [
+        "Inv"
+      ],
+      "properties": [],
+      "manyan": {
+        "outcome": "Refused",
+        "exit": 255,
+        "wall_s": 0.00896,
+        "peak_rss_kib": 5884
+      },
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 21.72699,
+        "peak_rss_kib": 385796
+      }
+    },
+    {
+      "cfg": "specifications/transaction_commit/APTCommit.cfg",
+      "module": "specifications/transaction_commit/APTCommit.tla",
+      "cfg_sha256": "1e5d8f155fabdc26629214b3e0b6b37380986a08ae708593e840a2a6530d8349",
+      "module_sha256": "c7bc5fb5728f34cc86a0f338205dca12864ffd7e6a89b561b2faea2f80ef74c0",
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent"
+      ],
+      "properties": [],
+      "apalache": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 2.28254,
+        "peak_rss_kib": 285840
+      },
+      "manyan": {
+        "outcome": "NoError",
+        "exit": 0,
+        "wall_s": 0.0063,
+        "peak_rss_kib": 5044
+      }
+    }
+  ],
+  "host": {
+    "instance": "c7i.4xlarge",
+    "region": "us-east-2",
+    "OS": "Ubuntu 24.04",
+    "repetitions": 1,
+    "cold_process": true
+  },
+  "refusal_control": {
+    "cfg": "specifications/tcp/APtcp.cfg",
+    "exit": 255,
+    "diagnostic": "Symbolic checking does not support IsPrefix.",
+    "source": "tcp line 120 columns 14\u201348",
+    "kind": "focused Manyan rerun"
+  }
+}

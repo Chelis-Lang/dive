@@ -431,3 +431,31 @@ is at least a halving of median edit-to-final time on two proof families over
 the best upstream or companion prototype. Seek a separate owner decision on
 scope and trust after this comparison.
 [Open decision](../../open-questions.md#deductive-proof-system-scope)
+
+## Bounded checking, fairness and proofs
+
+Across all 46 length-five configurations in the authors' Examples panel, Manyan and Apalache agreed on 45 on a dedicated Linux c7i.4xlarge. Both found the one-state `FindSolution` counterexample in Einstein, reported `ExecutionsTooShort` on SpanningTree, and cleared 43 other configurations through the bound. On APtcp, Apalache cleared the bound and Manyan refused `IsPrefix` in `tcp` at line 120. The published run on Darwin reports 46 agreements. On the 45 matching Linux cells, Manyan took 1.57 s total and Apalache took 240.06 s, including process startup. Each configuration has one fresh-process observation per tool. [Per-configuration measurements, properties and source identities](../../../conformance/reports/perf/2026-11-22-bounded-peers.json) · [Authors' panel](https://github.com/soasme/manyan/blob/a39816a873a2c2aabc00dbcef50908e996f3d44b/docs/symbolic-bench.md)
+
+Core's explicit breadth-first search on those same 46 inputs completed 15, hit the six-level admission limit on 27, timed out on one and rejected three. It reports a stop when the next new state would exceed the depth limit. A bounded checker also reasons about paths that continue through previously seen states. Two Disruptor configurations use a negative integer constant in the CFG. Einstein imports Apalache's module. Providing its upstream source allowed Core to start searching Einstein, which reached the five-second cap. Those controls identify a CFG compatibility change and a solver-friendly initial-state search as distinct opportunities. [Explicit search diagnostics](../../../conformance/reports/perf/2026-11-22-explicit-prefix.json)
+
+On Elevator Medium with the original quantified weak and strong fairness, both tools completed 4,122 distinct and 14,296 generated states. At one worker, Dive took 1.496 s and Manyan took 0.109 s. Reducing the configuration to one person and one elevator gave 36 states and a passing fair check on both. Removing just strong fairness for `MoveElevator` made both return a violation of `TemporalInvariant`. Dive independently validated its six-state lasso and rejected both a substituted initial stutter and the original lasso under restored fairness. These controls exercise the transition, fairness and liveness contracts for changes to the product search. [Runs and replay results](../../../conformance/reports/perf/2026-11-22-elevator-fairness.json) · [Phase timings for larger configurations](../../../conformance/reports/perf/2026-11-21-temporal-analysis-phases.json)
+
+For named safety proofs, the artifact importer joins all 33 rows in Recomp-Verify Figure 5 to their original module, CFG and named invariant. The artifact also ships ToyMutex, outside that table. Two published configurations have direct Dive comparisons so far. Scimitar's saved graphs for TwoPhase and two AsyncRaft properties contain 14, 13 and 31 lemma nodes respectively. Their discharge flags record the producer's result. The importer checks the graph hashes and extracts the nodes, dependencies and CTI counts. Independent proof checking and timing fresh inference require separate runs. The Raft files record zero seconds of invariant checking. [Pinned inputs and published results](../../../conformance/reports/perf/2026-11-22-published-peer-artifacts.json) · [Direct named-proof comparisons](../../../conformance/reports/perf/2026-11-21-named-property-proofs.json) · [Scimitar proof controls](https://github.com/Chelis-Lang/dive/issues/1283)
+
+### Reproduce the comparisons
+
+Use Linux with Python 3.11 or later, GNU time/coreutils, a C compiler, make and Java 21. From the pinned Manyan checkout install its own checksum-verified Apalache and libraries, then run the panel driver from Dive. The output path must be new. Its `--only` filter selects one configuration by path substring. A Java heap cap of 2 GiB applies to each Apalache child. The published Linux measurement used an 8 GiB systemd service limit with swap disabled.
+
+```sh
+git clone https://github.com/soasme/manyan "$MANYAN"
+git -C "$MANYAN" checkout a39816a873a2c2aabc00dbcef50908e996f3d44b
+make -C "$MANYAN" manyan .obj/apalache-0.63.0/bin/apalache-mc \
+  .obj/CommunityModules-202611060952 .obj/tlapm-c8ddc44a80b621989f96a9ee2c371301c52b109f \
+  .obj/Examples-ca168055339d5cbcee95b7eefcb97c1ee59f9914
+python3 scripts/perf/scale/bounded-peer-panel.py "$MANYAN" bounded.json
+python3 scripts/perf/scale/bounded-peer-panel.py "$MANYAN" prefix.json --dive-prefix "$DIVE" --seconds 6
+python3 scripts/perf/scale/elevator-fairness.py "$EXAMPLES/specifications/MultiCarElevator" "$DIVE" "$MANYAN/manyan" fairness.json
+python3 scripts/perf/scale/published-peer-artifacts.py published.json
+```
+
+For the fairness run, use the Dive corpus pin of Examples. The script verifies the original module and CFG digests before creating its two smaller controls. The artifact importer reads immutable Scimitar and Recomp-Verify revisions and version 2 of the Recomp-Verify paper. For compiled explicit searches, add `--tla-mc` to the native panel invocation to run cold and warm compiled tla-mc as well as tlx on KVS and Lamport. Each compiler gets its own cache. [Native panel](../../../scripts/perf/scale/native-peer-panel.py) · [Historical explicit-search records with both peers](../../../conformance/reports/perf/2026-11-20-native-peer-panel.json)

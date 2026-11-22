@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "scope": "Focused recheck of the six 175-model comparison exclusions, the SmokeEWD998_SC host script and both previously refused goldened holdouts. First reported result per original configuration. Historical measurements select inputs, not expected results.",
+  "source": "c3f6a8a494444d632e02dfdff1e645b2564352f1",
+  "build": "Clean tracked source export from main, release profile. The exported tree omits .git, so --version does not include the revision.",
+  "host": "Isolated Linux x86_64 EC2 c7i.4xlarge. Sequential processes, one worker each. No timing comparison.",
+  "reproduction": "After fetching the pinned corpora and oracle module libraries, python3 scripts/audit-feature-families.py --probe /path/to/dive. Every input uses the committed golden's model/module and mode. The default profile has no I/O grants. Each run has a 5 s and 512 MiB budget.",
+  "pins": {
+    "examples": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "community-modules": "78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3",
+    "holdout-tidb": "5649f86df14c73b0ab8773dda3802bc1937ace8d",
+    "holdout-blocking-queue": "68715979666344cbcc66fa621b27039f281bdd5c",
+    "apalache-modules-v0.62.3": "3eb15b253482005222fabbf50bb7aae501eb9f8d",
+    "tlapm-library-d8b9747": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+  },
+  "rows": [
+    {
+      "corpus": "examples",
+      "config": "specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
+      "module": "specifications/FiniteMonotonic/MCDistributedReplicatedLog.tla",
+      "mode": "exhaustive",
+      "outcome": "unsupported",
+      "exit": 3,
+      "message": "temporal properties: graph capture with VIEW requires quotient edge and closing-state evidence (core)",
+      "bucket": "Temporal VIEW quotient"
+    },
+    {
+      "corpus": "examples",
+      "config": "specifications/TLC/TestGraphs.cfg",
+      "module": "specifications/TLC/TestGraphs.tla",
+      "mode": "exhaustive",
+      "outcome": "unsupported",
+      "exit": 3,
+      "message": "the start-up evaluation of GraphName: IOUtils!IOEnv requires explicit --allow-io=env",
+      "bucket": "Explicit host input grant"
+    },
+    {
+      "corpus": "examples",
+      "config": "specifications/ewd687a/EWD687a_anim.cfg",
+      "module": "specifications/ewd687a/EWD687a_anim.tla",
+      "mode": "simulate",
+      "outcome": "violation",
+      "exit": 12,
+      "message": null,
+      "property": "InterestingBehavior",
+      "validated": true,
+      "bucket": "Validated simulation violation"
+    },
+    {
+      "corpus": "examples",
+      "config": "specifications/ewd998/EWD998ChanID.cfg",
+      "module": "specifications/ewd998/EWD998ChanID.tla",
+      "mode": "exhaustive",
+      "outcome": "unsupported",
+      "exit": 3,
+      "message": "temporal properties: graph capture with VIEW requires quotient edge and closing-state evidence (core)",
+      "bucket": "Temporal VIEW quotient"
+    },
+    {
+      "corpus": "examples",
+      "config": "specifications/ewd998/EWD998ChanTrace.cfg",
+      "module": "specifications/ewd998/EWD998ChanTrace.tla",
+      "mode": "exhaustive",
+      "outcome": "unsupported",
+      "exit": 3,
+      "message": "splitting the next-state relation: Json!ndJsonDeserialize requires explicit --allow-io=files",
+      "bucket": "Explicit host input grant"
+    },
+    {
+      "corpus": "examples",
+      "config": "specifications/ewd998/SmokeEWD998.cfg",
+      "module": "specifications/ewd998/SmokeEWD998.tla",
+      "mode": "simulate",
+      "outcome": "unsupported",
+      "exit": 3,
+      "message": "simulation temporal property TDSpec: DIVE-L0020: unsupported liveness planning in line 113, col 34 to line 113, col 48 of module EWD998: effects or dynamic bindings in temporal planning (at line 113, col 34 to line 113, col 48 of module EWD998)",
+      "bucket": "Effectful temporal simulation predicate"
+    },
+    {
+      "corpus": "examples",
+      "config": "specifications/ewd998/SmokeEWD998_SC.cfg",
+      "module": "specifications/ewd998/SmokeEWD998_SC.tla",
+      "mode": "exhaustive",
+      "outcome": "unsupported",
+      "exit": 3,
+      "message": "the start-up evaluation of CSVFile: TLC!JavaTime (not implemented in dive's evaluator yet)",
+      "bucket": "Host clock in a specification"
+    },
+    {
+      "corpus": "holdout-blocking-queue",
+      "config": "BlockingQueueDebug.cfg",
+      "module": "BlockingQueueDebug.tla",
+      "mode": "exhaustive",
+      "outcome": "unsupported",
+      "exit": 3,
+      "message": "the standard operator TLCExt!PickSuccessor (M0 core)",
+      "bucket": "Debugger operator PickSuccessor"
+    },
+    {
+      "corpus": "holdout-tidb",
+      "config": "DistributedTransaction/Test3.cfg",
+      "module": "DistributedTransaction/Test3.tla",
+      "mode": "exhaustive",
+      "outcome": "unsupported",
+      "exit": 3,
+      "message": "difference of an infinite set",
+      "bucket": "Infinite-set difference"
+    }
+  ],
+  "binary_sha256": "5bc12a042a2319d80433955da4063c3eba0173b53e5dc07cbe7f54576b86f970",
+  "version": "dive 0.1.0 (unknown)"
+}
