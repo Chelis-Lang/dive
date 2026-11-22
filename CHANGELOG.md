@@ -8,6 +8,8 @@ are in git history.
 - The source-checkout [named induction checker](docs/user/symbolic.md#check-a-named-inductive-predicate) verifies a compact safety predicate through original TLA+ actions, including MongoLoglessDynamicRaft membership changes.
 - [Repair a saved temporal counterexample](docs/user/temporal.md#repair-a-saved-counterexample-after-an-edit) by searching short paths through the edited source and independently validating the complete replacement.
 
+- [Check the original AsyncRaft log invariant](docs/user/symbolic.md#check-the-asyncraft-log-invariant) with a compact source-bound induction proof at two and three servers and up to three messages per channel.
+
 - Core lowers disjoint updates to a shared [actor record](docs/developer/core/06-memoization.md#26-disjoint-updates-to-one-actor-row). The original Flint growth edit fell from 57.99 s to 48.89 s with all ten configured properties checked. [Performance record](conformance/reports/perf/2026-11-22-actor-table-rows.json).
 
 - The source checkout can [build a native successor worker](docs/user/checking.md#build-a-source-bound-native-successor-worker) from unmodified TLA+ and reuse its compiled control flow after a property or guard edit.

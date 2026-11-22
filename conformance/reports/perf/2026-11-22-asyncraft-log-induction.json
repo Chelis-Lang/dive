@@ -1,0 +1,688 @@
+{
+  "schema": 1,
+  "source": "https://github.com/will62794/scimitar/tree/f1b902dc0801cf435cb9dd6e6be495d5ed121787/benchmarks",
+  "property": "H_PrimaryHasEntriesItCreated",
+  "host": "Dedicated EC2 c7i.4xlarge, Intel Xeon Platinum 8488C, Ubuntu 24.04.5, Python 3.12.3, z3-solver 5.4.1.0, one solver thread. Rows use elapsed seconds and peak process RSS in KiB. Small auxiliary controls overlapped part of the panel; measurements are individual observations.",
+  "dive_sha256": "8d3e35534d9d7b63b3c9ce410e8071d9d098079c190f199495a3d4c828a0162d",
+  "symbolic_input_sha256": "f1d230f0f4fd4532c28a8efc73a465b36c3d27555065939cd923289f7a81a562",
+  "commands": [
+    "python3 -m pip install z3-solver==5.4.1.0",
+    "PYTHONOPTIMIZE=1 python3 scripts/perf/scale/raft_induction/panel.py scimitar/benchmarks --exporter target/release/examples/symbolic_input --dive target/release/dive",
+    "python3 -O scripts/perf/scale/raft_induction/test_definedness.py scimitar/benchmarks --exporter target/release/examples/symbolic_input",
+    "python3 scripts/perf/scale/raft_induction/test_definedness.py scimitar/benchmarks --exporter target/release/examples/symbolic_input",
+    "dive check AsyncRaft.tla --config Study.cfg --workers 1 --store exact --seed 0 --fp 0 --max-memory 3g --time-limit 35s --output json",
+    "java -Xmx512m -cp tla2tools.jar tlc2.TLC -workers 1 -seed 0 -fp 0 -config Study.cfg AsyncRaft.tla",
+    "timeout 135s tlapm --threads 2 --nofp AsyncRaft_IndProofs_PrimaryHasEntriesItCreated_4.tla",
+    "apalache-mc typecheck AsyncRaft.tla",
+    "python3 scripts/perf/scale/raft_induction/check.py scimitar/benchmarks --exporter target/release/examples/symbolic_input --servers 3 --max-messages 3 --save proof.json",
+    "dive check raft/AsyncRaft.tla --config raft/cap3.cfg --workers 1 --store fp --seed 0 --fp 0 --max-memory 2147483648 --time-limit 65s --output json"
+  ],
+  "scope": {
+    "servers": [
+      2,
+      3
+    ],
+    "MaxTerm": 2,
+    "MaxLogLen": 2,
+    "MaxMsgCount": [
+      2,
+      3
+    ],
+    "init": "Init",
+    "next": "Next",
+    "constraint": "StateConstraint",
+    "projection": "Every admitted source satisfies the representation, StateConstraint, the target, 29 simultaneous source strengthening formulas, and their definedness. Initial inclusion and retained one-step closure establish this hypothesis. All raw destinations are checked for Safety and definedness before constraint filtering. No bound on the number of transitions.",
+    "enabled_scope": "Source-disjoint finite server choice or one active slot of an extensional finite message set. Crossing_constraint counts feasible alternatives with at least one constraint-crossing image; alternatives do not count reachable states or occurrences."
+  },
+  "peer_graph": {
+    "lemma_nodes": 31,
+    "formula_strings": 29,
+    "graph_nodes": 76,
+    "distinct_edges": 111,
+    "serialized_edges": 275,
+    "stats": {
+      "num_lemma_nodes": 31,
+      "num_failed_lemma_nodes": 0,
+      "state_cache_duration_secs": 0,
+      "invcheck_duration_secs": 0,
+      "ctielimcheck_duration_secs": 0,
+      "total_duration_secs": 10.104620933532715,
+      "num_preds": 142,
+      "date": "2024-11-13 19:02:17"
+    },
+    "notes": "Peer's stored graph reports no invariant-check time. The 10.10 s recorded total is historical graph metadata. No new Scimitar discovery run."
+  },
+  "peers": {
+    "tlc_small": {
+      "pin": "tlc-2026.10.06.014338",
+      "seconds": 0.87,
+      "peak_rss_kib": 195876,
+      "distinct": 2208,
+      "generated": 8753,
+      "depth": 22
+    },
+    "tlaps": {
+      "version": "1.5.0",
+      "scope": "original authored proof module, not a finite enumeration",
+      "seconds": 135.02,
+      "peak_rss_kib": 406564,
+      "result": "timeout, no complete proof",
+      "earlier_probe": {
+        "seconds": 240.02,
+        "peak_rss_kib": 466188,
+        "result": "timeout in preliminary installation"
+      }
+    },
+    "apalache": {
+      "version": "0.63.0",
+      "scope": "unchanged original TLA+ input",
+      "result": "typecheck refused three type annotations preceding AgreeCopy",
+      "reported_seconds": 1.263
+    },
+    "tlc_two_servers_three_messages": {
+      "pin": "tlc-2026.10.06.014338",
+      "scope": "Independent reviewer, original active Next plus target and 29 strengthening formulas, MaxTerm/MaxLogLen 2 and MaxMsgCount 3",
+      "result": "success",
+      "distinct": 6542,
+      "generated": 27875,
+      "depth": 23
+    }
+  },
+  "ordinary_three_servers": {
+    "verdict": "success",
+    "distinct": 163681,
+    "generated": 1025116,
+    "depth": 30,
+    "queued": 0,
+    "seconds": 3.89,
+    "peak_rss_kib": 47652
+  },
+  "controls": {
+    "definedness": [
+      "guarded empty-log read",
+      "original log/function projection",
+      "absent server key",
+      "out-of-domain sequence index",
+      "empty CHOOSE",
+      "non-unique CHOOSE"
+    ],
+    "python_modes": [
+      "normal",
+      "-O"
+    ]
+  },
+  "development_control": {
+    "three_server_initial_solver": {
+      "seconds": 33.74,
+      "peak_rss_kib": 78556,
+      "scope": "Separate c7i.4xlarge and fresh z3-solver 5.4.1.0 against the provisional full lowering, 30 predicates and 11 families. Final receipts and data use the integrated command."
+    },
+    "small_core_repeat": {
+      "seconds": 0.06,
+      "peak_rss_kib": 33144
+    }
+  },
+  "rows": [
+    {
+      "servers": 2,
+      "max_messages": 2,
+      "proof": {
+        "format": "asyncraft-source-induction-v1",
+        "input": {
+          "bound_ir": "8f2d40323631286bb52a517bf96b1b4f578ae87056cae57ababf0f6a023877d6",
+          "graph": "c71a7d7e4f036d97025c0c6091c9fe0f6bfec146b9eceeca7c0511870d7d5d16",
+          "upstream_cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+          "config": "32383def5d16454036428c1be0fde39e105d2cb78e525d36dc4ffb798b110d15",
+          "source": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+          "servers": 2,
+          "max_messages": 2
+        },
+        "property": "H_PrimaryHasEntriesItCreated",
+        "predicates": 30,
+        "initial": 1,
+        "actions": [
+          {
+            "action": "RequestVoteAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 2
+          },
+          {
+            "action": "UpdateTermAction",
+            "alternatives": 8,
+            "feasible": 8,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "HandleRequestVoteRequestAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 2
+          },
+          {
+            "action": "HandleRequestVoteResponseAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "BecomeLeaderAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "ClientRequestAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 2
+          },
+          {
+            "action": "AppendEntriesAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 2
+          },
+          {
+            "action": "AcceptAppendEntriesRequestAppendAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 2
+          },
+          {
+            "action": "AcceptAppendEntriesRequestLearnCommitAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "HandleAppendEntriesResponseAction",
+            "alternatives": 4,
+            "feasible": 4,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "AdvanceCommitIndexAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 0
+          }
+        ],
+        "result": "proved"
+      },
+      "checking": {
+        "seconds": 5.106953,
+        "peak_rss_kib": 78252
+      },
+      "receiving": {
+        "seconds": 5.114313,
+        "peak_rss_kib": 78156
+      },
+      "certificate_bytes": 1605,
+      "certificate_sha256": "28a5a0c67f1f967725c94bc38d726fb934de95ccb9bb33f51315789f0980b2d8",
+      "core": {
+        "counts": {
+          "depth": 22,
+          "distinct": 2208,
+          "generated": 8753,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "usage": {
+          "seconds": 0.062119,
+          "peak_rss_kib": 33064
+        }
+      },
+      "boolean_count_rejected": true
+    },
+    {
+      "servers": 3,
+      "max_messages": 2,
+      "proof": {
+        "format": "asyncraft-source-induction-v1",
+        "input": {
+          "bound_ir": "2f150ec16a2a398e2a455e64bfae6c27d99e48fb94743063decf2c4823e78aa5",
+          "graph": "c71a7d7e4f036d97025c0c6091c9fe0f6bfec146b9eceeca7c0511870d7d5d16",
+          "upstream_cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+          "config": "9661886fcd8f4e111b7dbb1cb2011e74755a09e1f9e283ba96b905a45a7dfe95",
+          "source": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+          "servers": 3,
+          "max_messages": 2
+        },
+        "property": "H_PrimaryHasEntriesItCreated",
+        "predicates": 30,
+        "initial": 1,
+        "actions": [
+          {
+            "action": "RequestVoteAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 3
+          },
+          {
+            "action": "UpdateTermAction",
+            "alternatives": 8,
+            "feasible": 8,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "HandleRequestVoteRequestAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 2
+          },
+          {
+            "action": "HandleRequestVoteResponseAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "BecomeLeaderAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "ClientRequestAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 3
+          },
+          {
+            "action": "AppendEntriesAction",
+            "alternatives": 6,
+            "feasible": 6,
+            "crossing_constraint": 6
+          },
+          {
+            "action": "AcceptAppendEntriesRequestAppendAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 2
+          },
+          {
+            "action": "AcceptAppendEntriesRequestLearnCommitAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "HandleAppendEntriesResponseAction",
+            "alternatives": 4,
+            "feasible": 4,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "AdvanceCommitIndexAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 0
+          }
+        ],
+        "result": "proved"
+      },
+      "checking": {
+        "seconds": 23.312166,
+        "peak_rss_kib": 81768
+      },
+      "receiving": {
+        "seconds": 23.366094,
+        "peak_rss_kib": 81960
+      },
+      "certificate_bytes": 1605,
+      "certificate_sha256": "64e36f6e8c508bf7c9ec8ac365c4512858ced51bec2de7da9eca939d9bbb4bce",
+      "core": {
+        "counts": {
+          "depth": 30,
+          "distinct": 163681,
+          "generated": 1025116,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "usage": {
+          "seconds": 3.893336,
+          "peak_rss_kib": 47432
+        }
+      },
+      "original_path": {
+        "states": 18,
+        "sha256": "335b52a06f4be0b55d3a9a9502bbbe5c3b140611d939afadcf4b231cfdd71ea1",
+        "validated": true,
+        "damaged_rejected": true,
+        "steps": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction",
+          "ClientRequestAction",
+          "ClientRequestAction",
+          "AppendEntriesAction",
+          "AcceptAppendEntriesRequestAppendAction",
+          "HandleAppendEntriesResponseAction",
+          "AppendEntriesAction",
+          "AcceptAppendEntriesRequestAppendAction",
+          "HandleAppendEntriesResponseAction",
+          "RequestVoteAction"
+        ],
+        "copied_indices": [
+          1,
+          2
+        ],
+        "elected": "n1",
+        "replicated_to": "n2",
+        "final_follower_term": 2
+      },
+      "mutant": {
+        "states": 7,
+        "sha256": "7d7291d6e81f56c21af357713722bfe1cfc0dea0c0a990cf22467cbde2ad29d6",
+        "validated": true,
+        "damaged_rejected": true,
+        "first_bad_step": 6,
+        "distinct_pending_before_failure": 1,
+        "first_bad_entries": [
+          [
+            "n1",
+            "n2",
+            1,
+            1
+          ]
+        ],
+        "steps": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction",
+          "ClientRequestAction"
+        ],
+        "original_rejected": true,
+        "core": {
+          "seconds": 0.036068,
+          "peak_rss_kib": 31220
+        }
+      },
+      "controls": {
+        "stale_rejected": true,
+        "changed_formula_rejected": true,
+        "omitted_action_rejected": true,
+        "mutant_induction_failure": "ClientRequestAction alternative 0 destination safety"
+      }
+    },
+    {
+      "servers": 3,
+      "max_messages": 3,
+      "proof": {
+        "format": "asyncraft-source-induction-v1",
+        "input": {
+          "bound_ir": "d4bd16a3695ab8ae4b5fdb719333b95ff297f6c75d3148fed9b21a0a92ec962c",
+          "graph": "c71a7d7e4f036d97025c0c6091c9fe0f6bfec146b9eceeca7c0511870d7d5d16",
+          "upstream_cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+          "config": "187e0d2d6f9dd5d13f0987b3b8f71e5eec50965c1a6d9a989411b54ec6c64251",
+          "source": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+          "servers": 3,
+          "max_messages": 3
+        },
+        "property": "H_PrimaryHasEntriesItCreated",
+        "predicates": 30,
+        "initial": 1,
+        "actions": [
+          {
+            "action": "RequestVoteAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 3
+          },
+          {
+            "action": "UpdateTermAction",
+            "alternatives": 12,
+            "feasible": 12,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "HandleRequestVoteRequestAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 3
+          },
+          {
+            "action": "HandleRequestVoteResponseAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "BecomeLeaderAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "ClientRequestAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 3
+          },
+          {
+            "action": "AppendEntriesAction",
+            "alternatives": 6,
+            "feasible": 6,
+            "crossing_constraint": 6
+          },
+          {
+            "action": "AcceptAppendEntriesRequestAppendAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 3
+          },
+          {
+            "action": "AcceptAppendEntriesRequestLearnCommitAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "HandleAppendEntriesResponseAction",
+            "alternatives": 6,
+            "feasible": 6,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "AdvanceCommitIndexAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 0
+          }
+        ],
+        "result": "proved"
+      },
+      "checking": {
+        "seconds": 38.169031,
+        "peak_rss_kib": 83660
+      },
+      "receiving": {
+        "seconds": 38.317646,
+        "peak_rss_kib": 83544
+      },
+      "certificate_bytes": 1607,
+      "certificate_sha256": "4a64982114f2da706efcf9eb0efa5f484e16bd61e6aff86bfb922690f8c2ad07",
+      "original_path": {
+        "states": 10,
+        "sha256": "bf6fd03faf13b9292e70ad4859b9a2d54e30698c41090cb3131b293a6f0f5020",
+        "validated": true,
+        "damaged_rejected": true,
+        "steps": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction",
+          "AppendEntriesAction",
+          "AppendEntriesAction",
+          "RequestVoteAction",
+          "HandleRequestVoteRequestAction"
+        ],
+        "duplicate_send_cardinality": 1,
+        "distinct_requests_before_delivery": 3,
+        "after_delivery": 2
+      },
+      "three_message_mutant": {
+        "states": 8,
+        "sha256": "8d1fe3e2538a984d8366719e654b2a0bafb6cca802256f388b08075284a282f9",
+        "validated": true,
+        "damaged_rejected": true,
+        "first_bad_step": 7,
+        "distinct_pending_before_failure": 3,
+        "first_bad_entries": [
+          [
+            "n1",
+            "n2",
+            1,
+            1
+          ]
+        ],
+        "steps": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "RequestVoteAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction",
+          "ClientRequestAction"
+        ],
+        "original_rejected": true,
+        "core": {
+          "seconds": 0.036396,
+          "peak_rss_kib": 31036
+        }
+      },
+      "controls": {
+        "smaller_receipt_rejected": true,
+        "three_message_induction_failure": "ClientRequestAction alternative 1 destination safety",
+        "two_message_mutant": "proved",
+        "two_message_mutant_usage": {
+          "seconds": 23.396283,
+          "peak_rss_kib": 81800
+        }
+      }
+    }
+  ],
+  "matched_channel_capacity_comparison": {
+    "host": "Separate dedicated Linux c7i.4xlarge, serialized runs, original source, identical Dive binaries and graph. Single-worker Core with fingerprint store, fixed seed and fingerprint.",
+    "preserved": "Three labeled servers, MaxTerm=2 and MaxLogLen=2. Each of four channels changes from at most two distinct messages to three. Both ordinary CFG layouts produced identical bound original-source exporter JSON to the normalized proof CFG for each capacity.",
+    "ordinary_original_config_sha256": {
+      "2": "9cf1d109b03666695b9f426a44a618e726294fd0045e6a784209f4758df2c51a",
+      "3": "81289925e68f367bcd9146ecf9e92d893b3aecfa14d04fb1f4e7856d5a8d850a"
+    },
+    "ordinary_normalized_config_sha256": {
+      "2": "9661886fcd8f4e111b7dbb1cb2011e74755a09e1f9e283ba96b905a45a7dfe95",
+      "3": "187e0d2d6f9dd5d13f0987b3b8f71e5eec50965c1a6d9a989411b54ec6c64251"
+    },
+    "equivalent_export_sha256": {
+      "2": "9f8bb98e1c4d49c8fc2f534afd68c01fa136b03f991eb9bb534aba4d3f452a78",
+      "3": "650321e6e27416b6d891ea5866156b014c6d0afa6be364e03ee09fa46530be33"
+    },
+    "core_two_messages": {
+      "verdict": "success",
+      "statistics": {
+        "depth": 30,
+        "distinct": 163681,
+        "generated": 1025116,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "seconds": 3.63,
+      "peak_rss_kib": 36128,
+      "raw_sha256": "a674be2e362b74592698abc6b8014bacc41b00ac4aeae0e16c97a74e862307fd"
+    },
+    "core_three_messages": {
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 22,
+        "distinct": 3743621,
+        "exhaustive": false,
+        "generated": 19006912,
+        "initial_generated": 1,
+        "left_on_queue": 1228744,
+        "reported_by_tlc": false
+      },
+      "seconds": 65.05,
+      "peak_rss_kib": 158768,
+      "raw_sha256": "bc9ef27add2c1dbb92d375522b535624afbfed850c1e640fb2f9d9cf86ec2a73"
+    },
+    "separate_three_slot_induction": {
+      "seconds": 40.46,
+      "peak_rss_kib": 83488,
+      "alternatives": 48,
+      "feasible": 48,
+      "crossing_constraint": 18,
+      "receipt_sha256": "120fb5b6bb64fe8afdfaeaae8d579b7ea313c912baf116cad650c36edede9e31",
+      "checker_sha256": "f293ac49e817b9e90de9208147d8b5485a5322fbcc58f3ef1d253c4db5db4d4c",
+      "representation_sha256": "cd6080de5632087bd698e5a00dc6698c0e44073f547404d0bcf4986faee432f6",
+      "scope": "Independent constant-three slot prototype. The configurable command rechecks the proof; its fresh receipt appears in rows."
+    }
+  },
+  "first_integrated_cap_two_rows": [
+    {
+      "servers": 2,
+      "checking": {
+        "seconds": 5.153257,
+        "peak_rss_kib": 78076
+      },
+      "receiving": {
+        "seconds": 5.16871,
+        "peak_rss_kib": 78808
+      },
+      "certificate_bytes": 1588,
+      "certificate_sha256": "e7273aa2b06e6377daaf3240ec752d5339d9fc0d6ec25b333a34236e83abda27"
+    },
+    {
+      "servers": 3,
+      "checking": {
+        "seconds": 23.557997,
+        "peak_rss_kib": 81928
+      },
+      "receiving": {
+        "seconds": 23.375075,
+        "peak_rss_kib": 81904
+      },
+      "certificate_bytes": 1588,
+      "certificate_sha256": "4c3ce7c20a53eeddef800c2697abfc127850a77d0169b07ef71b0efdc5b003e7"
+    }
+  ],
+  "independent_review": {
+    "host": "Separate process and private source directory on the dedicated c7i.4xlarge, isolated time window. Peak RSS was not captured for these solver repeats.",
+    "three_servers_three_messages": {
+      "seconds": 38.35,
+      "feasible": 48,
+      "crossing_constraint": 18,
+      "certificate_bytes": 1607,
+      "certificate_sha256": "4a64982114f2da706efcf9eb0efa5f484e16bd61e6aff86bfb922690f8c2ad07"
+    },
+    "two_servers_three_messages": {
+      "seconds": 8.91,
+      "feasible": 40,
+      "crossing_constraint": 12,
+      "certificate_bytes": 1607,
+      "certificate_sha256": "5c8d93bced7882417753c2407d7d2d8f9a3bb656edd503f06fab782611fce1d0"
+    },
+    "three_pending_mutant": {
+      "capacity_two_result": "proved",
+      "capacity_two_seconds": 23.5,
+      "capacity_three_result": "inconclusive: ClientRequestAction alternative 1 destination safety",
+      "capacity_three_seconds": 21.9
+    },
+    "controls": [
+      "Independent source projection, third distinct message, duplicate cardinality and guarded read controls",
+      "Genuine original and mutant words passed independent validation; incorrect-capacity, original-against-mutant and damaged controls were rejected",
+      "Original two-server, three-message scenario independently exhausted under TLC in the peer records"
+    ]
+  }
+}

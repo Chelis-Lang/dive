@@ -6,6 +6,59 @@ reachable set, check a new invariant against that set, or prove safety by
 induction. It reads the original TLA+ module and configuration through Dive's
 binder.
 
+## Check the AsyncRaft log invariant
+
+The source-checkout command below checks whether a leader contains every entry
+of its own term at the same index where any server has it. It reads the
+unchanged Scimitar AsyncRaft module and 29 strengthening formulas from the
+released proof graph. Install `z3-solver==5.4.1.0` in a Python environment and
+check out the Scimitar revision pinned in the evidence below. Build the
+Dive exporter with `cargo build --release -p dive-api --example symbolic_input`.
+
+```sh
+python3 scripts/perf/scale/raft_induction/check.py scimitar/benchmarks \
+  --exporter target/release/examples/symbolic_input --servers 3 --save proof.json
+```
+
+Replace `--save` with `--verify` to rebind the source, independently repeat
+every solver obligation and compare the receipt, including after moving the
+checkout. Use `--servers 2` for the smaller carrier. The supported model
+has terms 0–2 and at most two entries per log. Each channel holds up to two
+messages by default. Add `--max-messages 3` to check three. The receiver must
+use the same capacity. The checker derives the number of symbolic message
+slots from the bound TLA+ constant. The checker evaluates
+all 11 actions in the original `Next` and checks safety even on destinations
+outside the source state constraint. The published rejection and truncation
+actions are disabled in that relation.
+
+On the three-server carrier, checking the 1,605-byte receipt took **23.31 s**
+and fresh verification took **23.37 s**. Ordinary Core exhausted the same
+model in **3.89 s** with 163,681 distinct states. Choose Core for a fast
+verdict at these bounds. The symbolic command provides independently
+recheckable, action-by-action closure of the published strengthening.
+
+Changing only `MaxMsgCount` from two to three reverses the measured outcome.
+The configurable checker finished in **38.17 s** at 82 MiB, and a relocated
+process verified the 1,607-byte receipt in **38.32 s**. A second dedicated
+Linux host reproduced the proof in **40.46 s**. At a 65-second limit on that
+host, exhaustive Core had generated **19,006,912**
+states, found **3,743,621** distinct states and still had **1,228,744** queued.
+It returned a resource stop. At capacity two, Core on that same host finished
+in 3.63 s. The three-slot proof covers 48 feasible alternatives. Eighteen can
+leave the constraint.
+
+The integrated panel also replays a real leader election, deliveries of both
+log indices to another server and a subsequent term change. It rejects a
+changed lemma, stale proof, missing action and damaged word. Allowing a
+follower to append a client entry produces an independently validated
+seven-state counterexample. The first bad entry is at index 1 in term 1.
+A second mutant enables the follower only when three distinct vote requests
+are pending. Its strengthening holds at capacity two. At capacity three an
+eight-state word reaches its first failure at index 1.
+On the original module, a repeated send has cardinality one, and another
+execution step consumes one of three distinct requests.
+[Source, commands, peer results and measurements](../../conformance/reports/perf/2026-11-22-asyncraft-log-induction.json).
+
 ## Choose a strategy automatically
 
 Run `dive check Model.tla --strategy auto --workers 8 --output json` to check

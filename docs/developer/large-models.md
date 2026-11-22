@@ -1958,6 +1958,30 @@ reachable set. The weakened induction trial reproduces a two-state
 failure and the independent validator rejects a damaged word.
 [Formulas, exact configurations, timings and controls](../../conformance/reports/perf/2026-11-22-twophase-induction.json).
 
+### Verify the Scimitar AsyncRaft log invariant
+
+At two and three labeled servers, finite source induction checks the actual
+`H_PrimaryHasEntriesItCreated` and all 29 supplied strengthenings together.
+Finite functions encode the server tables. A log carries its length and
+bounded entries. A message channel carries optional records with extensional
+membership, equality and cardinality. Init establishes the representation.
+Every constrained source-action image must preserve it. This avoids storing
+the reachable graph and checks cycles among strengthening formulas jointly.
+
+With terms, log lengths and channel capacities capped at 2, every one of the
+38 three-server guarded alternatives was feasible. Sixteen could leave the
+state constraint. All destinations satisfied the log property. The compact
+proof took 23.31 s and 80 MiB. Ordinary Core exhausted this exact model in
+3.89 s and 47 MiB. At three messages per channel, the compact checker
+covered 48 feasible alternatives, including 18 with constraint-crossing
+destinations, in 38.17 s and 82 MiB. A separate host verified the proof in
+40.46 s. Its matched Core run stopped after
+65 seconds with 3,743,621 distinct states and 1,228,744 queued. Both
+configurations kept two log entries and terms through 2. The previous
+election experiment used different capacities and checked a different
+invariant. [Run the checker](../user/symbolic.md#check-the-asyncraft-log-invariant).
+[Evidence and peer runs](../../conformance/reports/perf/2026-11-22-asyncraft-log-induction.json).
+
 ### Certify bounded AsyncRaft elections
 
 The [AsyncRaft driver](../../scripts/perf/scale/certify_asyncraft.py) uses the
