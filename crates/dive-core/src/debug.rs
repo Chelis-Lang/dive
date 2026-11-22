@@ -300,7 +300,7 @@ pub(crate) fn reachable(plan: &crate::plan::Plan) -> Vec<Instruction> {
                             values.push(*body);
                         }
                         Node::PrefixFcn { bind, body, .. } => values.extend([bind.domain, *body]),
-                        Node::Except { base, updates } => {
+                        Node::Except { base, updates, .. } => {
                             values.push(*base);
                             for update in updates {
                                 values.extend(update.path.iter().copied());

@@ -63,6 +63,9 @@ pub struct Heap {
     // Persistent source table, ground index, optional field and string result.
     // This heap owns the store that gives the table handle its identity.
     pub(crate) labels: [[Handle; 4]; 8],
+    // A position is only a hint. Every hit verifies the actual key in the
+    // current table. No compound, arena or store identity is retained.
+    field_positions: [std::cell::Cell<usize>; 64],
     pub(crate) defer_reclamation: bool,
     /// Candidate expansion must not promote speculative results through caches.
     pub(crate) speculative: bool,
@@ -165,6 +168,7 @@ impl Heap {
             store,
             arena: Arena::new(heap_arena),
             labels: [[Handle::EMPTY; 4]; 8],
+            field_positions: std::array::from_fn(|_| std::cell::Cell::new(0)),
             defer_reclamation: false,
             speculative: false,
             strings: StringMode::Intern,
@@ -842,6 +846,76 @@ impl Heap {
     /// error paths that the contract names read its order.
     pub fn set_enum(&mut self, elems: &[Handle]) -> Handle {
         self.symbolic(Kind::SetEnum, 0, elems)
+    }
+
+    /// Position of a scalar name in this exact function domain. Equal strings
+    /// and model values have one scalar representation in this store.
+    pub(crate) fn name_position(&self, keys: &[Handle], name: Handle, id: u32) -> Option<usize> {
+        let hint = &self.field_positions[id as usize % self.field_positions.len()];
+        let index = hint.get();
+        if keys.get(index) == Some(&name) {
+            return Some(index);
+        }
+        let found = if keys.len() > 8 && name.as_model_id().is_some() {
+            keys.binary_search_by(|&key| self.cmp(key, name)).ok()?
+        } else {
+            keys.iter().position(|&key| key == name)?
+        };
+        hint.set(found);
+        Some(found)
+    }
+
+    /// Merge disjoint field changes with the same representation as applying
+    /// each EXCEPT in order. For a lazy input or a full-hash control,
+    /// replay the known replacements with the ordinary constructors.
+    pub(crate) fn replace_row_fields(
+        &mut self,
+        table: Handle,
+        index: usize,
+        row: Handle,
+        changes: &[(usize, Handle)],
+    ) -> Handle {
+        if changes.is_empty() {
+            return table;
+        }
+        if self.full_hash
+            || self.is_lazy(table)
+            || self.is_lazy(row)
+            || changes.iter().any(|&(_, new)| self.is_lazy(new))
+        {
+            let mut result = table;
+            let mut cell = row;
+            for &(field, new) in changes {
+                cell = self.fcn_with(cell, field, new);
+                result = self.fcn_with(result, index, cell);
+            }
+            return result;
+        }
+        let view = self.view(row);
+        let mut sum = view.sum;
+        // Without lazy children neither level ever rescans or regains a
+        // dropped concrete bit. Nested views accumulate monotonically, so
+        // the final row carries every bit its intermediate copies propagated.
+        let mut fl =
+            view.flags & (flags::RECORD | flags::TUPLE | flags::NESTED_VIEW | flags::CONCRETE);
+        let n = view.len();
+        let mut data = view.data.to_vec();
+        for &(field, new) in changes {
+            let key_hash = self.child(data[field]).0;
+            let old = std::mem::replace(&mut data[n + field], new);
+            let (new_hash, new_flags) = self.child(new);
+            sum = sum
+                .wrapping_sub(mix2(key_hash, self.child(old).0))
+                .wrapping_add(mix2(key_hash, new_hash));
+            fl |= new_flags;
+            if fl & flags::CONCRETE != 0 && !self.concrete_child(new) {
+                fl &= !flags::CONCRETE;
+            }
+        }
+        let new = self
+            .arena
+            .alloc(Kind::Fcn, fl, view.lo, fcn_hash(n, sum), sum, &data);
+        self.fcn_with(table, index, new)
     }
 
     /// The same function with the entry at index `i` replaced, hashing in
@@ -2117,6 +2191,45 @@ mod tests {
                 assert_eq!(h.str_cmp(x, y), t.cmp(x, y), "{x} {y}");
             }
         }
+    }
+
+    #[test]
+    fn fused_row_replacements_preserve_hash_flags_and_contents() -> Result<(), Error> {
+        for full in [false, true] {
+            let mut h = heap(full);
+            let a = h.string("a")?;
+            let b = h.string("b")?;
+            let actor = h.string("worker")?;
+            let rec = h.record(&[a], &[int(7)]);
+            let nested = h.tuple_literal(&[rec]);
+            let dom = h.interval(1, 2);
+            let lazy = h.set_pred(0, dom, &[]);
+            for original in [int(0), nested, lazy] {
+                let row = h.record(&[a, b], &[original, int(1)]);
+                for outer in [h.tuple_literal(&[row]), h.fcn_sorted(&[actor], &[row])] {
+                    for replacement in [int(2), nested, lazy] {
+                        let changes = [(1, replacement), (0, int(3))];
+                        let mut expected = outer;
+                        let mut cell = row;
+                        for (index, value) in changes {
+                            cell = h.fcn_with(cell, index, value);
+                            expected = h.fcn_with(expected, 0, cell);
+                        }
+                        let result = h.replace_row_fields(outer, 0, row, &changes);
+                        let fused = h.view(result).values()[0];
+                        for (lhs, rhs) in [(result, expected), (fused, cell)] {
+                            let (l, r) = (h.view(lhs), h.view(rhs));
+                            assert_eq!(
+                                (l.kind, l.lo, l.flags, l.hash, l.sum),
+                                (r.kind, r.lo, r.flags, r.hash, r.sum)
+                            );
+                        }
+                        assert_eq!(h.view(fused).data, h.view(cell).data);
+                    }
+                }
+            }
+        }
+        Ok(())
     }
 
     #[test]
