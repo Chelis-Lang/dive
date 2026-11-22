@@ -1,0 +1,133 @@
+{
+  "issues": [
+    1367,
+    1299
+  ],
+  "host": {
+    "instance": "c7i.4xlarge",
+    "os": "Ubuntu 24.04",
+    "java": "21.0.13.1",
+    "process_wall": "GNU time includes process startup",
+    "time_limit_s": 90,
+    "dive_memory_limit_gib": 8,
+    "per_cell_repetitions": 1,
+    "one_checker_at_a_time": true
+  },
+  "pinned_sources": {
+    "examples": "ca168055339d5cbcee95b7eefcb97c1ee59f9914",
+    "manyan": "a39816a873a2c2aabc00dbcef50908e996f3d44b",
+    "apalache": "0.63.0",
+    "community_modules": "202611060952"
+  },
+  "sha256": {
+    "APtcp.tla": "4dcaeb65d34b733433a7909af31ed903cf36186ce71172c461656c075a3d1ba3",
+    "APtcp.cfg": "6e1b5e4125d62115c782a9fbc409bec77b636f3f6d4a98612d5c534bdec5e319",
+    "tcp.tla": "c77f6c0c33e54d4b3ce8ecfd934967569be3f7c613c89b4fdcdfa3768fc56e92",
+    "edited/tcp.tla": "96476e2f621cd9af4a94fae44523b2cf8c847dc661205de58c31705d4d37b18b",
+    "dive": "4424726bc60c6f194a804114bf92c9d6c540e766b09809540f676a0751bab715",
+    "manyan": "f1584a647532ea6311852573cdc22c33d7efa6c9ef2a84c453fff6c958494524",
+    "apalache.jar": "f2d43f2e279a657be50b2ecec3a013ba2915266008a2562b38412c3269347dc9",
+    "CommunityModules.jar": "f9ceeef40e8fa7a7944329802256ecedc18c81658fb4e55768b093e0bc617e28"
+  },
+  "question": {
+    "initial_depth": 0,
+    "transition_bound": 5,
+    "stuttering": "only an explicit Next step",
+    "same_state_at_new_layer": true,
+    "invariants": [
+      "Inv"
+    ],
+    "assumptions": []
+  },
+  "dive_evaluator": "Native Core, source-bound SequencesExt!IsPrefix and STATE role Inv. Layer membership uses exact interned rows. The installed independent evaluator replays source and the invariant.",
+  "commands": {
+    "dive": "dive check APtcp.tla --strategy bounded-path --path-bound 5 --max-memory 8g --time-limit 90s --output json",
+    "manyan": "manyan -symbolic -length 5 -config APtcp.cfg APtcp",
+    "apalache": "apalache-mc check --length=5 --config=APtcp.cfg --out-dir=apalache-output APtcp.tla",
+    "replay": "dive validate-trace APtcp.tla --config APtcp.cfg --trace WORD.json --output json"
+  },
+  "controls": {
+    "original_peer_refusal": "tcp line 120 columns 14\u201348, Symbolic checking does not support IsPrefix.",
+    "mutation": "Conjoin to tcp!Inv that for all p in Peers, connstate[p] # \"ESTABLISHED\". Init and every Next action remain identical.",
+    "five_state_edited_word": "valid",
+    "replace_last_state_by_init": "invalid",
+    "code_controls": [
+      "empty, equal, proper, longer and first mismatch of imported sequence prefix",
+      "demanded domain error",
+      "same-named local operator",
+      "cyclic path",
+      "no execution at bound",
+      "depth-zero validated invariant failure"
+    ]
+  },
+  "trials": [
+    {
+      "revision": "released",
+      "manyan": {
+        "result": "unsupported IsPrefix",
+        "exit": 255,
+        "wall_s": 0.0,
+        "peak_rss_kib": 5904
+      },
+      "apalache": {
+        "result": "NoError",
+        "exit": 0,
+        "wall_s": 20.48,
+        "peak_rss_kib": 512308
+      },
+      "dive": {
+        "result": "bounded-safe",
+        "exit": 0,
+        "wall_s": 0.02,
+        "peak_rss_kib": 29172,
+        "statistics": {
+          "checked_layers": [
+            1,
+            4,
+            13,
+            43,
+            127,
+            337
+          ],
+          "generated": 957,
+          "terminal_sources": 0
+        },
+        "path_exists_at_bound": true
+      }
+    },
+    {
+      "revision": "edited assertion",
+      "manyan": {
+        "result": "unsupported IsPrefix",
+        "exit": 255,
+        "wall_s": 0.0,
+        "peak_rss_kib": 5968
+      },
+      "apalache": {
+        "result": "invariant-violation",
+        "exit": 12,
+        "wall_s": 4.39,
+        "peak_rss_kib": 477332
+      },
+      "dive": {
+        "result": "invariant-violation",
+        "exit": 10,
+        "wall_s": 0.02,
+        "peak_rss_kib": 28880,
+        "statistics": {
+          "checked_layers": [
+            1,
+            4,
+            13,
+            43
+          ],
+          "generated": 147,
+          "terminal_sources": 0
+        },
+        "path_exists_at_bound": null,
+        "violation_depth": 4,
+        "independently_validated": true
+      }
+    }
+  ]
+}

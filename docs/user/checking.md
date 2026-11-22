@@ -49,6 +49,27 @@ can share the same instructions close to the compiler’s constant-folding limit
 when the remaining allowance covers the recorded work with fuel to spare.
 [LuPastry+ measurements](../developer/large-models.md#lupastry-parallel-invariant-checking).
 
+## Check paths through a transition bound
+
+```sh
+dive check APtcp.tla --config APtcp.cfg --strategy bounded-path --path-bound 5 --output json
+```
+
+This mode checks the configured invariants on Init at depth zero and every
+reachable prefix through the requested number of Next transitions. Its layers
+preserve a state reached again at another depth. It uses the bound source
+operators and checks the source assumptions. It independently validates a
+counterexample and reports the depth at which the invariant failed.
+
+The configuration uses explicit INIT and NEXT. Repeated states and explicit
+stuttering transitions in Next count toward the bound. A state with no
+admissible successor ends that prefix. If every prefix ends before the bound,
+the result is `executions-too-short`. A reached bound with no violation yields
+`bounded-safe` and states the bound in `path_bound`. Both results have
+`model_proved: false`. Configurations asking for temporal, symmetry or explicit
+deadlock checking require their corresponding checking mode.
+
+
 ## Select a closed model input in the CFG
 
 When a zero-argument TLA+ definition selects a host input, you can give that

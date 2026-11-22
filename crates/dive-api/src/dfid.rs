@@ -14,7 +14,7 @@
 //! ```
 
 use crate::dfid_admission::{Options, Outcome};
-use crate::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
+use crate::trace::{SpecModel, TraceOptions, Validation};
 use serde_json::{Value, json};
 use std::path::PathBuf;
 
@@ -331,7 +331,7 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
         ..
     } = &report.outcome
     {
-        match witness(
+        match crate::trace::finite_witness(
             &model,
             &report.trace,
             violation_kind,
@@ -396,43 +396,6 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
         matches!(report.outcome, Outcome::Cancelled),
     )?;
     Ok(DfidReport { document, exit })
-}
-
-fn witness(
-    model: &SpecModel,
-    states: &[dive_eval::next::StateVals],
-    kind: &str,
-    name: Option<&str>,
-    budget: &dive_runtime::budget::Budget,
-    control: std::sync::Arc<dyn dive_eval::HostControl>,
-) -> Result<(TraceDoc, crate::trace::Report), String> {
-    let mut objects = Vec::new();
-    for state in states {
-        if budget.poll() != Ok(None) {
-            return Err("run budget exhausted during DFID witness serialization".to_owned());
-        }
-        let mut object = serde_json::Map::new();
-        for (var, value) in model.model().ir.vars().iter().zip(state.iter()) {
-            let value = value
-                .as_ref()
-                .ok_or_else(|| "incomplete DFID witness state".to_owned())?;
-            object.insert(
-                model.model().ir.decl(*var).name.clone(),
-                dive_trace::value_json::to_json(value, model.model().evaluator.options().ctx)?,
-            );
-        }
-        objects.push(Value::Object(object));
-    }
-    let ending = match kind {
-        "invariant" => Ending::Invariant(name.unwrap_or_default().to_owned()),
-        "property" => Ending::Property(name.unwrap_or_default().to_owned()),
-        _ => Ending::Deadlock,
-    };
-    let document = TraceDoc::behavior(objects)?.with_ending(ending);
-    let validation = model
-        .validate_mode(&document, control)
-        .map_err(|error| error.to_string())?;
-    Ok((document, validation))
 }
 
 fn tlc_exit(code: u32) -> u8 {

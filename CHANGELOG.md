@@ -60,6 +60,9 @@ are in git history.
 - Transfer complete bounded induction certificates across installed Dive and Sail processes with `--strategy finite-induction`. The receiver checks edited invariants and can reuse authenticated Init and action closure.
 
 ### Added
+- `dive check --strategy bounded-path --path-bound K` checks the original
+  safety predicates through K explicit Next transitions, including repeated
+  states and depth-zero violations, with independently replayed witnesses.
 
 - `dive check --periodic-min-states N` sets the first size threshold for [scheduled liveness checks](docs/user/temporal.md). Reports record the actual completed level, counts and validated word.
 
