@@ -16,8 +16,22 @@ use crate::plan::{Bind, Code, G, GNode, Node, P, Raw, Unch};
 mod composition;
 mod constructive;
 mod framed_choices;
+pub(crate) mod linear;
 
 const NONE: u32 = u32::MAX;
+
+/// Contiguous row slices in a finite set of columns, lowest index first.
+fn row_slices(mut mask: u64) -> impl Iterator<Item = std::ops::Range<usize>> {
+    std::iter::from_fn(move || {
+        if mask == 0 {
+            return None;
+        }
+        let start = mask.trailing_zeros();
+        let end = start + (mask >> start).trailing_ones();
+        mask &= mask.wrapping_add(1_u64 << start);
+        Some(start as usize..end as usize)
+    })
+}
 
 /// A pending item of the continuation list.
 #[derive(Clone, Copy, Debug)]
@@ -334,6 +348,19 @@ impl Machine {
             Some(GNode::Unchanged(v) | GNode::StepBox { vars: v, .. }) => v,
             _ => return Err(Error::internal("UNCHANGED continuation of another node")),
         };
+        if from == 0
+            && self.debugger.is_none()
+            && self.fuel == u64::MAX
+            && sink.exhaustive()
+            && !sink.constructive()
+            && let Some(&mask) = code.unchanged_masks.get(g as usize)
+            && mask != 0
+            && self.copy_columns(mask)
+        {
+            let result = self.cont(code, rest, sink);
+            self.clear_columns(mask);
+            return result;
+        }
         let Some(&item) = items.get(from as usize) else {
             return self.cont(code, rest, sink);
         };
@@ -438,17 +465,16 @@ impl Machine {
                 Ok(())
             }
             GNode::Conj(items) | GNode::LabelArm(items, _) => {
-                let Some((&(first, _), rest)) = items.split_first() else {
-                    return self.cont(code, acts, sink);
-                };
-                let mark = self.conts.len();
-                let mut head = acts;
-                for &(gi, pi) in rest.iter().rev() {
-                    head = self.push_cont(Item::Conj(gi, pi), head);
+                if self.debugger.is_none()
+                    && self.fuel == u64::MAX
+                    && sink.exhaustive()
+                    && !sink.constructive()
+                    && let Some(ops) = code.linear.get(g as usize)
+                    && !ops.is_empty()
+                {
+                    return self.linear_conjunction(code, items, ops, acts, sink);
                 }
-                let r = self.gen_node(code, first, head, sink);
-                self.conts.truncate(mark);
-                r
+                self.plain_conjunction(code, items, acts, sink)
             }
             GNode::Disj(items) => {
                 if sink.constructive() {

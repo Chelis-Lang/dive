@@ -628,6 +628,9 @@ pub struct Code {
     pub nodes: Vec<Node>,
     /// Generator nodes.
     pub gnodes: Vec<GNode>,
+    /// Distinct plain state columns in a compiled multi-variable UNCHANGED, by generator node.
+    pub unchanged_masks: Vec<u64>,
+    pub(crate) linear: Vec<Box<[crate::generate::linear::Op]>>,
     /// Recursive operators.
     pub funs: Vec<Fun>,
     /// Memo sites.

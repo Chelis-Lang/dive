@@ -903,6 +903,15 @@ fn compile_inner(
     c.reset_composition_thunks();
     c.stats.nodes = c.code.nodes.len();
     c.stats.gnodes = c.code.gnodes.len();
+    if !mapped {
+        c.code.unchanged_masks = c.code.gnodes.iter().map(unchanged_mask).collect();
+        c.code.linear = c
+            .code
+            .gnodes
+            .iter()
+            .map(|g| crate::generate::linear::compile(g, &c.code))
+            .collect();
+    }
     let vars =
         h.ir.vars()
             .iter()
@@ -1067,6 +1076,32 @@ struct Compiler<'a> {
     bound_preset: Option<Vec<(u32, Handle)>>,
     bound_guards: BoundGuards,
     with_target_guard: bool,
+}
+
+/// Compile a tuple of distinct plain UNCHANGED variables to a row-copy mask.
+/// Duplicates and general expressions retain their original order and diagnostics.
+fn unchanged_mask(node: &GNode) -> u64 {
+    use crate::plan::Unch;
+    let GNode::Unchanged(items) = node else {
+        return 0;
+    };
+    if items.len() < 3 {
+        return 0;
+    }
+    let mut mask = 0;
+    for item in items {
+        let Unch::Var { var, .. } = item else {
+            return 0;
+        };
+        let Some(bit) = 1_u64.checked_shl(u32::from(*var)) else {
+            return 0;
+        };
+        if mask & bit != 0 {
+            return 0;
+        }
+        mask |= bit;
+    }
+    mask
 }
 
 impl Compiler<'_> {
