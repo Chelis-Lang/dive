@@ -107,6 +107,9 @@ impl Register {
         };
         if table.is_persistent() && !table.is_lazy_persistent() && !row.is_transient() {
             self.0 = Some(cell);
+            // A write can replace the register and later revisit the same key.
+            // Only a fresh scalar guard may mark the replacement as its result.
+            self.1 = None;
         }
         Some(cell)
     }
