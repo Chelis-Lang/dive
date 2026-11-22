@@ -653,7 +653,7 @@ Use the original native word and the current module and configuration.
 dive validate-trace Clock.tla --config Clock.cfg --trace saved.json --repair --output json
 ```
 
-A still-valid named lasso or stuttering word returns `repair.status = unchanged`.
+A still-valid named lasso or stuttering word returns `repair.status = unchanged` and the checked input in `repair.trace`.
 For a broken Next transition, Dive can insert a short path of current-source successors.
 `repaired` includes the complete replacement in `repair.trace`. Its exit status is
 zero only after independent replay checked the whole replacement, including Init,
@@ -680,9 +680,9 @@ python3 scripts/perf/scale/elevator-lift-word.py --anchors-only seven.json 1,3,4
 dive validate-trace Elevator.tla --config eight.cfg --trace anchors.json --repair --output json
 ```
 
-For the published seven-floor word, the mapping took 7.6 ms. On eight floors Dive
-repaired 13 gaps after generating 189 successor occurrences in 16.1 ms.
-The complete process took 118 ms and 34,840 KiB peak RSS. Standalone replay
+For the published seven-floor word, the mapping took 7.1 ms. On eight floors Dive
+repaired 13 gaps after generating 189 successor occurrences in 16.2 ms.
+The complete process took 118 ms and 35,028 KiB peak RSS. Standalone replay
 accepted the 262-state word and rejected its damaged closing edge. The same
 search repaired a changed transition in the published real-time clock and
 independently rejected candidates after a fairness edit and a property fix.

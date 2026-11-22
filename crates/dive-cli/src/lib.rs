@@ -1304,12 +1304,16 @@ fn validate_trace_command(
     let report = match if repair {
         match model.repair_word(&doc) {
             Ok(attempt) => {
+                // Return the exact document just validated. A consuming worker
+                // need not reopen a donor path that may have since changed.
+                let word = (attempt.validation.validation == dive_api::trace::Validation::Valid)
+                    .then(|| attempt.replacement.as_ref().unwrap_or(&doc).to_json());
                 repair_details = Some(serde_json::json!({
                     "status": if attempt.replacement.is_some() { "repaired" } else if attempt.validation.validation == dive_api::trace::Validation::Valid { "unchanged" } else { "unrepaired" },
                     "candidate_validation": attempt.rejected.as_ref().map(dive_api::trace::report_json),
                     "gaps": attempt.gaps, "generated": attempt.generated,
                     "search_ms": attempt.search_ms, "validation_ms": attempt.validation_ms,
-                    "reason": attempt.reason, "trace": attempt.replacement.map(|word| word.to_json())
+                    "reason": attempt.reason, "trace": word
                 }));
                 Ok(attempt.validation)
             }

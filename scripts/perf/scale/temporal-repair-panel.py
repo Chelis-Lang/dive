@@ -50,6 +50,8 @@ def main():
         rec=dict(case=name,result=doc['result'],failure=doc.get('failure'),**row)
         det=doc.get('repair',{}).copy(); replacement=det.pop('trace',None)
         if det: rec['repair']=det
+        if det.get("status") == "unchanged":
+            assert replacement == word
         if replacement:
             store(root/'replacement.json',replacement)
             rec.update(length=replacement['length'],word_sha256=sha(root/'replacement.json'))
