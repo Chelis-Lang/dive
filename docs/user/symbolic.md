@@ -426,3 +426,12 @@ Removing the environment variable disables the optimization. Rotating the key
 causes old signatures to miss. On small models or cheap transition images,
 hashing the implementation and Boolean functions can take longer than proving
 the images again.
+
+obligation again. [Measured comparisons and edit controls](../developer/large-models.md#prove-a-property-on-the-original-recomp-verify-models).
+
+
+When many actions use one global state predicate, named checking evaluates a
+parameterless Boolean definition once for the current revision when its
+lexical frame and pending assignment are empty. A new revision binds its own
+guard. Functional updates only encode changed Next coordinates when the other
+values already refer to the corresponding current state.

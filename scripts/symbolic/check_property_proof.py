@@ -52,6 +52,31 @@ WithinLayout == x \in {0,1,2}
     assert failed["proof"] == "inconclusive" and failed["failed_obligation"] == "Safe"
 
 
+def check_rebound_guard(work, check):
+    module = work / "Guarded.tla"
+    source = r"""---- MODULE Guarded ----
+CONSTANT RM
+VARIABLE state
+TypeOK == state \in [RM -> {"ready","done","abort"}]
+Init == state = [r \in RM |-> "ready"]
+NoAbort == \A r \in RM : state[r] # "abort"
+NoDone == \A r \in RM : state[r] # "done"
+Next == \E r \in RM :
+    \/ /\ NoAbort /\ state' = [state EXCEPT ![r] = "done"]
+    \/ /\ NoDone  /\ state' = [state EXCEPT ![r] = "abort"]
+Safe == \A a,b \in RM : ~ /\ state[a] = "done" /\ state[b] = "abort"
+====
+"""
+    module.write_text(source)
+    cfg = module.with_suffix(".cfg")
+    cfg.write_text("CONSTANT RM = {a,b,c}\nINIT Init\nNEXT Next\nINVARIANT Safe\n")
+    edit = work / "edit-guard" / module.name
+    replace(module, edit, 'NoDone == \\A r \\in RM : state[r] # "done"', "NoDone == TRUE")
+    first, failed = run(check, module, cfg, "Safe", "--recheck", str(edit), str(cfg), status=1)
+    assert first["proof"] == "inductive-safety"
+    assert failed["trace_validated"] and failed["ending"]["name"] == "Safe" and failed["depth"] == 3
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("lock", type=Path)
@@ -87,6 +112,7 @@ def main():
         failed, = run(check, fault, cfg, "Mutex", "--verify-predicate", str(certificate), status=2)
         assert failed["failed_obligation"] == "Next closure"
         check_named_fragment(work, check)
+        check_rebound_guard(work, check)
         observed = work / "observed" / counter.name
         replace(counter, observed, "Consistent == ", "Consistent == dummy = 0 /\\ ")
         refused, = run(check, observed, counter.with_suffix(".cfg"), "Consistent", status=2)

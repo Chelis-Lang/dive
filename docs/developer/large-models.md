@@ -1880,6 +1880,16 @@ with every image. Expanding a write guard reused 25 of 65 and fell from 555 to
 For TCommit at 100 managers the respective worker times were 0.69 and 0.72 s.
 [Trust boundary and key setup](../user/symbolic.md#reuse-certified-action-obligations-in-another-process) · [Source histories, fault controls and timing data](https://github.com/Chelis-Lang/sail/pull/794).
 
+A TCommit action tests a predicate over **all** managers before changing the
+state of **one** manager. At 200 managers the compiler evaluated each of
+`canCommit` and `notCommitted` 200 times, then encoded the untouched entries
+of the status table for each action. Reusing each closed guard within the
+bound revision and omitting unchanged Next coordinates reduced median public
+CLI time to verify `TCConsistent` from 3.159 to 0.752 s. After restricting
+`canCommit`, verification fell from 2.708 to 0.652 s. Both checked all 600
+transition obligations in fresh processes with an unsigned predicate.
+[All 64, 100 and 200 manager timings, ablations, profile and reproduction](../../conformance/reports/perf/2026-11-22-transaction-guard-lowering.json).
+
 ### Transfer a SlateDB witness to a larger configuration
 
 The restart-capable **four-writer fix-off configuration violates

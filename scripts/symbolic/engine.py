@@ -1057,6 +1057,11 @@ class SourceModel(FiniteRelation):
         out = {}
 
         def visit(schema, value, path):
+            # Next's caller retains changed bits only. Reusing the exact
+            # current-state value at this path is an identity assignment, even
+            # for a shared subtree of a functional EXCEPT update.
+            if guard is not None and value is schema:
+                return
             if isinstance(schema, Function):
                 require(
                     isinstance(value, Function) and schema.keys() == value.keys(), "function domain mismatch"
