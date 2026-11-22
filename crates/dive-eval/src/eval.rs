@@ -15,8 +15,8 @@ use std::borrow::Cow;
 use std::sync::Arc;
 
 use dive_ir::{
-    Arg, Bound, BuiltinOp, CaseArm, DefScope, Expr, ExprId, JunctionKind, LocalRef, OpRef, Pass,
-    QuantKind,
+    Arg, Bound, BuiltinOp, CaseArm, DefScope, Effects, Expr, ExprId, JunctionKind, LocalRef, OpRef,
+    Pass, PrefixEquation, QuantKind,
 };
 use dive_value::{DeferredKind, Int, Set, Value, ops, tlc};
 
@@ -1768,6 +1768,11 @@ impl Core {
             return Err(EvalError::bug("CHOOSE without a bound"));
         };
         let Some(dom) = b.domain else {
+            if self.opts.comparisons == Comparisons::Tla
+                && let Some(equation) = self.ir.prefix_equation(bounds, body)
+            {
+                return self.eval_prefix_equation(env, st, equation);
+            }
             // OPCODE_uc
             return Err(EvalError::general(format!(
                 "TLC attempted to evaluate an unbounded CHOOSE.\nMake sure that the expression is of form CHOOSE x \\in S: P(x).\n{}",
@@ -1914,6 +1919,68 @@ impl Core {
         } else {
             Value::set(values, self.ctx)?
         })
+    }
+
+    fn eval_prefix_equation(
+        self: &Arc<Self>,
+        env: &mut Env,
+        st: &St,
+        equation: PrefixEquation<'_>,
+    ) -> Result<Ev> {
+        let domain = equation
+            .index
+            .domain
+            .ok_or_else(|| EvalError::bug("prefix function without a domain"))?;
+        let [index] = equation.index.vars.as_ref() else {
+            return Err(EvalError::bug("prefix function without an index"));
+        };
+        if !self.redirects.is_empty()
+            || !self.std_redirects.is_empty()
+            || self
+                .consts
+                .iter()
+                .flatten()
+                .any(|value| matches!(value, ConstBinding::Def(_)))
+            || [domain, equation.entry].into_iter().any(|expr| {
+                self.ir.node(expr).effects.intersects(
+                    Effects::IMPURE
+                        .union(Effects::USES_ENABLED)
+                        .union(Effects::TEMPORAL),
+                )
+            })
+        {
+            return Err(EvalError::unsupported(
+                "finite function equation with effects or configured operators",
+            ));
+        }
+        let value = self.eval_v(env, st, domain)?;
+        let Value::Set(set) = &value else {
+            return Err(EvalError::unsupported(
+                "finite function equation requires a set domain",
+            ));
+        };
+        if !is_enumerable(&value) {
+            return Err(EvalError::unsupported(
+                "finite function equation requires an enumerable domain",
+            ));
+        }
+        let keys = self.explore(set)?;
+        if keys.iter().any(|key| !matches!(key, Value::Int(value) if (-(1_i64 << 60)..(1_i64 << 60)).contains(value)))
+            || keys.windows(2).any(|pair| pair[0].cmp_with(&pair[1], self.ctx.order).is_ge())
+        {
+            return Err(EvalError::unsupported("finite function equation requires an ordered small-integer domain"));
+        }
+        let mut entries: Vec<(Value, Value)> = Vec::with_capacity(keys.len());
+        let mut scoped = env.clone();
+        for key in keys.iter() {
+            self.loop_work()?;
+            let prefix = Value::fcn(entries.last().cloned().into_iter().collect(), self.ctx)?;
+            scoped.bind(equation.function.index(), Sv::Val(prefix));
+            scoped.bind(index.index(), Sv::Val(key.clone()));
+            let entry = self.eval_embed(&mut scoped, st, equation.entry)?;
+            entries.push((key.clone(), entry));
+        }
+        Ok(Ev::V(Value::fcn(entries, self.ctx)?))
     }
 
     fn eval_filter(

@@ -1088,6 +1088,11 @@ impl Machine {
                 self.checked_set(r)
             }
             Node::FcnCons { binds, body } => self.fcn_cons(code, binds, *body),
+            Node::PrefixFcn {
+                bind,
+                function,
+                body,
+            } => self.prefix_fcn(code, bind, *function, *body),
             Node::Quant { kind, binds, body } => self.quant(code, *kind, binds, *body),
             Node::Apply(f, a) => {
                 let fv = self.eval(code, *f)?;
@@ -2410,6 +2415,41 @@ impl Machine {
             }
         }
         Ok(self.heap.fcn_sorted(&keys, &vals))
+    }
+
+    fn prefix_fcn(
+        &mut self,
+        code: &Code,
+        bind: &Bind,
+        function: u32,
+        body: P,
+    ) -> Result<Handle, Error> {
+        let binds = std::slice::from_ref(bind);
+        let mut units = self.units(code, binds)?;
+        let (unit, keys) = units
+            .pop()
+            .ok_or_else(|| Error::internal("prefix function without a unit"))?;
+        if keys.iter().any(|key| key.as_int().is_none())
+            || keys
+                .windows(2)
+                .any(|pair| pair[0].as_int() >= pair[1].as_int())
+        {
+            return Err(Error::unsupported(
+                "finite function equation requires an ordered small-integer domain",
+            ));
+        }
+        self.charge(keys.len())?;
+        let mut values = Vec::with_capacity(keys.len());
+        for (index, &key) in keys.iter().enumerate() {
+            self.bind_unit(binds, unit, key)?;
+            let start = index.saturating_sub(1);
+            let prefix = self
+                .heap
+                .fcn_sorted(&keys[start..index], &values[start..index]);
+            self.set_slot(function, prefix);
+            values.push(self.eval_component(code, body)?);
+        }
+        Ok(self.heap.fcn_sorted(&keys, &values))
     }
 
     // ------------------------------------------------------------------

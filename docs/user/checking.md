@@ -337,6 +337,15 @@ recursive evaluation or a caller local outside the function; and a callback
 that captures a local outside its activation, reaches an effect or an unproved
 recursive call, or is applied as an action inside the recursive function.
 
+### Finite predecessor function equations
+
+Core can construct the function in an unbounded `CHOOSE g : g = [n \in D |-> e]`
+when `D` is a finite domain of small integers and any self-lookup in `e` is exactly
+`g[n - 1]`. It builds entries in ascending order and reports a diagnostic when
+a demanded predecessor is missing or an entry is undefined. The unchanged
+LuPastry+ routing-table definition uses this form. The TLC comparison profile
+reports the unbounded-CHOOSE refusal. [Compatibility details](../tlc-differences.md#d-046-finite-function-equations-with-strict-predecessors).
+
 ### Higher-order operators
 
 - `SelectSeq(sequence, Test)'` works when `Test` is pure and depends only on

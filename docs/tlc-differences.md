@@ -889,6 +889,19 @@ in its next-state relation. `dive validate-trace --inputs RUN.json` replays the
 
 ---
 
+## D-046: Finite function equations with strict predecessors
+
+TLC reports an unbounded CHOOSE on the published LuPastry+ routing table.
+In the default profile, dive can evaluate
+`CHOOSE f : f = [i \in Domain |-> Entry(i, f[i-1])]` when the bound
+expression gives a finite ordered small-integer domain and every recursive
+read is at the strict predecessor. The base case must avoid reading a missing
+predecessor. Each demanded entry must evaluate to a value. The independent
+trace validator checks the equation on the original source.
+
+The TLC comparison profile retains the named unbounded CHOOSE refusal.
+See [the decision record](decisions/0165-finite-predecessor-function-equations.md).
+
 ## Under consideration
 
 These are recorded candidates. They are not decided, and dive behaves as TLC

@@ -260,6 +260,15 @@ pub enum Node {
         /// The body.
         body: P,
     },
+    /// A finite function equation with only strict predecessor applications.
+    PrefixFcn {
+        /// The complete domain and the index slot.
+        bind: Bind,
+        /// The slot containing the predecessor entry as a singleton function.
+        function: u32,
+        /// The value at each index in ascending order.
+        body: P,
+    },
     /// `\E`, `\A`, `CHOOSE`.
     Quant {
         /// Which.

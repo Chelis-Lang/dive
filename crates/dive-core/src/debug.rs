@@ -299,6 +299,7 @@ pub(crate) fn reachable(plan: &crate::plan::Plan) -> Vec<Instruction> {
                             values.extend(binds.iter().map(|bind| bind.domain));
                             values.push(*body);
                         }
+                        Node::PrefixFcn { bind, body, .. } => values.extend([bind.domain, *body]),
                         Node::Except { base, updates } => {
                             values.push(*base);
                             for update in updates {
