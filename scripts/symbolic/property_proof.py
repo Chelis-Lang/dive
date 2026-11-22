@@ -9,7 +9,7 @@ from pathlib import Path
 import time
 
 from dd import cudd
-from engine import Atom, Enumeration, Function, FunctionSpace, Members, PowerSet, SourceModel, require
+from engine import Atom, Enumeration, Function, FunctionSpace, Members, PowerSet, SourceModel, Unsupported, require
 import induction
 import obligation_receipt
 from worker_process import run_helper
@@ -46,6 +46,7 @@ class PropertyModel(SourceModel):
         self.inferred = inferred
         self.escapes = {}
         self.layout_domain = None
+        self.symbolic_function_init = False
         super().__init__({**doc, "invariants": selected, "check_deadlock": False, "symmetry": None}, layout, manager)
 
     def layout_types(self, name):
@@ -317,8 +318,41 @@ class PropertyModel(SourceModel):
                 raise ValueError("missing transition for concrete counter trace")
         return trace
 
+    def build_initial(self, expr):
+        if self.counters:
+            super().build_initial(expr)
+            return
+        self.symbolic_function_init = True
+        try:
+            for index, (guard, assignments) in enumerate(self.branches(expr, {}, True, self.b.true, {})):
+                require(index < 100000, "Init exceeds 100000 expanded witnesses")
+                if guard != self.b.false:
+                    bits = self.encode(assignments)
+                    self.initial |= guard & self.conjunction(self.b.var(name).equiv(value) for name, value in bits.items())
+        except Unsupported:
+            self.initial = self.b.false
+            self.symbolic_function_init = False
+            super().build_initial(expr)
+        finally:
+            self.symbolic_function_init = False
+
     def branches(self, i, env, init, guard, assigned, *, action_conjunct=False):
         tag, x = self.node(i)
+        if init and self.symbolic_function_init and tag == "Builtin" and x["op"] == "In":
+            left, right = x["args"]
+            kind, var = self.node(left)
+            if kind == "Var" and not var["primed"]:
+                name = self.names[var["var"]]
+                bound = self.types[name]
+                if name not in assigned and isinstance(bound, FunctionSpace) and isinstance(bound.codomain, Members):
+                    domain = self.member_domain(right, env, assigned)
+                    if bound == domain:
+                        # These bits range over every function in the bound.
+                        # Membership rules out padding and the remaining Init
+                        # clauses still run in the same assigned environment.
+                        value = self.state[name]
+                        yield guard & self.contains(value, domain), {**assigned, name: value}
+                        return
         if tag == "Builtin" and x["op"] == "Eq":
             left, right = x["args"]
             kind, var = self.node(left)
