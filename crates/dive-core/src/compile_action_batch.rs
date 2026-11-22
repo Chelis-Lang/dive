@@ -154,12 +154,14 @@ impl ActionBatch {
         fuel: u64,
     ) -> Option<u64> {
         self.evaluate_image(plan, machine, before, targets, fuel, None)
+            .map(|(bits, _)| bits)
     }
 
     /// Uses the normalized destination writes of the same deterministic bound
     /// action on the same closed original source. The caller must certify every
     /// write, unchanged variable, store, warning and producer binding. A true
-    /// flag also certifies the identical ordered Boolean guard prefix.
+    /// flag also certifies the identical ordered Boolean guard prefix. Returns
+    /// original edge bits and whether a demanded term consumed that evidence.
     #[must_use]
     pub fn evaluate_image(
         &self,
@@ -169,7 +171,7 @@ impl ActionBatch {
         targets: &[&[Handle]],
         fuel: u64,
         emitted: Option<(&[Handle], bool)>,
-    ) -> Option<u64> {
+    ) -> Option<(u64, bool)> {
         let emitted = emitted.filter(|_| self.complete_image);
         if targets.len() > 64
             || emitted.is_some_and(|(row, _)| row.len() != before.len())
@@ -203,7 +205,8 @@ impl ActionBatch {
         before: &[Handle],
         targets: &[&[Handle]],
         emitted: Option<(&[Handle], bool)>,
-    ) -> Result<u64, Error> {
+    ) -> Result<(u64, bool), Error> {
+        let mut used = false;
         let mut live = 0;
         for (i, row) in targets.iter().enumerate() {
             if !same(m, before, row, self.changed) {
@@ -221,13 +224,18 @@ impl ActionBatch {
                     }
                 }
                 Term::Guard(p) => {
-                    if !emitted.is_some_and(|(_, quiet)| quiet) && !m.eval_bool(code, *p)? {
-                        return Ok(0);
+                    if emitted.is_some_and(|(_, guard_prefix)| guard_prefix) {
+                        used = true;
+                    } else if !m.eval_bool(code, *p)? {
+                        return Ok((0, used));
                     }
                 }
                 Term::Match(var, rhs) => {
                     let value = match emitted {
-                        Some((row, _)) => row[*var],
+                        Some((row, _)) => {
+                            used = true;
+                            row[*var]
+                        }
                         None => m.eval_norm(code, *rhs)?,
                     };
                     let mut pending = live;
@@ -252,7 +260,7 @@ impl ActionBatch {
                 }
             }
         }
-        Ok(live)
+        Ok((live, used))
     }
 }
 

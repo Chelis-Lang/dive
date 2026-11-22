@@ -365,13 +365,7 @@ impl NativeAtoms {
                 dive_liveness::formula::AtomKind::Action => result.eligible_action += 1,
             }
         }
-        for compiled in &result.compiled {
-            if let Some((id, cert)) = compiled.emission
-                && let Some(item) = result.producer_images.get_mut(id)
-            {
-                *item = Some(cert);
-            }
-        }
+        result.bind_generated_images();
         result.projected = dive_core::memo::Memo::new(&key_lengths);
         result.projected.set_cap(8 << 20);
         control.check().map_err(|cause| {
@@ -382,6 +376,16 @@ impl NativeAtoms {
                 })
         })?;
         Ok(result)
+    }
+
+    fn bind_generated_images(&mut self) {
+        for compiled in &self.compiled {
+            if let Some((id, cert)) = compiled.emission
+                && let Some(item) = self.producer_images.get_mut(id)
+            {
+                *item = Some(cert);
+            }
+        }
     }
 
     fn empty(
@@ -1399,16 +1403,16 @@ impl NativeReader for Reader<'_, '_> {
             emission,
         );
         check(&self.atoms.control, control)?;
-        if let Some(bits) = bits {
+        if let Some((bits, consumed)) = bits {
             self.atoms.batch_rows += 1;
-            self.atoms.image_hits += u64::from(emission.is_some());
+            self.atoms.image_hits += u64::from(consumed);
             if self.atoms.audit {
                 for (pos, &after) in ids[..len].iter().enumerate() {
                     self.audit(atom, before, Some(after), bits & (1 << pos) != 0, control)?;
                 }
             }
         }
-        Ok(bits)
+        Ok(bits.map(|(truth, _)| truth))
     }
 
     fn closed_state_predicate(
@@ -2096,6 +2100,37 @@ P == <>(x=1)
                 ]
             );
             assert_eq!(reader.atoms.emission_hits, [2, 4]);
+            // Certify every physical input. Original producer tags may shortcut
+            // writes, including transitions shared with Other. Replacing the
+            // capture token must give the same truth without consuming an image.
+            for row in 0..graph.input().retained_rows {
+                assert!(
+                    reader
+                        .proofs
+                        .closed(&reader.atoms.machine.heap, row)
+                        .expect("closed")
+                );
+            }
+            for action in driver
+                .native_predicates()
+                .filter(|a| matches!(a.test, AtomTest::Nonstuttering { .. }))
+            {
+                for source in 0..csr.closed_rows() {
+                    let bits = reader
+                        .action_row(action, &csr, source, control)
+                        .expect("original");
+                    let hits = reader.atoms.image_hits;
+                    assert_eq!(
+                        reader
+                            .action_row(action, &replaced, source, control)
+                            .expect("replacement"),
+                        bits
+                    );
+                    assert_eq!(reader.atoms.image_hits, hits);
+                }
+            }
+            assert!(reader.atoms.image_hits > 0);
+            assert!(reader.atoms.audit_mismatch().is_none());
             drop(reader);
             // A checked committed prefix retains a real representative with an
             // empty frontier row. That empty row is no evidence of disabledness.
