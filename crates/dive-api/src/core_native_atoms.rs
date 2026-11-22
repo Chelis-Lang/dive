@@ -2021,10 +2021,7 @@ P == <>(gate=1)
         .expect("committed frontier")
     }
 
-    #[test]
-    fn closed_emissions_bind_arguments_and_skip_only_quiet_complete_originals() {
-        use dive_runtime::capture::CsrCapture;
-        let src = r"---- MODULE Atoms ----
+    const OVERLAPPING_ACTIONS: &str = r"---- MODULE Atoms ----
 EXTENDS Naturals
 VARIABLES x, r
 vars == <<x,r>>
@@ -2038,127 +2035,171 @@ Next == (\E i \in 0..1: A(i)) \/ Other \/ Stut
 Spec == Init /\ [][Next]_vars /\ (\A i \in 0..1: WF_vars(A(i))) /\ WF_vars(Stut)
 P == <>(x=1)
 ====";
-        with_wrappers(src, false, |prepared, driver, atoms, control| {
-            let options = dive_runtime::CheckOptions::dive(0);
-            atoms.enable_live_emissions(&prepared.model, &options);
-            let (graph, mut values) = capture(prepared, &options);
-            let csr =
-                CsrCapture::checked_targets(graph.input(), graph.limits(), control).expect("csr");
-            // A caller can construct another checked view over the same
-            // offsets with every generated action tag missing. Only the
-            // original producer view may supply semantic evidence.
-            let unknown_actions = vec![None; *csr.offsets().last().expect("edge count")];
-            let replaced = CsrCapture::checked_targets(
-                dive_runtime::capture::CsrTargetStorage {
-                    actions: dive_runtime::capture::CsrActions::Expanded(&unknown_actions),
-                    ..graph.input()
-                },
-                graph.limits(),
-                control,
-            )
-            .expect("another shape-valid view");
-            let mut reader = Reader::new(&graph, &mut values, atoms);
-            reader.live_prefix(true);
-            reader.live_emission_capture(&csr);
-            reader.live_emission_capture(&replaced);
-            reader.atoms.audit = true;
-            let mut answers = Vec::new();
-            for atom in driver
-                .native_predicates()
-                .filter(|a| matches!(a.test, AtomTest::Enabled { .. }))
-            {
-                let mut row = Vec::new();
-                for source in 0..csr.state_count() {
-                    let before = csr.representative_row(source).expect("rep");
+
+    #[test]
+    fn producer_images_require_the_original_capture_on_overlapping_bound_actions() {
+        use dive_runtime::capture::CsrCapture;
+        with_wrappers(
+            OVERLAPPING_ACTIONS,
+            false,
+            |prepared, driver, atoms, control| {
+                let options = dive_runtime::CheckOptions::dive(0);
+                atoms.enable_live_emissions(&prepared.model, &options);
+                let (graph, mut values) = capture(prepared, &options);
+                let csr = CsrCapture::checked_targets(graph.input(), graph.limits(), control)
+                    .expect("csr");
+                // A caller can construct another checked view over the same
+                // offsets with every generated action tag missing. Only the
+                // original producer view may supply semantic evidence.
+                let unknown_actions = vec![None; *csr.offsets().last().expect("edge count")];
+                let replaced = CsrCapture::checked_targets(
+                    dive_runtime::capture::CsrTargetStorage {
+                        actions: dive_runtime::capture::CsrActions::Expanded(&unknown_actions),
+                        ..graph.input()
+                    },
+                    graph.limits(),
+                    control,
+                )
+                .expect("another shape-valid view");
+                let mut reader = Reader::new(&graph, &mut values, atoms);
+                reader.live_prefix(true);
+                reader.live_emission_capture(&csr);
+                reader.live_emission_capture(&replaced);
+                reader.atoms.audit = true;
+                // Certify every physical input. Original producer tags may shortcut
+                // writes, including transitions shared with Other. Replacing the
+                // capture token must give the same truth without consuming an image.
+                for row in 0..graph.input().retained_rows {
+                    assert!(
+                        reader
+                            .proofs
+                            .closed(&reader.atoms.machine.heap, row)
+                            .expect("closed")
+                    );
+                }
+                for action in driver
+                    .native_predicates()
+                    .filter(|a| matches!(a.test, AtomTest::Nonstuttering { .. }))
+                {
+                    for source in 0..csr.closed_rows() {
+                        let bits = reader
+                            .action_row(action, &csr, source, control)
+                            .expect("original");
+                        let hits = reader.atoms.image_hits;
+                        assert_eq!(
+                            reader
+                                .action_row(action, &replaced, source, control)
+                                .expect("replacement"),
+                            bits
+                        );
+                        assert_eq!(reader.atoms.image_hits, hits);
+                    }
+                }
+                assert!(reader.atoms.image_hits > 0);
+                assert!(reader.atoms.audit_mismatch().is_none());
+            },
+        );
+    }
+
+    #[test]
+    fn closed_emissions_bind_arguments_and_skip_only_quiet_complete_originals() {
+        use dive_runtime::capture::CsrCapture;
+
+        with_wrappers(
+            OVERLAPPING_ACTIONS,
+            false,
+            |prepared, driver, atoms, control| {
+                let options = dive_runtime::CheckOptions::dive(0);
+                atoms.enable_live_emissions(&prepared.model, &options);
+                let (graph, mut values) = capture(prepared, &options);
+                let csr = CsrCapture::checked_targets(graph.input(), graph.limits(), control)
+                    .expect("csr");
+                // A caller can construct another checked view over the same
+                // offsets with every generated action tag missing. Only the
+                // original producer view may supply semantic evidence.
+                let unknown_actions = vec![None; *csr.offsets().last().expect("edge count")];
+                let replaced = CsrCapture::checked_targets(
+                    dive_runtime::capture::CsrTargetStorage {
+                        actions: dive_runtime::capture::CsrActions::Expanded(&unknown_actions),
+                        ..graph.input()
+                    },
+                    graph.limits(),
+                    control,
+                )
+                .expect("another shape-valid view");
+                let mut reader = Reader::new(&graph, &mut values, atoms);
+                reader.live_prefix(true);
+                reader.live_emission_capture(&csr);
+                reader.live_emission_capture(&replaced);
+                reader.atoms.audit = true;
+                let mut answers = Vec::new();
+                for atom in driver
+                    .native_predicates()
+                    .filter(|a| matches!(a.test, AtomTest::Enabled { .. }))
+                {
+                    let mut row = Vec::new();
+                    for source in 0..csr.state_count() {
+                        let before = csr.representative_row(source).expect("rep");
+                        assert_eq!(
+                            reader
+                                .closed_state_predicate(atom, &replaced, source, before, control)
+                                .expect("substituted capture"),
+                            None
+                        );
+                        row.push(
+                            reader
+                                .closed_state_predicate(atom, &csr, source, before, control)
+                                .expect("audit"),
+                        );
+                    }
+                    answers.push(row);
                     assert_eq!(
                         reader
-                            .closed_state_predicate(atom, &replaced, source, before, control)
-                            .expect("substituted capture"),
+                            .closed_state_predicate(atom, &csr, csr.closed_rows(), 0, control)
+                            .expect("open"),
                         None
                     );
-                    row.push(
-                        reader
-                            .closed_state_predicate(atom, &csr, source, before, control)
-                            .expect("audit"),
-                    );
                 }
-                answers.push(row);
+                answers.sort();
                 assert_eq!(
-                    reader
-                        .closed_state_predicate(atom, &csr, csr.closed_rows(), 0, control)
-                        .expect("open"),
+                    answers,
+                    [
+                        vec![Some(false), Some(false)],
+                        vec![Some(false), Some(true)],
+                        vec![Some(true), Some(false)]
+                    ]
+                );
+                assert_eq!(reader.atoms.emission_hits, [2, 4]);
+                drop(reader);
+                // A checked committed prefix retains a real representative with an
+                // empty frontier row. That empty row is no evidence of disabledness.
+                let partial =
+                    committed_frontier(graph.input().action_labels, graph.limits(), control);
+                let mut frontier = Reader::new(&graph, &mut values, atoms);
+                frontier.live_prefix(true);
+                frontier.live_emission_capture(&partial);
+                let atom = driver
+                    .native_predicates()
+                    .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
+                    .expect("fairness");
+                assert_eq!(
+                    frontier
+                        .closed_state_predicate(atom, &partial, 1, 1, control)
+                        .expect("frontier"),
                     None
                 );
-            }
-            answers.sort();
-            assert_eq!(
-                answers,
-                [
-                    vec![Some(false), Some(false)],
-                    vec![Some(false), Some(true)],
-                    vec![Some(true), Some(false)]
-                ]
-            );
-            assert_eq!(reader.atoms.emission_hits, [2, 4]);
-            // Certify every physical input. Original producer tags may shortcut
-            // writes, including transitions shared with Other. Replacing the
-            // capture token must give the same truth without consuming an image.
-            for row in 0..graph.input().retained_rows {
-                assert!(
-                    reader
-                        .proofs
-                        .closed(&reader.atoms.machine.heap, row)
-                        .expect("closed")
+                drop(frontier);
+                let mut read_missing = Reader::new(&graph, &mut values, atoms);
+                read_missing.live_prefix(true);
+                read_missing.live_emission_capture(&replaced);
+                assert_eq!(
+                    read_missing
+                        .closed_state_predicate(atom, &replaced, 0, 0, control)
+                        .expect("missing tags"),
+                    None
                 );
-            }
-            for action in driver
-                .native_predicates()
-                .filter(|a| matches!(a.test, AtomTest::Nonstuttering { .. }))
-            {
-                for source in 0..csr.closed_rows() {
-                    let bits = reader
-                        .action_row(action, &csr, source, control)
-                        .expect("original");
-                    let hits = reader.atoms.image_hits;
-                    assert_eq!(
-                        reader
-                            .action_row(action, &replaced, source, control)
-                            .expect("replacement"),
-                        bits
-                    );
-                    assert_eq!(reader.atoms.image_hits, hits);
-                }
-            }
-            assert!(reader.atoms.image_hits > 0);
-            assert!(reader.atoms.audit_mismatch().is_none());
-            drop(reader);
-            // A checked committed prefix retains a real representative with an
-            // empty frontier row. That empty row is no evidence of disabledness.
-            let partial = committed_frontier(graph.input().action_labels, graph.limits(), control);
-            let mut frontier = Reader::new(&graph, &mut values, atoms);
-            frontier.live_prefix(true);
-            frontier.live_emission_capture(&partial);
-            let atom = driver
-                .native_predicates()
-                .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
-                .expect("fairness");
-            assert_eq!(
-                frontier
-                    .closed_state_predicate(atom, &partial, 1, 1, control)
-                    .expect("frontier"),
-                None
-            );
-            drop(frontier);
-            let mut read_missing = Reader::new(&graph, &mut values, atoms);
-            read_missing.live_prefix(true);
-            read_missing.live_emission_capture(&replaced);
-            assert_eq!(
-                read_missing
-                    .closed_state_predicate(atom, &replaced, 0, 0, control)
-                    .expect("missing tags"),
-                None
-            );
-        });
+            },
+        );
     }
 
     #[test]
