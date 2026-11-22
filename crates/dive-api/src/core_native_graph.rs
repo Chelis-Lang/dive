@@ -281,6 +281,7 @@ impl OriginalRows {
 
 /// Persistent exact originals and one CSR, kept alive through analysis.
 pub(crate) struct NativeGraph {
+    identity: Arc<()>,
     store: Arc<Store>,
     nvars: usize,
     rows: Vec<Handle>,
@@ -302,6 +303,10 @@ pub(crate) struct NativeGraph {
 }
 
 impl NativeGraph {
+    pub(crate) fn identity(&self) -> &Arc<()> {
+        &self.identity
+    }
+
     pub(crate) fn owns_store(&self, store: &Arc<Store>) -> bool {
         Arc::ptr_eq(&self.store, store)
     }
@@ -496,6 +501,7 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
             .map_err(|error| bug(&error.to_string()))?;
         let values = NativeValues::new(model, Arc::clone(&store), &options.budget)?;
         let mut graph = NativeGraph {
+            identity: Arc::new(()),
             store,
             nvars: model.ir.vars().len(),
             rows: Vec::new(),

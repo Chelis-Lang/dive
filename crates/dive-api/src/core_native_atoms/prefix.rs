@@ -3,6 +3,7 @@ use super::{AnalysisError, EvaluationControl, NATIVE_FUEL, PredicateAtom, Reader
 use dive_liveness::analyze::periodic::external::LabelPrefix;
 use dive_liveness::formula::AtomKind;
 use dive_runtime::capture::CsrCapture;
+use std::sync::Arc;
 
 pub(super) struct Column {
     sources: usize,
@@ -16,6 +17,19 @@ impl Reader<'_, '_> {
     /// They share the run's `NativeAtoms` and one append-only `NativeSink`. Edit
     /// reuse, simulation, external readers and reconstructed inputs never opt in.
     pub(crate) fn live_prefix(&mut self, save: bool) {
+        let owner = self.proofs.graph.identity();
+        if self
+            .atoms
+            .prefix_owner
+            .as_ref()
+            .is_none_or(|old| !Arc::ptr_eq(old, owner))
+        {
+            for atom in &mut self.atoms.compiled {
+                atom.column = None;
+            }
+            self.atoms.prefix_bytes = 0;
+            self.atoms.prefix_owner = Some(Arc::clone(owner));
+        }
         self.prefix = Some(save);
     }
 

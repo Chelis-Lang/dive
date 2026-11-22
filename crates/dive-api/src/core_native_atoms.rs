@@ -122,6 +122,7 @@ impl dive_core::eval::WorkControl for QueryControl {
 
 pub(crate) struct NativeAtoms {
     machine: Machine,
+    prefix_owner: Option<Arc<()>>,
     prefix_bytes: usize,
     prefix_cells_reused: u64,
     projected: dive_core::memo::Memo,
@@ -353,6 +354,7 @@ impl NativeAtoms {
         opts: Opts,
     ) -> Self {
         let mut result = Self {
+            prefix_owner: None,
             prefix_bytes: 0,
             prefix_cells_reused: 0,
             projected: dive_core::memo::Memo::default(),
