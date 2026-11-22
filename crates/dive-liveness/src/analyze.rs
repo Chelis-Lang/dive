@@ -981,6 +981,9 @@ fn labels_with_reuse<'a>(
     // Admitted native rows are read only for a reference fallback; other
     // sources keep their eager per-vertex demand order.
     let eager = !states.defers_reads();
+    // Publish only whole rows. A later unsupported source keeps the bits
+    // already committed for earlier sources without retaining another column.
+    let mut row_words = [0u64; 16];
     for (index, pred) in plan.atoms.iter().enumerate() {
         let recipe = frozen_prefix.and_then(|prefix| prefix.atom(index, pred.kind));
         let mut fully_native = true;
@@ -1057,13 +1060,24 @@ fn labels_with_reuse<'a>(
             }
             if !eager
                 && matches!(graph, OriginalEdges::Native(_))
-                && let Some(mut bits) = states.action_row(pred, v)?
+                && let Some(words) = states.action_row(pred, v, &mut row_words)?
             {
-                while bits != 0 {
-                    labels
-                        .set_action(index, v, bits.trailing_zeros() as usize, true)
-                        .map_err(AnalysisError::Product)?;
-                    bits &= bits - 1;
+                let words = row_words
+                    .get(..words)
+                    .ok_or(AnalysisError::Inconsistent("native action image size"))?;
+                for (word, &bits) in words.iter().enumerate() {
+                    let mut pending = bits;
+                    while pending != 0 {
+                        labels
+                            .set_action(
+                                index,
+                                v,
+                                word * 64 + pending.trailing_zeros() as usize,
+                                true,
+                            )
+                            .map_err(AnalysisError::Product)?;
+                        pending &= pending - 1;
+                    }
                 }
                 consumed = true;
                 continue;

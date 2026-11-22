@@ -66,7 +66,8 @@ pub(super) trait StateSource {
         &mut self,
         _atom: &crate::plan::PredicateAtom,
         _source: usize,
-    ) -> Result<Option<u64>, AnalysisError> {
+        _words: &mut [u64],
+    ) -> Result<Option<usize>, AnalysisError> {
         Ok(None)
     }
 
@@ -245,8 +246,10 @@ impl StateSource for NativeStates<'_, '_> {
         &mut self,
         atom: &crate::plan::PredicateAtom,
         source: usize,
-    ) -> Result<Option<u64>, AnalysisError> {
-        self.read.action_row(atom, self.graph, source, self.control)
+        words: &mut [u64],
+    ) -> Result<Option<usize>, AnalysisError> {
+        self.read
+            .action_row_words(atom, self.graph, source, words, self.control)
     }
 
     fn action_row_false(

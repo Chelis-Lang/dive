@@ -30,6 +30,7 @@ struct Compiled {
     column: Option<prefix::Column>,
     emission: Option<(usize, dive_core::compile::ClosedEnabled)>,
     producer: Option<usize>,
+    image_guard_key: Option<Projection>,
     identity: *const PredicateAtom,
     plan: dive_core::plan::Plan,
     false_guard: Option<dive_core::plan::P>,
@@ -133,6 +134,7 @@ pub(crate) struct NativeAtoms {
     live_emissions: bool,
     producer_images: [Option<dive_core::compile::ClosedEnabled>; 64],
     image_hits: u64,
+    projected_images: emissions::Images,
     emission_hits: [u64; 2],
     emission_peak_bytes: usize,
     projected: dive_core::memo::Memo,
@@ -269,6 +271,10 @@ impl NativeAtoms {
 
     /// [`NativeAtoms::prepare`] for an explicit set of retained atoms, which
     /// must outlive every evaluation (simulation's per-run claims).
+    #[allow(
+        clippy::too_many_lines,
+        reason = "one pass admits scope, value plans and shared projection sites"
+    )]
     pub(crate) fn prepare_atoms<'a>(
         model: &Model,
         store: &Arc<Store>,
@@ -316,7 +322,19 @@ impl NativeAtoms {
                 result.rejections.record(Rejection::Allocation);
                 continue;
             }
+            let image_guard_key = if result.projected_images.enabled {
+                false_guard.batch.as_ref().and_then(|batch| {
+                    Projection::new(
+                        batch.original_guard_reads(),
+                        model.ir.vars().len(),
+                        &mut key_lengths,
+                    )
+                })
+            } else {
+                None
+            };
             result.compiled.push(Compiled {
+                image_guard_key,
                 producer: if false_guard
                     .batch
                     .as_ref()
@@ -401,6 +419,7 @@ impl NativeAtoms {
             live_emissions: false,
             producer_images: [None; 64],
             image_hits: 0,
+            projected_images: emissions::Images::new(),
             emission_hits: [0; 2],
             emission_peak_bytes: 0,
             projected: dive_core::memo::Memo::default(),
@@ -464,7 +483,7 @@ impl NativeAtoms {
     }
 
     pub(crate) fn metrics(&self) -> serde_json::Value {
-        serde_json::json!({"total_atoms": self.total, "eligible_atoms": self.eligible,
+        let mut metrics = serde_json::json!({"total_atoms": self.total, "eligible_atoms": self.eligible,
             "action_batches":{"plans":self.compiled.iter().filter(|p|p.batch.is_some()).count(),"rows":self.batch_rows, "producer_images": self.image_hits},
             "unchanged_target_guards":{"plans":self.compiled.iter().filter(|p|p.unchanged_guard.is_some()).count(),"probes":self.unchanged_probes,"rows":self.unchanged_rows,"edges":self.unchanged_edges},
             "action_source_guards": {"plans": self.compiled.iter().filter(|p| p.false_guard.is_some()).count(),
@@ -493,7 +512,11 @@ impl NativeAtoms {
                 "not_compiled": self.fallbacks.not_compiled, "fuel_retired": self.fallbacks.fuel_retired},
             "fuel": {"per_demand": self.fuel, "strikes": FUEL_STRIKES, "retired_atoms": self.fuel_retired},
             "audit": self.audit,
-            "eligibility": "source-scoped effect-free Core plans without fresh strings over materialized rows; identity-scoped fairness queries"})
+            "eligibility": "source-scoped effect-free Core plans without fresh strings over materialized rows; identity-scoped fairness queries"});
+        if self.projected_images.enabled {
+            metrics["action_batches"]["projected_rows"] = self.projected_images.metrics();
+        }
+        metrics
     }
 
     #[cfg(test)]
@@ -1415,6 +1438,26 @@ impl NativeReader for Reader<'_, '_> {
         Ok(bits.map(|(truth, _)| truth))
     }
 
+    fn action_row_words(
+        &mut self,
+        atom: &PredicateAtom,
+        graph: &dive_runtime::capture::CsrCapture<'_>,
+        source: usize,
+        words: &mut [u64],
+        control: &EvaluationControl,
+    ) -> Result<Option<usize>, AnalysisError> {
+        if let Some(count) = self.projected_image_row(atom, graph, source, words, control)? {
+            return Ok(Some(count));
+        }
+        let Some(first) = words.first_mut() else {
+            return Ok(None);
+        };
+        Ok(self.action_row(atom, graph, source, control)?.map(|bits| {
+            *first = bits;
+            1
+        }))
+    }
+
     fn closed_state_predicate(
         &mut self,
         atom: &PredicateAtom,
@@ -2096,6 +2139,106 @@ P == <>(x=1)
             assert!(reader.atoms.image_hits > 0);
             assert!(reader.atoms.audit_mismatch().is_none());
         });
+    }
+
+    #[test]
+    fn projected_images_commit_rows_before_and_after_a_fanout_refusal() {
+        use dive_runtime::capture::CsrCapture;
+
+        for (width, refuses) in [(64, false), (1024, true)] {
+            let source = format!(
+                r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLES x, r
+vars == <<x,r>>
+Init == x=0 /\ r = <<0,0>>
+Advance == /\ x < 3 /\ x'=x+1 /\ r'=[r EXCEPT ![1]=@]
+Duplicate == /\ x=1 /\ x'=x+1 /\ r'=[r EXCEPT ![1]=@]
+Fanout == /\ x=1 /\ \E i \in (x+4)..(x+3+{width}) : x'=i /\ UNCHANGED r
+Next == Advance \/ Duplicate \/ Fanout
+Spec == Init /\ [][Next]_vars /\ WF_vars(Advance)
+P == <>(x >= 3)
+===="
+            );
+            with_wrappers(&source, false, |prepared, driver, atoms, control| {
+                let options = dive_runtime::CheckOptions::dive(0);
+                atoms.enable_live_emissions(&prepared.model, &options);
+                atoms.projected_images.enabled = true;
+                let (graph, mut values) = capture(prepared, &options);
+                let csr = CsrCapture::checked_targets(graph.input(), graph.limits(), control)
+                    .expect("csr");
+                let missing_actions = vec![None; *csr.offsets().last().expect("edge count")];
+                let untrusted = CsrCapture::checked_targets(
+                    dive_runtime::capture::CsrTargetStorage {
+                        actions: dive_runtime::capture::CsrActions::Expanded(&missing_actions),
+                        ..graph.input()
+                    },
+                    graph.limits(),
+                    control,
+                )
+                .expect("same shape without original action evidence");
+                let mut reader = Reader::new(&graph, &mut values, atoms);
+                reader.live_prefix(true);
+                reader.live_emission_capture(&csr);
+                reader.atoms.audit = true;
+                for row in 0..csr.retained_rows() {
+                    assert!(
+                        reader
+                            .proofs
+                            .closed(&reader.atoms.machine.heap, row)
+                            .expect("closed")
+                    );
+                }
+                let action = driver
+                    .native_predicates()
+                    .find(|atom| matches!(atom.test, AtomTest::Nonstuttering { .. }))
+                    .expect("nonstuttering");
+                let compiled =
+                    &reader.atoms.compiled[reader.atoms.position(action).expect("compiled")];
+                assert!(reader.atoms.live_emissions);
+                assert!(
+                    compiled
+                        .batch
+                        .as_ref()
+                        .expect("batch")
+                        .admits_projected_image()
+                );
+                let id = compiled.producer.expect("bound producer");
+                assert!(
+                    reader.atoms.producer_images[id]
+                        .expect("producer certificate")
+                        .boolean_guard_prefix
+                );
+                let mut words = [0; 16];
+                assert_eq!(
+                    reader
+                        .projected_image_row(action, &untrusted, 0, &mut words, control)
+                        .expect("untrusted"),
+                    None
+                );
+                assert_eq!(
+                    reader
+                        .action_row_words(action, &csr, 0, &mut words, control)
+                        .expect("first row"),
+                    Some(1)
+                );
+                let row = reader
+                    .action_row_words(action, &csr, 1, &mut words, control)
+                    .expect("fanout row");
+                assert_eq!(row, if refuses { None } else { Some(2) });
+                let metrics = reader.atoms.projected_images.metrics();
+                assert_eq!(metrics["rows"], if refuses { 1 } else { 2 });
+                assert_eq!(metrics["high_fanout"], usize::from(refuses));
+                assert_eq!(metrics["refused_edges"], if refuses { 1027 } else { 0 });
+                assert_eq!(
+                    reader
+                        .action_row_words(action, &csr, 2, &mut words, control)
+                        .expect("following row"),
+                    Some(1)
+                );
+                assert!(reader.atoms.audit_mismatch().is_none());
+            });
+        }
     }
 
     #[test]

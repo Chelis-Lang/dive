@@ -8,6 +8,7 @@ use crate::{Error, Handle, Machine};
 pub struct ActionBatch {
     subscript: Subscript,
     complete_image: bool,
+    guard_reads: Option<u64>,
     terms: Vec<Term>,
 }
 
@@ -55,9 +56,14 @@ impl Compiler<'_> {
         if matches!(subscript, Subscript::Variable(_)) && !complete_image {
             return None;
         }
+        let guard_reads = terms.iter().try_fold(0, |mask, term| match term {
+            Term::Guard(p) => Some(mask | self.atom_source_reads(*p)?),
+            _ => Some(mask),
+        });
         Some(ActionBatch {
             subscript,
             complete_image,
+            guard_reads,
             terms,
         })
     }
@@ -165,6 +171,120 @@ impl ActionBatch {
     #[must_use]
     pub fn accepts_generated_image(&self) -> bool {
         self.complete_image
+    }
+
+    /// Sufficient source variables for all the original Boolean guard terms
+    /// in this bound batch, under its captured immutable lexical environment.
+    #[must_use]
+    pub const fn original_guard_reads(&self) -> Option<u64> {
+        self.guard_reads
+    }
+
+    /// Whether the subscript comparison uses tuple member equality.
+    #[must_use]
+    pub const fn admits_projected_image(&self) -> bool {
+        self.complete_image && matches!(self.subscript, Subscript::Tuple(_))
+    }
+
+    /// Evaluate the original source-only Boolean guards of a complete deterministic
+    /// action in their original order, including scoped resets and interruption.
+    /// Only a quiet result can bypass those guards in the physical edge classifier.
+    #[must_use]
+    pub fn original_boolean_prefix(
+        &self,
+        plan: &Plan,
+        machine: &mut Machine,
+        before: &[Handle],
+        fuel: u64,
+    ) -> Option<bool> {
+        if !self.admits_projected_image() || before.len() != machine.s0.len() {
+            return None;
+        }
+        machine.s0.copy_from_slice(before);
+        machine.s1.fill(Handle::EMPTY);
+        machine.set_proven_materialized(before, &[], plan.bound_preset.iter().map(|&(_, v)| v));
+        machine.set_fuel(fuel);
+        let frame = machine.enter(plan.implied_actions.first()?.frame);
+        for &(slot, value) in &plan.bound_preset {
+            machine.frame[machine.base + slot as usize] = value;
+        }
+        machine.warnings.clear();
+        machine.printed.clear();
+        let result = (|| -> Result<bool, Error> {
+            for term in &self.terms {
+                match term {
+                    Term::Reset(slots) => {
+                        for &slot in slots {
+                            machine.frame[machine.base + slot as usize] = Handle::EMPTY;
+                        }
+                    }
+                    Term::Guard(p) if !machine.eval_bool(&plan.code, *p)? => return Ok(false),
+                    Term::Guard(_) => {}
+                    Term::Match(_, _) | Term::CopyTuple(_) => break,
+                }
+            }
+            Ok(true)
+        })();
+        machine.leave(frame);
+        machine.heap.reset();
+        result.ok().filter(|_| {
+            !machine.heap.poisoned() && machine.warnings.is_empty() && machine.printed.is_empty()
+        })
+    }
+
+    /// Exact nonstuttering truth from a verified complete image and an independently
+    /// proved successful Boolean guard. Retains source order for every comparison
+    /// that could refuse or raise a diagnostic.
+    #[must_use]
+    pub fn original_image_target(
+        &self,
+        heap: &crate::Heap,
+        before: &[Handle],
+        image: &[Handle],
+        target: &[Handle],
+    ) -> Option<bool> {
+        let Subscript::Tuple(mut changed) = self.subscript else {
+            return None;
+        };
+        if !self.complete_image || target.len() != before.len() || image.len() != before.len() {
+            return None;
+        }
+        let mut different = false;
+        while changed != 0 {
+            let var = changed.trailing_zeros() as usize;
+            if !heap.eq(*before.get(var)?, *target.get(var)?) {
+                different = true;
+                break;
+            }
+            changed &= changed - 1;
+        }
+        if !different {
+            return Some(false);
+        }
+        if std::ptr::eq(image, target) {
+            return Some(true);
+        }
+        for term in &self.terms {
+            match *term {
+                Term::Match(var, _)
+                    if !crate::compare::equals(heap, *target.get(var)?, *image.get(var)?)
+                        .ok()? =>
+                {
+                    return Some(false);
+                }
+                Term::CopyTuple(mut mask) => {
+                    while mask != 0 {
+                        let var = mask.trailing_zeros() as usize;
+                        if !heap.eq(*before.get(var)?, *target.get(var)?) {
+                            return Some(false);
+                        }
+                        mask &= mask - 1;
+                    }
+                }
+                _ => {}
+            }
+        }
+        Some(true)
     }
 
     /// Evaluates this plan on the original source and target rows, in its owning machine.

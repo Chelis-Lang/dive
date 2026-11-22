@@ -108,6 +108,29 @@ pub trait NativeReader {
         Ok(None)
     }
 
+    /// Supplies a complete row of action bits in physical order. Words beyond
+    /// the returned count are ignored. When no row is returned, the caller
+    /// issues the ordinary demands for this source in their original order.
+    ///
+    /// # Errors
+    /// An owned interruption or a malformed captured row.
+    fn action_row_words(
+        &mut self,
+        atom: &crate::plan::PredicateAtom,
+        graph: &capture::CsrCapture<'_>,
+        source: usize,
+        words: &mut [u64],
+        control: &dive_runtime::budget::EvaluationControl,
+    ) -> Result<Option<usize>, AnalysisError> {
+        let Some(first) = words.first_mut() else {
+            return Ok(None);
+        };
+        Ok(self.action_row(atom, graph, source, control)?.map(|bits| {
+            *first = bits;
+            1
+        }))
+    }
+
     /// Whether this exact action is defined and false from `before` to
     /// every physical target row in `0..rows`. A successful proof must
     /// preserve the evaluation of the subscript and action, including

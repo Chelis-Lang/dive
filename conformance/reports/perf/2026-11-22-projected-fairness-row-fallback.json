@@ -1,0 +1,681 @@
+{
+  "issue": 1366,
+  "host": {
+    "type": "c7i.4xlarge",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "os": "Ubuntu 24.04",
+    "kernel": "7.0.0-1018-aws",
+    "protocol": "one fresh process at a time, rotated arm order, GNU time including startup, workers 1, seed/fingerprint 0",
+    "dive_memory_gib": 8,
+    "time_limit_s": 180
+  },
+  "pins": {
+    "examples": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "manyan": "a39816a873a2c2aabc00dbcef50908e996f3d44b",
+    "ordinary_core_base": "ac6fa6ea7e9b7d2766d1cfc0c8b3031e553e9cb7"
+  },
+  "sha256": {
+    "Elevator.tla": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+    "manyan_binary": "f1584a647532ea6311852573cdc22c33d7efa6c9ef2a84c453fff6c958494524",
+    "candidate_dive_binary": "facf4a1a4f3b9234d69902f4ee6b23d10314d9e6359e121b6f4678e9c723b8d4",
+    "validator_binary": "4778ec8892c7f818d3029f95dae6b873caf5f78da720d04f41a5c3239941991e",
+    "FloorCount=3 cfg": "f41449494507bb7def26453fd0bfc46a3928b6436de0da8d6aa888a13aed410c",
+    "FloorCount=4 cfg": "707f56c9952ed53cee5dda44b20ed51224f0035039c73cd96a51ea02d34c0c49",
+    "FloorCount=6 cfg": "bcc7f67ccc914242386ac282a5a903f5a0b7c3c57db62b3fa938c5d0e4d3180e"
+  },
+  "commands": {
+    "core": "DIVE_EXPERIMENT_PROJECTED_ACTION_ROWS=0|1 dive check Elevator.tla --config CFG --workers 1 --seed 0 --fp 0 --output json --time-limit 180s --max-memory 8g",
+    "manyan": "manyan -workers 1 -seed 0 -fp 0 -config CFG -dumpTrace json WORD.json Elevator.tla",
+    "replay": "dive validate-trace Elevator.tla --config CFG --trace WORD.json --output json"
+  },
+  "medians": {
+    "3": {
+      "base": {
+        "wall_s": 1.45,
+        "peak_rss_kib": 76060
+      },
+      "images": {
+        "wall_s": 1.42,
+        "peak_rss_kib": 76060
+      },
+      "peer": {
+        "wall_s": 1.15,
+        "peak_rss_kib": 47488
+      }
+    },
+    "4": {
+      "base": {
+        "wall_s": 5.13,
+        "peak_rss_kib": 206772
+      },
+      "images": {
+        "wall_s": 5.0,
+        "peak_rss_kib": 207008
+      },
+      "peer": {
+        "wall_s": 6.86,
+        "peak_rss_kib": 266472
+      }
+    },
+    "6": {
+      "base": {
+        "wall_s": 56.285,
+        "peak_rss_kib": 747866.0
+      },
+      "images": {
+        "wall_s": 56.73,
+        "peak_rss_kib": 748996.0
+      }
+    }
+  },
+  "samples": [
+    {
+      "floors": 3,
+      "arm": "base",
+      "repetition": 1,
+      "wall_s": 1.45,
+      "peak_rss_kib": 76060,
+      "exit": 0,
+      "result": "success",
+      "property": null,
+      "counts": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 0,
+        "edges": 0,
+        "enabled": false,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 0
+      }
+    },
+    {
+      "floors": 3,
+      "arm": "base",
+      "repetition": 2,
+      "wall_s": 1.45,
+      "peak_rss_kib": 75992,
+      "exit": 0,
+      "result": "success",
+      "property": null,
+      "counts": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 0,
+        "edges": 0,
+        "enabled": false,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 0
+      }
+    },
+    {
+      "floors": 3,
+      "arm": "base",
+      "repetition": 3,
+      "wall_s": 1.46,
+      "peak_rss_kib": 76332,
+      "exit": 0,
+      "result": "success",
+      "property": null,
+      "counts": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 0,
+        "edges": 0,
+        "enabled": false,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 0
+      }
+    },
+    {
+      "floors": 3,
+      "arm": "images",
+      "repetition": 1,
+      "wall_s": 1.42,
+      "peak_rss_kib": 75976,
+      "exit": 0,
+      "result": "success",
+      "property": null,
+      "counts": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 42151,
+        "edges": 677386,
+        "enabled": true,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 116064
+      }
+    },
+    {
+      "floors": 3,
+      "arm": "images",
+      "repetition": 2,
+      "wall_s": 1.42,
+      "peak_rss_kib": 76292,
+      "exit": 0,
+      "result": "success",
+      "property": null,
+      "counts": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 42151,
+        "edges": 677386,
+        "enabled": true,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 116064
+      }
+    },
+    {
+      "floors": 3,
+      "arm": "images",
+      "repetition": 3,
+      "wall_s": 1.41,
+      "peak_rss_kib": 76060,
+      "exit": 0,
+      "result": "success",
+      "property": null,
+      "counts": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 42151,
+        "edges": 677386,
+        "enabled": true,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 116064
+      }
+    },
+    {
+      "floors": 3,
+      "arm": "peer",
+      "repetition": 1,
+      "wall_s": 1.16,
+      "peak_rss_kib": 47528,
+      "exit": 0,
+      "result": "success",
+      "generated": 230899,
+      "distinct": 50653
+    },
+    {
+      "floors": 3,
+      "arm": "peer",
+      "repetition": 2,
+      "wall_s": 1.15,
+      "peak_rss_kib": 47488,
+      "exit": 0,
+      "result": "success",
+      "generated": 230899,
+      "distinct": 50653
+    },
+    {
+      "floors": 3,
+      "arm": "peer",
+      "repetition": 3,
+      "wall_s": 1.15,
+      "peak_rss_kib": 47484,
+      "exit": 0,
+      "result": "success",
+      "generated": 230899,
+      "distinct": 50653
+    },
+    {
+      "floors": 4,
+      "arm": "base",
+      "repetition": 1,
+      "wall_s": 5.11,
+      "peak_rss_kib": 207004,
+      "exit": 13,
+      "result": "liveness-violation",
+      "property": "TemporalInvariant",
+      "counts": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 0,
+        "edges": 0,
+        "enabled": false,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 0
+      },
+      "replay": {
+        "command": "validate-trace",
+        "length": 102,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_replay": "invalid"
+    },
+    {
+      "floors": 4,
+      "arm": "base",
+      "repetition": 2,
+      "wall_s": 5.13,
+      "peak_rss_kib": 196768,
+      "exit": 13,
+      "result": "liveness-violation",
+      "property": "TemporalInvariant",
+      "counts": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 0,
+        "edges": 0,
+        "enabled": false,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 0
+      },
+      "replay": {
+        "command": "validate-trace",
+        "length": 102,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_replay": "invalid"
+    },
+    {
+      "floors": 4,
+      "arm": "base",
+      "repetition": 3,
+      "wall_s": 5.13,
+      "peak_rss_kib": 206772,
+      "exit": 13,
+      "result": "liveness-violation",
+      "property": "TemporalInvariant",
+      "counts": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 0,
+        "edges": 0,
+        "enabled": false,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 0
+      },
+      "replay": {
+        "command": "validate-trace",
+        "length": 102,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_replay": "invalid"
+    },
+    {
+      "floors": 4,
+      "arm": "images",
+      "repetition": 1,
+      "wall_s": 5.0,
+      "peak_rss_kib": 207168,
+      "exit": 13,
+      "result": "liveness-violation",
+      "property": "TemporalInvariant",
+      "counts": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 133573,
+        "edges": 2030072,
+        "enabled": true,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 316852
+      },
+      "replay": {
+        "command": "validate-trace",
+        "length": 102,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_replay": "invalid"
+    },
+    {
+      "floors": 4,
+      "arm": "images",
+      "repetition": 2,
+      "wall_s": 5.01,
+      "peak_rss_kib": 206920,
+      "exit": 13,
+      "result": "liveness-violation",
+      "property": "TemporalInvariant",
+      "counts": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 133573,
+        "edges": 2030072,
+        "enabled": true,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 316852
+      },
+      "replay": {
+        "command": "validate-trace",
+        "length": 102,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_replay": "invalid"
+    },
+    {
+      "floors": 4,
+      "arm": "images",
+      "repetition": 3,
+      "wall_s": 4.98,
+      "peak_rss_kib": 207008,
+      "exit": 13,
+      "result": "liveness-violation",
+      "property": "TemporalInvariant",
+      "counts": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 133573,
+        "edges": 2030072,
+        "enabled": true,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 316852
+      },
+      "replay": {
+        "command": "validate-trace",
+        "length": 102,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_replay": "invalid"
+    },
+    {
+      "floors": 4,
+      "arm": "peer",
+      "repetition": 1,
+      "wall_s": 6.8,
+      "peak_rss_kib": 266456,
+      "exit": 13,
+      "result": "liveness-violation",
+      "generated": 1583418,
+      "distinct": 281976,
+      "replay": {
+        "command": "validate-trace",
+        "length": 202,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_replay": "invalid"
+    },
+    {
+      "floors": 4,
+      "arm": "peer",
+      "repetition": 2,
+      "wall_s": 6.91,
+      "peak_rss_kib": 266528,
+      "exit": 13,
+      "result": "liveness-violation",
+      "generated": 1583418,
+      "distinct": 281976,
+      "replay": {
+        "command": "validate-trace",
+        "length": 202,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_replay": "invalid"
+    },
+    {
+      "floors": 4,
+      "arm": "peer",
+      "repetition": 3,
+      "wall_s": 6.86,
+      "peak_rss_kib": 266472,
+      "exit": 13,
+      "result": "liveness-violation",
+      "generated": 1583418,
+      "distinct": 281976,
+      "replay": {
+        "command": "validate-trace",
+        "length": 202,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_replay": "invalid"
+    },
+    {
+      "floors": 6,
+      "arm": "base",
+      "repetition": 1,
+      "wall_s": 56.38,
+      "peak_rss_kib": 747152,
+      "exit": 13,
+      "result": "liveness-violation",
+      "property": "TemporalInvariant",
+      "counts": {
+        "depth": 17,
+        "distinct": 1150990,
+        "generated": 7767089,
+        "initial_generated": 46656,
+        "left_on_queue": 64340,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 0,
+        "edges": 0,
+        "enabled": false,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 0
+      },
+      "replay": {
+        "command": "validate-trace",
+        "length": 263,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_replay": "invalid"
+    },
+    {
+      "floors": 6,
+      "arm": "base",
+      "repetition": 2,
+      "wall_s": 56.19,
+      "peak_rss_kib": 748580,
+      "exit": 13,
+      "result": "liveness-violation",
+      "property": "TemporalInvariant",
+      "counts": {
+        "depth": 17,
+        "distinct": 1150990,
+        "generated": 7767089,
+        "initial_generated": 46656,
+        "left_on_queue": 64340,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 0,
+        "edges": 0,
+        "enabled": false,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 0
+      },
+      "replay": {
+        "command": "validate-trace",
+        "length": 263,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_replay": "invalid"
+    },
+    {
+      "floors": 6,
+      "arm": "images",
+      "repetition": 1,
+      "wall_s": 57.05,
+      "peak_rss_kib": 747828,
+      "exit": 13,
+      "result": "liveness-violation",
+      "property": "TemporalInvariant",
+      "counts": {
+        "depth": 17,
+        "distinct": 1150990,
+        "generated": 7767089,
+        "initial_generated": 46656,
+        "left_on_queue": 64340,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 827470,
+        "edges": 21543310,
+        "enabled": true,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 2606728
+      },
+      "replay": {
+        "command": "validate-trace",
+        "length": 263,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_replay": "invalid"
+    },
+    {
+      "floors": 6,
+      "arm": "images",
+      "repetition": 2,
+      "wall_s": 56.41,
+      "peak_rss_kib": 750164,
+      "exit": 13,
+      "result": "liveness-violation",
+      "property": "TemporalInvariant",
+      "counts": {
+        "depth": 17,
+        "distinct": 1150990,
+        "generated": 7767089,
+        "initial_generated": 46656,
+        "left_on_queue": 64340,
+        "reported_by_tlc": false
+      },
+      "projected": {
+        "cached_guards": 827470,
+        "edges": 21543310,
+        "enabled": true,
+        "high_fanout": 0,
+        "refused_edges": 0,
+        "refused_rows": 0,
+        "rows": 2606728
+      },
+      "replay": {
+        "command": "validate-trace",
+        "length": 263,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_replay": "invalid"
+    }
+  ],
+  "controls": {
+    "original_compact_audit": "Original two floors, every published action bit independently compared, identical 4,122 distinct and 14,296 generated through depth 36.",
+    "late_source": "The fixture publishes the initial row, defers 1,026 physical emissions plus the implicit stutter, then publishes a subsequent row. Duplicate destinations, a separately validated copy with missing tags, and 67 physical cells including a partial last word are checked.",
+    "scope": "Source proof restricted to one worker in the Dive profile, quiet original transitions, exact retained representatives, no constraints, view or symmetry."
+  },
+  "decision": "Retain opt-in row projection. Small savings at three and four floors did not extend to six floors. Manyan finishes faster at three floors. Each violation time is to that checker's first independently validated word and can visit a different prefix."
+}
