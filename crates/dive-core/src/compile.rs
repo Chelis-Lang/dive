@@ -661,6 +661,11 @@ pub struct ClosedEnabled {
     pub quiet_suffix: bool,
     /// Source guards have no warning-capable EXCEPT, including nested searches.
     pub quiet_guards: bool,
+    /// Every prefix guard uses the same sequential source-only value operations
+    /// in generator and Boolean forms. A covered zero-emission row then also
+    /// refutes the Boolean action on all targets, subject to the same diagnostic
+    /// and original-binding checks and an independently validated subscript.
+    pub boolean_guard_prefix: bool,
 }
 
 /// Compile source and single-destination-variable prefixes for a bound atom.
