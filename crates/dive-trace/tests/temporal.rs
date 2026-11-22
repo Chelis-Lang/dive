@@ -507,3 +507,54 @@ fn selectseq_independent_enabled_negation_and_fairness_use_original_lazy_state_h
         );
     }
 }
+
+#[test]
+fn quantified_subscripts_keep_their_own_bindings_on_the_same_word() {
+    let model = bound(
+        r"---- MODULE SubWord ----
+VARIABLES x, y
+Init == x /\ y
+Next == x' = ~x /\ y' = y
+Vars == <<x, y>>
+Sub(i) == IF i THEN x ELSE y
+P == \A i \in BOOLEAN : [][FALSE]_(Sub(i))
+Q == ([][FALSE]_Vars) \/ ([][TRUE]_Vars)
+====",
+        "INIT Init\nNEXT Next\n",
+    );
+    let word: Vec<State> = [true, false]
+        .into_iter()
+        .map(|x| Arc::from([Some(Value::Bool(x)), Some(Value::Bool(false))]))
+        .collect();
+    for (name, expected) in [("P", false), ("Q", true)] {
+        assert_eq!(
+            evaluate_lasso(&model, &predicate(&model, name), &word, 0).expect("scoped subscript"),
+            vec![expected; 2]
+        );
+    }
+}
+
+#[test]
+fn supplied_lasso_propagates_an_installed_control() {
+    #[derive(Debug)]
+    struct Stop;
+    impl dive_eval::HostControl for Stop {
+        fn check(&self) -> Result<(), dive_eval::Interrupted> {
+            Err(dive_eval::Interrupted::new(17))
+        }
+    }
+    let model = bound(
+        "---- MODULE Word ----\nVARIABLE x\nInit == x\nNext == x' = x\nP == []x\n====",
+        "INIT Init\nNEXT Next\n",
+    );
+    let pred = predicate(&model, "P");
+    let states: Vec<State> = vec![Arc::from([Some(Value::Bool(true))]); 512];
+    let _control = model
+        .evaluator
+        .host_control(Some(Arc::new(Stop)))
+        .expect("control");
+    assert!(matches!(
+        evaluate_lasso(&model, &pred, &states, 0),
+        Err(TemporalError::Interrupted(_))
+    ));
+}

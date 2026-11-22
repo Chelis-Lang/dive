@@ -21,6 +21,8 @@ are in git history.
 
 - Single-worker Core checks can reuse original successors to answer [fairness enabledness queries](docs/user/temporal.md#fairness) while preserving warnings, action bindings and stuttering semantics.
 
+- Independent [periodic trace validation](docs/user/temporal.md#fairness) accepts longer concrete counterexamples under an explicit per-formula work bound, including the 181-floor Elevator word.
+
 - Core sizes two [fairness workspaces](docs/user/temporal.md#fairness) for growing graphs and reads reachable product vertices directly from a dense discovery bitmap.
 
 - Core keeps using closed-source [fairness enabledness](docs/user/temporal.md#fairness) above one million expanded states by reading the original actions for one window of source states at a time.
