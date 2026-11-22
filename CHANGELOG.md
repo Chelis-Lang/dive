@@ -5,6 +5,8 @@ are in git history.
 
 ## Unreleased
 
+- The source checkout can [build a native successor worker](docs/user/checking.md#build-a-source-bound-native-successor-worker) from unmodified TLA+ and reuse its compiled control flow after a property or guard edit.
+
 - Core reuses [pure computed successor components](docs/developer/core/06-memoization.md#24-definitions-a-next-state-action-reads-primed) across candidates. Ordinary Flint checking improved from 3.97 to 3.48 seconds on its published small configuration.
 
 - Temporal [state-label refusals](docs/user/temporal.md#errors-while-labeling-states) now identify the property, source expression and evaluation error and retain the actual graph counts.

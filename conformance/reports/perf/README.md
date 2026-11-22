@@ -22,6 +22,8 @@ The scripts that produced the records are in
 
 [Five- and six-floor Fairness workspace](2026-11-22-streett-workspace.json) records matched Manyan trials, replayed witnesses, peak RSS and a memory-stop control. The larger shared allowance cut five-floor product search from 124.56 s to about 12.4 s.
 
+[Source-built native successor workers](2026-11-22-source-native-successors.json) records original-source Flint edit and undo runs against compiled tla-mc, actual dispatch on both Lamport models and Elevator, witness replay, Sail transfers and the rejected whole-action cache experiments.
+
 [Computed successor components](2026-11-22-projected-successor-values.json) compares fresh ordinary Flint searches before and after component memoization, the guard-growth edit, two transaction-commit controls and a compiled tla-mc process on the original source.
 
 [Certified carrier symmetry](2026-11-22-certified-orbits.json) records the original and edited Flint reachable-graph proofs, two transaction-commit finite proofs, two other released models, authenticated second-process repeats, matched compiled tla-mc, independent Sail checks, peak memory and damaged/genuine word replay.
