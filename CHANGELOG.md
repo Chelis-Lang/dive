@@ -7,6 +7,8 @@ are in git history.
 
 - Fresh named symbolic checks try the requested invariant directly before searching for a closed predicate.
 
+- Parallel Core checks can generate and validate large finite initial products concurrently while admitting their states in source order.
+
 - Named symbolic checks can [repair a rejected predicate](docs/user/symbolic.md#repair-a-candidate-on-the-currently-bound-source) in the same invocation.
 
 - Named symbolic proofs can [reuse authenticated transition obligations in a new process](docs/user/symbolic.md#reuse-certified-action-obligations-in-another-process).

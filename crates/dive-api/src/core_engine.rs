@@ -1030,6 +1030,7 @@ pub(crate) fn safety_result(
     let inline_roots = out.metrics.inline_graph_roots;
     let ordered_width = out.metrics.ordered_print_workers;
     let wave_width = out.metrics.max_wave_workers;
+    let initial_width = out.metrics.initial_workers;
     let thread_shortage = out.metrics.wave_thread_shortage;
     let searched_result = |verdict| {
         let mut report = result(verdict, options, ir);
@@ -1063,6 +1064,11 @@ pub(crate) fn safety_result(
             report.workers.reason = Some(format!(
                 "temporal capture has {roots} initial states and short, non-enumerating actions. One worker expands and commits each source inline"
             ));
+        } else if initial_width > 1 && !expanded {
+            report.workers.used = initial_width;
+            report.workers.reason = Some(
+                "the run used parallel Init and ended before expanding successor states".into(),
+            );
         } else if workers > 1 && !expanded {
             report.workers.used = 1;
             report.workers.reason = Some(
@@ -1944,7 +1950,7 @@ pub(crate) fn metrics_json(
         .filter(|(_, s)| s.lookups > 0 || s.bypass > 0)
         .map(|(n, s)| json!({"site": n, "lookups": s.lookups, "hits": s.hits, "bypass": s.bypass, "off": s.off}))
         .collect();
-    json!({
+    let mut report = json!({
         "compile_ms": compile_time.as_secs_f64() * 1e3,
         "distributed":m.distributed,
         "explore_ms": m.explore_time.as_secs_f64() * 1e3,
@@ -2022,7 +2028,11 @@ pub(crate) fn metrics_json(
         "arena_peak": {"nodes": m.arena_peak.0, "handles": m.arena_peak.1},
         "thunks": {"forced": m.thunks.0, "cached": m.thunks.1},
         "memo": memo,
-    })
+    });
+    if m.initial_workers > 0 {
+        report["parallel_init_workers"] = json!(m.initial_workers);
+    }
+    report
 }
 
 /// Existing armed budget shared by history work; reporting keeps the actual

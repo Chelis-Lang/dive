@@ -1,0 +1,243 @@
+{
+  "title": "Ordered parallel Core initialization on the original MCBakery configuration",
+  "issue": 1316,
+  "baseline_main": "f27aa806aae679cff7896d3144f4258a6661b390",
+  "inputs": {
+    "repo": "https://github.com/tlaplus/Examples/tree/6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/Bakery-Boulangerie",
+    "module": "MCBakery.tla",
+    "config": "MCBakery.cfg",
+    "sha256": {
+      "Bakery.tla": "3b2a3f370e5f0fde8660b3ef09932d579c9bd2ccd249a5ce2304007bf24da8d5",
+      "MCBakery.tla": "e30e4fc5558357406b890b3249eda6ec0ec7d5e191b1469adc3774990c1fbe25",
+      "MCBakery.cfg": "27204f5e0a0a6dc62748f1148d7aa65ed0a8d7e1cb0bf9daf59beee57246c8f5"
+    }
+  },
+  "build": {
+    "command": "cargo build --release --locked -p dive-cli --bin dive",
+    "toolchain": "rustc 1.99.0 with the repository release profile and default target CPU",
+    "environment": "Both x86_64 Linux executables were built on the same host and run on the benchmark node.",
+    "sha256": {
+      "baseline": "6b07c13b7202a20b542769b72b4a6bbf90b4497c62e4bd7b5f371093b2544e97",
+      "candidate": "afedf222008a2bb673a676ee51fc47f6dba31323c756af4e2bba656931b9ef35"
+    }
+  },
+  "machine": {
+    "type": "EC2 c7i.4xlarge",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "os": "Ubuntu 24.04",
+    "physical_cores": 8,
+    "logical_cpus": 16,
+    "affinity": "0-7 selects one logical CPU per physical core."
+  },
+  "command": "taskset -c 0-7 DIVE check MCBakery.tla --config MCBakery.cfg --store STORE --compat=tlc --workers 8 --seed 0 --fp 0 --max-memory 24g --time-limit 120s --output json",
+  "capped_extra": "--max-states 655199",
+  "method": "Five cold repetitions for each store and cap. Alternated baseline-first and candidate-first sequential pairs on the same isolated host. GNU time reports wall seconds and peak process RSS in KiB.",
+  "sample_columns": [
+    "wall_s",
+    "peak_rss_kib",
+    "exit_code"
+  ],
+  "comparisons": {
+    "fp": {
+      "cap": {
+        "baseline": {
+          "samples": [
+            [3.15, 40344, 5],
+            [3.14, 39968, 5],
+            [3.16, 39800, 5],
+            [3.16, 39724, 5],
+            [3.15, 40084, 5]
+          ],
+          "median_wall_s": 3.15,
+          "max_rss_kib": 40344
+        },
+        "candidate": {
+          "samples": [
+            [1.11, 93860, 5],
+            [1.11, 88072, 5],
+            [1.14, 83552, 5],
+            [1.18, 85636, 5],
+            [1.19, 91620, 5]
+          ],
+          "median_wall_s": 1.14,
+          "max_rss_kib": 93860
+        },
+        "wall_speedup": 2.763,
+        "statistics": {
+          "depth": 1,
+          "distinct": 655199,
+          "exhaustive": false,
+          "generated": 655200,
+          "initial_generated": 655200,
+          "left_on_queue": 655199,
+          "reported_by_tlc": false
+        },
+        "verdict": "stopped",
+        "candidate_initial_workers": 5,
+        "successor_expansion_ms": 0.0
+      },
+      "full": {
+        "baseline": {
+          "samples": [
+            [3.85, 64916, 0],
+            [3.86, 64780, 0],
+            [3.81, 65104, 0],
+            [3.88, 64776, 0],
+            [3.86, 66756, 0]
+          ],
+          "median_wall_s": 3.86,
+          "max_rss_kib": 66756
+        },
+        "candidate": {
+          "samples": [
+            [1.79, 102312, 0],
+            [1.88, 98228, 0],
+            [1.91, 110348, 0],
+            [1.75, 100640, 0],
+            [1.77, 98304, 0]
+          ],
+          "median_wall_s": 1.79,
+          "max_rss_kib": 110348
+        },
+        "wall_speedup": 2.156,
+        "statistics": {
+          "depth": 1,
+          "distinct": 655200,
+          "generated": 3403584,
+          "initial_generated": 655200,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "verdict": "success",
+        "candidate_initial_workers": 5
+      }
+    },
+    "exact": {
+      "cap": {
+        "baseline": {
+          "samples": [
+            [3.25, 68576, 5],
+            [3.26, 76996, 5],
+            [3.25, 68840, 5],
+            [3.26, 68516, 5],
+            [3.25, 77100, 5]
+          ],
+          "median_wall_s": 3.25,
+          "max_rss_kib": 77100
+        },
+        "candidate": {
+          "samples": [
+            [1.24, 104416, 5],
+            [1.25, 109884, 5],
+            [1.23, 98532, 5],
+            [1.22, 102448, 5],
+            [1.25, 104296, 5]
+          ],
+          "median_wall_s": 1.24,
+          "max_rss_kib": 109884
+        },
+        "wall_speedup": 2.621,
+        "statistics": {
+          "depth": 1,
+          "distinct": 655199,
+          "exhaustive": false,
+          "generated": 655200,
+          "initial_generated": 655200,
+          "left_on_queue": 655199,
+          "reported_by_tlc": false
+        },
+        "verdict": "stopped",
+        "candidate_initial_workers": 5,
+        "successor_expansion_ms": 0.0
+      },
+      "full": {
+        "baseline": {
+          "samples": [
+            [4.08, 87496, 0],
+            [4.1, 99916, 0],
+            [4.13, 85392, 0],
+            [4.07, 87372, 0],
+            [4.0, 87588, 0]
+          ],
+          "median_wall_s": 4.08,
+          "max_rss_kib": 99916
+        },
+        "candidate": {
+          "samples": [
+            [2.12, 110972, 0],
+            [2.09, 112168, 0],
+            [2.1, 110040, 0],
+            [2.07, 118844, 0],
+            [2.03, 110248, 0]
+          ],
+          "median_wall_s": 2.09,
+          "max_rss_kib": 118844
+        },
+        "wall_speedup": 1.952,
+        "statistics": {
+          "depth": 1,
+          "distinct": 655200,
+          "generated": 3403584,
+          "initial_generated": 655200,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "verdict": "success",
+        "candidate_initial_workers": 5
+      }
+    }
+  },
+  "profile": {
+    "method": "Three separate capped runs using a baseline build with stage timers. Generation is total Init time minus time inside the emission sink. Membership includes key preparation and seen lookup or insertion. Fingerprintability, invariant evaluation and frontier insertion are timed separately. The instrumented timings include instrumentation overhead.",
+    "columns_ms": [
+      "init",
+      "generation",
+      "invariants",
+      "membership",
+      "fingerprintability",
+      "frontier",
+      "other_emission"
+    ],
+    "samples": {
+      "fp": [
+        [3318.872, 1691.092, 1120.523, 142.936, 151.735, 94.782, 117.804],
+        [3318.525, 1687.985, 1120.936, 145.643, 151.869, 94.911, 117.181],
+        [3305.517, 1683.194, 1117.886, 138.711, 151.266, 95.034, 119.427]
+      ],
+      "exact": [
+        [3412.009, 1686.12, 1127.988, 262.196, 117.794, 95.932, 121.979],
+        [3419.238, 1687.251, 1129.604, 267.167, 117.71, 95.786, 121.721],
+        [3416.262, 1684.825, 1128.499, 267.353, 117.875, 96.269, 121.441]
+      ]
+    },
+    "finding": "Generating and checking the finite initial product dominate the capped run. Both stages run on workers while the same ordered membership, limit and frontier path admits rows."
+  },
+  "checks": {
+    "one_worker_core_both_profiles": "One original Examples model agreed with the pinned TLC golden and the corresponding small-tier Core baseline, with zero regressions in each profile.",
+    "focused_controls": "The Core Init integration test exercises both stores and profiles. It compares one and eight workers on full and capped products, overlapping Init choices and the first failing initial invariant. The depth-one witness was independently validated.",
+    "resource_controls": [
+      {
+        "host": "Local workstation, separate from the timing panel",
+        "option": "--max-depth=0",
+        "message": "stopped during safety-search: the next depth would be 1, exceeding the limit of 0",
+        "generated": 1,
+        "distinct": 0
+      },
+      {
+        "host": "Local workstation, separate from the timing panel",
+        "option": "--time-limit=200ms",
+        "message": "stopped during safety-search after 215 ms: the time limit is 200 ms",
+        "generated": 0,
+        "distinct": 0
+      },
+      {
+        "host": "Local workstation, separate from the timing panel",
+        "option": "--max-memory=48m",
+        "message": "stopped during safety-search: resident memory 55668736 bytes exceeds the ceiling of 50331648 bytes",
+        "generated": 0,
+        "distinct": 0
+      }
+    ]
+  },
+  "interpretation": "The candidate uses higher peak process memory for bounded worker buffers. It improves both capped initialization and complete checking on the unchanged configuration. Counts, depth and the capped queue remain identical."
+}

@@ -94,6 +94,15 @@ target/storage-probe parents 4000000
 
 ## 3. One level
 
+For a sufficiently large initial product, Core can generate and check slices
+of the first domain on multiple workers. The compiler's generator must start
+by binding each variable from a closed finite domain. Each worker follows the
+ordinary generator and checks the same pure invariants and initial properties.
+The explorer admits successful rows in their original order, using the normal
+seen set, predecessor log and resource checks. It evaluates the original Init
+if a worker encounters a diagnostic, cannot prove an obligation, or cannot
+buffer its slice. The product's total buffered row size is bounded.
+
 **Expand.**
 - Workers claim batches of work units from an atomic counter. On narrow levels
   a work unit is one (state, action) pair, as in the current engine

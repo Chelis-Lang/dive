@@ -163,6 +163,13 @@ loads.
 
 ## Workers and stores
 
+Core can generate and check large finite initial products on several workers.
+It admits the initial states in the original order. The JSON report exposes
+`core.metrics.parallel_init_workers` for runs that use this path. Use
+`--sequential` to enumerate Init inline when worker buffers would exceed your
+memory budget. Time and memory stops report the ordered prefix that the
+explorer processed.
+
 Ordinary multi-worker safety checking starts a worker team at its first parallel
 expansion and keeps the same threads through later levels. If the operating
 system refuses the team at startup, the caller runs the worker jobs for the rest
