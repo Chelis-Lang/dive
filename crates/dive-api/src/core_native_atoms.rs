@@ -30,6 +30,7 @@ struct Compiled {
     column: Option<prefix::Column>,
     emission: Option<(usize, dive_core::compile::ClosedEnabled)>,
     producer: Option<usize>,
+    complete_guard_key: Option<Projection>,
     identity: *const PredicateAtom,
     plan: dive_core::plan::Plan,
     false_guard: Option<dive_core::plan::P>,
@@ -133,6 +134,7 @@ pub(crate) struct NativeAtoms {
     live_emissions: bool,
     producer_images: [Option<dive_core::compile::ClosedEnabled>; 64],
     image_hits: u64,
+    complete_guard_hits: u64,
     emission_hits: [u64; 2],
     emission_peak_bytes: usize,
     projected: dive_core::memo::Memo,
@@ -316,7 +318,19 @@ impl NativeAtoms {
                 result.rejections.record(Rejection::Allocation);
                 continue;
             }
+            let complete_guard_key = false_guard
+                .batch
+                .as_ref()
+                .filter(|batch| batch.accepts_generated_image())
+                .and_then(|batch| {
+                    Projection::new(
+                        batch.original_guard_reads(),
+                        model.ir.vars().len(),
+                        &mut key_lengths,
+                    )
+                });
             result.compiled.push(Compiled {
+                complete_guard_key,
                 producer: if false_guard
                     .batch
                     .as_ref()
@@ -401,6 +415,7 @@ impl NativeAtoms {
             live_emissions: false,
             producer_images: [None; 64],
             image_hits: 0,
+            complete_guard_hits: 0,
             emission_hits: [0; 2],
             emission_peak_bytes: 0,
             projected: dive_core::memo::Memo::default(),
@@ -465,7 +480,7 @@ impl NativeAtoms {
 
     pub(crate) fn metrics(&self) -> serde_json::Value {
         serde_json::json!({"total_atoms": self.total, "eligible_atoms": self.eligible,
-            "action_batches":{"plans":self.compiled.iter().filter(|p|p.batch.is_some()).count(),"rows":self.batch_rows, "producer_images": self.image_hits},
+            "action_batches":{"plans":self.compiled.iter().filter(|p|p.batch.is_some()).count(),"rows":self.batch_rows, "producer_images": self.image_hits, "complete_guard_hits":self.complete_guard_hits},
             "unchanged_target_guards":{"plans":self.compiled.iter().filter(|p|p.unchanged_guard.is_some()).count(),"probes":self.unchanged_probes,"rows":self.unchanged_rows,"edges":self.unchanged_edges},
             "action_source_guards": {"plans": self.compiled.iter().filter(|p| p.false_guard.is_some()).count(),
                 "probes": self.guard_probes, "false_rows": self.guard_rows},
@@ -731,6 +746,43 @@ impl NativeAtoms {
     /// All target rows in this checked graph have already been certified.
     /// Try to disprove the bound action from the source alone. Any unknown
     /// result keeps every ordinary edge demand, including its error path.
+    fn complete_guard(
+        &mut self,
+        atom: &PredicateAtom,
+        before: &[Handle],
+        control: &EvaluationControl,
+    ) -> Result<Option<(usize, bool)>, AnalysisError> {
+        if self.audit || self.fuel != NATIVE_FUEL || self.machine.heap.poisoned() {
+            return Ok(None);
+        }
+        let Some(index) = self.position(atom) else {
+            return Ok(None);
+        };
+        let compiled = &self.compiled[index];
+        let Some(key) = compiled
+            .complete_guard_key
+            .filter(|p| self.projected.active(p.site) && compiled.exhausted_in_a_row == 0)
+            .and_then(|p| p.bind(before))
+        else {
+            return Ok(None);
+        };
+        check(&self.control, control)?;
+        if let Some(value) = key.get(&mut self.projected) {
+            self.complete_guard_hits += 1;
+            return Ok(Some((index, value)));
+        }
+        let Some(batch) = compiled.batch.as_ref() else {
+            return Ok(None);
+        };
+        let value =
+            batch.original_boolean_prefix(&compiled.plan, &mut self.machine, before, self.fuel);
+        check(&self.control, control)?;
+        if let Some(value) = value {
+            key.put(&mut self.projected, value);
+        }
+        Ok(value.map(|v| (index, v)))
+    }
+
     fn false_guard(
         &mut self,
         atom: &PredicateAtom,
@@ -1170,6 +1222,7 @@ pub(crate) struct Reader<'a, 'model> {
     pub(crate) values: &'a mut NativeValues<'model>,
     atoms: &'a mut NativeAtoms,
     unchanged: Option<UnchangedTarget>,
+    proved_guard: Option<(usize, usize)>,
 }
 
 impl<'a, 'model> Reader<'a, 'model> {
@@ -1185,6 +1238,7 @@ impl<'a, 'model> Reader<'a, 'model> {
             emission_capture: None,
             proofs: RowProofs::new(graph),
             unchanged: None,
+            proved_guard: None,
             values,
             atoms,
         }
@@ -1394,13 +1448,15 @@ impl NativeReader for Reader<'_, '_> {
             ids[pos] = original;
         }
         check(&self.atoms.control, control)?;
-        let bits = batch.evaluate_image(
+        let proved_guard = self.proved_guard.take() == Some((index, before));
+        let bits = batch.evaluate_guarded_image(
             &compiled.plan,
             &mut self.atoms.machine,
             source_row,
             &rows[..len],
             self.atoms.fuel,
             emission,
+            proved_guard,
         );
         check(&self.atoms.control, control)?;
         if let Some((bits, consumed)) = bits {
@@ -1436,6 +1492,7 @@ impl NativeReader for Reader<'_, '_> {
         // Each certified bit refers to a physical row in this graph and
         // its owning Store. The checked graph may describe a prefix.
         self.unchanged = None;
+        self.proved_guard = None;
         let retained = self.proofs.graph.input().retained_rows;
         if self.proofs.metrics.certified != retained as u64
             || rows > retained
@@ -1446,6 +1503,17 @@ impl NativeReader for Reader<'_, '_> {
                 .owns_store(self.atoms.machine.heap.store())
         {
             return Ok(false);
+        }
+        if let Some((index, truth)) =
+            self.atoms
+                .complete_guard(atom, self.proofs.graph.row(before)?, control)?
+        {
+            if truth {
+                self.proved_guard = Some((index, before));
+            } else {
+                self.atoms.guard_rows += 1;
+            }
+            return Ok(!truth);
         }
         let answer = self
             .atoms

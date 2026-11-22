@@ -8,6 +8,7 @@ use crate::{Error, Handle, Machine};
 pub struct ActionBatch {
     changed: u64,
     complete_image: bool,
+    guard_reads: Option<u64>,
     terms: Vec<Term>,
 }
 
@@ -29,7 +30,12 @@ impl Compiler<'_> {
         let mut terms = Vec::new();
         self.batch_terms(action, &mut terms, 0)?;
         let complete_image = function_image(&terms, self.ir.vars().len());
+        let guard_reads = terms.iter().try_fold(0, |mask, term| match term {
+            Term::Guard(p) => Some(mask | self.atom_source_reads(*p)?),
+            _ => Some(mask),
+        });
         Some(ActionBatch {
+            guard_reads,
             changed,
             complete_image,
             terms,
@@ -141,6 +147,59 @@ impl ActionBatch {
         self.complete_image
     }
 
+    /// Variables sufficient to identify this bound action's complete Boolean
+    /// guard truth on materialized source inputs.
+    #[must_use]
+    pub const fn original_guard_reads(&self) -> Option<u64> {
+        self.guard_reads
+    }
+
+    /// Evaluate the original source-only Boolean guards of a complete deterministic
+    /// action in their original order, including scoped resets and interruption.
+    /// Only a quiet result can bypass those guards in the physical edge classifier.
+    #[must_use]
+    pub fn original_boolean_prefix(
+        &self,
+        plan: &Plan,
+        machine: &mut Machine,
+        before: &[Handle],
+        fuel: u64,
+    ) -> Option<bool> {
+        if !self.complete_image || before.len() != machine.s0.len() {
+            return None;
+        }
+        machine.s0.copy_from_slice(before);
+        machine.s1.fill(Handle::EMPTY);
+        machine.set_proven_materialized(before, &[], plan.bound_preset.iter().map(|&(_, v)| v));
+        machine.set_fuel(fuel);
+        let frame = machine.enter(plan.implied_actions.first()?.frame);
+        for &(slot, value) in &plan.bound_preset {
+            machine.frame[machine.base + slot as usize] = value;
+        }
+        machine.warnings.clear();
+        machine.printed.clear();
+        let result = (|| -> Result<bool, Error> {
+            for term in &self.terms {
+                match term {
+                    Term::Reset(slots) => {
+                        for &slot in slots {
+                            machine.frame[machine.base + slot as usize] = Handle::EMPTY;
+                        }
+                    }
+                    Term::Guard(p) if !machine.eval_bool(&plan.code, *p)? => return Ok(false),
+                    Term::Guard(_) => {}
+                    Term::Match(_, _) | Term::CopyTuple(_) => break,
+                }
+            }
+            Ok(true)
+        })();
+        machine.leave(frame);
+        machine.heap.reset();
+        result.ok().filter(|_| {
+            !machine.heap.poisoned() && machine.warnings.is_empty() && machine.printed.is_empty()
+        })
+    }
+
     /// Evaluates this plan on the original source and target rows, in its owning machine.
     /// All handles must already have been proved materialized in the same store.
     /// Any error or visible event leaves ordinary per-edge evaluation in charge.
@@ -172,6 +231,26 @@ impl ActionBatch {
         fuel: u64,
         emitted: Option<(&[Handle], bool)>,
     ) -> Option<(u64, bool)> {
+        self.evaluate_guarded_image(plan, machine, before, targets, fuel, emitted, false)
+    }
+
+    /// Evaluates a materialized original edge row after a quiet successful
+    /// Boolean guard evaluation on this exact bound source, if one is supplied.
+    #[must_use]
+    #[allow(
+        clippy::too_many_arguments,
+        reason = "same checked row and exact guard evidence"
+    )]
+    pub fn evaluate_guarded_image(
+        &self,
+        plan: &Plan,
+        machine: &mut Machine,
+        before: &[Handle],
+        targets: &[&[Handle]],
+        fuel: u64,
+        emitted: Option<(&[Handle], bool)>,
+        proved_guard: bool,
+    ) -> Option<(u64, bool)> {
         let emitted = emitted.filter(|_| self.complete_image);
         if targets.len() > 64
             || emitted.is_some_and(|(row, _)| row.len() != before.len())
@@ -190,7 +269,14 @@ impl ActionBatch {
         }
         machine.warnings.clear();
         machine.printed.clear();
-        let result = self.match_edges(&plan.code, machine, before, targets, emitted);
+        let result = self.match_edges(
+            &plan.code,
+            machine,
+            before,
+            targets,
+            emitted,
+            proved_guard && self.complete_image,
+        );
         machine.leave(frame);
         machine.heap.reset();
         result.ok().filter(|_| {
@@ -205,6 +291,7 @@ impl ActionBatch {
         before: &[Handle],
         targets: &[&[Handle]],
         emitted: Option<(&[Handle], bool)>,
+        proved_guard: bool,
     ) -> Result<(u64, bool), Error> {
         let mut used = false;
         let mut live = 0;
@@ -224,6 +311,9 @@ impl ActionBatch {
                     }
                 }
                 Term::Guard(p) => {
+                    if proved_guard {
+                        continue;
+                    }
                     if emitted.is_some_and(|(_, guard_prefix)| guard_prefix) {
                         used = true;
                     } else if !m.eval_bool(code, *p)? {
