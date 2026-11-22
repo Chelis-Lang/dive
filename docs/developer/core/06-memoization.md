@@ -375,6 +375,12 @@ After action splitting, Core recognizes `pc[p] = "label"` and `workers[p].field 
 
 A known false label can skip a nested disjunction arm or a bound action frame only when it is the first expression the original arm would demand. All matching arms execute at their original positions. Missing or differently typed values follow the normal evaluator's error and comparison rules. Finite-fuel, observed and nonexhaustive execution retains ordinary guard evaluation. [Measurements on Flint and Bakery](../../../conformance/reports/perf/2026-11-22-core-label-guards.json).
 
+### 2.6 Disjoint updates to one actor row
+
+Core recognizes up to sixteen distinct named fields selected through the same scalar constant or bound actor slot. Each lookup validates the actual function key. An array of numeric position hints retains no arena or Store handles. The evaluator uses the original path for unbound keys, missing fields, overlapping clauses, effects, observed debug execution and bounded evaluation. Distinct fields allow all right-hand sides to read their own previous value and permit one final record copy. The constructors preserve record and tuple classes, nested-view flags, concrete-value evidence and delta hashes. Lazy values and full hashing use the original constructors.
+
+For direct field assignments, a bounded worker memo can reuse the resulting row from its exact persistent input row, the RHS state variables and free slots. It admits a canonical enclosing table and a complete, pure RHS input set. Candidate spill and strict warning observation bypass promotion, and replacing a Store clears the worker memo. `DIVE_CORE_OPT=-actor-rows` selects ordinary lookup and update handling. [Source-bound measurements and fallback controls](../../../conformance/reports/perf/2026-11-22-actor-table-rows.json).
+
 ## 3. Read-set analysis
 
 The compiler computes read sets during the pass that records reads and purity

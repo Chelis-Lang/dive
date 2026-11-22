@@ -850,6 +850,8 @@ At check time, the executable compares the entire bound generator structure with
 
 Flint's property edit completed in 3.30 s including preparation, against 23.10 s for compiled tla-mc. Unchanged warm search on the same labeled graph took 3.07–3.18 s against 1.49 s. [Original and edited measurements, fallback and trace controls](../../conformance/reports/perf/2026-11-22-source-native-successors.json).
 
+Ordinary `dive check` recognizes repeated updates to distinct fields of the same finite actor record, such as `[w EXCEPT ![a].pc = next, ![a].seen = stamp]`. It preserves source order, nested paths and the old value bound to `@`. A missing key, a repeated field or a different runtime shape uses ordinary evaluation. The original Flint check took 2.94–3.02 s with this lowering, and the optional compiled worker took 2.62–2.63 s plus its binding check. Compiled tla-mc remained faster on unchanged warm checks. [Full equality, growing models and edit-cycle measurements](../../conformance/reports/perf/2026-11-22-actor-table-rows.json).
+
 ## Embedding notes
 
 These apply to Rust callers below `check_file`:

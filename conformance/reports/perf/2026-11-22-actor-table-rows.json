@@ -1,0 +1,291 @@
+{
+  "title": "Source-driven actor-table reads, disjoint row writes and compiled full-graph checks",
+  "date": "2026-11-22",
+  "issues": [
+    1363,
+    1314,
+    1374
+  ],
+  "scope": "All timings are fresh Linux processes. No result/graph cache, symmetry declaration or model-specific edit is used for the original checks. A compiled executable can be reused across source edits.",
+  "host": {
+    "platform": "Dedicated c7i.4xlarge, us-east-2b; Intel Xeon Platinum 8488C, 8 physical cores / 16 threads, 32,306,600 KiB RAM; Ubuntu 24.04.5 LTS, Linux 7.0.0-1018-aws",
+    "affinity": "taskset -c 0-7; CPUs 8-15 are sibling threads. Flint 8 workers; Lamport 1.",
+    "memory": "Fresh cgroup v2 per command, peak_bytes is memory.peak for the process and descendants, including charged file pages. wall_s uses CLOCK_MONOTONIC. A peer compilation and its check run inside one cgroup. Preparation and emitted check have separate peaks.",
+    "compiler": "rustc 1.99.0; Core release --locked -p dive-cli --bin dive with CARGO_PROFILE_RELEASE_LTO=off and CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16. Pinned peer used its own cargo build --release --locked defaults."
+  },
+  "binaries": {
+    "stock_core_commit": "ac6fa6ea7e9b7d2766d1cfc0c8b3031e553e9cb7",
+    "stock_sha256": "3348bb5529abcea107f13c350862fff81d9ff67f4f5ad308c8e4978070aef7a3",
+    "measured_candidate_source_tree": "17f2843060653bf0b354f9b0a9caa6021b67e3a1",
+    "candidate_sha256": "de725af2ef247b0242334ccf184a6edc659717937414851f9c4b138ab57945d2",
+    "tracked_code_delta_sha256": "557f9c12fc6d5e1110774b3475298198df76d9882808c3a0adb706e2510ece29",
+    "peer": "ddalton/tla-mc@c8fce23493bb78fcd5405faf7b0653855db620ee",
+    "peer_sha256": "4d7dac591ab419e7b4bb6d357f7fffb98b3d7eb8b7c256784d559baf7799259c",
+    "development_sha256": "08d25a8338b2b7ace7e629cc3120ef2ffbe7961fc93ca0fc8652c63b4f960f83"
+  },
+  "inputs": {
+    "Flint": "ddalton/flint@8feba0c78f22e3ecdee0648c6b2897eac95ab1b4, lean/formal/LeanP1.tla. Recreate LeanP1Size3L1W3.cfg from lean/formal/LeanP1Holds1p3b.cfg with the substitutions in lean/formal/results/2026-10-06-ec2/scripts/runner3.sh lines 12–18. Each preparation row records both SHA-256 values.",
+    "Examples": "tlaplus/Examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f, specifications/transaction_commit/{TCommit,TwoPhase}, original same-basename TLA+ and CFG files.",
+    "edits": "Start at the published small source and CFG, then two unchanged warm runs. Prepend TRUE /\\ to Inv_CitationsLive. For growth, also replace barriers < MaxBarriers by barriers <= MaxBarriers in the Consume guard after s \\notin Readers /\\ w[s].pc = \"idle\". Revert the guard, then the property. Each run is a new process.",
+    "Flint_properties": {
+      "invariants": [
+        "TypeOK",
+        "Inv_CitationsLive",
+        "Inv_OneName",
+        "Inv_AckedNamed",
+        "Inv_OneHolder",
+        "Inv_NoRegress",
+        "Inv_ShortcutSound",
+        "Inv_ReaderFetches"
+      ],
+      "properties": [
+        "Prop_NoSilentRevert",
+        "Prop_DeleteSettles"
+      ],
+      "postconditions": [],
+      "possible": [],
+      "deadlock": false
+    },
+    "files": {
+      "LeanP1": {
+        "tla_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+        "cfg_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"
+      },
+      "TCommit": {
+        "tla_sha256": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+        "cfg_sha256": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415"
+      },
+      "TwoPhase": {
+        "tla_sha256": "e6e72ed0097cca55e80b97af33c3bc54792a504bcbdf639d6d9c666f49c17817",
+        "cfg_sha256": "6f443b596657a26c817ee130a89c0ba84aa1cd06a60d07db449d06382de4fd87"
+      }
+    }
+  },
+  "commands": {
+    "core": "dive check MODULE.tla --config CONFIG --workers W --store fp|exact --fp 0 --seed 0 --max-memory 8g --time-limit 120s --output json; Lamport adds --compat=tlc. Set DIVE_CORE_OPT=-actor-rows for same-binary fallback. Every check loads the current module and CFG.",
+    "prepare": "python3 scripts/perf/scale/native-successors/prepare.py MODULE.tla --config CONFIG --cache PRIVATE_CACHE --jobs 8 --profile dive; then use returned binary for the same check.",
+    "peer": "TLAMC_CACHE=PRIVATE_CACHE tla-mc -compile -config CONFIG -workers W MODULE.tla. Cold begins with an empty peer cache; warm-growth reuses the preceding growth binary despite working-file edits.",
+    "controls": "Run stock and actor-rows using both profiles. For negative words append BarrierBound == barriers = 0, NoBarrierStep == [][barriers' = barriers]_vars, or NotPrepared == \\A r \\in RM : rmState[r] # \"prepared\", respectively, and append the appropriate INVARIANT/PROPERTY to the CFG. Use exact store, workers 1/8 and --compat=tlc. Pass word to stock dive validate-trace with the same module/CFG; replace the initial state with the final state and repeat."
+  },
+  "interpretation": {
+    "original": "Independent reversed-order original checks were 2.94–3.02 s against 3.50–3.55 s stock, or 3.42–3.46 s against 3.99–4.03 s with full equality. The nominal Lamport probes complete in milliseconds and do not establish a material speedup.",
+    "composition": "Emitted search was 2.62–2.63 s warm, plus 0.23–0.24 s to verify binding. Cold build plus search was 43.72 s against 37.06 s for tla-mc. The property-only edit was 2.89 s including preparation versus 22.33 s peer. The 43.72 s growth search plus 0.23 s preparation was essentially level with 43.88 s for the changed peer; the peer finished an already-compiled growth search in 23.75 s. #1314 remains open.",
+    "memory": "The accepted row cache spends memory to avoid repeated actor-record transforms. In the paired original fp controls Core rose from 131–133 MiB to 137–145 MiB (rounded). The measured reductions in arena usage concern temporary handles; process memory need not fall.",
+    "source": "Stock-to-candidate and peer use identical original modules/configs at each stage. The optional worker emits original control flow and still uses the current Core value plan. The available cache changes executable preparation latency; every reported graph is freshly reached."
+  },
+  "trials": {
+    "scalar_row_quantifier_key": {
+      "design": "project pure quantifier predicate memo inputs onto scalar actor rows",
+      "matched_wall_s": {
+        "trial": [
+          2.96,
+          2.98
+        ],
+        "control": [
+          2.99,
+          2.94
+        ]
+      },
+      "disposition": "neutral; omitted"
+    },
+    "outer_table_replacement_cache": {
+      "design": "persistent exact (table, key, new entry) key after ordinary RHS evaluation",
+      "matched_wall_s": {
+        "trial": [
+          2.82,
+          2.79
+        ],
+        "control": [
+          2.83,
+          2.84
+        ]
+      },
+      "hits": 167170,
+      "lookups": 192080,
+      "disposition": "little wall-time gain with higher retention; omitted",
+      "cpu_sample": "perf record -e cpu-clock -F 511 -- taskset -c 0-7 TRIAL check ... on original; unsampled timings above. Leaf symbols, not disjoint wall phases.",
+      "cpu_percent": {
+        "Heap::view (two instantiated symbols)": 13.01,
+        "Machine::gen_node_inner": 9.42,
+        "Machine::eval_inner": 8.22,
+        "Memo::get": 5.37,
+        "Machine::direct_cell": 3.26,
+        "state_identity": 1.19,
+        "FingerprintShard::contains": 0.93,
+        "Store::intern": 0.91
+      }
+    },
+    "hashed_actor_reads": {
+      "design": "bounded read cache keyed by complete immutable table and scalar key",
+      "matched_wall_s": {
+        "trial": [
+          3.0,
+          3.04
+        ],
+        "control": [
+          2.9,
+          2.97
+        ]
+      },
+      "disposition": "slower; omitted"
+    },
+    "phase_split": {
+      "stock_expansion_s": 2.998,
+      "stock_serial_commit_s": 0.246,
+      "row_candidate_expansion_s": 2.533,
+      "row_candidate_serial_commit_s": 0.262,
+      "stock_peak_arena_handles": 8176,
+      "row_candidate_peak_arena_handles": 1062,
+      "note": "separate development runs; external wall and peak process-family measurements are recorded below"
+    }
+  },
+  "validation": {
+    "review": "Independent source and lifetime review, 15 stock/candidate pairs including both comparison profiles, missing keys, exception ordering, actual cache hits and eight forced Store collections. Genuine words independently checked against stock and damaged versions rejected.",
+    "ratchet": "Core default small tier, examples TCommit/TwoPhase/DieHard, 1 worker, no SANY: 0 regressions against small-core-dive-w1.",
+    "focused": "dive-core heap differential checks all representation flags, hash/sum and contents for ordinary/nested/lazy replacement and full/delta hashing; dive-api core_primed_memo exercises a 108-state program with unrelated updates and external input; targeted clippy."
+  },
+  "paired_controls": [
+    {"tool":"stock","stage":"paired-A","model":"LeanP1","wall_s":3.55429,"peak_bytes":137498624,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.61,"arena":{"handles":8157,"nodes":559},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"paired-A","model":"LeanP1","wall_s":4.03396,"peak_bytes":175087616,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"exact","workers":8,"compile_ms":3.612,"arena":{"handles":8208,"nodes":598},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"actor-rows","stage":"paired-A","model":"LeanP1","wall_s":2.9359,"peak_bytes":143421440,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.547,"arena":{"handles":1044,"nodes":375},"row_sites":11,"row_lookups":142795,"row_hits":129204},
+    {"tool":"actor-rows","stage":"paired-A","model":"LeanP1","wall_s":3.41988,"peak_bytes":181448704,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"exact","workers":8,"compile_ms":3.576,"arena":{"handles":1044,"nodes":375},"row_sites":11,"row_lookups":149810,"row_hits":135792},
+    {"tool":"tla-mc","stage":"paired-A","model":"LeanP1","wall_s":1.52914,"peak_bytes":326070272,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"reported_compile_s":0,"generated_engine":true},
+    {"tool":"actor-rows","stage":"paired-B","model":"LeanP1","wall_s":3.01543,"peak_bytes":152145920,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.565,"arena":{"handles":1026,"nodes":369},"row_sites":11,"row_lookups":152149,"row_hits":137882},
+    {"tool":"actor-rows","stage":"paired-B","model":"LeanP1","wall_s":3.45728,"peak_bytes":177147904,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"exact","workers":8,"compile_ms":3.582,"arena":{"handles":1026,"nodes":359},"row_sites":11,"row_lookups":144100,"row_hits":130366},
+    {"tool":"stock","stage":"paired-B","model":"LeanP1","wall_s":3.5028,"peak_bytes":139321344,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.534,"arena":{"handles":8157,"nodes":559},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"paired-B","model":"LeanP1","wall_s":3.98863,"peak_bytes":170373120,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"exact","workers":8,"compile_ms":3.518,"arena":{"handles":8208,"nodes":598},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"tla-mc","stage":"paired-B","model":"LeanP1","wall_s":1.48806,"peak_bytes":271822848,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"reported_compile_s":0,"generated_engine":true},
+    {"tool":"stock","stage":"transfer-A","model":"TCommit","wall_s":0.01316,"peak_bytes":10043392,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"fp","workers":1,"compile_ms":0.111,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"transfer-A","model":"TCommit","wall_s":0.00712,"peak_bytes":9838592,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"exact","workers":1,"compile_ms":0.099,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"actor-rows","stage":"transfer-A","model":"TCommit","wall_s":0.00713,"peak_bytes":9818112,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"fp","workers":1,"compile_ms":0.118,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"actor-rows","stage":"transfer-A","model":"TCommit","wall_s":0.0072,"peak_bytes":9842688,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"exact","workers":1,"compile_ms":0.115,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"tla-mc","stage":"transfer-A","model":"TCommit","wall_s":0.01115,"peak_bytes":28512256,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"reported_compile_s":0,"generated_engine":true},
+    {"tool":"actor-rows","stage":"transfer-B","model":"TCommit","wall_s":0.00753,"peak_bytes":9834496,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"fp","workers":1,"compile_ms":0.121,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"actor-rows","stage":"transfer-B","model":"TCommit","wall_s":0.00725,"peak_bytes":9834496,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"exact","workers":1,"compile_ms":0.117,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"transfer-B","model":"TCommit","wall_s":0.00759,"peak_bytes":9850880,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"fp","workers":1,"compile_ms":0.138,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"transfer-B","model":"TCommit","wall_s":0.00696,"peak_bytes":9842688,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"exact","workers":1,"compile_ms":0.101,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"tla-mc","stage":"transfer-B","model":"TCommit","wall_s":0.01037,"peak_bytes":28495872,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"reported_compile_s":0,"generated_engine":true},
+    {"tool":"stock","stage":"transfer-A","model":"TwoPhase","wall_s":0.00956,"peak_bytes":11886592,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"fp","workers":1,"compile_ms":0.157,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"transfer-A","model":"TwoPhase","wall_s":0.00904,"peak_bytes":11935744,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"exact","workers":1,"compile_ms":0.132,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"actor-rows","stage":"transfer-A","model":"TwoPhase","wall_s":0.00931,"peak_bytes":11935744,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"fp","workers":1,"compile_ms":0.158,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"actor-rows","stage":"transfer-A","model":"TwoPhase","wall_s":0.00852,"peak_bytes":11919360,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"exact","workers":1,"compile_ms":0.117,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"tla-mc","stage":"transfer-A","model":"TwoPhase","wall_s":0.01246,"peak_bytes":28495872,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"reported_compile_s":0,"generated_engine":true},
+    {"tool":"actor-rows","stage":"transfer-B","model":"TwoPhase","wall_s":0.00957,"peak_bytes":11931648,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"fp","workers":1,"compile_ms":0.141,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"actor-rows","stage":"transfer-B","model":"TwoPhase","wall_s":0.00942,"peak_bytes":11628544,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"exact","workers":1,"compile_ms":0.146,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"transfer-B","model":"TwoPhase","wall_s":0.00972,"peak_bytes":11997184,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"fp","workers":1,"compile_ms":0.168,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"transfer-B","model":"TwoPhase","wall_s":0.009,"peak_bytes":11935744,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"exact","workers":1,"compile_ms":0.158,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"tla-mc","stage":"transfer-B","model":"TwoPhase","wall_s":0.01324,"peak_bytes":28749824,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"reported_compile_s":0,"generated_engine":true}
+  ],
+  "source_edits": [
+    {"tool":"stock","stage":"cold","model":"LeanP1","wall_s":3.5463,"peak_bytes":137687040,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.521,"arena":{"handles":8157,"nodes":559},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"cold","model":"LeanP1","wall_s":3.97797,"peak_bytes":183435264,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"exact","workers":8,"compile_ms":3.529,"arena":{"handles":8193,"nodes":586},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"actor-rows","stage":"cold","model":"LeanP1","wall_s":3.00348,"peak_bytes":143519744,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.53,"arena":{"handles":1044,"nodes":375},"row_sites":11,"row_lookups":146979,"row_hits":133126},
+    {"tool":"actor-rows","stage":"cold","model":"LeanP1","wall_s":3.47554,"peak_bytes":179249152,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"exact","workers":8,"compile_ms":3.548,"arena":{"handles":1044,"nodes":375},"row_sites":11,"row_lookups":142969,"row_hits":129171},
+    {"tool":"actor-rows","stage":"warm1","model":"LeanP1","wall_s":3.01557,"peak_bytes":147763200,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.505,"arena":{"handles":1062,"nodes":391},"row_sites":11,"row_lookups":150683,"row_hits":136388},
+    {"tool":"stock","stage":"warm1","model":"LeanP1","wall_s":3.55781,"peak_bytes":137465856,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.49,"arena":{"handles":8176,"nodes":574},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"warm2","model":"LeanP1","wall_s":3.48991,"peak_bytes":137097216,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.494,"arena":{"handles":8176,"nodes":574},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"warm2","model":"LeanP1","wall_s":4.01527,"peak_bytes":168685568,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"exact","workers":8,"compile_ms":3.473,"arena":{"handles":8208,"nodes":598},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"actor-rows","stage":"warm2","model":"LeanP1","wall_s":2.99477,"peak_bytes":143618048,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.522,"arena":{"handles":1062,"nodes":391},"row_sites":11,"row_lookups":148969,"row_hits":134987},
+    {"tool":"actor-rows","stage":"warm2","model":"LeanP1","wall_s":3.43457,"peak_bytes":177115136,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"exact","workers":8,"compile_ms":3.544,"arena":{"handles":1062,"nodes":391},"row_sites":11,"row_lookups":149602,"row_hits":135596},
+    {"tool":"stock","stage":"property","model":"LeanP1","wall_s":3.78192,"peak_bytes":141455360,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.898,"arena":{"handles":8176,"nodes":574},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"actor-rows","stage":"property","model":"LeanP1","wall_s":2.97394,"peak_bytes":150405120,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.609,"arena":{"handles":1062,"nodes":391},"row_sites":11,"row_lookups":140360,"row_hits":126883},
+    {"tool":"actor-rows","stage":"growth","model":"LeanP1","wall_s":48.8871,"peak_bytes":407040000,"exit":0,"verdict":"success","stats":{"distinct":7387957,"generated":31281750,"depth":40},"store":"fp","workers":8,"compile_ms":3.523,"arena":{"handles":1028,"nodes":320},"row_sites":11,"row_lookups":2483774,"row_hits":2303458},
+    {"tool":"stock","stage":"growth","model":"LeanP1","wall_s":57.98685,"peak_bytes":398512128,"exit":0,"verdict":"success","stats":{"distinct":7387957,"generated":31281750,"depth":40},"store":"fp","workers":8,"compile_ms":3.461,"arena":{"handles":8522,"nodes":599},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"undo-guard","model":"LeanP1","wall_s":3.51354,"peak_bytes":135135232,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.436,"arena":{"handles":8176,"nodes":574},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"actor-rows","stage":"undo-guard","model":"LeanP1","wall_s":3.00954,"peak_bytes":141369344,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.532,"arena":{"handles":1068,"nodes":395},"row_sites":11,"row_lookups":146359,"row_hits":132587},
+    {"tool":"actor-rows","stage":"undo-property","model":"LeanP1","wall_s":2.98057,"peak_bytes":147664896,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.58,"arena":{"handles":1062,"nodes":391},"row_sites":11,"row_lookups":145004,"row_hits":131149},
+    {"tool":"stock","stage":"undo-property","model":"LeanP1","wall_s":3.4806,"peak_bytes":135098368,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.496,"arena":{"handles":8176,"nodes":574},"row_sites":0,"row_lookups":0,"row_hits":0}
+  ],
+  "peer_edits": [
+    {"tool":"tla-mc","stage":"cold","model":"LeanP1","wall_s":37.06365,"peak_bytes":396029952,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"reported_compile_s":35.6,"generated_engine":true},
+    {"tool":"tla-mc","stage":"warm1","model":"LeanP1","wall_s":1.43407,"peak_bytes":273342464,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"reported_compile_s":0,"generated_engine":true},
+    {"tool":"tla-mc","stage":"warm2","model":"LeanP1","wall_s":1.41908,"peak_bytes":279994368,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"reported_compile_s":0,"generated_engine":true},
+    {"tool":"tla-mc","stage":"property","model":"LeanP1","wall_s":22.33463,"peak_bytes":317825024,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"reported_compile_s":20.9,"generated_engine":true},
+    {"tool":"tla-mc","stage":"growth","model":"LeanP1","wall_s":43.88478,"peak_bytes":1520865280,"exit":0,"verdict":"success","stats":{"distinct":7387957,"generated":31281750,"depth":40},"reported_compile_s":21.4,"generated_engine":true},
+    {"tool":"tla-mc","stage":"undo-guard","model":"LeanP1","wall_s":1.45082,"peak_bytes":262893568,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"reported_compile_s":0,"generated_engine":true},
+    {"tool":"tla-mc","stage":"undo-property","model":"LeanP1","wall_s":1.40143,"peak_bytes":276332544,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"reported_compile_s":0,"generated_engine":true},
+    {"tool":"tla-mc","stage":"warm-growth","model":"LeanP1","wall_s":23.74843,"peak_bytes":1500598272,"exit":0,"verdict":"success","stats":{"distinct":7387957,"generated":31281750,"depth":40},"reported_compile_s":0,"generated_engine":true}
+  ],
+  "emitted_plus_rows": [
+    {"tool":"prepare","stage":"cold","model":"LeanP1","wall_s":41.02806,"peak_bytes":1765634048,"exit":0,"kernel":"f2ec1894a19bc854f68156ee9bdba65952afc1eb835bce79214732cb78b7d22d","built":true,"bootstrap_built":true,"binary_sha256":"4ef113e01d4ed67eb18e1222c5e2deb654553db8512fb4d804169d3597eaedf0","inputs":{"root":"LeanP1.tla","modules":{"LeanP1.tla":"edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211"},"config_sha256":"ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"},"lowered":{"roots":12,"generator_nodes":601,"continuations":671,"kinds":{"Conj":141,"Unchanged":42,"Assign":110,"Disj":26,"Exists":13,"Scope":21,"Guard":113,"If":3,"LabelArm":29,"LabelGuard":50,"Forall":2,"Implies":4}},"compile_s":15.035897,"build_tree":"17f2843060653bf0b354f9b0a9caa6021b67e3a1"},
+    {"tool":"emitted+rows","stage":"cold","model":"LeanP1","wall_s":2.69434,"peak_bytes":143532032,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.752,"arena":{"handles":1026,"nodes":359},"row_sites":11,"row_lookups":150729,"row_hits":136604},
+    {"tool":"prepare","stage":"warm1","model":"LeanP1","wall_s":0.23913,"peak_bytes":33697792,"exit":0,"kernel":"f2ec1894a19bc854f68156ee9bdba65952afc1eb835bce79214732cb78b7d22d","built":false,"bootstrap_built":false,"binary_sha256":"4ef113e01d4ed67eb18e1222c5e2deb654553db8512fb4d804169d3597eaedf0","inputs":{"root":"LeanP1.tla","modules":{"LeanP1.tla":"edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211"},"config_sha256":"ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"},"lowered":{"roots":12,"generator_nodes":601,"continuations":671,"kinds":{"Conj":141,"Unchanged":42,"Assign":110,"Disj":26,"Exists":13,"Scope":21,"Guard":113,"If":3,"LabelArm":29,"LabelGuard":50,"Forall":2,"Implies":4}},"compile_s":0,"build_tree":"17f2843060653bf0b354f9b0a9caa6021b67e3a1"},
+    {"tool":"emitted+rows","stage":"warm1","model":"LeanP1","wall_s":2.61837,"peak_bytes":154095616,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.724,"arena":{"handles":1044,"nodes":375},"row_sites":11,"row_lookups":150145,"row_hits":136076},
+    {"tool":"prepare","stage":"warm2","model":"LeanP1","wall_s":0.22641,"peak_bytes":33820672,"exit":0,"kernel":"f2ec1894a19bc854f68156ee9bdba65952afc1eb835bce79214732cb78b7d22d","built":false,"bootstrap_built":false,"binary_sha256":"4ef113e01d4ed67eb18e1222c5e2deb654553db8512fb4d804169d3597eaedf0","inputs":{"root":"LeanP1.tla","modules":{"LeanP1.tla":"edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211"},"config_sha256":"ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"},"lowered":{"roots":12,"generator_nodes":601,"continuations":671,"kinds":{"Conj":141,"Unchanged":42,"Assign":110,"Disj":26,"Exists":13,"Scope":21,"Guard":113,"If":3,"LabelArm":29,"LabelGuard":50,"Forall":2,"Implies":4}},"compile_s":0,"build_tree":"17f2843060653bf0b354f9b0a9caa6021b67e3a1"},
+    {"tool":"emitted+rows","stage":"warm2","model":"LeanP1","wall_s":2.62814,"peak_bytes":143425536,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.706,"arena":{"handles":1062,"nodes":391},"row_sites":11,"row_lookups":147880,"row_hits":133892},
+    {"tool":"emitted+rows","stage":"warm2","model":"LeanP1","wall_s":3.04791,"peak_bytes":177061888,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"exact","workers":8,"compile_ms":3.607,"arena":{"handles":1044,"nodes":374},"row_sites":11,"row_lookups":150761,"row_hits":136565},
+    {"tool":"prepare","stage":"property","model":"LeanP1","wall_s":0.22685,"peak_bytes":33992704,"exit":0,"kernel":"f2ec1894a19bc854f68156ee9bdba65952afc1eb835bce79214732cb78b7d22d","built":false,"bootstrap_built":false,"binary_sha256":"4ef113e01d4ed67eb18e1222c5e2deb654553db8512fb4d804169d3597eaedf0","inputs":{"root":"LeanP1.tla","modules":{"LeanP1.tla":"1532acc1e8b12c5ac0fb237d64c57a951ac90e187d6516497f72cd37e422c3b7"},"config_sha256":"ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"},"lowered":{"roots":12,"generator_nodes":601,"continuations":671,"kinds":{"Conj":141,"Unchanged":42,"Assign":110,"Disj":26,"Exists":13,"Scope":21,"Guard":113,"If":3,"LabelArm":29,"LabelGuard":50,"Forall":2,"Implies":4}},"compile_s":0,"build_tree":"17f2843060653bf0b354f9b0a9caa6021b67e3a1"},
+    {"tool":"emitted+rows","stage":"property","model":"LeanP1","wall_s":2.66763,"peak_bytes":145821696,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.671,"arena":{"handles":1062,"nodes":391},"row_sites":11,"row_lookups":152057,"row_hits":137960},
+    {"tool":"prepare","stage":"growth","model":"LeanP1","wall_s":0.23238,"peak_bytes":34041856,"exit":0,"kernel":"f2ec1894a19bc854f68156ee9bdba65952afc1eb835bce79214732cb78b7d22d","built":false,"bootstrap_built":false,"binary_sha256":"4ef113e01d4ed67eb18e1222c5e2deb654553db8512fb4d804169d3597eaedf0","inputs":{"root":"LeanP1.tla","modules":{"LeanP1.tla":"e6cb769c8fb0e6a3bb03463d68c4c63e68ec584cb9029fee2adabae236ace785"},"config_sha256":"ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"},"lowered":{"roots":12,"generator_nodes":601,"continuations":671,"kinds":{"Conj":141,"Unchanged":42,"Assign":110,"Disj":26,"Exists":13,"Scope":21,"Guard":113,"If":3,"LabelArm":29,"LabelGuard":50,"Forall":2,"Implies":4}},"compile_s":0,"build_tree":"17f2843060653bf0b354f9b0a9caa6021b67e3a1"},
+    {"tool":"emitted+rows","stage":"growth","model":"LeanP1","wall_s":43.72338,"peak_bytes":409735168,"exit":0,"verdict":"success","stats":{"distinct":7387957,"generated":31281750,"depth":40},"store":"fp","workers":8,"compile_ms":3.752,"arena":{"handles":1028,"nodes":320},"row_sites":11,"row_lookups":2441100,"row_hits":2262457},
+    {"tool":"prepare","stage":"undo-guard","model":"LeanP1","wall_s":0.23178,"peak_bytes":33890304,"exit":0,"kernel":"f2ec1894a19bc854f68156ee9bdba65952afc1eb835bce79214732cb78b7d22d","built":false,"bootstrap_built":false,"binary_sha256":"4ef113e01d4ed67eb18e1222c5e2deb654553db8512fb4d804169d3597eaedf0","inputs":{"root":"LeanP1.tla","modules":{"LeanP1.tla":"1532acc1e8b12c5ac0fb237d64c57a951ac90e187d6516497f72cd37e422c3b7"},"config_sha256":"ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"},"lowered":{"roots":12,"generator_nodes":601,"continuations":671,"kinds":{"Conj":141,"Unchanged":42,"Assign":110,"Disj":26,"Exists":13,"Scope":21,"Guard":113,"If":3,"LabelArm":29,"LabelGuard":50,"Forall":2,"Implies":4}},"compile_s":0,"build_tree":"17f2843060653bf0b354f9b0a9caa6021b67e3a1"},
+    {"tool":"emitted+rows","stage":"undo-guard","model":"LeanP1","wall_s":2.64484,"peak_bytes":145227776,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.737,"arena":{"handles":1062,"nodes":391},"row_sites":11,"row_lookups":148690,"row_hits":134719},
+    {"tool":"prepare","stage":"undo-property","model":"LeanP1","wall_s":0.2366,"peak_bytes":33767424,"exit":0,"kernel":"f2ec1894a19bc854f68156ee9bdba65952afc1eb835bce79214732cb78b7d22d","built":false,"bootstrap_built":false,"binary_sha256":"4ef113e01d4ed67eb18e1222c5e2deb654553db8512fb4d804169d3597eaedf0","inputs":{"root":"LeanP1.tla","modules":{"LeanP1.tla":"edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211"},"config_sha256":"ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"},"lowered":{"roots":12,"generator_nodes":601,"continuations":671,"kinds":{"Conj":141,"Unchanged":42,"Assign":110,"Disj":26,"Exists":13,"Scope":21,"Guard":113,"If":3,"LabelArm":29,"LabelGuard":50,"Forall":2,"Implies":4}},"compile_s":0,"build_tree":"17f2843060653bf0b354f9b0a9caa6021b67e3a1"},
+    {"tool":"emitted+rows","stage":"undo-property","model":"LeanP1","wall_s":2.68926,"peak_bytes":145453056,"exit":0,"verdict":"success","stats":{"distinct":449595,"generated":1954072,"depth":33},"store":"fp","workers":8,"compile_ms":3.721,"arena":{"handles":1062,"nodes":391},"row_sites":11,"row_lookups":148866,"row_hits":134942}
+  ],
+  "transfer_cold_and_repeats": [
+    {"tool":"tla-mc","stage":"cold","model":"TCommit","wall_s":11.0579,"peak_bytes":208916480,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"reported_compile_s":11.0,"generated_engine":true},
+    {"tool":"stock","stage":"cold","model":"TCommit","wall_s":0.01321,"peak_bytes":9744384,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"fp","workers":1,"compile_ms":0.122,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"cold","model":"TCommit","wall_s":0.00711,"peak_bytes":9850880,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"exact","workers":1,"compile_ms":0.11,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"development","stage":"cold","model":"TCommit","wall_s":0.00775,"peak_bytes":9744384,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"fp","workers":1,"compile_ms":0.122,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"development","stage":"cold","model":"TCommit","wall_s":0.00722,"peak_bytes":9682944,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"exact","workers":1,"compile_ms":0.118,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"tla-mc","stage":"warm1","model":"TCommit","wall_s":0.01151,"peak_bytes":28516352,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"reported_compile_s":0,"generated_engine":true},
+    {"tool":"stock","stage":"warm1","model":"TCommit","wall_s":0.01599,"peak_bytes":9887744,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"fp","workers":1,"compile_ms":0.119,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"warm1","model":"TCommit","wall_s":0.00715,"peak_bytes":9850880,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"exact","workers":1,"compile_ms":0.112,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"development","stage":"warm1","model":"TCommit","wall_s":0.00764,"peak_bytes":9826304,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"fp","workers":1,"compile_ms":0.121,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"development","stage":"warm1","model":"TCommit","wall_s":0.00755,"peak_bytes":9854976,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"exact","workers":1,"compile_ms":0.121,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"tla-mc","stage":"warm2","model":"TCommit","wall_s":0.01137,"peak_bytes":28516352,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"reported_compile_s":0,"generated_engine":true},
+    {"tool":"stock","stage":"warm2","model":"TCommit","wall_s":0.01581,"peak_bytes":9707520,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"fp","workers":1,"compile_ms":0.115,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"warm2","model":"TCommit","wall_s":0.00742,"peak_bytes":9850880,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"exact","workers":1,"compile_ms":0.105,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"development","stage":"warm2","model":"TCommit","wall_s":0.00742,"peak_bytes":10129408,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"fp","workers":1,"compile_ms":0.12,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"development","stage":"warm2","model":"TCommit","wall_s":0.00734,"peak_bytes":9846784,"exit":0,"verdict":"success","stats":{"distinct":34,"generated":94,"depth":7},"store":"exact","workers":1,"compile_ms":0.116,"arena":{"handles":39,"nodes":7},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"tla-mc","stage":"cold","model":"TwoPhase","wall_s":11.09822,"peak_bytes":211202048,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"reported_compile_s":11.1,"generated_engine":true},
+    {"tool":"stock","stage":"cold","model":"TwoPhase","wall_s":0.01827,"peak_bytes":11800576,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"fp","workers":1,"compile_ms":0.177,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"cold","model":"TwoPhase","wall_s":0.01592,"peak_bytes":11907072,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"exact","workers":1,"compile_ms":0.15,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"development","stage":"cold","model":"TwoPhase","wall_s":0.0149,"peak_bytes":11948032,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"fp","workers":1,"compile_ms":0.168,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"development","stage":"cold","model":"TwoPhase","wall_s":0.01573,"peak_bytes":11948032,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"exact","workers":1,"compile_ms":0.143,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"tla-mc","stage":"warm1","model":"TwoPhase","wall_s":0.01339,"peak_bytes":29016064,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"reported_compile_s":0,"generated_engine":true},
+    {"tool":"stock","stage":"warm1","model":"TwoPhase","wall_s":0.00927,"peak_bytes":11948032,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"fp","workers":1,"compile_ms":0.156,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"warm1","model":"TwoPhase","wall_s":0.00957,"peak_bytes":11939840,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"exact","workers":1,"compile_ms":0.151,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"development","stage":"warm1","model":"TwoPhase","wall_s":0.00951,"peak_bytes":11948032,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"fp","workers":1,"compile_ms":0.168,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"development","stage":"warm1","model":"TwoPhase","wall_s":0.00941,"peak_bytes":11952128,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"exact","workers":1,"compile_ms":0.18,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"tla-mc","stage":"warm2","model":"TwoPhase","wall_s":0.01354,"peak_bytes":28811264,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"reported_compile_s":0,"generated_engine":true},
+    {"tool":"stock","stage":"warm2","model":"TwoPhase","wall_s":0.00987,"peak_bytes":12201984,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"fp","workers":1,"compile_ms":0.164,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"stock","stage":"warm2","model":"TwoPhase","wall_s":0.00956,"peak_bytes":11943936,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"exact","workers":1,"compile_ms":0.149,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"development","stage":"warm2","model":"TwoPhase","wall_s":0.00949,"peak_bytes":12222464,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"fp","workers":1,"compile_ms":0.181,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0},
+    {"tool":"development","stage":"warm2","model":"TwoPhase","wall_s":0.00965,"peak_bytes":11943936,"exit":0,"verdict":"success","stats":{"distinct":288,"generated":1146,"depth":11},"store":"exact","workers":1,"compile_ms":0.161,"arena":{"handles":75,"nodes":20},"row_sites":0,"row_lookups":0,"row_hits":0}
+  ],
+  "transfer_cold_note": "The initial actor build is labeled development. The paired_controls section records the reviewed candidate on both Lamport inputs, including exact and fingerprint stores.",
+  "witness_and_fallback": [
+    {"case":"duplicate","profile":"dive","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":1,"generated":3,"depth":1}},
+    {"case":"duplicate","profile":"tlc","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":1,"generated":3,"depth":1}},
+    {"case":"nested","profile":"dive","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":4,"generated":9,"depth":3}},
+    {"case":"nested","profile":"tlc","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":4,"generated":9,"depth":3}},
+    {"case":"missing-field","profile":"dive","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":4,"generated":9,"depth":3}},
+    {"case":"missing-field","profile":"tlc","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":4,"generated":9,"depth":3}},
+    {"case":"absent-actor","profile":"dive","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":2,"generated":5,"depth":2}},
+    {"case":"absent-actor","profile":"tlc","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":2,"generated":5,"depth":2}},
+    {"case":"heterogeneous-row","profile":"dive","verdict":"evaluation-error","property":null,"message":"TLC threw an unexpected exception.\nThis was probably caused by an error in the spec or model.\nSee the User Output or TLC Console for clues to what happened.\nThe exception was a java.lang.RuntimeException\n: Attempted to apply EXCEPT construct to the value 42.","error_site":"next-state","warnings":[],"exit":75,"statistics":{"distinct":2,"generated":2,"depth":2}},
+    {"case":"heterogeneous-row","profile":"tlc","verdict":"evaluation-error","property":null,"message":"TLC threw an unexpected exception.\nThis was probably caused by an error in the spec or model.\nSee the User Output or TLC Console for clues to what happened.\nThe exception was a java.lang.RuntimeException\n: Attempted to apply EXCEPT construct to the value 42.","error_site":"next-state","warnings":[],"exit":75,"statistics":{"distinct":2,"generated":2,"depth":2}},
+    {"case":"nested-missing","profile":"dive","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":4,"generated":9,"depth":3}},
+    {"case":"nested-missing","profile":"tlc","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":4,"generated":9,"depth":3}},
+    {"case":"different-nominal-actor","profile":"dive","verdict":"unsupported","property":null,"message":"a membership test of a typed model value in a set holding values it cannot be compared with (C1, D3)","error_site":null,"warnings":[],"exit":3,"statistics":null},
+    {"case":"different-nominal-actor","profile":"tlc","verdict":"unsupported","property":null,"message":"a membership test of a typed model value in a set holding values it cannot be compared with (C1, D3)","error_site":null,"warnings":[],"exit":3,"statistics":null},
+    {"case":"earlier-error","profile":"dive","verdict":"evaluation-error","property":null,"message":"The second argument of \\div is 0.","error_site":"next-state","warnings":[],"exit":255,"statistics":{"distinct":1,"generated":1,"depth":1}},
+    {"case":"earlier-error","profile":"tlc","verdict":"evaluation-error","property":null,"message":"The second argument of \\div is 0.","error_site":"next-state","warnings":[],"exit":255,"statistics":{"distinct":1,"generated":1,"depth":1}},
+    {"case":"branch-short-circuit","profile":"dive","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":1,"generated":3,"depth":1}},
+    {"case":"branch-short-circuit","profile":"tlc","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":1,"generated":3,"depth":1}},
+    {"case":"partial-field-layout","profile":"dive","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":4,"generated":9,"depth":3}},
+    {"case":"partial-field-layout","profile":"tlc","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":4,"generated":9,"depth":3}},
+    {"case":"rhs-effect","profile":"dive","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":4,"generated":9,"depth":3}},
+    {"case":"rhs-effect","profile":"tlc","verdict":"success","property":null,"message":null,"error_site":null,"warnings":[],"exit":0,"statistics":{"distinct":4,"generated":9,"depth":3}},
+    {"case":"reader-missing","profile":"dive","verdict":"evaluation-error","property":null,"message":"TLC threw an unexpected exception.\nThis was probably caused by an error in the spec or model.\nSee the User Output or TLC Console for clues to what happened.\nThe exception was a java.lang.RuntimeException\n: Attempted to select nonexistent field \"absent\" from the record\n[a |-> 0, b |-> 0]\nline 7, col 49 to line 7, col 59 of module Probe","error_site":"next-state","warnings":[],"exit":75,"statistics":{"distinct":1,"generated":1,"depth":1}},
+    {"case":"reader-missing","profile":"tlc","verdict":"evaluation-error","property":null,"message":"TLC threw an unexpected exception.\nThis was probably caused by an error in the spec or model.\nSee the User Output or TLC Console for clues to what happened.\nThe exception was a java.lang.RuntimeException\n: Attempted to select nonexistent field \"absent\" from the record\n[a |-> 0, b |-> 0]\nline 7, col 49 to line 7, col 59 of module Probe","error_site":"next-state","warnings":[],"exit":75,"statistics":{"distinct":1,"generated":1,"depth":1}},
+    {"case":"witness","family":"LeanP1","property":"BarrierBound","workers":1,"verdict":"invariant-violation","exit":12,"stats":{"depth":4,"distinct":27,"generated":37,"initial_generated":1,"left_on_queue":19,"reported_by_tlc":true},"genuine":"valid","damaged":"invalid"},
+    {"case":"witness","family":"LeanP1","property":"BarrierBound","workers":8,"verdict":"invariant-violation","exit":12,"stats":{"depth":4,"distinct":27,"generated":37,"initial_generated":1,"left_on_queue":19,"reported_by_tlc":true},"genuine":"valid","damaged":"invalid"},
+    {"case":"witness","family":"LeanP1","property":"NoBarrierStep","workers":1,"verdict":"action-property-violation","exit":13,"stats":{"depth":4,"distinct":27,"generated":37,"initial_generated":1,"left_on_queue":19,"reported_by_tlc":true},"genuine":"valid","damaged":"invalid"},
+    {"case":"witness","family":"LeanP1","property":"NoBarrierStep","workers":8,"verdict":"action-property-violation","exit":13,"stats":{"depth":4,"distinct":27,"generated":37,"initial_generated":1,"left_on_queue":19,"reported_by_tlc":true},"genuine":"valid","damaged":"invalid"},
+    {"case":"witness","family":"TCommit","property":"NotPrepared","workers":1,"verdict":"invariant-violation","exit":12,"stats":{"depth":2,"distinct":2,"generated":2,"initial_generated":1,"left_on_queue":0,"reported_by_tlc":true},"genuine":"valid","damaged":"invalid"},
+    {"case":"witness","family":"TCommit","property":"NotPrepared","workers":8,"verdict":"invariant-violation","exit":12,"stats":{"depth":2,"distinct":2,"generated":2,"initial_generated":1,"left_on_queue":0,"reported_by_tlc":true},"genuine":"valid","damaged":"invalid"}
+  ]
+}
