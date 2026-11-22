@@ -35,6 +35,7 @@ mod exact_identity_tests;
 mod fingerprint_shard;
 pub mod graph;
 mod graph_schedule;
+mod initial;
 mod parallel;
 mod reclaim;
 mod resident;
@@ -173,6 +174,8 @@ pub struct Metrics {
     pub orbit_census: Option<Result<OrbitCensus, String>>,
     /// Worker width used for ordinary safety with ordered diagnostic replay.
     pub ordered_print_workers: Option<usize>,
+    /// Worker count that established the ordered initial rows, or zero for normal Init.
+    pub initial_workers: usize,
     /// Highest local expansion width available to a parallel wave.
     pub max_wave_workers: usize,
     /// Whether a local expansion wave had to run unstarted worker jobs inline.
@@ -231,8 +234,7 @@ pub struct Outcome {
     pub failure: Option<Failure>,
     /// Whether the run stopped while generating the initial states.
     pub in_init: bool,
-    /// Whether the run expanded a level after `Init`. `Init` runs on one
-    /// worker; only later levels use the requested width.
+    /// Whether the run expanded a level after `Init`.
     pub expanded: bool,
     /// What TLC's call-stack replay changed after an invariant failed to
     /// evaluate on a new successor.
@@ -796,7 +798,7 @@ impl Explorer<'_> {
         Ok((Probe::New, in_model, key))
     }
 
-    fn accept(&mut self, m: &mut Machine) -> Result<(), Error> {
+    fn accept(&mut self, m: &mut Machine, init_proven: bool) -> Result<(), Error> {
         let plan = self.plan;
         let code = &plan.code;
         // The -early-probe control can replace m.s1 with canonical identity
@@ -845,6 +847,11 @@ impl Explorer<'_> {
         let enqueue_first = self.initial && in_model;
         if enqueue_first {
             self.enqueue(m, original.as_deref())?;
+        }
+        // Only the ordered initial-product commit supplies this evidence.
+        // It has already checked these same pure obligations on this row.
+        if init_proven {
+            return Ok(());
         }
         for (i, c) in plan.invariants.iter().enumerate() {
             let holds = match self.check(m, code, c) {
@@ -1369,6 +1376,12 @@ impl Sink for Explorer<'_> {
     }
 
     fn emit(&mut self, m: &mut Machine, _code: &Code) -> Result<(), Error> {
+        self.emit_with_init_proof(m, false)
+    }
+}
+
+impl Explorer<'_> {
+    fn emit_with_init_proof(&mut self, m: &mut Machine, init_proven: bool) -> Result<(), Error> {
         // One poll per initial state: the budget can stop a long `Init`
         // enumeration between its states.
         if self.initial && (self.poll)() {
@@ -1417,7 +1430,7 @@ impl Sink for Explorer<'_> {
         // State checks read the checked state's `TLCGet("level")`.
         let level = m.level;
         m.level = i64::try_from(self.level).unwrap_or(i64::MAX);
-        let r = self.accept(m);
+        let r = self.accept(m, init_proven);
         m.level = level;
         if m.draws != draws {
             // TLC's checks draw from the expansion's stream, which the
@@ -2270,7 +2283,12 @@ fn run(
         start_stream(m, plan, None)?;
         // `TLCGet("level")` is 0 in `Init` (TLC's `INIT_LEVEL - 1`).
         m.level = 0;
-        if let Err(e) = run_actions(m, ex, &plan.init, code) {
+        let accelerated = initial::parallel(machines, ex);
+        let Some(m) = machines.first_mut() else {
+            return Err(Error::internal("no core machine"));
+        };
+        let result = accelerated.unwrap_or_else(|| run_actions(m, ex, &plan.init, code));
+        if let Err(e) = result {
             ex.stats.left_on_queue = ex.queued_states() as u64;
             return Err(generator_error(m, ex, &[], e));
         }

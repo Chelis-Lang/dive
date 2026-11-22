@@ -261,3 +261,107 @@ fn ordered_print_workers_publish_only_warnings_reached_at_commit() {
     }
     std::fs::remove_dir_all(dir).expect("cleanup");
 }
+
+#[test]
+fn finite_initial_products_preserve_admission_order_multiplicity_and_first_failure() {
+    use dive_api::Store;
+    use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
+
+    const SOURCE: &str = r"---- MODULE InitialProduct ----
+EXTENDS Naturals
+VARIABLES x, y, z
+Init == /\ x \in 0..7
+        /\ y \in 0..127
+        /\ z \in 0..7
+Overlap == Init \/ (x \in 0..1 /\ y \in 0..127 /\ z \in 0..7)
+Next == UNCHANGED <<x, y, z>>
+Holds == x + y + z < 160
+FirstFailure == x # 2
+LaterFailure == y # 32
+====";
+    const GOOD: &str = "INIT Init\nNEXT Next\nINVARIANT Holds\n";
+    const DUPLICATES: &str = "INIT Overlap\nNEXT Next\nINVARIANT Holds\n";
+    const BAD: &str = "INIT Init\nNEXT Next\nINVARIANTS FirstFailure LaterFailure\n";
+    let dir = std::env::temp_dir().join(format!("dive-initial-product-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).expect("fixture directory");
+    let file = dir.join("InitialProduct.tla");
+    let config = file.with_extension("cfg");
+    std::fs::write(&file, SOURCE).expect("module");
+    for compat_tlc in [false, true] {
+        for store in [Store::Exact, Store::Fingerprint] {
+            for (cfg, limit, initial_generated, distinct) in [
+                (GOOD, None, 8192, 8192),
+                (GOOD, Some(4096), 4097, 4096),
+                (DUPLICATES, None, 10_240, 8192),
+                (BAD, None, 257, 257),
+            ] {
+                std::fs::write(&config, cfg).expect("config");
+                let check = |workers| {
+                    check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(config.clone()),
+                        max_states: limit,
+                        workers: Some(workers),
+                        compat_tlc,
+                        store,
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..CheckRequest::default()
+                    })
+                    .expect("check")
+                    .to_json()
+                };
+                let serial = check(1);
+                let parallel = check(8);
+                for key in [
+                    "verdict",
+                    "statistics",
+                    "warnings",
+                    "property",
+                    "counterexample",
+                    "error_site",
+                    "message",
+                ] {
+                    assert_eq!(parallel[key], serial[key], "{cfg} {key}");
+                }
+                assert_eq!(
+                    parallel["statistics"]["initial_generated"], initial_generated,
+                    "{cfg} {parallel}"
+                );
+                assert_eq!(parallel["statistics"]["distinct"], distinct);
+                if cfg == GOOD {
+                    assert_eq!(parallel["core"]["metrics"]["parallel_init_workers"], 8);
+                } else {
+                    assert!(parallel["core"]["metrics"]["parallel_init_workers"].is_null());
+                }
+                if limit.is_some() {
+                    assert_eq!(parallel["verdict"], "stopped");
+                    assert_eq!(parallel["statistics"]["generated"], initial_generated);
+                    assert_eq!(parallel["statistics"]["left_on_queue"], distinct);
+                    assert_eq!(parallel["options"]["workers"]["used"], 8);
+                } else if cfg == BAD {
+                    assert_eq!(parallel["verdict"], "invariant-violation");
+                    assert_eq!(parallel["property"], "LaterFailure");
+                    let trace =
+                        TraceDoc::from_json(&parallel["counterexample"]["trace"]).expect("trace");
+                    assert_eq!(trace.states.len(), 1);
+                    let model = SpecModel::from_source(
+                        "InitialProduct.tla",
+                        SOURCE,
+                        cfg,
+                        &TraceOptions::default(),
+                    )
+                    .expect("independent model");
+                    assert_eq!(model.validate(&trace).validation, Validation::Valid);
+                } else {
+                    assert_eq!(parallel["verdict"], "success");
+                    assert_eq!(
+                        parallel["statistics"]["generated"],
+                        initial_generated + distinct
+                    );
+                }
+            }
+        }
+    }
+    std::fs::remove_dir_all(dir).expect("cleanup");
+}
