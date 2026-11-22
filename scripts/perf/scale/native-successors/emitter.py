@@ -52,7 +52,7 @@ def lower(plan):
         return name
 
     def call(name):
-        return f"{name}(m,c,s)"
+        return f"{name}(m,c,s,r)"
 
     @cache
     def tail(pending):
@@ -88,31 +88,31 @@ def lower(plan):
             return function("".join(call(branch(child, pending)) + "?;" for child in arms) + "Ok(())")
         if kind == "If":
             yes, no = branch(field("then"), pending), branch(field("other"), pending)
-            return function(f"if m.eval_bool(c,{field('cond')})?{{{call(yes)}}}else{{{call(no)}}}")
+            return function(f"if test(m,c,r,{g},{field('cond')})?{{{call(yes)}}}else{{{call(no)}}}")
         if kind == "Implies":
             rhs = branch(field("rhs"), pending)
-            return function(f"if m.eval_bool(c,{field('lhs')})?{{{call(rhs)}}}else{{{done}}}")
+            return function(f"if test(m,c,r,{g},{field('lhs')})?{{{call(rhs)}}}else{{{done}}}")
         if kind == "Guard":
             p = natural(int(re.fullmatch(r"Guard\((\d+)\)", node).group(1)))
-            return function(f"if m.eval_bool(c,{p})?{{{done}}}else{{Ok(())}}")
+            return function(f"if test(m,c,r,{g},{p})?{{{done}}}else{{Ok(())}}")
         if kind == "LabelGuard":
-            return function(f"let GNode::LabelGuard(p,x)=&c.gnodes[{g}]else{{return Err(Error::internal(\"native label shape\"))}};if m.label_matches(c,*p,*x)?{{{done}}}else{{Ok(())}}")
+            return function(f"let GNode::LabelGuard(p,x)=&c.gnodes[{g}]else{{return Err(Error::internal(\"native label shape\"))}};if match c.native_blocks.test(m,r,{g}){{Some(v)=>v,None=>m.label_matches(c,*p,*x)?}}{{{done}}}else{{Ok(())}}")
         if kind == "Assign":
-            return function(f"assign(m,c,s,{field('var')},{field('rhs')},{following})")
+            return function(f"assign(m,c,s,r,{g},{field('var')},{field('rhs')},{following})")
         if kind == "Scope":
             slots = operand_list(re.search(r"\[.*?\]", node).group())
-            return function(f"scope(m,c,s,{rust_list(slots)},{branch(field('body'),pending)})")
+            return function(f"scope(m,c,s,r,{rust_list(slots)},{branch(field('body'),pending)})")
         if kind == "Exists":
             slots = [slot for group in re.findall(r"slots: (\[.*?\])", node) for slot in operand_list(group)]
-            return function(f"exists(m,c,s,{g},{rust_list(slots)},{branch(field('body'),pending)})")
+            return function(f"exists(m,c,s,r,{g},{rust_list(slots)},{branch(field('body'),pending)})")
         if kind == "Unchanged" and "Verify" not in node:
             columns = [natural(int(value)) for value in re.findall(r"var: (\d+)", node)]
             if len(columns) == len(set(columns)):
-                return function(f"copy(m,c,s,{rust_list(columns)},{g},{continuations(pending)},{following})")
-        return function(f"generic(m,c,s,{g},{continuations(pending)})")
+                return function(f"copy(m,c,s,r,{rust_list(columns)},{g},{continuations(pending)},{following})")
+        return function(f"generic(m,c,s,r,{g},{continuations(pending)})")
 
     arms = [f"{root}=>{{observe({root});{call(branch(root, ()))}}}, " for root in dict.fromkeys(roots)]
-    dispatch = "pub(super) fn run(m:&mut Machine,c:&Code,g:u32,s:&mut dyn Sink)->Result<(),Error>{match g{" + "".join(arms) + "_=>m.run_action(c,g,s),}}"
+    dispatch = "pub(super) fn run(m:&mut Machine,c:&Code,g:u32,s:&mut dyn Sink)->Result<(),Error>{let mut local=Register::default();let r=&mut local;match g{" + "".join(arms) + "_=>m.run_action(c,g,s),}}"
     # Some generic fallback sites consume the whole pending continuation.
     # Emit only routines reachable from the bound action roots.
     used = set()
@@ -122,7 +122,7 @@ def lower(plan):
         if name not in used:
             used.add(name)
             pending.extend(re.findall(r"next_\d+", functions[name]))
-    bodies = [f"fn {name}(m:&mut Machine,c:&Code,s:&mut dyn Sink)->Result<(),Error>{{{body}}}"
+    bodies = [f"fn {name}(m:&mut Machine,c:&Code,s:&mut dyn Sink,r:&mut Register)->Result<(),Error>{{{body}}}"
               for name, body in functions.items() if name in used]
     prefix = (HERE / "runtime.rs").read_text()
     source = "\n".join([prefix, (HERE / "binding.rs").read_text(), *bodies, dispatch])

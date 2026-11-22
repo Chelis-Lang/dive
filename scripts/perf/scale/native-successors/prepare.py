@@ -59,7 +59,23 @@ def extract(tree, destination):
         if source.wait():
             raise ValueError("could not extract the committed Dive tree")
     core = destination / "crates/dive-core/src"
-    replace_once(core / "plan.rs", "pub struct Code {", "pub struct Code {\n    /// Shape-bound native successor study worker.\n    pub native_worker: bool,")
+    (core / "native_blocks.rs").write_text((HERE / "blocks.rs").read_text())
+    replace_once(core / "lib.rs", "pub mod plan;", "pub mod plan;\n#[doc(hidden)] pub mod native_blocks;")
+    replace_once(core / "eval.rs", "        let row = outer.values()[index];", """        let row = outer.values()[index];
+        self.native_row_write(code, table, updates, plan, index, row)
+    }
+
+    pub(crate) fn native_entry(&self, table:Handle, key:Handle, field:bool)->Option<(usize, Handle)> {
+        if !table.is_compound() || key.is_compound() || key.is_empty() {return None;}
+        let v=self.heap.view(table);
+        if !v.kind.is_fcn() || (field && (v.kind!=Kind::Fcn || key.as_str_id().is_none())) {return None;}
+        let pos=self.fcn_index(v,key).ok()??;
+        Some((pos,v.values()[pos]))
+    }
+
+    pub(crate) fn native_row_write(&mut self,code:&Code,table:Handle,updates:&[Update],plan:&crate::plan::RowUpdate,index:usize,row:Handle)->Result<Option<Handle>,Error>{
+        let outer=self.heap.view(table);""")
+    replace_once(core / "plan.rs", "pub struct Code {", "pub struct Code {\n    /// Shape-bound native successor study worker.\n    pub native_worker: bool,\n    /// Bound source value operands.\n    pub native_blocks: crate::native_blocks::Blocks,")
     replace_once(core / "compile.rs", "    let mut plan = Plan {", (HERE / "export.rs").read_text() + "\n    let mut plan = Plan {")
     replace_once(core / "generate.rs", "mod composition;", "mod composition;\npub(crate) mod native_study;")
     replace_once(core / "generate.rs", "        let result = self.run_action(code, action.g, sink);", """
