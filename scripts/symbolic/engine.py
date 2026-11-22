@@ -889,6 +889,7 @@ class SourceModel(FiniteRelation):
             return self.select(cond, sub(x["then"]), sub(x["other"]))
         if tag == "Builtin":
             op = x["op"]
+            require(x["args"], "unsupported nullary builtin " + op)
             a = sub(x["args"][0])
             if op == "PowerSet":
                 return PowerSet(a)
@@ -1808,6 +1809,41 @@ def check_in_manager(args, revisions):
         gc.collect()
 
 
+def validate_finding(args, module, config, row, trace, save_trace):
+    raw = json.dumps(trace)
+    validated = run_helper(
+        [
+            args.dive,
+            "validate-trace",
+            module,
+            "--trace",
+            "/dev/stdin",
+            "--config",
+            config,
+            "--compat=tlc",
+            "--seed",
+            "0",
+            "--fp",
+            "0",
+            "--output",
+            "json",
+        ],
+        "Dive trace validator",
+        args.max_memory,
+        input=raw,
+    )
+    require(
+        validated.returncode == 0 and json.loads(validated.stdout)["result"] == "valid",
+        "independent trace validation failed: " + validated.stdout[-1500:],
+    )
+    row["trace_validated"] = True
+    if args.trace and save_trace:
+        induction.write_atomic(Path(args.trace), (raw + "\n").encode("utf-8"))
+        row["trace_file"] = str(args.trace)
+    else:
+        row["trace"] = trace
+
+
 def check_revisions(args, revisions, owner):
     previous = None
     previous_whole = None
@@ -1886,38 +1922,7 @@ def check_revisions(args, revisions, owner):
         if args.write_predicate and model.complete is not None:
             induction.store(Path(args.write_predicate), model, model.complete[0])
         if trace is not None:
-            raw = json.dumps(trace)
-            validated = run_helper(
-                [
-                    args.dive,
-                    "validate-trace",
-                    module,
-                    "--trace",
-                    "/dev/stdin",
-                    "--config",
-                    config,
-                    "--compat=tlc",
-                    "--seed",
-                    "0",
-                    "--fp",
-                    "0",
-                    "--output",
-                    "json",
-                ],
-                "Dive trace validator",
-                args.max_memory,
-                input=raw,
-            )
-            require(
-                validated.returncode == 0 and json.loads(validated.stdout)["result"] == "valid",
-                "independent trace validation failed: " + validated.stdout[-1500:],
-            )
-            row["trace_validated"] = True
-            if args.trace and not violated:
-                induction.write_atomic(Path(args.trace), (raw + "\n").encode("utf-8"))
-                row["trace_file"] = str(args.trace)
-            else:
-                row["trace"] = trace
+            validate_finding(args, module, config, row, trace, not violated)
             violated = True
         row.update(format="dive-symbolic-report-v1", module=str(module), config=str(config))
         row["seconds"] = round(time.monotonic() - start, 6)

@@ -62,6 +62,7 @@ COMMANDS:
 === dive check --help ===
 USAGE: dive check FILE.tla [OPTIONS]
 
+--strategy auto         select exhaustive checking from the bound model and requested options
 --strategy symbolic     exact finite safety, symbolic JSON reports (Linux release bundle)
 --strategy occupancy    exact labeled safety for interchangeable finite status tables (Linux)
 --strategy compiled     compile a finite exact safety search (Linux, installed Rust compiler)

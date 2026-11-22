@@ -9,6 +9,8 @@ dive check docs/user/examples/Counter.tla --seed 7 --workers auto --output json
 dive check docs/user/examples/Counter.tla --compat=tlc --seed 7 --fp 0 --workers 8 --store exact --output json
 ```
 
+Use [`--strategy auto`](symbolic.md#choose-a-strategy-automatically) to select a representation for the bound model.
+
 For finite function and set models, the optional [symbolic safety checker](symbolic.md) can reuse a complete reachable set or prove invariants by induction.
 
 For message types written as unions of finite record sets, Core can check

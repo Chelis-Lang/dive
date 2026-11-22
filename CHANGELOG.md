@@ -9,6 +9,7 @@ are in git history.
 
 ### Added
 
+- [Automatic strategy selection](docs/user/symbolic.md#choose-a-strategy-automatically) chooses exact population, packed, decision-diagram or Core search for an original TLA+ configuration.
 - [Match partial etcd Raft event logs](docs/user/traces.md#match-an-etcd-implementation-log) against the upstream trace and protocol specifications, with independently replayable complete states.
 
 - Symbolic transition lowering reuses common state predicates in named proofs and skips untouched table coordinates in functional updates.

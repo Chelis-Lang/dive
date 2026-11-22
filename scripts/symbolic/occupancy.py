@@ -109,6 +109,10 @@ def run(args):
         if output and Path(output).resolve() in sources:
             raise Unsupported("output path aliases a source module")
     model = PopulationSource(doc, args.type_invariant)
+    return check_model(args, model)
+
+
+def check_model(args, model):
     if args.prove_inductive or args.verify_predicate:
         try:
             masks = (occupancy_predicate.load(args.verify_predicate, model) if args.verify_predicate

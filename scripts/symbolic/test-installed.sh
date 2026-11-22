@@ -116,3 +116,22 @@ jq -e '.proof=="inconclusive" and .failed_obligation=="Next closure"' partial >/
 rc=0; proof > broken || rc=$?
 test "$rc" = 1
 jq -e '.trace_validated and .depth==3 and .ending.name=="Safe"' broken >/dev/null
+# Auto checks the entire CFG, including obligations that finite safety refuses.
+auto() { env -i PATH=/nonexistent "$dive" check "$@" --strategy auto --output json; }
+auto Machines.tla --time-limit 10s > auto-population || test "$?" = 1
+jq -e '.strategy=="occupancy" and .ending.name=="AllOff" and .trace_validated' auto-population >/dev/null
+auto Receipts.tla > auto-receipts || test "$?" = 1
+jq -e '.strategy=="symbolic" and .ending.name=="Empty" and .trace_validated' auto-receipts >/dev/null
+cp before.cfg Temporal.cfg
+sed -i '/^====/i EventuallyEmpty == []<>(got = {})' Receipts.tla
+echo 'PROPERTY EventuallyEmpty' >> Temporal.cfg
+rc=0; auto Receipts.tla --config Temporal.cfg >auto-temporal || rc=$?
+test "$rc" != 0
+jq -e '.verdict=="liveness-violation" and .counterexample.validation=="valid"' auto-temporal >/dev/null
+auto Machines.tla --config Machines.cfg --max-states 1 >auto-limit || test "$?" != 0
+jq -e '.verdict=="stopped" or .verdict=="resource-limit"' auto-limit >/dev/null
+rc=0; auto Receipts.tla --time-limit 1ms >auto-stop || rc=$?
+test "$rc" = 4 && jq -e '.verdict=="stopped"' auto-stop >/dev/null
+rc=0; auto Receipts.tla --strategy compiled >auto-duplicate 2>&1 || rc=$?
+test "$rc" = 2
+

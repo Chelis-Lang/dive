@@ -6,6 +6,43 @@ reachable set, check a new invariant against that set, or prove safety by
 induction. It reads the original TLA+ module and configuration through Dive's
 binder.
 
+## Choose a strategy automatically
+
+Run `dive check Model.tla --strategy auto --workers 8 --output json` to check
+the original configuration. The selector considers all configured invariants
+and deadlock checking. A temporal property goes to ordinary Core. A named
+proof, a bounded bug search and an edit session each have a different
+completion condition and use their own commands.
+
+On Linux with the matching companion, the selector binds the original
+source. It tries exact population counts when the actions and invariants
+treat the processes in a status table interchangeably. Otherwise it derives a
+finite bit layout from a configured invariant. A 22–32 bit layout with an
+action that changes several coordinates can use the packed compiler when its
+visited bitmap fits a quarter of the memory budget and the installed compiler
+and relation pass admission. Independent single-bit updates, wider layouts
+and absent compilers use decision diagrams when admitted. These thresholds
+come from the measured workloads. They predict cost and have no role in
+establishing a verdict. [Measurements and controls](../../conformance/reports/perf/2026-11-22-auto-strategy.json).
+
+For these requests, workers (1–8) cap parallel packed search. Population and
+decision-diagram searches use one worker. A finite result has
+`format: "dive-symbolic-report-v1"`, the selected `strategy`, and the
+[finite strategy exit codes](#admission-and-reports). Core handles sources
+outside the finite fragment and binary-only installations. It returns its
+ordinary JSON report and exit code, with exact state identity for this
+request. The companion independently replays a concrete Core counterexample
+before forwarding it. The wall budget covers selection, search and replay.
+The finite path uses half of physical RAM as its default per-process address
+space limit. Explicit time and memory flags also apply.
+
+Core-specific options such as `--max-states`, `--compat=tlc`,
+`--output human` and `--workers auto` go straight to Core with the supplied
+options, report format and exit convention. The same applies when a Core
+compatibility or diagnostic environment override is set. Core announces
+selection on stderr. Programs consuming both report types can inspect the
+finite `format` field or Core's `schema_version`.
+
 ## Run a check
 
 Keep the extracted Linux release directory together. The bundled worker and

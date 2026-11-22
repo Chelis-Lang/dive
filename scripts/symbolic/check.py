@@ -62,6 +62,7 @@ def main():
     strategy.add_argument("--property-proof", metavar="NAME", help="prove a single configured state invariant")
     strategy.add_argument("--occupancy", action="store_true", help="exact labeled BFS on anonymous status tables")
     strategy.add_argument("--compiled", action="store_true", help="compile a packed exact safety search")
+    strategy.add_argument("--auto-core-args", type=json.loads, help=argparse.SUPPRESS)
     parser.add_argument("--workers", type=int, choices=range(1, 9), help="maximum compiled search workers")
     parser.add_argument("--max-orbits", type=int, help="maximum reachable population vectors for the occupancy strategy")
     parser.add_argument("--trace", type=Path)
@@ -78,6 +79,15 @@ def main():
     parser.add_argument("--max-memory", type=positive_mib, metavar="MIB",
                         help="virtual address-space limit inherited by the worker and each child")
     args = parser.parse_args()
+    auto = args.auto_core_args is not None
+    if auto and args.max_memory is None and not any(
+        a == "--max-memory" or a.startswith("--max-memory=") for a in args.auto_core_args
+    ):
+        args.max_memory = max(1, os.sysconf("SC_PHYS_PAGES") * os.sysconf("SC_PAGE_SIZE") >> 21)
+    if auto and any((args.trace, args.recheck, args.refine_domains, args.prove_inductive,
+                     args.write_predicate, args.verify_predicate, args.max_orbits,
+                     args.order_by_path, args.single_partition)):
+        parser.error("auto selects an exhaustive check of a single original configuration")
     if args.property_proof == "":
         parser.error("--property-proof requires a nonempty invariant name")
     if args.property_proof and any((args.refine_domains, args.prove_inductive,
@@ -89,7 +99,7 @@ def main():
         parser.error("--max-orbits requires occupancy and a positive integer")
     if args.occupancy and any((args.recheck, args.refine_domains, args.order_by_path, args.single_partition)):
         parser.error("occupancy does not accept BDD layout or --recheck options")
-    if args.workers is not None and not args.compiled:
+    if args.workers is not None and not (args.compiled or auto):
         parser.error("--workers requires compiled checking")
     if args.compiled and any((args.recheck, args.refine_domains, args.order_by_path, args.single_partition,
                               args.prove_inductive, args.write_predicate, args.verify_predicate)):
@@ -110,7 +120,7 @@ def main():
 
     if args.compiled and sys.maxsize < 2**32:
         parser.error("compiled checking requires 64-bit Linux")
-    directory = TemporaryDirectory(prefix="dive-compiled-") if args.compiled else nullcontext(None)
+    directory = TemporaryDirectory(prefix="dive-compiled-") if args.compiled or auto else nullcontext(None)
     with directory as args.scratch:
         return supervise(args)
 
@@ -118,6 +128,8 @@ def main():
 def supervise(args):
     # Stop the whole process group including native CUDD, compiler or search children.
     script = "compiled.py" if args.compiled else "occupancy.py" if args.occupancy else "engine.py"
+    if args.auto_core_args is not None:
+        script = "auto.py"
     worker = Path(__file__).with_name(script)
     args.workers = args.workers or 1
     class Cancelled(Exception):
@@ -148,6 +160,8 @@ def supervise(args):
         process.wait()
         reason = "time limit" if isinstance(error, subprocess.TimeoutExpired) else "interrupted"
     else:
+        if args.auto_core_args is not None and Path(args.scratch, "core").exists() and status >= 0:
+            return status
         if status == 11:
             return 1
         if status == 1:
