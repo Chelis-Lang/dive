@@ -49,6 +49,12 @@ impl Compiler<'_> {
         let mut terms = Vec::new();
         self.batch_terms(action, &mut terms, 0)?;
         let complete_image = function_image(&terms, self.ir.vars().len());
+        // A bare subscript uses the ordinary scoped wrapper unless the action
+        // has a guard prefix followed by one source-defined write per variable.
+        // In particular a guard after a write can demand a lazy function body.
+        if matches!(subscript, Subscript::Variable(_)) && !complete_image {
+            return None;
+        }
         Some(ActionBatch {
             subscript,
             complete_image,

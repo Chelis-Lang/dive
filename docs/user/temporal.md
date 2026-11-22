@@ -546,7 +546,9 @@ A fairness subscript can be a single state variable. For example, Core batches
 operator for `hr = hr′`. A comparison between incompatible classes still
 reports its original diagnostic. The unmodified three-property configuration
 has 12 states and 24 generated occurrences; reference audit checked all
-36 uses of original successor values across its action columns.
+36 uses of original successor values across its action columns. With a single-variable
+subscript, a guard after a write or an incomplete set of writes keeps the
+ordinary per-edge evaluator and its original expression demand.
 [LiveHourClock source and audit](../../conformance/reports/perf/2026-11-22-producer-action-images.json)
 
 Both profiles keep pure recurrence (`[]<>B`) and persistence (`<>[]B`)
