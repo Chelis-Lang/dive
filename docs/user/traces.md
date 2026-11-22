@@ -114,6 +114,27 @@ records as values in the replay models. These models have no host file or
 environment effects. The `--out` directory contains both words and their
 replay inputs for standalone `dive validate-trace`.
 
+### Check every CCF observation completion
+
+Add `--refinement` to check the configured `MNRSpec` on the original
+observation relation before intersecting it with the protocol. The existing
+`result` still describes whether one complete matching execution exists.
+`refinement.result` separately reports `refines`, `violation`, `inconclusive`,
+or `unsupported`. A known incompatibility in either check exits with status 1
+when both checks ran to a decision. A stop or refusal takes precedence.
+
+The refinement graph includes every `TraceInit` state and all `TraceNext`
+edges available before the observation cursor passes the end of the log.
+Backfill steps can leave the cursor unchanged. Protocol comparisons retain
+all source variables except the observation cursor. Implicit stuttering
+projects to a valid protocol stutter, including at the terminal boundary.
+The check does not run TLC's configured early exit, queue statistics or
+postcondition. On a violation, the exact checker reports the first offending
+step in its breadth-first traversal. Standalone replay must accept the
+complete observation prefix and independently reject the projected protocol
+prefix at that same transition or initial row. `--out` saves both prefixes.
+[Four histories and independent controls](../../conformance/reports/perf/2026-11-22-ccf-observation-refinement.json).
+
 ## Simulation samples
 
 For a finite simulation word, add `--sample`. This checks Init, Next and all
