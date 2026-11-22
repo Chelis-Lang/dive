@@ -162,11 +162,9 @@ fn reached_filter_equality_reaches_the_division_error_in_the_tlc_profile() -> Te
         })?
         .to_json_with_exit_convention(ExitConvention::Tlc);
         assert_ne!(report["verdict"], "success", "{report}");
-        // Only the retired reference engine reported the division error
-        // (2179) from a liveness atom (#791, #910); Core refuses to build
-        // that report rather than skip the equality.
+        // The state label actually reaches the division before a verdict.
         let exit = u8::try_from(report["exit_code"].as_u64().unwrap_or(255))?;
-        refused::assert_refused(&report, exit, refused::TEMPORAL_FAILURE_REPORT);
+        refused::assert_refused(&report, exit, "TLC_MODULE_DIVISION_BY_ZERO");
         Ok(())
     })();
     std::fs::remove_dir_all(&dir)?;

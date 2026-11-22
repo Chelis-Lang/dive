@@ -80,7 +80,9 @@ fn the_five_pinned_row_errors_match_original_cause_prefix_and_finite_word() -> T
             let actual = report(corpus, name, tlc)?;
             if actual["verdict"] == "unsupported" {
                 let exit = u8::try_from(actual["exit_code"].as_u64().unwrap_or(255))?;
-                refused::assert_refused(&actual, exit, refused::TEMPORAL_FAILURE_REPORT);
+                refused::assert_refused(&actual, exit, "DIVE-L0033: liveness atom for P");
+                assert_eq!(actual["execution"]["stage"], "atoms");
+                assert!(actual["tlc"].is_null());
                 refusals.push(format!("{name}/{tlc}"));
                 continue;
             }
@@ -272,10 +274,9 @@ fn an_owned_budget_stop_never_becomes_a_semantic_row_error() -> TestResult {
         assert_eq!(json["verdict"], "stopped", "{json}");
         assert!(json["error_site"].is_null(), "{json}");
         assert!(json["counterexample"].is_null(), "{json}");
-        // Without a budget the label error is a temporal failure, whose
-        // report Core does not build.
+        // Without the stop, the state label reaches the division.
         let report = core_final::run(&source, &row_config(""), &options);
-        assert_core_refused(&report, refused::TEMPORAL_FAILURE_REPORT);
+        assert_core_refused(&report, "TLC_MODULE_DIVISION_BY_ZERO");
     }
     Ok(())
 }

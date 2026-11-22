@@ -249,6 +249,24 @@ predicates use the first generated successor for each destination at a source;
 later constructor aliases and the implicit stutter do not replace it, which
 matters when TLC tells a function constructor from a record.
 
+### Errors while labeling states
+
+If a state predicate raises an evaluation error while Core labels the graph,
+both profiles return `unsupported` (exit 3) with diagnostic `DIVE-L0033`.
+The diagnostic names the temporal property and its predicate's source span.
+The evaluator's message can identify a narrower failing expression.
+`execution.stage` is `atoms`; `capture_completed` distinguishes an exhausted
+graph from a prefix. Statistics describe the captured graph. A state-label
+error alone supplies no counterexample to replay.
+
+On the two-node CheckpointCoordination configuration, Core captured 32 states
+and generated 337 occurrences through depth 5. While labeling
+`TemporalInvariant`, it reached `CurrentLease[n].counter` at line 225 with
+`CurrentLease[n] = NoCheckpointLease`. Pinned TLC instead stopped on the
+initial state while comparing a record with a tuple. In isolation their
+different domains make them unequal in the default profile. [Original sources
+and configuration](../../conformance/reports/perf/2026-11-22-factored-streett.json)
+
 ### Errors on a source row
 
 At one worker, dive can report an evaluation error at the state where it
