@@ -214,3 +214,35 @@ fn default_schedule_stops_at_the_first_due_level() -> Result<(), Box<dyn std::er
     assert_eq!(tlc["statistics"]["distinct"], 196_608);
     Ok(())
 }
+
+#[test]
+fn temporal_threshold_controls_only_scheduled_checks() -> Result<(), Box<dyn std::error::Error>> {
+    let fixtures = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/report-schema");
+    let file = fixtures.join("Reports.tla");
+    let cfg = fixtures.join("Liveness.cfg");
+    let cfg = cfg.to_str().ok_or("fixture path")?;
+    let args = ["--config", cfg, "--periodic-min-states=1"];
+    let output = run(&file, "dive", 1, &args)?;
+    let result: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+    assert_eq!(result["verdict"], "liveness-violation");
+    assert_eq!(result["periodic"]["min_states"], 1);
+    assert_eq!(result["periodic"]["growth_factor"], 2);
+    assert!(
+        result["periodic"]["prefix_checks"]
+            .as_u64()
+            .is_some_and(|n| n > 0)
+    );
+    assert_eq!(result["counterexample"]["validation"], "valid");
+    assert_eq!(result["statistics"]["distinct"], 2);
+
+    let final_output = run(&file, "tlc", 1, &args)?;
+    let final_result: serde_json::Value = serde_json::from_slice(&final_output.stdout)?;
+    assert_eq!(final_result["verdict"], "liveness-violation");
+    assert!(final_result["periodic"].is_null());
+    for value in ["0", "-1", "18446744073709551616", "abc"] {
+        let invalid = run(&file, "dive", 1, &["--periodic-min-states", value])?;
+        assert!(!invalid.status.success());
+        assert!(String::from_utf8(invalid.stderr)?.contains("positive state count"));
+    }
+    Ok(())
+}

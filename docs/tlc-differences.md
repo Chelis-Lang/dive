@@ -797,7 +797,9 @@ reports a violation only after fresh validation, with the actual partial counts
 and `capture_completed: false`. Reports name the schedule and its growth,
 check, boundary and exhaustion facts. Capture limits are cumulative over the
 run, while analysis bounds apply per property and per check, so repeated checks
-add work: there is no total-run work or byte cap and no promised speedup.
+add work: there is no total-run work or byte cap and no promised speedup. The
+`--periodic-min-states N` option selects the first size threshold for
+scheduled checks. Final-only checks ignore it.
 
 A violation found on a prefix stops with fewer states than TLC's
 `-lncheck final` run. As with TLC's own periodic checking, it can also preempt

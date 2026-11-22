@@ -156,8 +156,13 @@ The report's `periodic` object holds the schedule (`min_states`,
 exhaustion and whether the final check ran. A run stopped by its budget keeps
 these facts, including zero checks when no level was due. A final-only run
 reports `lncheck: final` and has no `periodic`. Rust callers can choose another
-schedule with `CheckRequest::periodic` (`dive_api::PeriodicSchedule`); the CLI
-always uses the default.
+schedule with `CheckRequest::periodic` (`dive_api::PeriodicSchedule`).
+For a scheduled CLI check, `--periodic-min-states N` sets the minimum number
+of discovered states for the first check. The check runs when the current
+breadth-first level finishes. Subsequent checks still require the graph to
+double. The default is 65,536. Increasing the threshold can avoid an expensive
+unsuccessful prefix check or postpone finding a violation. A holding result
+still requires the final check on the exhausted graph.
 
 ## Ordinary checking in the TLC profile
 
