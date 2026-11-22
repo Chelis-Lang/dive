@@ -501,6 +501,9 @@ class SourceModel(FiniteRelation):
         require(isinstance(value, cudd.Function), "expected a Boolean expression")
         return value
 
+    def boolean_atom(self, value):
+        return Atom({("boolean", False): ~value, ("boolean", True): value})
+
     def any(self, terms):
         return ~self.conjunction(~self.boolean(t) for t in terms)
 
@@ -528,6 +531,13 @@ class SourceModel(FiniteRelation):
                 visit(key, ())
 
     def same(self, a, b):
+        # Boolean expressions and Boolean-valued function cells have different
+        # representations. Preserve the full alternatives when comparing them.
+        if isinstance(a, cudd.Function) and isinstance(b, Atom):
+            a, b = b, a
+        if (isinstance(a, Atom) and isinstance(b, cudd.Function)
+                and a and a.keys() <= {("boolean", False), ("boolean", True)}):
+            b = self.boolean_atom(b)
         require(type(a) is type(b), "mixed-type equality")
         if isinstance(a, (Atom, Members)):
             self.comparable(a, b)
@@ -866,7 +876,7 @@ class SourceModel(FiniteRelation):
             for expr in x:
                 atom = sub(expr)
                 if isinstance(atom, cudd.Function):
-                    atom = Atom({("boolean", False): ~atom, ("boolean", True): atom})
+                    atom = self.boolean_atom(atom)
                 require(isinstance(atom, Atom), "set of nonscalars")
                 for k, g in atom.items():
                     out[k] = out.get(k, self.b.false) | g

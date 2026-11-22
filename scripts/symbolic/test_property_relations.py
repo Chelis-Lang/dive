@@ -83,6 +83,9 @@ Next == /\ \E i \in IDs : (i \in table[i]) \/ TRUE
 Reflexive == \A i \in IDs : i \in table[i]
 Untouched == ~touched
 Arithmetic == ((0-1) % 3 = 2) /\ ((0-1) \notin Nat) /\ (0 \in Int) /\ touched=touched
+BooleanEqual == (touched = (touched /\ TRUE)) /\ ((~touched) = (touched = FALSE))
+SetEqual == \A i \in IDs : (table[i] \cap {} = {}) /\ (table[i] # {})
+BadEquality == touched = 0
 BadMod == (1 % 0 = 0) /\ touched=touched
 Single == \A i \in IDs : table[i] = {i}
 ====
@@ -92,7 +95,8 @@ Single == \A i \in IDs : table[i] = {i}
             "--workers", "1", "--seed", "0", "--fp", "0", "--exit-codes", "native"]
     named = [dive, "check", module, "--config", cfg, "--output", "json", "--strategy",
              "symbolic", "--type-invariant", "Layout", "--property-proof"]
-    for prop, depth in (("Reflexive", 0), ("Arithmetic", 0), ("Single", 1), ("Untouched", 2)):
+    for prop, depth in (("Reflexive", 0), ("Arithmetic", 0), ("BooleanEqual", 0),
+                        ("SetEqual", 0), ("Single", 1), ("Untouched", 2)):
         cfg.write_text(f"CONSTANT IDs = {{a,b,c}}\nINIT Init NEXT Next INVARIANT {prop}\n")
         row = check(named + [prop], int(bool(depth)))
         explicit = check(core, 10 if depth else 0)
@@ -104,6 +108,9 @@ Single == \A i \in IDs : table[i] = {i}
     cfg.write_text("CONSTANT IDs = {a,b}\nINIT Init NEXT Next INVARIANT BadMod\n")
     row = check(named + ["BadMod"], 2)
     assert row["verdict"] == "unsupported" and "positive" in row["reason"], row
+    cfg.write_text("CONSTANT IDs = {a,b}\nINIT Init NEXT Next INVARIANT BadEquality\n")
+    row = check(named + ["BadEquality"], 2)
+    assert row["verdict"] == "unsupported" and "incomparable finite values" in row["reason"], row
     cfg.write_text("CONSTANT IDs = {a,b,c,d,e}\nINIT Init NEXT Next INVARIANT Reflexive\n")
     row = check(named + ["Reflexive"], 2)
     assert row["verdict"] == "unsupported" and "enumeration budget" in row["reason"], row
@@ -125,13 +132,48 @@ def check_client_server(dive, source, root):
     assert row["trace_validated"] and row["verdict"] == "invariant-violation" and row["depth"] == 4
 
 
+def check_lockserver(dive, source, root):
+    cfg = source.with_suffix(".cfg")
+    base = [dive, "check"]
+    named = ["--strategy", "symbolic", "--type-invariant", "TypeOK", "--property-proof", "Inv",
+             "--output", "json"]
+    exact = ["--store", "exact", "--workers", "1", "--seed", "0", "--fp", "0",
+             "--exit-codes", "native", "--output", "json"]
+    proven = check([*base, source, "--config", cfg, *named], 0)
+    assert proven["proof"] == "inductive-safety"
+    mutant = root / source.name
+    grant = "semaphore' = [semaphore EXCEPT ![s] = FALSE]"
+    original = source.read_text()
+    assert original.count(grant) == 1
+    mutant.write_text(original.replace(grant, "UNCHANGED semaphore"))
+    bad = check([*base, mutant, "--config", cfg, *named], 1)
+    assert bad["trace_validated"] and bad["depth"] == 3 and bad["ending"]["name"] == "Inv"
+    word = root / "double-grant.json"
+    word.write_text(json.dumps(bad["trace"]))
+    replay = [dive, "validate-trace", "--config", cfg, "--trace", word, "--output", "json"]
+    assert check([*replay, mutant], 0)["result"] == "valid"
+    assert check([*replay, source], 1)["result"] == "invalid"
+    for profile in ("dive", "tlc"):
+        original_row = check([*base, source, "--config", cfg, *exact, f"--compat={profile}"], 0)
+        stats = original_row["statistics"]
+        assert (stats["distinct"], stats["generated"], stats["depth"]) == (9, 25, 3)
+        explicit = check([*base, mutant, "--config", cfg, *exact, f"--compat={profile}"], 10)
+        path = explicit["counterexample"]["trace"]
+        assert explicit["property"] == "Inv" and len(path["states"]) == 3
+        word.write_text(json.dumps(path))
+        assert check([*replay, mutant], 0)["result"] == "valid"
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("dive", type=Path)
     parser.add_argument("--client-server", type=Path, help="original Recomp client_server_ae/2-4-2 module")
+    parser.add_argument("--lockserver", type=Path, help="original Recomp lockserver/2-2 module")
     args = parser.parse_args()
     with TemporaryDirectory() as folder:
         run(args.dive.resolve(), Path(folder))
         check_function_init(args.dive.resolve(), Path(folder))
         if args.client_server:
             check_client_server(args.dive.resolve(), args.client_server, Path(folder))
+        if args.lockserver:
+            check_lockserver(args.dive.resolve(), args.lockserver, Path(folder))

@@ -1,0 +1,214 @@
+{
+  "issue": 1317,
+  "host": "Dedicated EC2 c7i.4xlarge, 8 physical cores / 16 vCPUs, Intel Xeon Platinum 8488C, Linux 7.0.0-1018-aws, OpenJDK 21.0.13.1 and Python 3.12.3. Dive uses the bundled CPython 3.11.14 and CUDD 3.0.0.",
+  "peer_commit": "0cbd95f0002af10f70f25c87638e8f2673229f2e",
+  "implementation_sha256": {
+    "dive": "f5698833dbd559e72393df6f91b2b87ea09da3f2442eee9f56ce8f8cf57c7fee",
+    "engine.py": "68d4599bff318fa23225289e177e92a75d16e743d7c6731ce6a1d411368c23f4",
+    "property_proof.py": "a21c18ba1ba00b3f5ea9a832e900c22c38f10c9454306d9ca34987ab82d4937e",
+    "obligation_receipt.py": "5dbe473ef848223999034e4b8037124dad6405bf9295576db3e31e0e0e9ddec9",
+    "symbolic_input": "71f5802e07c88cc24561283a19cbab253ee62c53af467f0df3be4d7c3aa96048"
+  },
+  "method": "Five alternating fresh-process pairs per original CFG using recomp_property_panel.py with --seconds 30, --config CFG and --cgroup-parent GROUP. Peak memory counts each process family.",
+  "original_refusal": "mixed-type equality at semaphore[s] = TRUE, with a Boolean atom and a Boolean expression",
+  "exact_core": {
+    "workers": 1,
+    "store": "exact",
+    "profiles": [
+      "dive",
+      "tlc"
+    ],
+    "distinct": 9,
+    "generated": 25,
+    "depth": 3,
+    "verdict": "success"
+  },
+  "mutation": {
+    "operation": "Connect leaves semaphore unchanged",
+    "property": "Inv",
+    "witness_states": 3,
+    "replay_on_mutant": "valid",
+    "replay_on_original": "invalid",
+    "independent_core_profiles": [
+      "dive",
+      "tlc"
+    ]
+  },
+  "controls_command": "python3 scripts/symbolic/test_property_relations.py DIVE --lockserver RECOMP/benchmarks/tla/lockserver/2-2/lockserver.tla",
+  "rows": {
+    "lockserver/2-2/lockserver.cfg": {
+      "property": "Inv",
+      "source_sha256": "ffcea6cb23ff339950253fe2253d76973108fd77c23ab0586c7aae38859cf7f2",
+      "cfg_sha256": "7f1b201aff42a6d76bd001a6c8957df2a6380e984fffcf475f951bd1e37f9308",
+      "dive": [
+        {
+          "exit": 0,
+          "wall_s": 0.274,
+          "peak_cgroup_bytes": 61652992,
+          "result": "inductive-safety"
+        },
+        {
+          "exit": 0,
+          "wall_s": 0.273,
+          "peak_cgroup_bytes": 55267328,
+          "result": "inductive-safety"
+        },
+        {
+          "exit": 0,
+          "wall_s": 0.272,
+          "peak_cgroup_bytes": 55267328,
+          "result": "inductive-safety"
+        },
+        {
+          "exit": 0,
+          "wall_s": 0.273,
+          "peak_cgroup_bytes": 55263232,
+          "result": "inductive-safety"
+        },
+        {
+          "exit": 0,
+          "wall_s": 0.274,
+          "peak_cgroup_bytes": 55529472,
+          "result": "inductive-safety"
+        }
+      ],
+      "recomp": [
+        {
+          "exit": 0,
+          "wall_s": 1.426,
+          "peak_cgroup_bytes": 127688704,
+          "result": "property-satisfied"
+        },
+        {
+          "exit": 0,
+          "wall_s": 1.424,
+          "peak_cgroup_bytes": 129601536,
+          "result": "property-satisfied"
+        },
+        {
+          "exit": 0,
+          "wall_s": 1.429,
+          "peak_cgroup_bytes": 129265664,
+          "result": "property-satisfied"
+        },
+        {
+          "exit": 0,
+          "wall_s": 1.426,
+          "peak_cgroup_bytes": 130646016,
+          "result": "property-satisfied"
+        },
+        {
+          "exit": 0,
+          "wall_s": 1.479,
+          "peak_cgroup_bytes": 128909312,
+          "result": "property-satisfied"
+        }
+      ],
+      "summary": {
+        "dive": {
+          "median_s": 0.273,
+          "range_s": [
+            0.272,
+            0.274
+          ],
+          "max_peak_cgroup_bytes": 61652992
+        },
+        "recomp": {
+          "median_s": 1.426,
+          "range_s": [
+            1.424,
+            1.479
+          ],
+          "max_peak_cgroup_bytes": 130646016
+        }
+      }
+    },
+    "lockserv/20/lockserv.cfg": {
+      "property": "Mutex",
+      "source_sha256": "cf7a9fa627ce98e0081db3d86e993fab5df8b23d7c9c4adb41a3551d22ed4463",
+      "cfg_sha256": "68fc79e1013d3a184d6a75501b732f15cc96e167f436e2696231ad3a934b1361",
+      "dive": [
+        {
+          "exit": 0,
+          "wall_s": 0.325,
+          "peak_cgroup_bytes": 53702656,
+          "result": "inductive-safety"
+        },
+        {
+          "exit": 0,
+          "wall_s": 0.324,
+          "peak_cgroup_bytes": 53952512,
+          "result": "inductive-safety"
+        },
+        {
+          "exit": 0,
+          "wall_s": 0.325,
+          "peak_cgroup_bytes": 53960704,
+          "result": "inductive-safety"
+        },
+        {
+          "exit": 0,
+          "wall_s": 0.322,
+          "peak_cgroup_bytes": 54226944,
+          "result": "inductive-safety"
+        },
+        {
+          "exit": 0,
+          "wall_s": 0.322,
+          "peak_cgroup_bytes": 53702656,
+          "result": "inductive-safety"
+        }
+      ],
+      "recomp": [
+        {
+          "exit": 0,
+          "wall_s": 3.048,
+          "peak_cgroup_bytes": 1592868864,
+          "result": "property-satisfied"
+        },
+        {
+          "exit": 0,
+          "wall_s": 3.038,
+          "peak_cgroup_bytes": 1548525568,
+          "result": "property-satisfied"
+        },
+        {
+          "exit": 0,
+          "wall_s": 2.989,
+          "peak_cgroup_bytes": 1600040960,
+          "result": "property-satisfied"
+        },
+        {
+          "exit": 0,
+          "wall_s": 2.987,
+          "peak_cgroup_bytes": 1689948160,
+          "result": "property-satisfied"
+        },
+        {
+          "exit": 0,
+          "wall_s": 2.983,
+          "peak_cgroup_bytes": 1554350080,
+          "result": "property-satisfied"
+        }
+      ],
+      "summary": {
+        "dive": {
+          "median_s": 0.324,
+          "range_s": [
+            0.322,
+            0.325
+          ],
+          "max_peak_cgroup_bytes": 54226944
+        },
+        "recomp": {
+          "median_s": 2.989,
+          "range_s": [
+            2.983,
+            3.048
+          ],
+          "max_peak_cgroup_bytes": 1689948160
+        }
+      }
+    }
+  }
+}

@@ -185,7 +185,7 @@ class PropertyModel(SourceModel):
     def encode(self, assigned, guard=None):
         def as_scalar(value):
             if isinstance(value, cudd.Function):
-                return Atom({("boolean", False): ~value, ("boolean", True): value})
+                return self.boolean_atom(value)
             if isinstance(value, Function):
                 return Function((key, as_scalar(member)) for key, member in value.items())
             return value
