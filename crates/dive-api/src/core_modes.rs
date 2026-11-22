@@ -3,6 +3,7 @@
 //! Search order belongs to each mode; generation and predicate evaluation retain
 //! the same plan/frame rules as the BFS core. Report conversion is a boundary.
 
+pub(crate) mod bounded;
 pub(crate) mod dfid;
 pub(crate) mod sample;
 mod sim_random;
