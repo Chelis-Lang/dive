@@ -511,6 +511,12 @@ class SourceModel(FiniteRelation):
             if kind == "record":
                 for field, member in value:
                     visit(member, (*path, field))
+            elif kind == "tuple":
+                for index, member in enumerate(value):
+                    visit(member, (*path, index))
+            elif kind == "subset":
+                for member in value:
+                    visit(member, (*path, "element"))
 
         for group in groups:
             for key in group:
@@ -575,12 +581,15 @@ class SourceModel(FiniteRelation):
         require(len(args) == len(d["params"]), "operator arity")
         return d["body"], {i: self.eval(a["Expr"]["expr"], env, assigned) for i, a in enumerate(args)}
 
+    def member_domain(self, expr, env, assigned):
+        return self.eval(expr, env, assigned)
+
     def bindings(self, q, env, assigned, *, multiple=False, known_domains=None):
         slots = []
         domains = []
         for index, bound in enumerate(q["bounds"]):
             require(not bound["tuple"] and bound["domain"] is not None, "unbounded or tuple binder")
-            domain = self.eval(bound["domain"], env, assigned) if known_domains is None else known_domains[index]
+            domain = self.member_domain(bound["domain"], env, assigned) if known_domains is None else known_domains[index]
             require(isinstance(domain, Members), "binder over a non-atomic set")
             for slot in bound["vars"]:
                 slots.append(slot)
@@ -735,7 +744,7 @@ class SourceModel(FiniteRelation):
             enumeration = Enumeration.REDUCIBLE  # A mapped set is an explicit enumeration.
             if tag == "SetFilter":
                 require(x["bound"]["domain"] is not None, "unbounded set filter")
-                domain = sub(x["bound"]["domain"])
+                domain = self.member_domain(x["bound"]["domain"], env, assigned)
                 require(isinstance(domain, Members), "filter over a non-atomic set")
                 domains = [domain]
                 enumeration = domain.enumeration
@@ -1014,7 +1023,7 @@ class SourceModel(FiniteRelation):
             and not self.node(x["args"][0])[1]["primed"]
             and (name := self.names[self.node(x["args"][0])[1]["var"]]) not in assigned
         ):
-            domain = self.eval(x["args"][1], env, assigned)
+            domain = self.member_domain(x["args"][1], env, assigned)
             require(isinstance(domain, Members), "Init choice over a non-atomic set")
             require(domain.enumeration != Enumeration.UNPROVED,
                     "Init membership may enumerate duplicate witnesses in a lazy set")
@@ -1110,6 +1119,10 @@ class SourceModel(FiniteRelation):
                 return key[1]
             if key[0] == "record":
                 return {"record": {n: scalar(v) for n, v in key[1]}}
+            if key[0] == "subset":
+                return {"set": [scalar(item) for item in key[1]]}
+            if key[0] == "tuple":
+                return {"seq": [scalar(item) for item in key[1]]}
             require(key[0] in ("string", "int"), "invalid encoded scalar in witness")
             return key[1]
 

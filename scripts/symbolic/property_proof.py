@@ -2,12 +2,14 @@
 
 from dataclasses import dataclass
 import gc
+import itertools
+import math
 import json
 from pathlib import Path
 import time
 
 from dd import cudd
-from engine import Atom, Enumeration, Function, Members, SourceModel, require
+from engine import Atom, Enumeration, Function, Members, PowerSet, SourceModel, require
 import induction
 from worker_process import run_helper
 
@@ -50,6 +52,24 @@ class PropertyModel(SourceModel):
 
     def eval(self, i, env, assigned):
         tag, x = self.node(i)
+        if tag in ("Cartesian", "Tuple"):
+            values = [self.eval(arg, env, assigned) for arg in x]
+            if tag == "Tuple":
+                values = [Atom({("subset", tuple(self.static_set(v))): self.b.true}) if isinstance(v, Members)
+                          else v for v in values]
+            kind = Members if tag == "Cartesian" else Atom
+            require(0 < len(values) <= 16 and all(isinstance(v, kind) for v in values),
+                    "expected finite scalar tuple components")
+            require(math.prod(map(len, values)) <= 16384, "tuple domain exceeds 16384 alternatives")
+            result = kind()
+            if tag == "Cartesian" and all(v.enumeration != Enumeration.UNPROVED for v in values):
+                result.enumeration = Enumeration.UNIQUE
+            for choice in itertools.product(*(value.items() for value in values)):
+                keys, predicates = zip(*choice)
+                active = self.conjunction(predicates)
+                if active != self.b.false:
+                    result[("tuple", keys)] = active
+            return result
         if tag == "Var":
             name = self.names[x["var"]]
             require(name not in self.counters, "projected integer is read: " + name)
@@ -57,6 +77,56 @@ class PropertyModel(SourceModel):
             return Members([(("boolean", flag), self.b.true) for flag in (False, True)],
                            enumeration=Enumeration.REDUCIBLE)
         return super().eval(i, env, assigned)
+
+    def static_set(self, value):
+        if isinstance(value, Members):
+            value = Members((key, guard) for key, guard in value.items() if guard != self.b.false)
+        return super().static_set(value)
+
+    def contains(self, value, space):
+        if isinstance(value, Members) and isinstance(space, Members):
+            require(all(isinstance(k, tuple) and k[0] == "subset" for k in space),
+                    "set membership requires a finite family of sets")
+            return self.any(active & self.same(value, self.atom(k)) for k, active in space.items())
+        return super().contains(value, space)
+
+    def member_domain(self, expr, env, assigned):
+        domain = self.eval(expr, env, assigned)
+        if not isinstance(domain, PowerSet):
+            return domain
+        members = domain.domain
+        require(isinstance(members, Members), "expected a finite powerset alphabet")
+        self.comparable(members)
+        keys = sorted((key for key, guard in members.items() if guard != self.b.false), key=repr)
+        require(len(keys) <= 12, "powerset binder exceeds 4096 subsets")
+        # A subset is present exactly when every one of its members is
+        # present, including the empty subset even if every guard is false.
+        return Members(((("subset", subset), self.conjunction(members[k] for k in subset))
+                        for size in range(len(keys) + 1) for subset in itertools.combinations(keys, size)),
+                       enumeration=Enumeration.UNIQUE)
+
+    def atom(self, key):
+        if isinstance(key, tuple) and key[0] == "subset":
+            return Members(((member, self.b.true) for member in key[1]), enumeration=Enumeration.UNIQUE)
+        return super().atom(key)
+
+    def bindings(self, q, env, assigned, *, multiple=False, known_domains=None):
+        if not any(bound["tuple"] for bound in q["bounds"]):
+            yield from super().bindings(q, env, assigned, multiple=multiple, known_domains=known_domains)
+            return
+        require(len(q["bounds"]) == 1, "tuple pattern mixed with other binders")
+        bound, = q["bounds"]
+        slots = bound["vars"]
+        require(bound["domain"] is not None and slots and len(set(slots)) == len(slots),
+                "expected distinct names in a bounded tuple pattern")
+        domain = known_domains[0] if known_domains is not None else self.eval(bound["domain"], env, assigned)
+        require(isinstance(domain, Members) and len(domain) <= 100000, "tuple binder requires a finite domain")
+        for key, guard in domain.items():
+            if guard == self.b.false:
+                continue
+            require(isinstance(key, tuple) and key[0] == "tuple" and len(key[1]) == len(slots),
+                    "tuple binder arity differs from domain element")
+            yield key, guard, {**env, **{slot: self.bound_value(v) for slot, v in zip(slots, key[1])}}
 
     def boolean(self, value):
         if isinstance(value, Atom) and set(value) == {("boolean", False), ("boolean", True)}:
