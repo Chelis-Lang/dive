@@ -1356,6 +1356,110 @@
         "sha256": "6794d191fab5fc3a5f506fd5e946cccfde59b60a42a9eeb2dedb806e7129519e"
       }
     ],
-    "larger_refusals": "The seven-floor donor at 121 floors and four-floor donor at 151 floors encountered temporal validation resource bound. These carry no validated conclusion. The shorter four-floor donor validates at 121."
+    "larger_refusals": "The seven-floor donor at 121 floors and four-floor donor at 151 floors encountered temporal validation resource bound. These carry no validated conclusion. The shorter four-floor donor validates at 121.",
+    "merged_validator_and_donor": {
+      "source": "d71cb39d10df60f0a8768cf225a404f142124ff4",
+      "method": "A new four-floor ordinary check on merged main produced the same 102-state donor hash above. Run the checked-in helper on that donor, then independently validate the larger word and its corrupted closing transition using the merged binary. construction_ms includes mapping and constructing the Python object before serialization. Wall and RSS include only the validation process.",
+      "outcomes": [
+        {
+          "cfg": 61,
+          "length": 482,
+          "candidate_kind": "genuine",
+          "construction_ms": 14.545815,
+          "wall_rss": "0.64 50352",
+          "result": "valid",
+          "reason": null,
+          "hash": "0cf71df7a096952f1668584ecc0921c6de9e597933e1ff02476ae4f4aefa677b"
+        },
+        {
+          "cfg": 61,
+          "length": 482,
+          "candidate_kind": "damaged",
+          "construction_ms": 14.545815,
+          "wall_rss": "0.07 50460",
+          "result": "invalid",
+          "reason": {
+            "check": "next",
+            "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+            "state": 481
+          },
+          "hash": "858f7d2f69464d650cb1949db9c8e48317296d5787a2e9ef3455d2a809a03d79"
+        },
+        {
+          "cfg": 121,
+          "length": 882,
+          "candidate_kind": "genuine",
+          "construction_ms": 25.659495,
+          "wall_rss": "2.57 81020",
+          "result": "valid",
+          "reason": null,
+          "hash": "e89b6e16ad7d497b1fe7f4838db11be5f22a19a0c4e9c19d0071cd0b5abe658b"
+        },
+        {
+          "cfg": 121,
+          "length": 882,
+          "candidate_kind": "damaged",
+          "construction_ms": 25.659495,
+          "wall_rss": "0.20 81128",
+          "result": "invalid",
+          "reason": {
+            "check": "next",
+            "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+            "state": 881
+          },
+          "hash": "03ada652464b5c6a47eb113802ee39084d2f155ae6bb363fa99a668d1577fdfc"
+        },
+        {
+          "cfg": 151,
+          "length": 1082,
+          "candidate_kind": "genuine",
+          "construction_ms": 31.079786,
+          "wall_rss": "3.96 103812",
+          "result": "unsupported",
+          "reason": "temporal validation resource bound",
+          "hash": "6794d191fab5fc3a5f506fd5e946cccfde59b60a42a9eeb2dedb806e7129519e"
+        }
+      ]
+    }
+  },
+  "eight_floor_one_prefix": {
+    "min_states": 6000000,
+    "last_closed_level": 18,
+    "prefix_checks": 1,
+    "binary": "linear",
+    "trials": [
+      {
+        "cfg": "eight-floor",
+        "verdict": "stopped",
+        "property": null,
+        "stats": {
+          "depth": 19,
+          "distinct": 6207064,
+          "exhaustive": false,
+          "generated": 53258283,
+          "initial_generated": 262144,
+          "left_on_queue": 253908,
+          "reported_by_tlc": false
+        },
+        "phases_ms": {
+          "atoms": 247270.153352
+        },
+        "stopped": {
+          "elapsed_ms": 360032,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 360000,
+          "observed": 360032,
+          "phase": "temporal-analysis",
+          "resource": "time",
+          "unit": "ms"
+        },
+        "batches": {
+          "plans": 30,
+          "rows": 21841061
+        },
+        "time_rss": "360.05 1171672",
+        "audit": false
+      }
+    ]
   }
 }

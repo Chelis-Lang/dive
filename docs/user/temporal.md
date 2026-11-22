@@ -592,8 +592,9 @@ dive validate-trace Elevator.tla --config floor121.cfg --trace candidate.json --
 
 The 102-state four-floor donor produced an 882-state word. A fresh validator
 accepted it on 121 floors in 2.52 s and rejected a damaged closing edge in
-0.20 s. These times exclude discovery of the donor and construction of the
-candidate. Two people each have an initial location and destination, and two
+0.20 s. A fresh four-floor check on merged Core produced the same donor;
+constructing the 121-floor word took 26 ms and independent replay took
+2.57 s. These timings exclude the initial four-floor search. Two people each have an initial location and destination, and two
 cars each have an initial floor, giving this configuration 121⁶ =
 3,138,428,376,721 initial assignments. Replay verifies one concrete
 counterexample. At 151 floors this donor reached the validator’s work limit.
