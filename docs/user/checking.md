@@ -766,6 +766,23 @@ The census supports groups of order up to 64 in local exact safety search withou
 `VIEW` or checkpoint recovery. Partial searches publish no completed census.
 [SlateDB controls and commands](../developer/large-models.md#reproduce-the-released-slatedb-wal-model).
 
+#### Compare a declared carrier symmetry on the original files
+
+The source-checkout driver takes an unmodified TLA+ module and configuration. Choose a constant bound to two, three or four distinct untyped model values that you expect to be interchangeable. This example uses the original TCommit specification and its three resource managers.
+
+```sh
+python3 scripts/perf/scale/checked_orbit.py TCommit.tla \
+  --config TCommit.cfg --carrier RM --dive /path/to/dive --workers 8
+```
+
+By default the driver runs two exhaustive exact checks on private copies of the inputs. One uses a generated module extending the original with all pair transpositions of the carrier. The other checks the original files directly. A successful `verified-observables` result means the original reached a successful verdict and its distinct count, generated count and depth matched the expanded orbit totals and quotient depth. This comparison applies to the listed source closure, configuration and properties. Different labeled graphs can have the same counts. On failure, each reported counterexample is replayed against the original module and configuration.
+
+Use `--assume-equivariance` for a single reduced check when the model author establishes that relabeling preserves the initial states, transitions, constraints, properties and transition multiplicities. All relevant expressions must remain defined independently of enumeration order. Dive checks that adjacent swaps preserve every configured constant. Its resolved-source observer audit checks for effects, opaque operators and `CHOOSE` expressions whose selected witness may distinguish two labels. For example, `CHOOSE w \in Writers : TRUE` refuses for a nontrivial writer symmetry. The preflight covers the lowered user-file definitions and can also refuse an unused definition. A successful reduced check in this mode reports `conditional-orbit`.
+
+`--prepare-only` returns an unsigned input manifest with the module closure hashes, configuration digest, exact adapter source and configuration suffix. A separate client can verify the original bytes and submit the assembled request through its own checker. The receiver needs its own authority for any cached verdict. A source or configuration edit requires preparing the current inputs again. `dive analyze MODEL.tla --orbit-observers --output json` exposes the preflight's choice domains and refusal locations.
+
+Exit 0 means fresh unreduced and reduced success agreed on these observables. Exit 1 carries a replayed counterexample, exit 2 means refusal or disagreement, and exit 3 identifies a prepared request or a successful conditional result. `--seconds` limits each check, and `--max-memory` sets the checker's memory limit. [Flint and Lamport controls](../../conformance/reports/perf/2026-11-22-checked-orbits.json)
+
 `DIVE_CORE_OPT` (for example `-fold,-delta-hash`) turns individual strategies
 off (`-name`) or on (`+name`) for measurement; results must not change.
 `DIVE_CORE_OPT=-member-index` turns off the hash index that the default

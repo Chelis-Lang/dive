@@ -94,7 +94,7 @@ fn engine_from_env() -> Result<(), String> {
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite|--write] [--checksums tla|full] [--replace-modified] [--ast|-writeAST] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive debug <FILE.tla> [--stdio|--listen 127.0.0.1:PORT] [--compat=tlc]\n    dive explain <CODE> [--output human|json]\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tla]\n               [--symmetry-liveness unreduced|refuse|tlc]\n               [--independent-frontier] [--frontier-memory-bytes N] [--frontier-directory DIR] [--candidate-memory-bytes N] [--candidate-directory DIR] [--store-compact-bytes N] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite|--write] [--checksums tla|full] [--replace-modified] [--ast|-writeAST] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--orbit-observers] [--library-path DIR]... [--module-path DIR]...\n    dive debug <FILE.tla> [--stdio|--listen 127.0.0.1:PORT] [--compat=tlc]\n    dive explain <CODE> [--output human|json]\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tla]\n               [--symmetry-liveness unreduced|refuse|tlc]\n               [--independent-frontier] [--frontier-memory-bytes N] [--frontier-directory DIR] [--candidate-memory-bytes N] [--candidate-directory DIR] [--store-compact-bytes N] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
                [--max-states N|none] [--max-depth N|none]
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--partitioned-fingerprints] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
@@ -261,7 +261,7 @@ fn parse_command(
     }
 }
 
-/// `dive analyze <file> [--output human|json] [--library-path DIR]... [--module-path DIR]...`.
+/// `dive analyze <file> [--output human|json] [--orbit-observers] [--library-path DIR]... [--module-path DIR]...`.
 ///
 /// SANY-equivalent semantic analysis of the specification rooted at the file.
 /// Modules are found in the file's directory, the library paths, the standard
@@ -273,10 +273,12 @@ fn analyze_command(
 ) -> ExitCode {
     let mut file: Option<&str> = None;
     let mut json = false;
+    let mut orbit_observers = false;
     let mut opts = dive_api::AnalyzeOptions::default();
     let mut it = args.iter();
     while let Some(a) = it.next() {
         match a.as_str() {
+            "--orbit-observers" => orbit_observers = true,
             "--output" => match it.next().map(String::as_str) {
                 Some("json") => json = true,
                 Some("human") => json = false,
@@ -323,8 +325,22 @@ fn analyze_command(
             return ExitCode::from(EXIT_USAGE);
         }
     };
+    if orbit_observers && !json {
+        let _ = writeln!(err, "error: --orbit-observers requires --output json");
+        return ExitCode::from(EXIT_USAGE);
+    }
     if json {
-        let _ = writeln!(out, "{}", report.to_json());
+        let mut evidence = report.to_json();
+        if orbit_observers && report.accepted() {
+            match report.orbit_observers() {
+                Ok(facts) => evidence["orbit_observers"] = facts,
+                Err(reason) => {
+                    let _ = writeln!(err, "error: {reason}");
+                    return ExitCode::from(EXIT_USAGE);
+                }
+            }
+        }
+        let _ = writeln!(out, "{evidence}");
     } else {
         let _ = write!(err, "{}", report.render_human());
         if report.accepted() {

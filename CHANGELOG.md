@@ -13,6 +13,8 @@ are in git history.
 
 - Parallel Core checks can generate and validate large finite initial products concurrently while admitting their states in source order.
 
+- Compare a declared permutation of interchangeable model values against an independent, unreduced exact check on the original TLA+ files. The source-checkout driver records both counts and a portable input manifest. [Carrier symmetry](docs/user/checking.md#compare-a-declared-carrier-symmetry-on-the-original-files)
+
 - Named symbolic checks can [repair a rejected predicate](docs/user/symbolic.md#repair-a-candidate-on-the-currently-bound-source) in the same invocation.
 
 - Named symbolic proofs can [reuse authenticated transition obligations in a new process](docs/user/symbolic.md#reuse-certified-action-obligations-in-another-process).
