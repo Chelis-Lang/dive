@@ -70,22 +70,29 @@ Run it with `--impl dive:core --impl-profile dive --tier all` and
 --corpus holdout-blocking-queue --corpus holdout-jgroups-pluscal
 --corpus holdout-bookkeeper --corpus holdout-kafka`.
 
-## Core refusals (full Examples, default profile)
+## Which Core refusals still block public models?
 
-Measured on main on the quiet node (#784). There are no stops. Every
-reason covers one or two models, and each is an owner ruling or policy,
-except `RandomSubset`, which Core does not implement yet.
+We rechecked nine previously refused configurations on November 22. Seven come from Examples and two from the goldened industrial holdouts. Every check used the original source, configuration and manifest mode, at one worker with no I/O grants. Eight still refused. The EWD687a animation now finds the invariant violation `InterestingBehavior` and independently validates it, matching its pinned TLC golden. This targeted recheck does not measure the rest of either corpus. [Per-model results, exact requests, pins and binary identity](../conformance/reports/2026-11-22-family-refusals.json).
 
-| Reason | Models |
-|---|---|
-| VIEW with liveness (deferred past v0.1 by owner ruling, 2026-11-06) | `ewd998/EWD998ChanID`, `FiniteMonotonic/MCDistributedReplicatedLog` |
-| `Randomization!RandomSubset` | `ewd998/SmokeEWD998` |
-| `IOUtils!IOEnv` / `Json` without `--allow-io` (D-017) | `TLC/TestGraphs`, `ewd998/EWD998ChanTrace` |
-| `TLC!JavaTime` | `ewd998/SmokeEWD998_SC` |
+<!-- refusal-counts -->
 
-`ewd998/SmokeEWD998_SC` is a host script rather than a model: it launches a
-nested TLC run through `IOUtils!IOEnvExec` and names its output file with
-`TLC!JavaTime`.
+| First result on the original configuration | Configurations |
+|---|---:|
+| Explicit host input grant | 2 |
+| Temporal VIEW quotient | 2 |
+| Debugger operator PickSuccessor | 1 |
+| Effectful temporal simulation predicate | 1 |
+| Host clock in a specification | 1 |
+| Infinite-set difference | 1 |
+| Validated simulation violation | 1 |
+
+<!-- /refusal-counts -->
+
+**The largest measured feature gap is temporal VIEW.** `MCDistributedReplicatedLog` and `EWD998ChanID` require concrete transition and closing-edge evidence across quotient states. This affects identity, graph capture, fairness and independent replay. Count each configuration once. The other two-configuration bucket is the intended no-grant policy (D-017). `TestGraphs` requests the environment and `EWD998ChanTrace` requests a file. [VIEW tracking](https://github.com/Chelis-Lang/dive/issues/428) · [host-input contract](user/modules.md#host-inputs-and-explicit-grants).
+
+The remaining four refusal buckets each affect one configuration. `SmokeEWD998` reaches its effectful temporal simulation property `TDSpec` after the random-operator work. `SmokeEWD998_SC` invokes the host clock at startup and would launch another process. `BlockingQueueDebug` invokes `TLCExt!PickSuccessor`. TiDB's `DistributedTransaction/Test3` needs the difference of an infinite set. These suggest separate work on sampled temporal validation, host services, debugger interaction and symbolic values. [Simulation controls](../conformance/reports/2026-11-21-simulate-conformance.json) · [SmokeEWD998 tracking](https://github.com/Chelis-Lang/dive/issues/1141).
+
+The nine were selected from three sources. Six were excluded from the [175-model comparison](../conformance/reports/perf/2026-11-20-r2-procedure-c14687e6.json), including the animation and smoke simulation. The seventh Examples case is the host script from the full R1 selection. The remaining two are the refusals in the [25-model holdout with goldens](#real-world-holdout-854). The [13 historical non-finishes](developer/large-models.md) are a different population. Keep those results, the 235-configuration simulation survey below and individual API refusal assertions out of this denominator.
 
 ## Simulation (Examples, default profile)
 
@@ -137,53 +144,51 @@ methodology and tables are in [release performance results](developer/release-pe
 
 ## Feature families
 
-This is the reference inventory of TLC and SANY surfaces
-(`conformance/parity-surfaces.json`). Status describes the dive product, which
-runs on Core.
-- `implemented` means the feature works for the supported corpus. It does not
-  mean full parity.
-- **v0.1** marks the families the first-value bar depends on. The others are
-  frozen until after v0.1 ([ADR 0153](decisions/0153-core-is-the-product.md)).
+The 38 families group the pinned [TLC and SANY surfaces](../conformance/parity-surfaces.json). An implemented row works for the supported corpus. Each partial row below names an exercised behavior, an observable boundary and a focused control. The v0.1 column identifies the first-value families. Use the [refusal counts](#which-core-refusals-still-block-public-models) to see which boundaries affected the measured configurations.
 
-| Family | Status | v0.1 |
-|--------|--------|:---:|
-| TLA+ grammar and lossless parsing | implemented | ✓ |
-| Semantic resolution, levels and module/proof syntax | implemented | ✓ |
-| Configuration parsing | implemented | ✓ |
-| Model/configuration binding and startup | partial | ✓ |
-| Values, equality, order, laziness and representation | partial | ✓ |
-| Evaluation scopes, recursion and higher-order operators | partial | ✓ |
-| Finite domains, successor enumeration and independent ENABLED | partial | ✓ |
-| Native override discovery and installation | partial | ✓ |
-| Standard-module operators | partial | ✓ |
-| CommunityModules operators and TLA+ fallback definitions | partial | ✓ |
-| Error classes and precedence | partial | ✓ |
-| Sequential BFS safety, invariants and deadlock | implemented | ✓ |
-| Deterministic parallel checking | implemented | ✓ |
-| Fingerprint/exact stores and collision accounting (Core prints no collision estimate) | partial | ✓ |
-| State/action constraints and action-property split | implemented | ✓ |
-| VIEW identity and temporal lifting | partial | ✓ |
-| Symmetry declaration binding, warnings and closure | partial | ✓ |
-| Symmetry reduction, concrete traces and audit | partial | ✓ |
-| Temporal language, simplification and tableaux | partial | ✓ |
-| Temporal graph construction | partial | ✓ |
-| WF/SF fairness | partial | ✓ |
-| Liveness acceptance, counterexamples and attribution | partial | ✓ |
-| Periodic/final/off liveness schedules | partial | |
-| Simulation, generation and random replay | partial | |
-| DFID checking | partial | |
-| Granted environment, file and process effects | partial | |
-| Runtime introspection and configuration services | partial | ✓ |
-| CLI/output conventions and message controls | partial | ✓ |
-| Trace/state dumps, ALIAS and trace exploration | partial | |
-| Coverage and debugger services | partial | |
-| Bounded-memory stores, frontiers, graphs and spill | partial | |
-| Checkpoint and recovery | partial | |
-| Distributed checking and recovery | partial | |
-| PlusCal translation and translation validation | partial | ✓ |
-| Versioned JSON reports and trace compatibility policy | implemented | ✓ |
-| Public Rust APIs and cargo-test integration | partial | |
-| Complete corpus, harness and release certification | partial | ✓ |
-| Global TLC profile and approved better defaults | partial | ✓ |
+For a Rust control, run `cargo test -p PACKAGE --test TARGET --locked` from the checkout. The link names the test target and its path identifies the package. The other links open a runnable shell control or a pinned report. Run `python3 scripts/audit-feature-families.py` to check row completeness, evidence links, the measured cohort, modes, pins and histogram. `--probe DIVE` repeats the nine requests using the conformance git cache and prints compact JSON.
+
+| Family | Status | v0.1 | Workflow | Exercised behavior → boundary | Focused control |
+|---|---|:---:|---|---|---|
+| TLA+ grammar and lossless parsing | implemented | ✓ | — | — | — |
+| Semantic resolution, levels and module/proof syntax | implemented | ✓ | — | — | — |
+| Configuration parsing | implemented | ✓ | — | — | — |
+| Model/configuration binding and startup | partial | ✓ | Bind | CFG roles, initial assumptions and their error precedence → configured `POSTCONDITION` refuses | [final_empty_properties](../crates/dive-api/tests/final_empty_properties.rs) |
+| Values, equality, order, laziness and representation | partial | ✓ | Evaluate | Canonical mixed-shape sets in the default profile → some history-sensitive comparisons refuse in TLC mode; TiDB Test3 separately needs an infinite-set difference | [core_normalization](../crates/dive-api/tests/core_normalization.rs) |
+| Evaluation scopes, recursion and higher-order operators | partial | ✓ | Evaluate | Lexical scopes on instance calls and primed steps → unproved query captures refuse | [core_instance_scopes](../crates/dive-api/tests/core_instance_scopes.rs) |
+| Finite domains, successor enumeration and independent ENABLED | partial | ✓ | Check / replay | Independent `ENABLED` queries over proved parameter substitutions → nonidentity or hidden instance variables can refuse | [core_enabled_instance](../crates/dive-api/tests/core_enabled_instance.rs) |
+| Native override discovery and installation | partial | ✓ | Bind / evaluate | Hanoi’s SHA-verified local `Bits.class` override → a changed or unknown class refuses | [bits_scope](../crates/dive-api/tests/bits_scope.rs) |
+| Standard-module operators | partial | ✓ | Check / simulate | Replayable `RandomSubset` simulation draws → `TLCExt!PickSuccessor` still blocks BlockingQueueDebug | [simulate_random_ops](../crates/dive-api/tests/simulate_random_ops.rs) |
+| CommunityModules operators and TLA+ fallback definitions | partial | ✓ | Evaluate | Pure `SequencesExt!ReplaceAllSubSeqs` replacements → unsupported overlapping-choice demands refuse | [core_sequence_replace](../crates/dive-api/tests/core_sequence_replace.rs) |
+| Error classes and precedence | partial | ✓ | Errors / replay | Candidate errors with established source and diagnostic identities replay → a partial or unproved temporal primary can refuse | [candidate_error_traces](../crates/dive-api/tests/candidate_error_traces.rs) · [fairness_primary](../crates/dive-api/tests/fairness_primary.rs) |
+| Sequential BFS safety, invariants and deadlock | implemented | ✓ | — | — | — |
+| Deterministic parallel checking | implemented | ✓ | — | — | — |
+| Fingerprint/exact stores and collision accounting (Core prints no collision estimate) | partial | ✓ | Store | Exact and fingerprint stores give matching concrete temporal checks → capture publishes no fingerprint collision estimate | [core_liveness](../crates/dive-api/tests/core_liveness.rs) |
+| State/action constraints and action-property split | implemented | ✓ | — | — | — |
+| VIEW identity and temporal lifting | partial | ✓ | Check / replay | Safety VIEW keys work in exact storage → temporal quotient closure refuses on two measured Examples models | [core_storage](../crates/dive-api/tests/core_storage.rs) |
+| Symmetry declaration binding, warnings and closure | partial | ✓ | Bind | CFG symmetry declarations bind and preserve startup failure order → effectful, parameterized and state-dependent declarations refuse | [symmetry_startup](../crates/dive-api/tests/symmetry_startup.rs) |
+| Symmetry reduction, concrete traces and audit | partial | ✓ | Check / replay | Safety orbit totals agree with explicit controls → the census requires complete identities and local exact safety without VIEW; temporal symmetry can use unreduced checking | [symmetry_orbit_census](../crates/dive-api/tests/symmetry_orbit_census.rs) · [symmetry_liveness](../crates/dive-api/tests/symmetry_liveness.rs) |
+| Temporal language, simplification and tableaux | partial | ✓ | Temporal | Configured temporal operators and checked solutions → effectful or dynamic planning can refuse, as in the SmokeEWD998 simulation | [configured_temporal_operators](../crates/dive-api/tests/configured_temporal_operators.rs) · [liveness_solutions](../crates/dive-api/tests/liveness_solutions.rs) |
+| Temporal graph construction | partial | ✓ | Temporal / store | Concrete graph capture supports exact and fingerprint stores → spilled or reclaimed temporal storage refuses | [core_liveness](../crates/dive-api/tests/core_liveness.rs) |
+| WF/SF fairness | partial | ✓ | Temporal / replay | Kafka’s original fair word passes 255 fairness instances → unproved primary errors during fairness evaluation still refuse | [fairness_primary](../crates/dive-api/tests/fairness_primary.rs) · [Kafka word](../conformance/reports/perf/2026-11-21-kafka-liveness.json) |
+| Liveness acceptance, counterexamples and attribution | partial | ✓ | Temporal / replay | Lasso attribution checks all properties on the reported word → the requested TLC-specific lasso choice is unavailable; another fair word can violate a different set | [liveness_attribution](../crates/dive-api/tests/liveness_attribution.rs) |
+| Periodic/final/off liveness schedules | partial | | Temporal | Periodic checking can refute a property on a completed BFS level; the TLC profile defaults to final-only → explicitly requesting the bounded final/short route still refuses temporal properties | [liveness_periodic](../crates/dive-api/tests/liveness_periodic.rs) · [ordinary_final](../crates/dive-api/tests/ordinary_final.rs) |
+| Simulation, generation and random replay | partial | | Simulate | Seeded finite samples and audited temporal counterexamples → truncated words can leave temporal obligations unchecked; an effectful planner can refuse | [simulate_temporal](../crates/dive-api/tests/simulate_temporal.rs) |
+| DFID checking | partial | | Check | DFID certifies exhausted supported safety models → a depth cutoff yields incomplete search; temporal properties, VIEW and symmetry refuse | [core_dfid](../crates/dive-api/tests/core_dfid.rs) |
+| Granted environment, file and process effects | partial | | Host services | Granted input recording and replay work for admitted reads → ungranted inputs and process execution refuse | [host_inputs](../crates/dive-api/tests/host_inputs.rs) |
+| Runtime introspection and configuration services | partial | ✓ | Introspection | Simulation exposes mode-specific `TLCGet("config")` → host-clock `JavaTime` refuses at startup in SmokeEWD998_SC | [tlcget_config](../crates/dive-api/tests/tlcget_config.rs) |
+| CLI/output conventions and message controls | partial | ✓ | CLI | Native and TLC exit conventions retain semantic outcomes → TLC adapter options such as `-nowarning` refuse | [exit_conventions](../crates/dive-api/tests/exit_conventions.rs) · [tlc_check](../crates/dive-cli/tests/tlc_check.rs) |
+| Trace/state dumps, ALIAS and trace exploration | partial | | Trace / simulation | Saved sampled traces support ALIAS, TLC JSON and TLA output → automatic TLC TTrace exploration modules are unavailable | [simulate_trace_dir](../crates/dive-api/tests/simulate_trace_dir.rs) |
+| Coverage and debugger services | partial | | Debug / coverage | A local single-worker debugger observes real evaluation → temporal debugging and logical/source coverage refuse | [debugger](../crates/dive-api/tests/debugger.rs) · [source_coverage](../crates/dive-api/tests/source_coverage.rs) |
+| Bounded-memory stores, frontiers, graphs and spill | partial | | Store | Safety predecessor/frontier spilling and disk seen-state membership run → temporal disk membership refuses | [core_frontier](../crates/dive-api/tests/core_frontier.rs) · [core_disk_seen](../crates/dive-api/tests/core_disk_seen.rs) |
+| Checkpoint and recovery | partial | | Recover | A fresh process can resume supported safety checkpoints → incompatible effects, identities or temporal checks refuse | [core_checkpoint](../crates/dive-api/tests/core_checkpoint.rs) |
+| Distributed checking and recovery | partial | | Distribute | Authenticated workers can restart and retry uncommitted safety work → distributed liveness, VIEW and coordinator checkpoints refuse | [distributed](../crates/dive-api/tests/distributed.rs) |
+| PlusCal translation and translation validation | partial | ✓ | Translate | Source flags, generated TLA+ and checked artifacts run → specification-backed translators and unsupported artifact modes refuse | [pluscal_remaining_options](../crates/dive-api/tests/pluscal_remaining_options.rs) |
+| Versioned JSON reports and trace compatibility policy | implemented | ✓ | — | — | — |
+| Public Rust APIs and cargo-test integration | partial | | Embed / test | External Rust consumers check, sample, translate, recover and validate traces → the API refuses source and logical coverage | [external consumer](../scripts/test-rust-consumer.sh) |
+| Complete corpus, harness and release certification | partial | ✓ | Conformance | Pinned public-model goldens and holdouts grade decisions → a missing golden admits only a separate observation, even when exploration progresses | [missing-golden controls](../conformance/reports/perf/2026-11-20-no-golden-observations.json) |
+| Global TLC profile and approved better defaults | partial | ✓ | Profile | Core selects the nominal TLC switches → construction-history-dependent mixed-type comparisons can refuse; default canonical comparison follows D-009 | [core_normalization](../crates/dive-api/tests/core_normalization.rs) |
 
 Totals: 7 implemented, 31 partial, 0 missing.
+
+The first two implemented rows cover parsing and semantic analysis, including proof syntax. A successful analysis does not establish a theorem. Source-bound finite named-property induction has its own checked obligations and scope. General authored TLAPS proofs and invariant discovery need separate controls, as does matching partial implementation event streams to a consistent TLA+ behavior. These workflows have no denominator in this TLC/SANY family table. [Finite named proofs and controls](../conformance/reports/perf/2026-11-21-named-property-proofs.json) · [authored proof and discovery](https://github.com/Chelis-Lang/dive/issues/1283) · [partial implementation traces](https://github.com/Chelis-Lang/dive/issues/1282).
