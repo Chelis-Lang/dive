@@ -15,10 +15,10 @@
     "memory": "fresh isolated cgroup v2 memory.peak for command and descendants, including charged file pages. Prepare and check are separate processes and both rows are reported."
   },
   "inputs": {
-    "Flint": "ddalton/flint@8feba0c78f22e3ecdee0648c6b2897eac95ab1b4, lean/formal/LeanP1.tla and LeanP1Size3L1W3.cfg. See the linked 2026-11-22-checked-orbits.json for original upstream file locations. Each record carries SHA-256.",
-    "Examples": "tlaplus/Examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f. specifications/transaction_commit/{TCommit,TwoPhase}, specifications/CigaretteSmokers/CigaretteSmokers, specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface. Use the original .tla and .cfg files.",
-    "peer": "ddalton/tla-mc@c8fce23493bb78fcd5405faf7b0653855db620ee. Compiler cache initially empty, shared across the edit sequence. The peer consumes the same pure transposition wrapper and CFG suffix and reports its own generated/representative counts. It does not issue a conjugacy proof or weighted census.",
-    "edits": "Start at the published small source and CFG, then three unchanged runs. Prepend TRUE /\\ to Inv_CitationsLive. For growth, also replace barriers < MaxBarriers by barriers <= MaxBarriers in the Consume guard after s \\notin Readers /\\ w[s].pc = \"idle\". Revert the guard, then the property. Each run is a new process.",
+    "Flint": "ddalton/flint@8feba0c78f22e3ecdee0648c6b2897eac95ab1b4, lean/formal/LeanP1.tla. Recreate LeanP1Size3L1W3.cfg from lean/formal/LeanP1Holds1p3b.cfg with the substitutions in lean/formal/results/2026-10-06-ec2/scripts/runner3.sh lines 12–18. Each preparation row records both SHA-256 values.",
+    "Examples": "tlaplus/Examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f, specifications/transaction_commit/{TCommit,TwoPhase}, original same-basename TLA+ and CFG files.",
+    "peer": "ddalton/tla-mc@c8fce23493bb78fcd5405faf7b0653855db620ee. Both checkers read the identical current LeanP1.tla and unchanged LeanP1Size3L1W3.cfg at every stage, with zero symmetry permutations. The compiled peer shared its initially empty TLAMC_CACHE across edits and reported the full labeled counts.",
+    "edits": "Start at the published small source and CFG, then two unchanged warm runs. Prepend TRUE /\\ to Inv_CitationsLive. For growth, also replace barriers < MaxBarriers by barriers <= MaxBarriers in the Consume guard after s \\notin Readers /\\ w[s].pc = \"idle\". Revert the guard, then the property. Each run is a new process.",
     "Elevator": "tlaplus/Examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f specifications/MultiCarElevator/Elevator.tla and ElevatorLivenessLarge.cfg",
     "Flint_properties": {
       "invariants": [

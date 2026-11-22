@@ -6,6 +6,7 @@ import fcntl
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -77,8 +78,13 @@ def locked(path):
         yield
 
 
+def compiler_environment():
+    names = {"HOME", "PATH", "RUSTUP_HOME", "CARGO_HOME", "TMPDIR", "SSL_CERT_FILE", "SSL_CERT_DIR"}
+    return {name: value for name, value in os.environ.items() if name in names}
+
+
 def build(source, target, to, jobs):
-    env = {k: v for k, v in os.environ.items() if k in {"HOME", "PATH", "RUSTUP_HOME", "CARGO_HOME", "TMPDIR", "SSL_CERT_FILE", "SSL_CERT_DIR"}}
+    env = compiler_environment()
     env.update(CARGO_TARGET_DIR=str(target), CARGO_PROFILE_RELEASE_LTO="off", CARGO_PROFILE_RELEASE_CODEGEN_UNITS="16")
     subprocess.run(["cargo", "build", "--release", "--locked", "-j", str(jobs), "-p", "dive-cli", "--bin", "dive"], cwd=source, env=env, check=True)
     shutil.copyfile(target / "release/dive", to)
@@ -90,14 +96,26 @@ def cached_binary(folder):
     executable = folder / "dive"
     if not executable.is_file() or not (folder / "build.json").is_file():
         raise ValueError("incomplete cached build")
-    if file_digest(executable) != json.loads((folder / "build.json").read_text())["binary_sha256"]:
+    manifest = json.loads((folder / "build.json").read_text())
+    expected = manifest.get("binary_sha256") if isinstance(manifest, dict) else None
+    if not isinstance(expected, str) or not re.fullmatch(r"[0-9a-f]{64}", expected):
+        raise ValueError("invalid cached executable manifest")
+    if file_digest(executable) != expected:
         raise ValueError("cached executable checksum changed")
     return executable
 
 
 def cli(binary, args, cwd, env):
     run = subprocess.run([binary, *args, "--output", "json"], capture_output=True, cwd=cwd, env=env, timeout=90)
-    return run.returncode, json.loads(run.stdout)
+    report = json.loads(run.stdout)
+    if not isinstance(report, dict):
+        raise ValueError("checker returned an invalid response")
+    return run.returncode, report
+
+
+def require_export(status, report):
+    if status != 3 or report.get("verdict") != "unsupported" or report.get("message") != EXPORT_MARKER:
+        raise ValueError(f"plan unavailable: exit {status}, {report.get('verdict')}, {report.get('message') or report.get('refusal')}")
 
 
 def snapshot(bootstrap, module, config, folder, env):
@@ -134,9 +152,10 @@ def prepare(args):
         raise ValueError("--jobs must be positive")
     cache.mkdir(mode=0o700, parents=True, exist_ok=True)
     tree = output(["git", "rev-parse", "HEAD^{tree}"], REPO)
-    compiler = output(["rustc", "-Vv"], REPO)
+    build_env = compiler_environment()
+    compiler = output(["rustc", "-Vv"], REPO, env=build_env)
     tool_inputs = {path.name: file_digest(path) for path in sorted(HERE.iterdir()) if path.suffix in {".rs", ".py"}}
-    identity = {"tree": tree, "rustc": compiler, "cargo": output(["cargo", "-V"], REPO), "study": tool_inputs}
+    identity = {"tree": tree, "rustc": compiler, "cargo": output(["cargo", "-V"], REPO, env=build_env), "study": tool_inputs}
     epoch = cache / key(identity)
     epoch.mkdir(exist_ok=True)
     with locked(epoch / "lock"):
@@ -166,8 +185,7 @@ def prepare(args):
             env["DIVE_EXPORT_SUCCESSORS"] = str(planfile)
             flags = ["--compat=tlc"] if args.profile == "tlc" else []
             status, report = cli(bootstrap, ["check", module.name, "--config", "native-study.cfg", *flags, "--workers", "1", "--seed", "0", "--fp", "0", "--max-states", "1", "--time-limit", "15s"], folder, env)
-            if status == 0 or report.get("verdict") != "unsupported" or EXPORT_MARKER not in json.dumps(report):
-                raise ValueError(f"plan unavailable: {report.get('verdict')} {report.get('message') or report.get('refusal')}")
+            require_export(status, report)
             rust, shape, counts = lower(planfile.read_text())
         kernel_key = key({"rust": digest(rust.encode()), "shape": digest(shape.encode()), "compiler": identity})
         installed = epoch / kernel_key
