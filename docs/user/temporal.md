@@ -489,6 +489,26 @@ strong-fairness alternatives share that memory. A finite prefix may violate a
 persistence condition; the cycle must satisfy it. Recurrence may be met on the
 closing transition, including a stuttering edge.
 
+For checks with at least eight fairness alternatives, Core can rule out whole
+groups of candidate cycles when there are at most 64 distinct cycle predicates.
+It records which predicates hold on each original
+edge, including parallel edges and stutters. Within each strongly connected
+component it discards alternatives that require an absent predicate. If all
+remaining alternatives require a predicate on every cycle edge, Core removes
+edges that fail it and checks the smaller components. After at most eight
+rounds of elimination, any surviving candidate
+goes through the usual witness search and independent trace validation. The
+optimization shares the optional product-row memory allowance and uses the
+ordinary search when its tables would exceed that allowance.
+On Elevator Medium the one-worker median fell from 1.50 s to 0.28 s. On
+Large it fell from 92.33 s to 4.16 s for the same 50,653 distinct states.
+Finding an accepting cycle or ruling one out took 0.89 s of those 4.16 s;
+evaluation of temporal predicates on the graph took 2.57 s. Manyan ran the
+same Large configuration in 1.31 s. At four floors, Manyan found a 202-state
+counterexample that Dive independently validates. Ordinary Core refused that
+configuration during temporal preparation in the measured run.
+[Elevator comparisons and negative controls](../../conformance/reports/perf/2026-11-22-fairness-components.json)
+
 dive can also reuse the evaluated truth of each `WF` and `SF` condition shared
 by several properties, in at most the smaller of 16 MiB and 1/256 of the
 memory limit. `fairness_reuse` metrics count reuse. There is no flag for this,
