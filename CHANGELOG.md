@@ -5,6 +5,8 @@ are in git history.
 
 ## Unreleased
 
+- Core evaluates finite predecessor function equations in the default profile, including the released LuPastry+ routing table.
+
 - Named symbolic proofs can infer and certify finite layouts for sources without a default layout operator.
 
 - Symbolic proofs accept equality between Boolean-valued table cells and Boolean expressions.

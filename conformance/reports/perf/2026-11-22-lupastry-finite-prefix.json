@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "source": {
+    "archive": "https://homepages.loria.fr/SMerz/projects/pastry/lupastryplus.zip",
+    "archive_sha256": "1919350f4103ea98141c7b2b1d3f7cfe14f2c96c1ff40a59e43299f2d58a0e81"
+  },
+  "driver": "scripts/perf/scale/check_lupastry_prefix.py",
+  "dive_sha256": "77d3314b70193ec4347121e96498fc1a0cfda8164b8c018916ce91376a44d03c",
+  "measurement": "Single-process wall time per run on the same local x86-64 host, including startup. Compare algorithms on the all-pairs benchmark.",
+  "controls": {
+    "minimal_fixture": "crates/dive-api/tests/core_prefix_function.rs",
+    "pinned_tlc": "tlc-2026.10.06.014338 reported unbounded CHOOSE on the minimal recurrence and previously on original RoutingTable line 38",
+    "ratchet": {
+      "default": "6 agreed, 1 registered divergence, 0 regressions",
+      "tlc": "7 agreed, 0 regressions"
+    },
+    "empty_domain": "empty function",
+    "ambiguous_forward_cycle": "unsupported",
+    "impossible_self_equation": "unsupported",
+    "demanded_missing_predecessor": "evaluation-error",
+    "demanded_arithmetic_error": "evaluation-error"
+  },
+  "cases": {
+    "models": [
+      {
+        "case": "next",
+        "default": {
+          "depth": 17,
+          "distinct": 190,
+          "generated": 1268,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "tlc_profile": "an unbounded quantifier or CHOOSE",
+        "wall_s": 0.030191,
+        "source_sha256": "55792b81a18cb8163253a5f50abe684c3d44a03887e12ec84471f773cd5191d0",
+        "cfg_sha256": "5452f74ec7de9dbae4de9ba9061f21f3fb656ec43f72cd7e9a126d0bbfe756fe"
+      },
+      {
+        "case": "next_mc",
+        "default": {
+          "depth": 11,
+          "distinct": 14,
+          "generated": 40,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "tlc_profile": "an unbounded quantifier or CHOOSE",
+        "wall_s": 0.022429,
+        "source_sha256": "55792b81a18cb8163253a5f50abe684c3d44a03887e12ec84471f773cd5191d0",
+        "cfg_sha256": "1639891b9e057470e9ce65c2b9ead8ce4ea048f334e08c726cae28308ba5f73c"
+      },
+      {
+        "case": "three_ready",
+        "default": {
+          "depth": 18,
+          "distinct": 71,
+          "generated": 654,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "tlc_profile": "an unbounded quantifier or CHOOSE",
+        "wall_s": 0.052246,
+        "source_sha256": "55792b81a18cb8163253a5f50abe684c3d44a03887e12ec84471f773cd5191d0",
+        "cfg_sha256": "13984f13c17615336f94ea5733218fb3ff0d1141e4e089ec8f5e1d695aec7204"
+      }
+    ],
+    "mutation": {
+      "states": 2,
+      "original_replay": "valid",
+      "damaged_replay": "invalid"
+    }
+  },
+  "equivalence": {
+    "whole_function_equality": [
+      {
+        "pairs": 4,
+        "wall_s": 0.007288
+      },
+      {
+        "pairs": 16,
+        "wall_s": 0.007223
+      },
+      {
+        "pairs": 64,
+        "wall_s": 0.008948
+      },
+      {
+        "pairs": 256,
+        "wall_s": 0.032225
+      }
+    ]
+  },
+  "timing": {
+    "32_addresses": {
+      "published": {
+        "pairs": 1024,
+        "wall_s": 0.014195
+      },
+      "bounded": {
+        "pairs": 1024,
+        "wall_s": 1.084764
+      },
+      "counted": {
+        "pairs": 1024,
+        "wall_s": 0.015824
+      }
+    }
+  }
+}

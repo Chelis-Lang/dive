@@ -414,6 +414,7 @@ fn push_operands(n: &Node, out: &mut Vec<P>) {
             out.extend(binds.iter().map(|b| b.domain));
             out.push(*body);
         }
+        Node::PrefixFcn { bind, body, .. } => out.extend([bind.domain, *body]),
         Node::Except { base, updates } => {
             out.push(*base);
             for u in updates {
@@ -1363,6 +1364,14 @@ impl Compiler<'_> {
             | Node::FcnCons { binds, body }
             | Node::Quant { binds, body, .. } => {
                 binders(binds, &[*body], &mut i, &mut add);
+            }
+            Node::PrefixFcn {
+                bind,
+                function,
+                body,
+            } => {
+                binders(std::slice::from_ref(bind), &[*body], &mut i, &mut add);
+                minus(&mut i.free, &[*function]);
             }
             Node::Except { base, updates } => {
                 add(*base, &mut i);
@@ -3083,6 +3092,12 @@ impl Compiler<'_> {
                 self.push(Node::Case(out.into(), o))
             }
             Expr::Quant { kind, bounds, body } => {
+                if *kind == QuantKind::Choose
+                    && !self.m.heap.store().semantics().tlc_comparisons
+                    && let Some(equation) = self.ir.prefix_equation(bounds, *body)
+                {
+                    return self.prefix_function(equation, env, mode);
+                }
                 let (mut binds, saved) = self.binds(bounds, env, mode)?;
                 let b = self.p(*body, env, mode);
                 self.unbind(saved);
@@ -3395,6 +3410,54 @@ impl Compiler<'_> {
             });
         }
         Ok((binds, saved))
+    }
+
+    fn prefix_function(
+        &mut self,
+        equation: dive_ir::PrefixEquation<'_>,
+        env: usize,
+        mode: Mode,
+    ) -> Result<P, Error> {
+        if !self.h.redirects.is_empty()
+            || !self.h.std_redirects.is_empty()
+            || self
+                .h
+                .constants
+                .iter()
+                .flatten()
+                .any(|value| matches!(value, ConstBinding::Def(_)))
+        {
+            return Err(Error::unsupported(
+                "finite function equations with configured operator overrides",
+            ));
+        }
+        let (mut binds, mut saved) = self.binds(std::slice::from_ref(equation.index), env, mode)?;
+        let bind = binds
+            .pop()
+            .ok_or_else(|| Error::internal("prefix function without a bound"))?;
+        let function = self.alloc();
+        let slot = equation.function.index();
+        let binding = self.envs[env]
+            .slots
+            .get_mut(slot)
+            .ok_or_else(|| Error::internal("prefix function slot outside its frame"))?;
+        saved.push((env, slot, std::mem::replace(binding, Sb::Flat(function))));
+        let body = self.p(equation.entry, env, mode);
+        self.unbind(saved);
+        let body = body?;
+        if [bind.domain, body].into_iter().any(|node| {
+            let info = &self.info[node as usize];
+            info.effect || info.calls || info.nested_query
+        }) {
+            return Err(Error::unsupported(
+                "an effectful or unresolved finite function equation",
+            ));
+        }
+        self.push(Node::PrefixFcn {
+            bind,
+            function,
+            body,
+        })
     }
 
     fn unbind(&mut self, saved: Saved) {

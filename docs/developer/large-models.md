@@ -1203,7 +1203,9 @@ The policy command needs the Python bindings for Z3. For an edit, copy the paren
 
 The LuPastry+ authors distribute 16 TLA+ modules, including a 21,764-line invariant proof. The top-level `ProofCorrectness.tla` resolves 15 of those modules (34,596 source lines) and 13 library modules. On one EC2 logical CPU, three separate `dive analyze` processes each took 0.40 s. The corresponding pinned SANY processes took 5.13, 5.18 and 5.15 s. Replacing one operator in the routing table gave medians of 0.40 and 5.16 s. Both front ends diagnosed an intentional undefined operator in that dependency when invoked on the top-level file. SANY wrote the semantic error to its output and exited zero. These times cover semantic analysis including process startup. Executing a TLAPS proof has a different completion condition. [Author’s archive and proof history](https://homepages.loria.fr/SMerz/projects/pastry/index.html) · [Inputs and raw measurement fields](../../conformance/reports/perf/2026-11-21-pastry-source-scale.json).
 
-Running the protocol uncovered a separate limit. `SharedDigitsAux` chooses an entire function whose definition refers to earlier entries of that same function. Both TLC and Core stop at this unbounded choice. The comment in the released operator supplies a finite bound, `[RTRows -> 0..RTRowCount]`. A second equivalent definition constructs the function directly:
+The original `SharedDigitsAux` chooses an entire function whose definition refers to earlier entries. Default Core evaluates that finite predecessor equation directly. Pinned TLC stops at the unbounded choice, and the TLC comparison profile reports a named refusal. The original `Next` and `NextMC` runs and the three-ready control reproduce the counts below. [Original-source checks and independent replay](../../conformance/reports/perf/2026-11-22-lupastry-finite-prefix.json).
+
+The published operator also supplies a bounded form, `[RTRows -> 0..RTRowCount]`. A counted definition constructs an equivalent function:
 
 ```tla
 SharedDigitsAux(i, j) ==

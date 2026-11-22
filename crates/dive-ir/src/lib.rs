@@ -46,6 +46,7 @@ pub mod ids;
 mod intern;
 mod lower;
 pub mod origin;
+mod prefix;
 mod pretty;
 pub mod std_op;
 pub mod validate;
@@ -59,6 +60,7 @@ pub use expr::{
 pub use ids::{ConstId, DeclId, DefId, ExprId, FileId, ModuleId, Slot, VarId};
 pub use lower::{LowerError, lower};
 pub use origin::{FileInfo, Origin};
+pub use prefix::PrefixEquation;
 pub use std_op::{StdKind, StdOp, StdSupport};
 
 use serde::{Deserialize, Serialize};

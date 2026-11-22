@@ -53,6 +53,8 @@ The [source-driven EmergencyCall measurements](2026-11-21-source-whole-values.js
 
 The [automatic strategy comparison](2026-11-22-auto-strategy.json) records the KVS Medium/Large crossover, same-host direct controls and independent model-family controls.
 
+[LuPastry+ predecessor equations](2026-11-22-lupastry-finite-prefix.json) records the unchanged routing-table source, independent replay, and all-pairs comparisons with the bounded and counted definitions.
+
 The [lemma selection and proof controls](2026-11-22-lemma-selection.json) connect fourteen replayed counterexamples to induction, a finite surviving lemma, and external TLAPS checks on TwoPhase, Raft and TCommit. The [complete authored TwoPhase proof and Raft controls](2026-11-22-proof-controls.json) record external obligations discharged, time limits and attribution for each backend.
 
 [Flint cold and warm native peer controls](2026-11-22-flint-native-peer.json) compare Dive with pinned compiled tla-mc on the same eight cores and unmodified one-barrier configuration. Both reported 449,595 distinct states and depth 33. Dive took 4.80 s. The peer took 39.61 s cold, including 38.1 s of compilation, then 1.51–1.54 s warm.
