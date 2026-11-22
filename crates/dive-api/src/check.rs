@@ -426,7 +426,7 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
 /// # Errors
 /// [`crate::ApiError`] if the root file or the configuration cannot be read.
 pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, None, false, None)
+    check_file_in(req, None, false, None, false)
 }
 
 /// Checks with Core under explicit strategy switches, as
@@ -440,7 +440,7 @@ pub fn check_file_core_opts(
     req: &CheckRequest,
     switches: &str,
 ) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, None, false, Some(switches))
+    check_file_in(req, None, false, Some(switches), false)
 }
 
 /// Loads and checks files with TLC's configuration-first input error priority.
@@ -464,7 +464,7 @@ pub fn check_file_core_opts(
 /// # Errors
 /// [`crate::ApiError`] if the configuration or root file cannot be read.
 pub fn check_file_tlc_inputs(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, None, true, None)
+    check_file_in(req, None, true, None, false)
 }
 
 /// Runs the native pure-safety checkpoint/recovery slice. It refuses
@@ -494,18 +494,19 @@ pub fn check_file_checkpoint(
     req: &CheckRequest,
     checkpoint: &dive_runtime::checkpoint::Request,
 ) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, Some(checkpoint), false, None)
+    check_file_in(req, Some(checkpoint), false, None, false)
 }
 
 #[allow(
     clippy::too_many_lines,
     reason = "single ordered loader dispatch for ordinary and native recovery admission"
 )]
-fn check_file_in(
+pub(crate) fn check_file_in(
     req: &CheckRequest,
     checkpoint: Option<&dive_runtime::checkpoint::Request>,
     config_first: bool,
     core_switches: Option<&str>,
+    first_initial_only: bool,
 ) -> Result<CheckReport, crate::ApiError> {
     if req.debugger.is_some() {
         let feature = if req.store_compact_bytes.is_some() {
@@ -782,7 +783,7 @@ fn check_file_in(
             req.compat_tlc,
             core_switches,
             req.core_sample,
-            core_route(req, &armed),
+            core_route(req, &armed, first_initial_only),
             req.distributed
                 .as_ref()
                 .map(|options| (options, config_hash.as_str())),
@@ -949,6 +950,9 @@ fn check_file_in(
     {
         result.notes.push("Init partial error witness remains unconfirmed: its observed source/bindings were unavailable, its compound assignment encoding is unsupported, or the controlling budget stopped evidence capture.".into());
     }
+    if first_initial_only {
+        certify_cold_safety_word(&mut report, &ir, &model, &armed);
+    }
     if let Some(watchdog) = &mut watchdog {
         let finished = watchdog.finish();
         report.finish_budget(finished, checking_started.elapsed());
@@ -958,12 +962,73 @@ fn check_file_in(
     Ok(report)
 }
 
+/// Cold search owns the independent check of any earlier finite safety word,
+/// as well as the temporal words certified by the native liveness path.
+fn certify_cold_safety_word(
+    report: &mut CheckReport,
+    ir: &Arc<dive_ir::Ir>,
+    config: &dive_config::ModelConfig,
+    options: &CheckOptions,
+) {
+    let Phase::Checked(result) = &mut report.phase else {
+        return;
+    };
+    let Some(path) = result.counterexample.as_ref() else {
+        return;
+    };
+    let validation = (|| {
+        let value = trace_doc(
+            result,
+            &path.states,
+            options.eval.ctx,
+            report.next_error_endpoint.as_ref(),
+            report.partial_terminal_endpoint.as_ref(),
+            report.candidate_error_endpoint.as_ref(),
+            report.view_error_endpoint.as_ref(),
+        )?;
+        let doc = dive_trace::TraceDoc::from_json(&value)?;
+        let control = dive_runtime::budget::EvaluationControl::new(
+            &options.budget,
+            dive_runtime::budget::Phase::Validation,
+        )
+        .map_err(|error| error.to_string())?;
+        let recipe = dive_model::Recipe::new(
+            ir.clone(),
+            config.clone(),
+            options.eval,
+            options.no_deadlock,
+        )
+        .with_symmetry_liveness(options.symmetry_liveness);
+        let (checked, _) = crate::trace::on_big_stack(|| {
+            dive_trace::Session::new(recipe, None).read_controlled(&doc, control)
+        })
+        .map_err(|error| error.to_string())?
+        .map_err(|error| error.to_string())?;
+        match checked.validation {
+            dive_trace::Validation::Valid => Ok(()),
+            invalid => Err(format!("{invalid:?}")),
+        }
+    })();
+    if let Err(reason) = validation {
+        result.counterexample = None;
+        result.diagnostic_witness = None;
+        report.partial_terminal_endpoint = None;
+        result.verdict = Verdict::Unsupported {
+            feature: format!("independent cold fair safety replay: {reason}"),
+        };
+    }
+}
+
 /// Select the ordinary profile schedule or an explicit all-property prefix search.
 /// A refused temporal strategy has no route.
-fn core_route(req: &CheckRequest, options: &CheckOptions) -> Option<crate::core_temporal::Route> {
+fn core_route(
+    req: &CheckRequest,
+    options: &CheckOptions,
+    first_initial_only: bool,
+) -> Option<crate::core_temporal::Route> {
     req.temporal_refusal.is_none().then(|| {
         (options.profile == dive_eval::Profile::Dive || req.temporal == TemporalMode::PeriodicAll)
-            .then_some((req.periodic, req.temporal))
+            .then_some((req.periodic, req.temporal, first_initial_only))
     })
 }
 
@@ -2678,6 +2743,7 @@ mod evidence_controls {
             None,
             false,
             None,
+            false,
         )
         .expect("report");
         let _ = std::fs::remove_dir_all(&directory);

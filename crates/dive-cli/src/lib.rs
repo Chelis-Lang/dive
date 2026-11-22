@@ -466,6 +466,7 @@ fn check_command_mode(
     let mut checkpoint_counters = dive_api::checkpoint::Counters::Tlc;
     let mut counters_given = false;
     let mut final_check = false;
+    let mut cold_fair = false;
     let mut short_lasso = false;
     let mut file: Option<&str> = None;
     let mut json = false;
@@ -581,10 +582,11 @@ fn check_command_mode(
             "--lncheck" => match value().as_deref() {
                 Some("final") => final_check = true,
                 Some("periodic-all") => req.temporal = dive_api::TemporalMode::PeriodicAll,
+                Some("cold-fair") => cold_fair = true,
                 _ => {
                     return usage_error(
                         err,
-                        "--lncheck expects periodic-all or final with --lasso short",
+                        "--lncheck expects cold-fair, periodic-all or final with --lasso short",
                     );
                 }
             },
@@ -896,6 +898,14 @@ fn check_command_mode(
         }
         req.seen_disk = Some(seen_policy);
     }
+    if cold_fair
+        && (worker_mode || final_check || req.temporal == dive_api::TemporalMode::PeriodicAll)
+    {
+        return usage_error(
+            err,
+            "--lncheck cold-fair requires its own local checking run",
+        );
+    }
     if final_check && req.temporal == dive_api::TemporalMode::PeriodicAll {
         return usage_error(err, "--lncheck final and periodic-all conflict");
     }
@@ -1033,6 +1043,15 @@ fn check_command_mode(
             "worker key/timeout/retry options require worker mode or --distributed-worker endpoints",
         );
     }
+    if cold_fair {
+        if checkpoint.is_some() {
+            return usage_error(
+                err,
+                "--lncheck cold-fair does not use checkpoints or recovery",
+            );
+        }
+        return cold_fair_report(&req, json, exit_convention, out, err);
+    }
     let checked = if let Some(request) = &checkpoint {
         dive_api::check_file_checkpoint(&req, request)
     } else {
@@ -1071,6 +1090,36 @@ fn check_command_mode(
         );
     }
     ExitCode::from(report.exit_code_for(exit_convention))
+}
+
+fn cold_fair_report(
+    request: &dive_api::CheckRequest,
+    json: bool,
+    convention: dive_api::ExitConvention,
+    out: &mut impl std::io::Write,
+    err: &mut impl std::io::Write,
+) -> ExitCode {
+    match dive_api::cold_fair::check_file(request) {
+        Ok(report) => {
+            if json {
+                let _ = writeln!(out, "{}", report.to_json(convention));
+            } else {
+                let _ = write!(out, "{}", report.render_human(convention));
+            }
+            ExitCode::from(report.exit_code(convention))
+        }
+        Err(error) => {
+            let code = match error {
+                dive_api::ApiError::Unsupported { .. } => EXIT_UNSUPPORTED,
+                dive_api::ApiError::BudgetStartup(_) | dive_api::ApiError::BudgetMeasurement(_) => {
+                    4
+                }
+                _ => EXIT_USAGE,
+            };
+            let _ = writeln!(err, "{error}; no verdict produced");
+            ExitCode::from(code)
+        }
+    }
 }
 
 /// `dive validate-trace <file> --trace <trace.json> [--config cfg] [--claim ENDING]

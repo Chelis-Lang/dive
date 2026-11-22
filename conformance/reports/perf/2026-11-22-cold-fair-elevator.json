@@ -1,0 +1,370 @@
+{
+  "issue": 1368,
+  "source_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "mode": "Exact graph from the first admitted original Init emission. The original source and configuration are the independent replay inputs. Two due completed-level analyses found the eight-floor word.",
+  "selection": "One fresh root, no donor or action ordering override, and an empty cache. Only FloorCount changes in ElevatorLivenessLarge.cfg. The cross-family runner tries a seeded simulation before exact first-root search.",
+  "hosts": {
+    "aws": {
+      "cpu": "Intel Xeon Platinum 8488C",
+      "instance": "c7i.4xlarge",
+      "os": "Ubuntu 24.04",
+      "kernel": "7.0.0-1018-aws",
+      "measurement": "isolated, one checker process at a time"
+    },
+    "local": {
+      "cpu": "AMD Ryzen AI MAX+ 395",
+      "os": "Fedora Linux 43",
+      "measurement": "local Linux control"
+    }
+  },
+  "sha256": {
+    "Elevator.tla": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+    "ElevatorCfg3": "f41449494507bb7def26453fd0bfc46a3928b6436de0da8d6aa888a13aed410c",
+    "ElevatorCfg7": "a75424aeb60b0e1ed5d4c06a35b23d9e4c00678da6ffd81879e1cebc89811e62",
+    "ElevatorCfg8": "8e47b6d02a43b7da679a04d8b521c9dfdae7c51407f2e492002361ee6f48ac43",
+    "Graph7Cfg": "c1760829925c62e16c9d0ff626b8fe804deb686fcce8efc8e23e49c513e35de4",
+    "TestMCReachability.tla": "cf5d2ec158de5f0c3253ff62f22b569ffa867612aa6c1d473d04bab4ca32b81e",
+    "dive_measured_binary": "cd29dac242316e73cf6d2ccda0d3b5dff135638b6100fec2ebcb64741fbc04ba",
+    "independent_validator": "4778ec8892c7f818d3029f95dae6b873caf5f78da720d04f41a5c3239941991e"
+  },
+  "commands": {
+    "elevator": "dive check Elevator.tla --config CFG --lncheck cold-fair --workers 1 --seed 0 --fp 0 --periodic-min-states N --time-limit 355s --max-memory 8g --output json",
+    "replay": "dive validate-trace Elevator.tla --config CFG --trace WORD.json --output json",
+    "graph7": "python3 scripts/perf/scale/cold-fair.py TestMCReachability.tla --config graph7.cfg --dive DIVE --library-path MODULES --out WORD.json --seconds 360 --memory 8g --seed 0"
+  },
+  "published_controls": {
+    "ordinary_8": "360.06 s, 7,109,953 distinct and no verdict. The two additional full-initial prefix attempts also stopped.",
+    "ordinary_7": "227.04 s to a validated 249-state word on the pinned c7i.4xlarge run.",
+    "repaired_121": "26.19 ms to construct an 882-state word from a saved four-floor donor. Independent replay took 2.59 s."
+  },
+  "runs": [
+    {
+      "model": "Elevator 3 floors",
+      "host": "local",
+      "wall_s": 1.04,
+      "peak_rss_kib": 74984,
+      "outcome": "bounded-inconclusive",
+      "property": null,
+      "statistics": {
+        "depth": 55,
+        "distinct": 45458,
+        "exhaustive": false,
+        "generated": 208493,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "seed": 0,
+      "exact_state_keys": true,
+      "prefix_checks": 0,
+      "first_prefix_threshold": 65536,
+      "root_count": 1,
+      "configured_time_limit_s": 355,
+      "memory_limit_gib": 8
+    },
+    {
+      "model": "Elevator 7 floors",
+      "host": "local",
+      "wall_s": 79.7,
+      "peak_rss_kib": 979864,
+      "outcome": "liveness-violation",
+      "property": "TemporalInvariant",
+      "statistics": {
+        "depth": 36,
+        "distinct": 1527394,
+        "exhaustive": false,
+        "generated": 11030812,
+        "initial_generated": 1,
+        "left_on_queue": 187908,
+        "reported_by_tlc": false
+      },
+      "seed": 0,
+      "exact_state_keys": true,
+      "prefix_checks": 1,
+      "first_prefix_threshold": 1500000,
+      "root_count": 1,
+      "configured_time_limit_s": 355,
+      "memory_limit_gib": 8,
+      "word": {
+        "length": 218,
+        "ending": {
+          "back_to": 17,
+          "kind": "lasso"
+        },
+        "properties": [
+          "TemporalInvariant"
+        ]
+      },
+      "genuine_replay": "valid",
+      "damaged_replay": "invalid",
+      "standalone_replay": {
+        "wall_s": 0.04,
+        "peak_rss_kib": 28664
+      }
+    },
+    {
+      "model": "Elevator 8 floors",
+      "host": "aws",
+      "wall_s": 325.1,
+      "peak_rss_kib": 1555132,
+      "outcome": "liveness-violation",
+      "property": "TemporalInvariant",
+      "statistics": {
+        "depth": 38,
+        "distinct": 3258536,
+        "exhaustive": false,
+        "generated": 26470981,
+        "initial_generated": 1,
+        "left_on_queue": 381734,
+        "reported_by_tlc": false
+      },
+      "seed": 0,
+      "exact_state_keys": true,
+      "prefix_checks": 2,
+      "first_prefix_threshold": 1500000,
+      "root_count": 1,
+      "configured_time_limit_s": 355,
+      "memory_limit_gib": 8,
+      "word": {
+        "length": 261,
+        "ending": {
+          "back_to": 17,
+          "kind": "lasso"
+        },
+        "properties": [
+          "TemporalInvariant"
+        ]
+      },
+      "genuine_replay": "valid",
+      "damaged_replay": "invalid",
+      "standalone_replay": {
+        "wall_s": 0.07,
+        "peak_rss_kib": 32160
+      }
+    },
+    {
+      "model": "Elevator 8 floors",
+      "host": "local",
+      "wall_s": 230.2,
+      "peak_rss_kib": 1559224,
+      "outcome": "liveness-violation",
+      "property": "TemporalInvariant",
+      "statistics": {
+        "depth": 38,
+        "distinct": 3258536,
+        "exhaustive": false,
+        "generated": 26470981,
+        "initial_generated": 1,
+        "left_on_queue": 381734,
+        "reported_by_tlc": false
+      },
+      "seed": 0,
+      "exact_state_keys": true,
+      "prefix_checks": 2,
+      "first_prefix_threshold": 1500000,
+      "root_count": 1,
+      "configured_time_limit_s": 355,
+      "memory_limit_gib": 8,
+      "word": {
+        "length": 261,
+        "ending": {
+          "back_to": 17,
+          "kind": "lasso"
+        },
+        "properties": [
+          "TemporalInvariant"
+        ]
+      },
+      "genuine_replay": "valid",
+      "damaged_replay": "invalid",
+      "standalone_replay": {
+        "wall_s": 0.05,
+        "peak_rss_kib": 30796
+      }
+    }
+  ],
+  "simulation_misses": [
+    {
+      "trial": "stock-eight",
+      "outcome": "sampled",
+      "seed": 0,
+      "depth": 768,
+      "attempted": 256,
+      "completed_property_checks": 0,
+      "wall_s": 26.62,
+      "peak_rss_kib": 177996
+    },
+    {
+      "trial": "stock-eight-budget",
+      "outcome": "sampled",
+      "seed": 0,
+      "depth": 360,
+      "attempted": 64,
+      "completed_property_checks": 64,
+      "wall_s": 14.39,
+      "peak_rss_kib": 113156
+    },
+    {
+      "trial": "stock-eight-many",
+      "outcome": "sampled",
+      "seed": 0,
+      "depth": 144,
+      "attempted": 1024,
+      "completed_property_checks": 1024,
+      "wall_s": 28.5,
+      "peak_rss_kib": 145352
+    },
+    {
+      "trial": "stock-eight-deep",
+      "outcome": "stopped",
+      "seed": 0,
+      "depth": 3500,
+      "attempted": 4,
+      "completed_property_checks": 2,
+      "wall_s": 360.23,
+      "peak_rss_kib": 151356
+    },
+    {
+      "trial": "guided-8-720-96-0",
+      "outcome": "bounded-inconclusive",
+      "seed": 0,
+      "depth": 720,
+      "attempted": 96,
+      "completed_property_checks": 96,
+      "wall_s": 65.17,
+      "peak_rss_kib": 134480
+    },
+    {
+      "trial": "guided-8-1440-24-0",
+      "outcome": "bounded-inconclusive",
+      "seed": 0,
+      "depth": 1440,
+      "attempted": 24,
+      "completed_property_checks": 24,
+      "wall_s": 78.22,
+      "peak_rss_kib": 132148
+    },
+    {
+      "trial": "guided-8-2200-24-2",
+      "outcome": "bounded-inconclusive",
+      "seed": 2,
+      "depth": 2200,
+      "attempted": 24,
+      "completed_property_checks": 24,
+      "wall_s": 179.22,
+      "peak_rss_kib": 145988
+    }
+  ],
+  "full_initial_prefix_misses": [
+    {
+      "configuration": "cold-prefix-6500000-1",
+      "wall_s": 355.04,
+      "peak_rss_kib": 2329768,
+      "statistics": {
+        "depth": 20,
+        "distinct": 6562916,
+        "exhaustive": false,
+        "generated": 55631131,
+        "initial_generated": 262144,
+        "left_on_queue": 355852,
+        "reported_by_tlc": false
+      }
+    },
+    {
+      "configuration": "cold-prefix-9000000-6",
+      "wall_s": 355.02,
+      "peak_rss_kib": 1559648,
+      "statistics": {
+        "depth": 24,
+        "distinct": 9228026,
+        "exhaustive": false,
+        "generated": 81965560,
+        "initial_generated": 262144,
+        "left_on_queue": 710586,
+        "reported_by_tlc": false
+      }
+    }
+  ],
+  "graph7": {
+    "runner": {
+      "result": "validated-fair-counterexample",
+      "seed": 0,
+      "seconds": 360,
+      "memory": "8g",
+      "module_sha256": "cf5d2ec158de5f0c3253ff62f22b569ffa867612aa6c1d473d04bab4ca32b81e",
+      "configuration_sha256": "c1760829925c62e16c9d0ff626b8fe804deb686fcce8efc8e23e49c513e35de4",
+      "attempts": [
+        {
+          "stage": "simulation",
+          "result": "violation",
+          "exit": 10,
+          "wall_s": 0.05809767998289317,
+          "seed": 0,
+          "traces": 28,
+          "statistics": {
+            "generated": 5178,
+            "initial_candidates": 1,
+            "properties": [
+              {
+                "behaviors_checked": 27,
+                "checked_traces": 27,
+                "name": "Termination",
+                "part": "temporal",
+                "refuted_by_trace": null,
+                "unchecked_reasons": {},
+                "unchecked_traces": 0
+              },
+              {
+                "behaviors_checked": 27,
+                "checked_traces": 27,
+                "name": "Live",
+                "part": "temporal",
+                "refuted_by_trace": 27,
+                "unchecked_reasons": {},
+                "unchecked_traces": 0
+              }
+            ],
+            "sampled_sets": [],
+            "scope": "completed-prefix",
+            "trace_classes": {
+              "cancelled": 0,
+              "closed": 27,
+              "extended_closed": 0,
+              "extended_terminal": 0,
+              "terminal": 0,
+              "truncated": 0,
+              "violated": 1
+            },
+            "traces_dropped": 0,
+            "traces_kept": 1,
+            "traces_stalled": 0,
+            "traces_started": 28,
+            "traces_written": null
+          },
+          "reason": null,
+          "replay": {
+            "result": "valid",
+            "exit": 0,
+            "wall_s": 0.03839359601261094,
+            "seed": null,
+            "traces": null,
+            "statistics": {},
+            "reason": null
+          }
+        }
+      ]
+    },
+    "word": {
+      "length": 88,
+      "ending": {
+        "kind": "stuttering"
+      },
+      "properties": [
+        "Live"
+      ]
+    },
+    "damaged_replay": "invalid",
+    "wall_s": 0.13,
+    "peak_rss_kib": 32252
+  }
+}

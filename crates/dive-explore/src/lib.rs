@@ -518,6 +518,10 @@ pub(crate) fn capture_copy(values: &[Handle]) -> Result<Vec<Handle>, Error> {
     Ok(copy)
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "initial phase, cut handoff, expansion and candidate admission are independent facts"
+)]
 struct Explorer<'p> {
     plan: &'p Plan,
     /// The behavior graph's sink, when a temporal check needs it.
@@ -539,6 +543,7 @@ struct Explorer<'p> {
     next_originals: Vec<Handle>,
     emitted: u64,
     initial: bool,
+    initial_cut: bool,
     /// Variables the current step changed (bit per variable); all ones for
     /// initial states.
     changed: u64,
@@ -1445,6 +1450,14 @@ impl Explorer<'_> {
         if m.heap.poisoned() {
             return Err(Error::internal("a stale value handle was read"));
         }
+        if r.is_ok()
+            && self.initial
+            && self.in_model
+            && self.candidate_storage.initial_states == storage::InitialStates::FirstAdmitted
+        {
+            self.initial_cut = true;
+            return Err(Error::stop());
+        }
         r
     }
 }
@@ -1834,6 +1847,7 @@ fn explore_inner<'p>(
         next_originals: Vec::new(),
         emitted: 0,
         initial: true,
+        initial_cut: false,
         changed: u64::MAX,
         level: 1,
         expanded: false,
@@ -1860,7 +1874,19 @@ fn explore_inner<'p>(
     };
     let mut replayed = None;
     let mut reservoir = config.sample.map(sample::Reservoir::new);
-    let result = if sorted
+    let result = if storage.initial_states == storage::InitialStates::FirstAdmitted
+        && (!storage.exact
+            || ex.graph.is_none()
+            || ex.checkpoint.is_some()
+            || ex.distributed.is_some()
+            || plan.effects.any
+            || plan.view.is_some()
+            || plan.symmetry.is_some())
+    {
+        Err(Error::unsupported(
+            "first Init root requires exact pure temporal capture",
+        ))
+    } else if sorted
         && (ex.checkpoint.is_some()
             || ex.distributed.is_some()
             || storage.exact
@@ -2283,12 +2309,19 @@ fn run(
         start_stream(m, plan, None)?;
         // `TLCGet("level")` is 0 in `Init` (TLC's `INIT_LEVEL - 1`).
         m.level = 0;
-        let accelerated = initial::parallel(machines, ex);
+        let accelerated =
+            if ex.candidate_storage.initial_states == storage::InitialStates::FirstAdmitted {
+                None
+            } else {
+                initial::parallel(machines, ex)
+            };
         let Some(m) = machines.first_mut() else {
             return Err(Error::internal("no core machine"));
         };
         let result = accelerated.unwrap_or_else(|| run_actions(m, ex, &plan.init, code));
-        if let Err(e) = result {
+        if let Err(e) = result
+            && !(ex.initial_cut && e.kind() == ErrorKind::Stop)
+        {
             ex.stats.left_on_queue = ex.queued_states() as u64;
             return Err(generator_error(m, ex, &[], e));
         }
