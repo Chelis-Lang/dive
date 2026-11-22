@@ -276,6 +276,11 @@ def prove(args, root, managers):
         [sys.executable, Path(__file__).resolve(), args.benchmarks, "--dive", args.dive,
          "--published-pool", str(managers)], root
     )
+    if args.certificate_out:
+        artifact.update(rows=native["states"], resolved_actions=native["actions"])
+        exported = args.certificate_out / f"TwoPhase-{managers}.json"
+        exported.write_text(json.dumps(artifact, separators=(",", ":")))
+        artifact = {key: value for key, value in artifact.items() if key not in ("rows", "resolved_actions")}
     named_support = {key: named[key] for key in ("transition_obligations", "closure_sweeps", "proof")}
     return {"cfg": cfg_text, "certificate": artifact, "discovery": dict(production, synthesis_s=synthesis_s),
             "native": {k: v for k, v in native.items() if k != "states"},
@@ -301,6 +306,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("benchmarks", type=lambda p: Path(p).resolve())
     parser.add_argument("--dive", type=lambda p: Path(p).resolve(), required=True)
+    parser.add_argument("--certificate-out", type=lambda p: Path(p).resolve())
     parser.add_argument("--published-pool", type=int, choices=(2, 3))
     for flag in ("producer", "exporter", "tlc-jar"):
         parser.add_argument("--" + flag, type=lambda p: Path(p).resolve())
@@ -311,6 +317,8 @@ def main():
         return
     if not all((args.producer, args.exporter, args.tlc_jar)):
         parser.error("certification requires --producer, --exporter and --tlc-jar")
+    if args.certificate_out:
+        args.certificate_out.mkdir(parents=True, exist_ok=True)
     for managers in (2, 3):
         with TemporaryDirectory() as temporary:
             print(json.dumps(prove(args, Path(temporary), managers)), flush=True)

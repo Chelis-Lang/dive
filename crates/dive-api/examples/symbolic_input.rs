@@ -5,6 +5,9 @@
 
 use std::{env, fs, path::Path, sync::Arc};
 
+#[path = "finite_induction/engine.rs"]
+mod finite_induction;
+
 use dive_eval::ConstBinding;
 use dive_ir::DefId;
 use serde_json::{Value, json};
@@ -161,6 +164,12 @@ fn run(module: &Path, config: &Path, orbits: bool) -> Result<Value, String> {
 
 fn main() -> Result<(), String> {
     let args = env::args_os().skip(1).collect::<Vec<_>>();
+    if matches!(
+        args.first().and_then(|arg| arg.to_str()),
+        Some("--finite-produce" | "--finite-check" | "--finite-targets" | "--finite-freeze")
+    ) {
+        return finite_induction::entry(&args);
+    }
     let (module, cfg, orbits) = match args.as_slice() {
         [module, cfg] => (module, cfg, false),
         [flag, module, cfg] if flag == "--orbit-proof" => (module, cfg, true),

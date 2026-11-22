@@ -78,7 +78,15 @@ fn options(args: &[String], command: &mut Command) -> Result<(), String> {
         Some("compiled") => {
             command.arg("--compiled");
         }
-        _ => return Err("--strategy expects auto, symbolic, occupancy or compiled".to_owned()),
+        Some("finite-induction") => {
+            command.arg("--finite-induction");
+        }
+        _ => {
+            return Err(
+                "--strategy expects auto, symbolic, occupancy, compiled or finite-induction"
+                    .to_owned(),
+            );
+        }
     }
     let module = module.ok_or_else(|| "missing TLA+ module".to_owned())?;
     let config = config.unwrap_or_else(|| module.with_extension("cfg"));
