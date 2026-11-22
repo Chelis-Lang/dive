@@ -119,6 +119,8 @@ The [population edit-session measurements](2026-11-21-occupancy-edits.json) pair
 
 [Finite lemma discovery](2026-11-22-lemma-discovery.json) records predicates derived from counterexamples to induction on TwoPhase and AsyncRaft, checked against the pinned TLC and the published formulas.
 
+[Deterministic action images](2026-11-22-producer-action-images.json) records paired original-Elevator measurements, generated-value reuse, fallback on CoffeeCan and an independent differential audit.
+
 ## 0.1.0 release records
 
 | File | Family | Question | Source | Host |

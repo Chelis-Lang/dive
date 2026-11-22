@@ -5,6 +5,8 @@ are in git history.
 
 ## Unreleased
 
+- Core reuses values written by a deterministic successor when checking [fairness on original transitions](docs/user/temporal.md#fairness).
+
 - Core evaluates eligible [fairness actions](docs/user/temporal.md#fairness) across original transitions sharing a source. Three-floor Elevator took 2.04 seconds and the four-floor counterexample took 6.91 seconds on the benchmark host.
 
 - Core keeps the component search available on larger fairness graphs. On six-floor Elevator, Core found a validated counterexample in 73.33 s at 541 MiB peak RSS. [Fairness](docs/user/temporal.md#fairness)
