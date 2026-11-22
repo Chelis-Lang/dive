@@ -45,15 +45,25 @@ pub(crate) fn exhausted() -> bool {
     BUDGET.with(|b| !matches!(b.borrow().poll(), Ok(None)))
 }
 
-/// Each optional temporal buffer (WF columns or repeated product rows)
-/// can retain up to one 256th of the requested memory budget.
-pub(crate) fn optional_buffer_limit() -> usize {
-    const MAX: usize = 16 * 1024 * 1024;
+fn memory_share(divisor: u64, maximum: usize) -> usize {
     BUDGET.with(|budget| {
-        budget.borrow().memory.map_or(MAX, |bytes| {
-            usize::try_from(bytes / 256).unwrap_or(MAX).min(MAX)
+        budget.borrow().memory.map_or(maximum, |bytes| {
+            usize::try_from(bytes / divisor)
+                .unwrap_or(maximum)
+                .min(maximum)
         })
     })
+}
+
+/// Allowance for an optional set of temporal labels or repeated product rows.
+pub(crate) fn optional_buffer_limit() -> usize {
+    memory_share(256, 16 * 1024 * 1024)
+}
+
+/// Shared allowance for the component solver's original-edge truth words,
+/// vertex filters, membership array and optional cached product rows.
+pub(crate) fn streett_buffer_limit() -> usize {
+    memory_share(64, 128 * 1024 * 1024)
 }
 
 #[cfg(test)]
@@ -79,6 +89,26 @@ pub(crate) fn expired_for_test() -> dive_runtime::budget::Watchdog {
 
 #[cfg(test)]
 mod reuse_limit_tests {
+    #[test]
+    fn component_workspace_scales_with_memory_and_restores_scope() {
+        const MIB: usize = 1024 * 1024;
+        let original = super::streett_buffer_limit();
+        for (memory, expected) in [
+            (None, 128 * MIB),
+            (Some(0), 0),
+            (Some(63), 0),
+            (Some(64), 1),
+            (Some(1024 * 1024 * 1024), 16 * MIB),
+            (Some(8 * 1024 * 1024 * 1024), 128 * MIB),
+            (Some(u64::MAX), 128 * MIB),
+        ] {
+            let budget = dive_runtime::budget::Budget::new(None, memory);
+            let _scope = super::enter(&budget);
+            assert_eq!(super::streett_buffer_limit(), expected);
+        }
+        assert_eq!(super::streett_buffer_limit(), original);
+    }
+
     #[test]
     fn optional_columns_use_requested_memory_fraction_and_restore_scope() {
         let original = super::optional_buffer_limit();

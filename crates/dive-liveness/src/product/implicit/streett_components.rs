@@ -43,7 +43,8 @@ impl<'a> StreettWords<'a> {
         };
         labels.validate_dimensions(graph)?;
         let count = offsets.last().copied().unwrap_or(0);
-        let mut remaining = crate::budget::optional_buffer_limit();
+        let allowance = crate::budget::streett_buffer_limit();
+        let mut remaining = allowance;
         let (Some(mut conditions), Some(mut choices)) = (
             optional(63, &mut remaining),
             optional(pairs.len(), &mut remaining),
@@ -77,7 +78,7 @@ impl<'a> StreettWords<'a> {
                 }
             }
         }
-        let retained = crate::budget::optional_buffer_limit() - remaining;
+        let retained = allowance - remaining;
         let (Some(mut state), Some(mut actions)) = (
             optional(conditions.len(), &mut remaining),
             optional(conditions.len(), &mut remaining),

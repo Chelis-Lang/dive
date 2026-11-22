@@ -67,7 +67,7 @@ impl<T: TruthAccess> ImplicitProduct<'_, T> {
         if pairs.is_empty() {
             return self.find_lasso_in_alternatives(labels, alternatives);
         }
-        let bytes = crate::budget::optional_buffer_limit()
+        let bytes = crate::budget::streett_buffer_limit()
             .saturating_sub(words.map_or(0, super::StreettWords::bytes));
         let row_bytes = if words.is_some() {
             bytes.saturating_sub(super::StreettWords::workspace(self.vertex_count()))
