@@ -1301,7 +1301,7 @@ Adding a fourth writer to the restart-capable model left both exact searches wit
 | FALSE | 3,300.37 | 439,414,951 | 1,775,147,975 | 46 | 113,110,552 | 35.65 |
 | TRUE | 4,500.53 | 580,547,531 | 2,410,061,075 | 48 | 137,369,779 | 52.62 |
 
-Both runs stopped before reaching the depth of the three-writer witness. The four-writer verdict remains open for both settings. [Configurations and exact measurements](../../conformance/reports/perf/2026-11-21-slatedb-source-edits.json).
+Both runs stopped before reaching the depth of the three-writer witness. The [transferred witness](#transfer-a-slatedb-witness-to-a-larger-configuration) settles the four-writer fix-off case. The fix-on verdict remains open. [Configurations and exact measurements](../../conformance/reports/perf/2026-11-21-slatedb-source-edits.json).
 
 #### The earlier four-writer WAL protocol
 
