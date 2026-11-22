@@ -98,6 +98,9 @@ proof() {
 export DIVE_SYMBOLIC_PROOF_KEY="$PWD/proof.key"
 proof --write-predicate proven.json > established
 jq -e '.closure_receipt.actions | length == 2' proven.json >/dev/null
+chmod 0700 proof.key
+proof --verify-predicate proven.json | jq -e '.proof=="inductive-safety" and .reused_obligations==0' >/dev/null
+chmod 0400 proof.key
 proof --verify-predicate proven.json | jq -e '.reused_obligations == 2' >/dev/null
 jq '.closure_receipt.mac="bad"' proven.json > damaged.json
 proof --verify-predicate damaged.json | jq -e '.proof=="inductive-safety" and .reused_obligations==0' >/dev/null

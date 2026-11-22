@@ -26,7 +26,8 @@ def local_key():
         flags = os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW
         with os.fdopen(os.open(path, flags), "rb") as stream:
             meta = os.fstat(stream.fileno())
-            if not stat.S_ISREG(meta.st_mode) or meta.st_uid != os.getuid() or meta.st_mode & 0o077:
+            if (not stat.S_ISREG(meta.st_mode) or meta.st_uid != os.getuid()
+                    or stat.S_IMODE(meta.st_mode) not in (0o400, 0o600)):
                 return None
             secret = stream.read(33)
             return secret if len(secret) == 32 else None
