@@ -5,6 +5,8 @@ are in git history.
 
 ## Unreleased
 
+- Named symbolic checks can [repair a rejected predicate](docs/user/symbolic.md#repair-a-candidate-on-the-currently-bound-source) in the same invocation.
+
 - Named symbolic proofs can [reuse authenticated transition obligations in a new process](docs/user/symbolic.md#reuse-certified-action-obligations-in-another-process).
 
 - Core names the [formula work limit](docs/user/temporal.md#storage-and-limits) when independent fairness assumptions exhaust temporal decomposition.

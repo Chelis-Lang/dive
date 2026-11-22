@@ -39,5 +39,8 @@ install -m 644 cudd-cudd-3.0.0/LICENSE worker/licenses/LICENSE.cudd
 install -m 644 "$source_dir"/{auto,check,compiled,engine,finite_relation,finite_values,induction,obligation_receipt,occupancy,occupancy_predicate,occupancy_source,packed_codegen,property_proof,worker_process}.py worker/
 install -m 644 "$source_dir/packed_worker.rs.in" worker/
 install -m 755 "$exporter" worker/symbolic_input
+# Trusted callers can issue verify+write in one process when this capability is installed.
+mkdir worker/capabilities
+touch worker/capabilities/named-predicate-repair-v1
 mkdir -p "$(dirname "$destination")"
 mv -T worker "$destination"
