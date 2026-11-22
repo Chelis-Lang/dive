@@ -1,0 +1,375 @@
+{
+  "schema": 1,
+  "scimitar_source": "https://github.com/will62794/scimitar/tree/f1b902dc0801cf435cb9dd6e6be495d5ed121787/benchmarks",
+  "dive_sha256": "b34d889d94f0d57ec66ba8f7cbf4ca739e0d8ee2cfbda6a5cd6d070288896469",
+  "ir_exporter_sha256": "2432417f01e16f76a375486aa9272fa1eab2b6e7c5686bc0957521f8e383c910",
+  "tlc": "tlc-2026.10.06.014338",
+  "tlc_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "method": {
+    "discovery": "scripts/perf/scale/discover_induction.py",
+    "reproduce": "scripts/perf/scale/check_induction_discovery.py",
+    "time": "One local sequential run including checker startup. Independent target certification includes discovery and first TLC check. Published formulas and the saved proof graph were withheld from synthesis. Only H_ definitions in the target dependency walk were available to atom extraction. The published-pool time measures finite selection from the existing formulas.",
+    "controls": "scripts/perf/scale/scimitar_controls.py"
+  },
+  "panels": [
+    {
+      "model": "TwoPhase",
+      "domain": "TypeOK",
+      "constants": "CONSTANT RM = {rm1, rm2}",
+      "discovery": {
+        "result": "finite-strengthening",
+        "candidate": "(\\A diveI,diveJ \\in RM : ~( (\"committed\" = rmState[diveJ]) /\\ ([type |-> \"Abort\"] \\in msgsAbort) ))",
+        "atom_count": 5,
+        "candidate_checks": 12,
+        "first_replayed_cti_s": 0.0429252139874734,
+        "checked_candidate_s": 0.14651622402016073,
+        "recheck_s": 0.011242023960221559,
+        "omit_and_replay_s": 0.03954033995978534,
+        "baseline_cti": {
+          "states": 2,
+          "hypothesis_replay": "valid",
+          "original_init_replay": "invalid",
+          "damaged_replay": "invalid"
+        },
+        "omitted_cti": {
+          "states": 2,
+          "hypothesis_replay": "valid",
+          "original_init_replay": "invalid",
+          "damaged_replay": "invalid"
+        },
+        "checked": {
+          "target": "H_TCConsistent",
+          "action": "RMRcvAbortMsgAction",
+          "Init": "included",
+          "target_preservation": "proved on typed domain",
+          "safe_prestate_coverage": "proved",
+          "nonvacuous": 1728,
+          "candidate_preservation": "success",
+          "candidate_preservation_witness": null,
+          "counts": {
+            "depth": 2,
+            "distinct": 2688,
+            "generated": 3936,
+            "initial_generated": 2208,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          }
+        }
+      },
+      "independent_tlc": {
+        "target_step": {
+          "verdict": "success",
+          "wall_s": 0.335427,
+          "generated": 3936,
+          "distinct": 2688
+        },
+        "Init_inclusion": {
+          "verdict": "success",
+          "wall_s": 0.286211,
+          "generated": 2,
+          "distinct": 1
+        },
+        "safe_prestate_coverage": {
+          "verdict": "success",
+          "wall_s": 0.384579,
+          "generated": 5376,
+          "distinct": 2688
+        },
+        "candidate_preservation": {
+          "verdict": "success",
+          "wall_s": 0.3406,
+          "generated": 3936,
+          "distinct": 2688
+        },
+        "without_premise": {
+          "verdict": "invariant-violation",
+          "wall_s": 0.36162,
+          "generated": 3073,
+          "distinct": 2977
+        }
+      },
+      "comparison": {
+        "published": "H_RMCommittedImpliesNoAbortMsg",
+        "equivalence_on_typed_target_prestates": {
+          "verdict": "success",
+          "wall_s": 0.338826,
+          "generated": 5376,
+          "distinct": 2688
+        },
+        "candidates": [
+          {
+            "candidate": "H_RMCommittedImpliesNoRMsWorking",
+            "result": "validated-CTI",
+            "states": 2,
+            "wall_s": 0.022132
+          },
+          {
+            "candidate": "H_RMCommittedImpliesNoAbortMsg",
+            "result": "finite-preservation",
+            "states": 2688,
+            "wall_s": 0.012346
+          },
+          {
+            "candidate": "H_RMAbortedImpliesNoCommitMsg",
+            "result": "validated-CTI",
+            "states": 2,
+            "wall_s": 0.023566
+          },
+          {
+            "candidate": "H_CommitSentImpliesRMsNotWorking",
+            "result": "validated-CTI",
+            "states": 2,
+            "wall_s": 0.022414
+          },
+          {
+            "candidate": "H_RMCommittedImpliesTMCommitted",
+            "result": "validated-CTI",
+            "states": 2,
+            "wall_s": 0.021215
+          },
+          {
+            "candidate": "H_CommitMsgImpliesNoAbortMsg",
+            "result": "validated-CTI",
+            "states": 2,
+            "wall_s": 0.021761
+          },
+          {
+            "candidate": "H_RMWorkingImpliesNoCommitMsg",
+            "result": "validated-CTI",
+            "states": 2,
+            "wall_s": 0.024087
+          },
+          {
+            "candidate": "H_RMAbortedAndPreparedImpliesTMAborted",
+            "result": "validated-CTI",
+            "states": 2,
+            "wall_s": 0.022965
+          },
+          {
+            "candidate": "H_TMKnowsPrepareImpliesRMWorking",
+            "result": "validated-CTI",
+            "states": 2,
+            "wall_s": 0.022909
+          },
+          {
+            "candidate": "H_CommitMsgImpliesTMCommitted",
+            "result": "validated-CTI",
+            "states": 2,
+            "wall_s": 0.02293
+          },
+          {
+            "candidate": "H_InitNoCommitMsg",
+            "result": "validated-CTI",
+            "states": 2,
+            "wall_s": 0.023821
+          },
+          {
+            "candidate": "H_InitNoAbortMsg",
+            "result": "validated-CTI",
+            "states": 2,
+            "wall_s": 0.020678
+          },
+          {
+            "candidate": "H_RMWorkingImpliesNotPrepared",
+            "result": "validated-CTI",
+            "states": 2,
+            "wall_s": 0.02175
+          },
+          {
+            "candidate": "H_RMSentPrepareImpliesNotWorking",
+            "result": "validated-CTI",
+            "states": 2,
+            "wall_s": 0.021845
+          },
+          {
+            "candidate": "H_AbortMsgImpliesTMAborted",
+            "result": "validated-CTI",
+            "states": 2,
+            "wall_s": 0.021344
+          }
+        ],
+        "cold_full_scan_s": 0.32576299999999997
+      },
+      "cold_to_tlc_checked_target_s": 0.5332276760018431,
+      "expired_budget": "inconclusive"
+    },
+    {
+      "model": "AsyncRaft",
+      "domain": " /\\ requestVoteRequestMsgs = {}\n /\\ requestVoteResponseMsgs = {}\n /\\ appendEntriesRequestMsgs = {}\n /\\ appendEntriesResponseMsgs = {}\n /\\ currentTerm \\in [Server -> 0..1]\n /\\ state \\in [Server -> {Leader,Follower,Candidate}]\n /\\ votedFor = [i \\in Server |-> Nil]\n /\\ votesGranted \\in [Server -> SUBSET Server]\n /\\ nextIndex = [i \\in Server |-> [j \\in Server |-> 1]]\n /\\ matchIndex = [i \\in Server |-> [j \\in Server |-> 0]]\n /\\ log = [i \\in Server |-> <<>>]\n /\\ commitIndex = [i \\in Server |-> 0]\n /\\ TypeOK",
+      "constants": "CONSTANTS\n    n1 = n1\n    n2 = n2\n    n3 = n3\n    v1 = v1\n    Server = {n1, n2}\n    Follower = Follower\n    Candidate = Candidate\n    Leader = Leader\n    Nil = Nil\n    RequestVoteRequest = RequestVoteRequest\n    RequestVoteResponse = RequestVoteResponse\n    AppendEntriesRequest = AppendEntriesRequest\n    AppendEntriesResponse = AppendEntriesResponse\n    EqualTerm = EqualTerm\n    LessOrEqualTerm = LessOrEqualTerm\n    MaxTerm = 3\n    MaxLogLen = 3\n    MaxMsgCount = 1000",
+      "discovery": {
+        "result": "finite-strengthening",
+        "candidate": "(\\A diveI,diveJ \\in Server : ~( (Candidate = state[diveJ]) /\\ (Leader = state[diveI]) /\\ (currentTerm[diveJ] = currentTerm[diveI]) /\\ (votesGranted[diveJ] \\in Quorum) ))",
+        "atom_count": 10,
+        "candidate_checks": 18,
+        "first_replayed_cti_s": 0.12966340698767453,
+        "checked_candidate_s": 0.6096302939695306,
+        "recheck_s": 0.1294620170374401,
+        "omit_and_replay_s": 0.13253440201515332,
+        "baseline_cti": {
+          "states": 2,
+          "hypothesis_replay": "valid",
+          "original_init_replay": "invalid",
+          "damaged_replay": "invalid"
+        },
+        "omitted_cti": {
+          "states": 2,
+          "hypothesis_replay": "valid",
+          "original_init_replay": "invalid",
+          "damaged_replay": "invalid"
+        },
+        "checked": {
+          "target": "H_OnePrimaryPerTerm",
+          "action": "BecomeLeaderAction",
+          "Init": "included",
+          "target_preservation": "proved on typed domain",
+          "safe_prestate_coverage": "proved",
+          "nonvacuous": 80,
+          "candidate_preservation": "invariant-violation",
+          "candidate_preservation_witness": {
+            "states": 2,
+            "hypothesis_replay": "valid",
+            "original_init_replay": "invalid",
+            "damaged_replay": "invalid"
+          },
+          "counts": {
+            "depth": 2,
+            "distinct": 606,
+            "generated": 608,
+            "initial_generated": 528,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          }
+        }
+      },
+      "independent_tlc": {
+        "target_step": {
+          "verdict": "success",
+          "wall_s": 0.466021,
+          "generated": 608,
+          "distinct": 606
+        },
+        "Init_inclusion": {
+          "verdict": "success",
+          "wall_s": 0.410921,
+          "generated": 2,
+          "distinct": 1
+        },
+        "safe_prestate_coverage": {
+          "verdict": "success",
+          "wall_s": 0.422906,
+          "generated": 1088,
+          "distinct": 544
+        },
+        "candidate_preservation": {
+          "verdict": "invariant-violation",
+          "wall_s": 0.476414,
+          "generated": 543,
+          "distinct": 543
+        },
+        "without_premise": {
+          "verdict": "invariant-violation",
+          "wall_s": 0.469765,
+          "generated": 561,
+          "distinct": 561
+        }
+      },
+      "comparison": {
+        "published": "Inv42_d848_R0_0_I0",
+        "equivalence_on_typed_target_prestates": {
+          "verdict": "success",
+          "wall_s": 0.427047,
+          "generated": 1088,
+          "distinct": 544
+        },
+        "published_lemma_same_domain_s": 0.033129,
+        "counts": {
+          "depth": 2,
+          "distinct": 606,
+          "generated": 18828,
+          "initial_generated": 18748,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      "cold_to_tlc_checked_target_s": 1.3383430480025709,
+      "expired_budget": "inconclusive"
+    }
+  ],
+  "existing_external_tlaps_controls": [
+    {
+      "external": "TLAPS",
+      "module": "MissingProof",
+      "failed": 1
+    },
+    {
+      "external": "TLAPS",
+      "module": "ReceiveProof",
+      "proved": 1
+    },
+    {
+      "external": "TLAPS",
+      "module": "RollbackProof",
+      "proved": 1
+    },
+    {
+      "external": "TLAPS",
+      "module": "TCommit_proof",
+      "proved": 16
+    }
+  ],
+  "published_saved_producer_statistics": [
+    {
+      "model": "TwoPhase",
+      "graph_sha256": "1cc2b4e4aa764646886ef4749cf08e6085df51523b3a8902e33bd57700c3a311",
+      "producer_stats": {
+        "num_lemma_nodes": 14,
+        "num_failed_lemma_nodes": 0,
+        "state_cache_duration_secs": 38.51143741607666,
+        "invcheck_duration_secs": 141.87529110908508,
+        "ctielimcheck_duration_secs": 68.54315543174744,
+        "total_duration_secs": 1256.31360912323,
+        "num_preds": 18,
+        "date": "2024-09-18 15:27:43"
+      },
+      "initial_ctis": 2385,
+      "remaining_ctis": 0
+    },
+    {
+      "model": "AsyncRaft",
+      "graph_sha256": "1dd7b8e7abced903c3f5d76b9a24856c1a45e711a94727603927e32c984918b9",
+      "producer_stats": {
+        "num_lemma_nodes": 13,
+        "num_failed_lemma_nodes": 0,
+        "state_cache_duration_secs": 0,
+        "invcheck_duration_secs": 0,
+        "ctielimcheck_duration_secs": 0,
+        "total_duration_secs": 5.75981593132019,
+        "num_preds": 142,
+        "date": "2024-11-19 21:14:50"
+      },
+      "initial_ctis": 30892,
+      "remaining_ctis": 0
+    },
+    {
+      "model": "AsyncRaft",
+      "graph_sha256": "c71a7d7e4f036d97025c0c6091c9fe0f6bfec146b9eceeca7c0511870d7d5d16",
+      "producer_stats": {
+        "num_lemma_nodes": 31,
+        "num_failed_lemma_nodes": 0,
+        "state_cache_duration_secs": 0,
+        "invcheck_duration_secs": 0,
+        "ctielimcheck_duration_secs": 0,
+        "total_duration_secs": 10.104620933532715,
+        "num_preds": 142,
+        "date": "2024-11-13 19:02:17"
+      },
+      "initial_ctis": 31087,
+      "remaining_ctis": 0
+    }
+  ],
+  "scope": {
+    "TwoPhase": "Receive-abort preserves the target and the derived lemma under the checked hypotheses. Other actions remain open.",
+    "AsyncRaft": "BecomeLeader preserves the target under the derived lemma in the stated typed slice. The lemma fails its own step on a separately replayed CTI. Further antecedents and other actions remain open. The published disjunctive expression has the same finite predicate and distinct states but produces overlapping Init enumeration occurrences."
+  }
+}
