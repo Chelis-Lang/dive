@@ -25,36 +25,42 @@
       "baseline": {
         "wall_s": 0.26,
         "peak_rss_kib": 39204,
-        "product_ms": 43.237
+        "product_ms": 43.237,
+        "atoms_ms": 144.399
       },
       "candidate": {
         "wall_s": 0.23,
         "peak_rss_kib": 32928,
-        "product_ms": 16.157
+        "product_ms": 16.157,
+        "atoms_ms": 143.064
       }
     },
     "Large": {
       "baseline": {
         "wall_s": 3.59,
         "peak_rss_kib": 102472,
-        "product_ms": 923.652
+        "product_ms": 923.652,
+        "atoms_ms": 1942.906
       },
       "candidate": {
         "wall_s": 2.94,
         "peak_rss_kib": 75968,
-        "product_ms": 295.258
+        "product_ms": 295.258,
+        "atoms_ms": 1927.316
       }
     },
     "Four": {
       "baseline": {
         "wall_s": 10.04,
         "peak_rss_kib": 196636,
-        "product_ms": 1639.182
+        "product_ms": 1639.182,
+        "atoms_ms": 6147.09
       },
       "candidate": {
         "wall_s": 9.57,
         "peak_rss_kib": 196620,
-        "product_ms": 1634.222
+        "product_ms": 1634.222,
+        "atoms_ms": 5755.974
       }
     }
   },
@@ -406,7 +412,7 @@
       }
     }
   },
-  "interpretation": "Two- and three-floor checks exhaust the same behavior graph. The four-floor case already selected factored search on both builds; its timing is a control. Its time to a counterexample includes a partial graph. Separate component-search and projection baselines are indexed in README.md.",
+  "interpretation": "Two- and three-floor checks exhaust the same behavior graph. The four-floor case already selected factored search on both builds; its timing is a control. Its time to a counterexample includes a partial graph. Separate component-search and projection baselines are indexed in README.md. At three floors, atom labeling takes 1.927 s, longer than the published same-host 1.33 s Manyan wall time on the same complete graph. Eliminating the entire remaining 295 ms of product time alone would leave Core at about 2.65 s.",
   "same_host_peer": {
     "source": "2026-11-22-projected-fairness.json",
     "checker": "Manyan",

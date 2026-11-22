@@ -504,7 +504,9 @@ For the fairness run, use the Dive corpus pin of Examples. The script verifies t
 
 ## Quantified fairness on larger models
 
-On original Elevator Large, ordinary Core exhausts the 50,653-state graph in 3.55 s at one worker. Manyan takes 1.33 s. Adding a fourth floor exposes a violation. Ordinary Core takes 9.62 s, down from 19.08 s before native label reuse and component search. Manyan takes 7.46 s. Its 202-state word and Core's 102-state word both pass an independent validator and both fail after changing their closing targets. [Matched cold runs, phase times and peak RSS](../../../conformance/reports/perf/2026-11-22-projected-fairness.json)
+On original three-floor Elevator Large, ordinary Core exhausts all 50,653 states in 2.94 s at one worker. Manyan takes 1.33 s. Choosing component search for independent fairness alternatives cut Core's median product time from 924 ms to 295 ms and peak RSS from 100 MiB to 74 MiB. Atom labeling still takes 1.93 s. [Three-floor plan selection and remaining gap](../../../conformance/reports/perf/2026-11-22-fairness-plan-selection.json)
+
+Adding a fourth floor exposes a violation. Ordinary Core takes 9.62 s, down from 19.08 s before native label reuse and component search. Manyan takes 7.46 s. Its 202-state word and Core's 102-state word both pass an independent validator and both fail after changing their closing targets. [Matched cold runs, phase times and peak RSS](../../../conformance/reports/perf/2026-11-22-projected-fairness.json)
 
 For iterative checks on the same four-floor model, the first prefix containing a valid word can fall between the default checks. A seven-threshold sweep located such a prefix at 104,122 states. With `--periodic-min-states 100000`, three fresh CLI invocations took a median 6.40 s to a validated word. The same executable and host took 9.73 s at the default. The two- and three-floor holding models exhaust their graphs under both settings. [All seven thresholds, repeated timings and independent replays](../../../conformance/reports/perf/2026-11-22-elevator-prefix-placement.json)
 
