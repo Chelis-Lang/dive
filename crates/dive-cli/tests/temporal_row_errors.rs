@@ -65,12 +65,14 @@ fn pinned_row_errors_are_named_core_refusals() -> TestResult {
             assert_eq!(output.status.code(), Some(3), "{name}/{profile}: {report}");
             assert_eq!(report["schema_version"], 4);
             assert_eq!(report["verdict"], "unsupported", "{name}/{profile}");
+            assert_eq!(report["diagnostics"][0]["code"], "DIVE-L0033");
             assert!(
-                report["message"].as_str().is_some_and(
-                    |message| message.ends_with("its report is not implemented on Core")
-                ),
+                report["message"].as_str().is_some_and(|message| message
+                    .contains("liveness atom for P")
+                    && message.contains(name)),
                 "{name}/{profile}: {report}"
             );
+            assert_eq!(report["execution"]["stage"], "atoms");
             assert!(report["counterexample"].is_null());
             assert!(report["tlc"].is_null());
         }

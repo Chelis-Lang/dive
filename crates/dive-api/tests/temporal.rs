@@ -250,12 +250,15 @@ fn unreached_binder_domain_errors_are_not_atom_failures() {
             assert_eq!((c.stats.generated, c.stats.distinct), (3, 3));
         }
     }
-    // Where evaluation reaches the domain, the error is a temporal failure,
-    // whose report Core does not build: a named refusal, never a verdict.
+    // The state-label error retains its cause. An unsupported domain
+    // application still uses the ordinary refusal.
     let reached = "SPECIFICATION Spec\nPROPERTY Reached\nCHECK_DEADLOCK FALSE\n";
-    for source in [src, outside.as_str()] {
+    for (source, cause) in [
+        (src, "liveness atom for Reached"),
+        (outside.as_str(), refused::TEMPORAL_FAILURE_REPORT),
+    ] {
         for opts in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            refuses(source, reached, &opts, refused::TEMPORAL_FAILURE_REPORT);
+            refuses(source, reached, &opts, cause);
         }
     }
 }

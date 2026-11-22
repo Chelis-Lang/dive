@@ -635,11 +635,9 @@ fn check_configured_inner(
         }
     };
     if analysis.as_ref().is_err_and(|failure| {
-        !matches!(
-            failure.failure.failure().error,
-            dive_liveness::analyze::AnalysisError::Stopped(_)
-                | dive_liveness::analyze::AnalysisError::BudgetMeasurement(_)
-                | dive_liveness::analyze::AnalysisError::BudgetStartup(_)
+        !report_analysis_error(
+            &failure.failure.failure().error,
+            failure.failure.state_evaluation(),
         )
     }) {
         return refused(
@@ -670,6 +668,27 @@ fn check_configured_inner(
     )
 }
 
+/// Stops retain their budget authority. A failed state label explains a
+/// refusal without establishing the first error demanded by TLC.
+fn report_analysis_error(
+    error: &dive_liveness::analyze::AnalysisError,
+    state: Option<&dive_liveness::analyze::StateEvaluation>,
+) -> bool {
+    use dive_liveness::analyze::{AnalysisError, StateEvaluationSite};
+    match error {
+        AnalysisError::Stopped(_)
+        | AnalysisError::BudgetMeasurement(_)
+        | AnalysisError::BudgetStartup(_) => true,
+        AnalysisError::Atom { .. } => state.is_some_and(|state| {
+            matches!(
+                state.site(),
+                StateEvaluationSite::FinalLabels | StateEvaluationSite::PeriodicLabels
+            ) && state.cause().class() == dive_eval::ErrorClass::Eval
+        }),
+        _ => false,
+    }
+}
+
 fn report_outcome(
     result: Result<crate::temporal::Report, crate::temporal::Failure>,
     options: &CheckOptions,
@@ -681,14 +700,8 @@ fn report_outcome(
             _ => CoreOutcome::Temporal(Box::new(report)),
         },
         Err(failure)
-            if matches!(
-                failure.error(),
-                crate::temporal::Error::Analysis(
-                    dive_liveness::analyze::AnalysisError::Stopped(_)
-                        | dive_liveness::analyze::AnalysisError::BudgetMeasurement(_)
-                        | dive_liveness::analyze::AnalysisError::BudgetStartup(_)
-                )
-            ) =>
+            if matches!(failure.error(), crate::temporal::Error::Analysis(error)
+                if report_analysis_error(error, failure.state_evaluation())) =>
         {
             CoreOutcome::TemporalFailure(Box::new(failure))
         }
