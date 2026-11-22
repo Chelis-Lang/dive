@@ -1911,8 +1911,7 @@ def check_revisions(args, revisions, owner):
         except Unsupported:
             # Whole-value search has a separate representation for an exhaustive closure.
             eligible = not any((args.refine_domains, args.order_by_path,
-                                args.single_partition, args.prove_inductive,
-                                args.verify_predicate, args.write_predicate))
+                                args.single_partition, args.prove_inductive))
             layout = [expr for name, expr in doc["invariants"] if name == args.type_invariant]
             if not eligible or len(layout) != 1:
                 raise
@@ -1931,12 +1930,15 @@ def check_revisions(args, revisions, owner):
         else:
             previous_whole = None
         if args.verify_predicate or args.prove_inductive:
-            states = (
-                induction.load(Path(args.verify_predicate), model)
-                if args.verify_predicate
-                else model.conjunction(prop for _, prop in model.properties)
-            )
-            failed = induction.verify(model, states)
+            if whole:
+                failed, authorized = model.verify_predicate(args.verify_predicate, args.exporter)
+            else:
+                states = (
+                    induction.load(Path(args.verify_predicate), model)
+                    if args.verify_predicate
+                    else model.conjunction(prop for _, prop in model.properties)
+                )
+                failed = induction.verify(model, states)
             row = dict(
                 format="dive-symbolic-report-v1",
                 module=str(module),
@@ -1945,6 +1947,8 @@ def check_revisions(args, revisions, owner):
                 failed_obligation=failed,
                 seconds=round(time.monotonic() - start, 6),
             )
+            if whole:
+                row.update(encoding="whole-values", authorized_closure=authorized)
             print(json.dumps(row), flush=True)
             if failed:
                 return 2
@@ -1952,7 +1956,7 @@ def check_revisions(args, revisions, owner):
         if cached is not None:
             row, trace = cached, None
         elif whole:
-            row, trace = model.check(None, retain=bool(args.recheck))
+            row, trace = model.check(None, retain=bool(args.recheck or args.write_predicate))
         elif args.refine_domains:
             row, trace = model.recheck_refined(previous, getattr(args, "keep_refined_layers", False))
         else:
@@ -1963,8 +1967,11 @@ def check_revisions(args, revisions, owner):
                 ((path, k) for path in model.whole_domains for k in model.types[path[0]].domain),
                 key=repr,
             )
-        if args.write_predicate and model.complete is not None:
-            induction.store(Path(args.write_predicate), model, model.complete[0])
+        if args.write_predicate:
+            if whole and model.completed is not None:
+                model.save_predicate(args.write_predicate, args.exporter)
+            elif not whole and model.complete is not None:
+                induction.store(Path(args.write_predicate), model, model.complete[0])
         if trace is not None:
             validate_finding(args, module, config, row, trace, not violated)
             violated = True

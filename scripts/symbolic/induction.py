@@ -9,8 +9,8 @@ MAX_BYTES = 16 << 20
 MAX_NODES = 100_000
 
 
-def store(path, model, states, receipt=None):
-    if states.dag_size - 1 > MAX_NODES:
+def encode(model, states, max_nodes=MAX_NODES):
+    if states.dag_size - 1 > max_nodes:
         raise ValueError("predicate exceeds the node limit")
     ids = {model.b.true: 1}
     nodes = []
@@ -26,8 +26,11 @@ def store(path, model, states, receipt=None):
             ids[node] = len(nodes) + 1
         return ids[node]
 
-    root = encode(states)
-    doc = {"format": "finite-state-predicate-v1", "nodes": nodes, "root": root}
+    return {"format": "finite-state-predicate-v1", "nodes": nodes, "root": encode(states)}
+
+
+def store(path, model, states, receipt=None):
+    doc = encode(model, states)
     if receipt is not None:
         signed = json.dumps({**doc, "closure_receipt": receipt}, separators=(",", ":")).encode("ascii") + b"\n"
         if len(signed) <= MAX_BYTES:
@@ -52,13 +55,16 @@ def write_atomic(path, data):
             temporary.unlink(missing_ok=True)
 
 
-def load(path, model, *, include_receipt=False):
+def read(path):
     with path.open("rb") as stream:
         raw = stream.read(MAX_BYTES + 1)
     if len(raw) > MAX_BYTES:
         raise ValueError("predicate exceeds the file limit")
-    doc = json.loads(raw)
-    if doc["format"] != "finite-state-predicate-v1" or len(doc["nodes"]) > MAX_NODES:
+    return json.loads(raw)
+
+
+def decode(doc, model, *, max_nodes=MAX_NODES, format_name="finite-state-predicate-v1"):
+    if doc["format"] != format_name or len(doc["nodes"]) > max_nodes:
         raise ValueError("unsupported predicate format or size")
     nodes = [None, model.b.true]
 
@@ -71,7 +77,12 @@ def load(path, model, *, include_receipt=False):
         if type(bit) is not int or not 0 <= bit < len(model.variables):
             raise ValueError("unknown predicate bit")
         nodes.append(model.b.ite(model.b.var(model.variables[bit]), resolve(high), resolve(low)))
-    root = resolve(doc["root"])
+    return resolve(doc["root"])
+
+
+def load(path, model, *, include_receipt=False):
+    doc = read(path)
+    root = decode(doc, model)
     return (root, doc.get("closure_receipt")) if include_receipt else root
 
 

@@ -1,0 +1,315 @@
+{
+  "schema": 1,
+  "model": {
+    "url": "https://github.com/FormalCellular/EmergencyCall/tree/093684f1bb02d733cae95d50f1690f1cb792296a/model",
+    "module": "EmergencyCall_Model_auto.tla"
+  },
+  "method": {
+    "driver": "scripts/perf/scale/whole_value_predicate.py",
+    "full_init_host": "EC2 c7i.4xlarge, x86-64, Ubuntu 24.04, isolated delegated memory cgroup per invocation",
+    "repetitions_per_holding_revision": 3,
+    "timing": "Process wall time includes binding, artifact reading/writing, verification, and Sail startup as applicable. All searches use the same original model and a 180 s deadline. The f3 development host is separate and did not support delegated memory measurement.",
+    "sail_source": "5e098817",
+    "dive_binary_sha256": "b34d889d94f0d57ec66ba8f7cbf4ca739e0d8ee2cfbda6a5cd6d070288896469",
+    "symbolic_worker_files": {
+      "engine.py": "fe4d3dcb74cf1fa9873abd4f96ef3d03724600b6735a8a2dbd70b97ce68374ea",
+      "finite_values.py": "df1d3ca04bfcc599390c699de8671b2d39e5ed0cbbbb40655c1c0469a97dbc3d",
+      "induction.py": "70b379e33c0b1fe15d4afcf8168123f9db4b9da06db5587aef95b0a172547111"
+    }
+  },
+  "panels": {
+    "full_init": {
+      "source_sha256": "76236976cf936bd81a8a30e57144ee9ed20b1a3498f9224a55e96147ab339a5e",
+      "f3": false,
+      "artifact_bytes": 2385125,
+      "establishment": {
+        "exit": 0,
+        "wall_s": 105.763,
+        "peak_cgroup_bytes": 931217408,
+        "initial": 56623104,
+        "distinct": 49911672768,
+        "generated": 328063574184,
+        "depth": 44
+      },
+      "config_text": {
+        "full": "INIT Init\nNEXT Next\nINVARIANT TypeInvariant SetInvariant\n",
+        "reduced": "INIT Init\nNEXT Next\nINVARIANT TypeInvariant\n",
+        "added": "INIT Init\nNEXT Next\nINVARIANT TypeInvariant F1\n"
+      },
+      "holding": {
+        "reduced": {
+          "samples": {
+            "cold": [
+              {
+                "exit": 0,
+                "wall_s": 104.288,
+                "peak_cgroup_bytes": 918257664
+              },
+              {
+                "exit": 0,
+                "wall_s": 104.189,
+                "peak_cgroup_bytes": 918364160
+              },
+              {
+                "exit": 0,
+                "wall_s": 103.989,
+                "peak_cgroup_bytes": 918302720
+              }
+            ],
+            "unsigned": [
+              {
+                "exit": 0,
+                "wall_s": 1.728,
+                "peak_cgroup_bytes": 173232128
+              },
+              {
+                "exit": 0,
+                "wall_s": 1.778,
+                "peak_cgroup_bytes": 172208128
+              },
+              {
+                "exit": 0,
+                "wall_s": 1.828,
+                "peak_cgroup_bytes": 172351488
+              }
+            ],
+            "sail_authorized": [
+              {
+                "exit": 0,
+                "wall_s": 0.625,
+                "peak_cgroup_bytes": 107978752
+              },
+              {
+                "exit": 0,
+                "wall_s": 0.672,
+                "peak_cgroup_bytes": 108023808
+              },
+              {
+                "exit": 0,
+                "wall_s": 0.627,
+                "peak_cgroup_bytes": 107933696
+              }
+            ]
+          },
+          "median_wall_s": {
+            "cold": 104.189,
+            "unsigned": 1.778,
+            "sail_authorized": 0.627
+          },
+          "authorized_speedup": 166.170653907496,
+          "break_even_edits_including_establishment": 2,
+          "break_even_edits_if_cold_establishment_already_required": 1
+        },
+        "full": {
+          "samples": {
+            "cold": [
+              {
+                "exit": 0,
+                "wall_s": 103.381,
+                "peak_cgroup_bytes": 918274048
+              },
+              {
+                "exit": 0,
+                "wall_s": 108.195,
+                "peak_cgroup_bytes": 918323200
+              },
+              {
+                "exit": 0,
+                "wall_s": 104.539,
+                "peak_cgroup_bytes": 918347776
+              }
+            ],
+            "unsigned": [
+              {
+                "exit": 0,
+                "wall_s": 2.08,
+                "peak_cgroup_bytes": 173252608
+              },
+              {
+                "exit": 0,
+                "wall_s": 1.879,
+                "peak_cgroup_bytes": 172142592
+              },
+              {
+                "exit": 0,
+                "wall_s": 1.928,
+                "peak_cgroup_bytes": 173371392
+              }
+            ],
+            "sail_authorized": [
+              {
+                "exit": 0,
+                "wall_s": 0.676,
+                "peak_cgroup_bytes": 108138496
+              },
+              {
+                "exit": 0,
+                "wall_s": 0.678,
+                "peak_cgroup_bytes": 108150784
+              },
+              {
+                "exit": 0,
+                "wall_s": 0.627,
+                "peak_cgroup_bytes": 107933696
+              }
+            ]
+          },
+          "median_wall_s": {
+            "cold": 104.539,
+            "unsigned": 1.928,
+            "sail_authorized": 0.676
+          },
+          "authorized_speedup": 154.64349112426035,
+          "break_even_edits_including_establishment": 2,
+          "break_even_edits_if_cold_establishment_already_required": 1
+        }
+      },
+      "added_F1": {
+        "cold": {
+          "exit": 1,
+          "wall_s": 39.072,
+          "peak_cgroup_bytes": 103059456,
+          "witness_states": 7,
+          "replay": "valid",
+          "damaged_replay": "invalid"
+        },
+        "sail": {
+          "exit": 1,
+          "wall_s": 39.923,
+          "peak_cgroup_bytes": 107954176,
+          "witness_states": 7,
+          "replay": "valid",
+          "damaged_replay": "invalid"
+        }
+      }
+    },
+    "f3_local": {
+      "source_sha256": "76236976cf936bd81a8a30e57144ee9ed20b1a3498f9224a55e96147ab339a5e",
+      "f3": true,
+      "artifact_bytes": 63916,
+      "establishment": {
+        "exit": 0,
+        "wall_s": 0.815,
+        "peak_cgroup_bytes": null,
+        "initial": 49152,
+        "distinct": 21255936,
+        "generated": 135871232,
+        "depth": 27
+      },
+      "config_text": {
+        "full": "INIT Init3\nNEXT Next\nINVARIANT TypeInvariant SetInvariant F3\n",
+        "reduced": "INIT Init3\nNEXT Next\nINVARIANT TypeInvariant\n",
+        "added": "INIT Init3\nNEXT Next\nINVARIANT TypeInvariant F1\n"
+      },
+      "holding": {
+        "reduced": {
+          "samples": {
+            "cold": [
+              {
+                "exit": 0,
+                "wall_s": 0.815,
+                "peak_cgroup_bytes": null
+              },
+              {
+                "exit": 0,
+                "wall_s": 0.866,
+                "peak_cgroup_bytes": null
+              }
+            ],
+            "unsigned": [
+              {
+                "exit": 0,
+                "wall_s": 0.314,
+                "peak_cgroup_bytes": null
+              },
+              {
+                "exit": 0,
+                "wall_s": 0.364,
+                "peak_cgroup_bytes": null
+              }
+            ],
+            "sail_authorized": [
+              {
+                "exit": 0,
+                "wall_s": 0.314,
+                "peak_cgroup_bytes": null
+              },
+              {
+                "exit": 0,
+                "wall_s": 0.364,
+                "peak_cgroup_bytes": null
+              }
+            ]
+          },
+          "median_wall_s": {
+            "cold": 0.8405,
+            "unsigned": 0.33899999999999997,
+            "sail_authorized": 0.33899999999999997
+          },
+          "authorized_speedup": 2.479351032448378,
+          "break_even_edits_including_establishment": 2,
+          "break_even_edits_if_cold_establishment_already_required": 0
+        },
+        "full": {
+          "samples": {
+            "cold": [
+              {
+                "exit": 0,
+                "wall_s": 0.815,
+                "peak_cgroup_bytes": null
+              },
+              {
+                "exit": 0,
+                "wall_s": 0.765,
+                "peak_cgroup_bytes": null
+              }
+            ],
+            "unsigned": [
+              {
+                "exit": 0,
+                "wall_s": 0.364,
+                "peak_cgroup_bytes": null
+              },
+              {
+                "exit": 0,
+                "wall_s": 0.314,
+                "peak_cgroup_bytes": null
+              }
+            ],
+            "sail_authorized": [
+              {
+                "exit": 0,
+                "wall_s": 0.314,
+                "peak_cgroup_bytes": null
+              },
+              {
+                "exit": 0,
+                "wall_s": 0.314,
+                "peak_cgroup_bytes": null
+              }
+            ]
+          },
+          "median_wall_s": {
+            "cold": 0.79,
+            "unsigned": 0.33899999999999997,
+            "sail_authorized": 0.314
+          },
+          "authorized_speedup": 2.515923566878981,
+          "break_even_edits_including_establishment": 2,
+          "break_even_edits_if_cold_establishment_already_required": 1
+        }
+      }
+    }
+  },
+  "semantic_controls": {
+    "small_record": "scripts/symbolic/test_whole_value_predicate.py",
+    "changed_import": "unsigned closure check rejects",
+    "changed_action": "unsigned closure check rejects",
+    "incompatible_alphabet": "layout mismatch",
+    "new_deadlock_obligation": "rechecked and rejected",
+    "invalid_seal": "unsigned closure check used",
+    "damaged_predicate": "malformed diagram refused; Sail falls back and replaces it",
+    "expired_budget": "stopped",
+    "validation": "current original F1 accepted by independent Dive trace validator; damaged step rejected"
+  }
+}
