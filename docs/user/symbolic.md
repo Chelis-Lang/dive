@@ -6,6 +6,42 @@ reachable set, check a new invariant against that set, or prove safety by
 induction. It reads the original TLA+ module and configuration through Dive's
 binder.
 
+## Check the AsyncRaft log invariant
+
+The source-checkout command below checks whether a leader contains every entry
+of its own term at the same index where any server has it. It reads the
+unchanged Scimitar AsyncRaft module and 29 strengthening formulas from the
+released proof graph. Install `z3-solver==5.4.1.0` in a Python environment and
+check out the Scimitar revision pinned in the evidence below. Build the
+Dive exporter with `cargo build --release -p dive-api --example symbolic_input`.
+
+```sh
+python3 scripts/perf/scale/raft_induction/check.py scimitar/benchmarks \
+  --exporter target/release/examples/symbolic_input --servers 3 --save proof.json
+```
+
+Replace `--save` with `--verify` to rebind the source, independently repeat
+every solver obligation and compare the receipt, including after moving the
+checkout. Use `--servers 2` for the smaller carrier. The supported model
+has terms 0–2, at most two entries per log and two messages per channel.
+Later terms or larger channels require another proof. The checker evaluates
+all 11 actions in the original `Next` and checks safety even on destinations
+outside the source state constraint. The published rejection and truncation
+actions are disabled in that relation.
+
+On the three-server carrier, checking the 1,588-byte receipt took **23.56 s**
+and fresh verification took **23.38 s**. Ordinary Core exhausted the same
+model in **3.89 s** with 163,681 distinct states. Choose Core for a fast
+verdict at these bounds. The symbolic command provides independently
+recheckable, action-by-action closure of the published strengthening.
+
+The integrated panel also replays a real leader election, deliveries of both
+log indices to another server and a subsequent term change. It rejects a
+changed lemma, stale proof, missing action and damaged word. Allowing a
+follower to append a client entry produces an independently validated
+seven-state counterexample. The first bad entry is at index 1 in term 1.
+[Source, commands, peer results and measurements](../../conformance/reports/perf/2026-11-22-asyncraft-log-induction.json).
+
 ## Choose a strategy automatically
 
 Run `dive check Model.tla --strategy auto --workers 8 --output json` to check

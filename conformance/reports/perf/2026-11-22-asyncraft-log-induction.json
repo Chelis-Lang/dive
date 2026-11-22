@@ -1,0 +1,386 @@
+{
+  "schema": 1,
+  "source": "https://github.com/will62794/scimitar/tree/f1b902dc0801cf435cb9dd6e6be495d5ed121787/benchmarks",
+  "property": "H_PrimaryHasEntriesItCreated",
+  "host": "Dedicated EC2 c7i.4xlarge, Intel Xeon Platinum 8488C, Ubuntu 24.04.5, Python 3.12.3, z3-solver 5.4.1.0, one solver thread. Rows use elapsed seconds and peak process RSS in KiB. Small auxiliary controls overlapped part of the panel; measurements are individual observations.",
+  "dive_sha256": "8d3e35534d9d7b63b3c9ce410e8071d9d098079c190f199495a3d4c828a0162d",
+  "symbolic_input_sha256": "f1d230f0f4fd4532c28a8efc73a465b36c3d27555065939cd923289f7a81a562",
+  "commands": [
+    "python3 -m pip install z3-solver==5.4.1.0",
+    "PYTHONOPTIMIZE=1 python3 scripts/perf/scale/raft_induction/panel.py scimitar/benchmarks --exporter target/release/examples/symbolic_input --dive target/release/dive",
+    "python3 -O scripts/perf/scale/raft_induction/test_definedness.py scimitar/benchmarks --exporter target/release/examples/symbolic_input",
+    "python3 scripts/perf/scale/raft_induction/test_definedness.py scimitar/benchmarks --exporter target/release/examples/symbolic_input",
+    "dive check AsyncRaft.tla --config Study.cfg --workers 1 --store exact --seed 0 --fp 0 --max-memory 3g --time-limit 35s --output json",
+    "java -Xmx512m -cp tla2tools.jar tlc2.TLC -workers 1 -seed 0 -fp 0 -config Study.cfg AsyncRaft.tla",
+    "timeout 135s tlapm --threads 2 --nofp AsyncRaft_IndProofs_PrimaryHasEntriesItCreated_4.tla",
+    "apalache-mc typecheck AsyncRaft.tla"
+  ],
+  "scope": {
+    "servers": [
+      2,
+      3
+    ],
+    "MaxTerm": 2,
+    "MaxLogLen": 2,
+    "MaxMsgCount": 2,
+    "init": "Init",
+    "next": "Next",
+    "constraint": "StateConstraint",
+    "projection": "Every admitted source satisfies the representation, StateConstraint, the target, 29 simultaneous source strengthening formulas, and their definedness. Initial inclusion and retained one-step closure establish this hypothesis. All raw destinations are checked for Safety and definedness before constraint filtering. No bound on the number of transitions.",
+    "enabled_scope": "Source-disjoint finite server choice or one active slot of an extensional finite message set. Crossing_constraint counts feasible alternatives with at least one constraint-crossing image; alternatives do not count reachable states or occurrences."
+  },
+  "peer_graph": {
+    "lemma_nodes": 31,
+    "formula_strings": 29,
+    "graph_nodes": 76,
+    "distinct_edges": 111,
+    "serialized_edges": 275,
+    "stats": {
+      "num_lemma_nodes": 31,
+      "num_failed_lemma_nodes": 0,
+      "state_cache_duration_secs": 0,
+      "invcheck_duration_secs": 0,
+      "ctielimcheck_duration_secs": 0,
+      "total_duration_secs": 10.104620933532715,
+      "num_preds": 142,
+      "date": "2024-11-13 19:02:17"
+    },
+    "notes": "Peer's stored graph reports no invariant-check time. The 10.10 s recorded total is historical graph metadata. No new Scimitar discovery run."
+  },
+  "peers": {
+    "tlc_small": {
+      "pin": "tlc-2026.10.06.014338",
+      "seconds": 0.87,
+      "peak_rss_kib": 195876,
+      "distinct": 2208,
+      "generated": 8753,
+      "depth": 22
+    },
+    "tlaps": {
+      "version": "1.5.0",
+      "scope": "original authored proof module, not a finite enumeration",
+      "seconds": 135.02,
+      "peak_rss_kib": 406564,
+      "result": "timeout, no complete proof",
+      "earlier_probe": {
+        "seconds": 240.02,
+        "peak_rss_kib": 466188,
+        "result": "timeout in preliminary installation"
+      }
+    },
+    "apalache": {
+      "version": "0.63.0",
+      "scope": "unchanged original TLA+ input",
+      "result": "typecheck refused three type annotations preceding AgreeCopy",
+      "reported_seconds": 1.263
+    }
+  },
+  "ordinary_three_servers": {
+    "verdict": "success",
+    "distinct": 163681,
+    "generated": 1025116,
+    "depth": 30,
+    "queued": 0,
+    "seconds": 3.89,
+    "peak_rss_kib": 47652
+  },
+  "controls": {
+    "definedness": [
+      "guarded empty-log read",
+      "original log/function projection",
+      "absent server key",
+      "out-of-domain sequence index",
+      "empty CHOOSE",
+      "non-unique CHOOSE"
+    ],
+    "python_modes": [
+      "normal",
+      "-O"
+    ]
+  },
+  "development_control": {
+    "three_server_initial_solver": {
+      "seconds": 33.74,
+      "peak_rss_kib": 78556,
+      "scope": "Separate c7i.4xlarge and fresh z3-solver 5.4.1.0 against the provisional full lowering, 30 predicates and 11 families. Final receipts and data use the integrated command."
+    },
+    "small_core_repeat": {
+      "seconds": 0.06,
+      "peak_rss_kib": 33144
+    }
+  },
+  "rows": [
+    {
+      "servers": 2,
+      "proof": {
+        "format": "asyncraft-source-induction-v1",
+        "input": {
+          "bound_ir": "8f2d40323631286bb52a517bf96b1b4f578ae87056cae57ababf0f6a023877d6",
+          "graph": "c71a7d7e4f036d97025c0c6091c9fe0f6bfec146b9eceeca7c0511870d7d5d16",
+          "upstream_cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+          "config": "32383def5d16454036428c1be0fde39e105d2cb78e525d36dc4ffb798b110d15",
+          "source": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+          "servers": 2
+        },
+        "property": "H_PrimaryHasEntriesItCreated",
+        "predicates": 30,
+        "initial": 1,
+        "actions": [
+          {
+            "action": "RequestVoteAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 2
+          },
+          {
+            "action": "UpdateTermAction",
+            "alternatives": 8,
+            "feasible": 8,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "HandleRequestVoteRequestAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 2
+          },
+          {
+            "action": "HandleRequestVoteResponseAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "BecomeLeaderAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "ClientRequestAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 2
+          },
+          {
+            "action": "AppendEntriesAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 2
+          },
+          {
+            "action": "AcceptAppendEntriesRequestAppendAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 2
+          },
+          {
+            "action": "AcceptAppendEntriesRequestLearnCommitAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "HandleAppendEntriesResponseAction",
+            "alternatives": 4,
+            "feasible": 4,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "AdvanceCommitIndexAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 0
+          }
+        ],
+        "result": "proved"
+      },
+      "checking": {
+        "seconds": 5.153257,
+        "peak_rss_kib": 78076
+      },
+      "receiving": {
+        "seconds": 5.16871,
+        "peak_rss_kib": 78808
+      },
+      "certificate_bytes": 1588,
+      "certificate_sha256": "e7273aa2b06e6377daaf3240ec752d5339d9fc0d6ec25b333a34236e83abda27",
+      "core": {
+        "counts": {
+          "depth": 22,
+          "distinct": 2208,
+          "generated": 8753,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "usage": {
+          "seconds": 0.06461,
+          "peak_rss_kib": 33316
+        }
+      }
+    },
+    {
+      "servers": 3,
+      "proof": {
+        "format": "asyncraft-source-induction-v1",
+        "input": {
+          "bound_ir": "2f150ec16a2a398e2a455e64bfae6c27d99e48fb94743063decf2c4823e78aa5",
+          "graph": "c71a7d7e4f036d97025c0c6091c9fe0f6bfec146b9eceeca7c0511870d7d5d16",
+          "upstream_cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+          "config": "9661886fcd8f4e111b7dbb1cb2011e74755a09e1f9e283ba96b905a45a7dfe95",
+          "source": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+          "servers": 3
+        },
+        "property": "H_PrimaryHasEntriesItCreated",
+        "predicates": 30,
+        "initial": 1,
+        "actions": [
+          {
+            "action": "RequestVoteAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 3
+          },
+          {
+            "action": "UpdateTermAction",
+            "alternatives": 8,
+            "feasible": 8,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "HandleRequestVoteRequestAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 2
+          },
+          {
+            "action": "HandleRequestVoteResponseAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "BecomeLeaderAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "ClientRequestAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 3
+          },
+          {
+            "action": "AppendEntriesAction",
+            "alternatives": 6,
+            "feasible": 6,
+            "crossing_constraint": 6
+          },
+          {
+            "action": "AcceptAppendEntriesRequestAppendAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 2
+          },
+          {
+            "action": "AcceptAppendEntriesRequestLearnCommitAction",
+            "alternatives": 2,
+            "feasible": 2,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "HandleAppendEntriesResponseAction",
+            "alternatives": 4,
+            "feasible": 4,
+            "crossing_constraint": 0
+          },
+          {
+            "action": "AdvanceCommitIndexAction",
+            "alternatives": 3,
+            "feasible": 3,
+            "crossing_constraint": 0
+          }
+        ],
+        "result": "proved"
+      },
+      "checking": {
+        "seconds": 23.557997,
+        "peak_rss_kib": 81928
+      },
+      "receiving": {
+        "seconds": 23.375075,
+        "peak_rss_kib": 81904
+      },
+      "certificate_bytes": 1588,
+      "certificate_sha256": "4c3ce7c20a53eeddef800c2697abfc127850a77d0169b07ef71b0efdc5b003e7",
+      "original_path": {
+        "states": 18,
+        "sha256": "335b52a06f4be0b55d3a9a9502bbbe5c3b140611d939afadcf4b231cfdd71ea1",
+        "validated": true,
+        "damaged_rejected": true,
+        "steps": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction",
+          "ClientRequestAction",
+          "ClientRequestAction",
+          "AppendEntriesAction",
+          "AcceptAppendEntriesRequestAppendAction",
+          "HandleAppendEntriesResponseAction",
+          "AppendEntriesAction",
+          "AcceptAppendEntriesRequestAppendAction",
+          "HandleAppendEntriesResponseAction",
+          "RequestVoteAction"
+        ],
+        "copied_indices": [
+          1,
+          2
+        ],
+        "elected": "n1",
+        "replicated_to": "n2",
+        "final_follower_term": 2
+      },
+      "mutant": {
+        "states": 7,
+        "sha256": "7d7291d6e81f56c21af357713722bfe1cfc0dea0c0a990cf22467cbde2ad29d6",
+        "validated": true,
+        "damaged_rejected": true,
+        "first_bad_step": 6,
+        "first_bad_entries": [
+          [
+            "n1",
+            "n2",
+            1,
+            1
+          ]
+        ],
+        "steps": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction",
+          "ClientRequestAction"
+        ],
+        "original_rejected": true,
+        "core": {
+          "seconds": 0.036509,
+          "peak_rss_kib": 33272
+        }
+      },
+      "controls": {
+        "stale_rejected": true,
+        "changed_formula_rejected": true,
+        "omitted_action_rejected": true,
+        "mutant_induction_failure": "ClientRequestAction alternative 0 destination safety"
+      }
+    }
+  ]
+}
