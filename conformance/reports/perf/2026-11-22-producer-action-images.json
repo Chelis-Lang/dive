@@ -944,5 +944,181 @@
         ]
       }
     ]
+  },
+  "token_ring": {
+    "source": "Pinned Manyan bench/liveness.tla split after the ==== line per upstream. N=5, K=3, both Visits and Served, original WF(Pass) and WF(Work). Same node as Elevator, fresh processes, seed/fp 0, one worker. order-base is unmodified main after #1350, sha256 580c1eb6cb69f313be103d72b69d9a45143044bfaf8cf976fd29837caa73b718.",
+    "runs": [
+      {
+        "arm": "order-base",
+        "status": 0,
+        "wall_rss": "0.43 36828",
+        "verdict": "success",
+        "stats": {
+          "depth": 41,
+          "distinct": 38880,
+          "generated": 116641,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "batch": {
+          "plans": 2,
+          "rows": 38880
+        },
+        "phases": {
+          "atoms": 93.17333099999999,
+          "product": 239.539088
+        }
+      },
+      {
+        "arm": "checked-image",
+        "status": 0,
+        "wall_rss": "0.42 37084",
+        "verdict": "success",
+        "stats": {
+          "depth": 41,
+          "distinct": 38880,
+          "generated": 116641,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "batch": {
+          "plans": 2,
+          "producer_images": 38880,
+          "rows": 38880
+        },
+        "phases": {
+          "atoms": 88.941969,
+          "product": 237.108583
+        }
+      },
+      {
+        "arm": "published-manyan",
+        "status": 0,
+        "wall_rss": "0.26 34164",
+        "counts": [
+          [
+            "116641",
+            "38880",
+            "0"
+          ]
+        ]
+      },
+      {
+        "arm": "published-manyan",
+        "status": 0,
+        "wall_rss": "0.27 34176",
+        "counts": [
+          [
+            "116641",
+            "38880",
+            "0"
+          ]
+        ]
+      },
+      {
+        "arm": "checked-image",
+        "status": 0,
+        "wall_rss": "0.42 37008",
+        "verdict": "success",
+        "stats": {
+          "depth": 41,
+          "distinct": 38880,
+          "generated": 116641,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "batch": {
+          "plans": 2,
+          "producer_images": 38880,
+          "rows": 38880
+        },
+        "phases": {
+          "atoms": 89.571703,
+          "product": 238.20071499999997
+        }
+      },
+      {
+        "arm": "order-base",
+        "status": 0,
+        "wall_rss": "0.43 37000",
+        "verdict": "success",
+        "stats": {
+          "depth": 41,
+          "distinct": 38880,
+          "generated": 116641,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "batch": {
+          "plans": 2,
+          "rows": 38880
+        },
+        "phases": {
+          "atoms": 92.97041200000001,
+          "product": 239.52679
+        }
+      },
+      {
+        "arm": "order-base",
+        "status": 0,
+        "wall_rss": "0.43 36956",
+        "verdict": "success",
+        "stats": {
+          "depth": 41,
+          "distinct": 38880,
+          "generated": 116641,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "batch": {
+          "plans": 2,
+          "rows": 38880
+        },
+        "phases": {
+          "atoms": 92.834498,
+          "product": 239.048213
+        }
+      },
+      {
+        "arm": "checked-image",
+        "status": 0,
+        "wall_rss": "0.42 36836",
+        "verdict": "success",
+        "stats": {
+          "depth": 41,
+          "distinct": 38880,
+          "generated": 116641,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "batch": {
+          "plans": 2,
+          "producer_images": 38880,
+          "rows": 38880
+        },
+        "phases": {
+          "atoms": 89.85539499999999,
+          "product": 238.78858
+        }
+      },
+      {
+        "arm": "published-manyan",
+        "status": 0,
+        "wall_rss": "0.27 34236",
+        "counts": [
+          [
+            "116641",
+            "38880",
+            "0"
+          ]
+        ]
+      }
+    ]
   }
 }
