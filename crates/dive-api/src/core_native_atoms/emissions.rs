@@ -1,4 +1,5 @@
 //! Reuse of closed ordinary Core rows for the exact bound ENABLED query.
+mod images;
 use super::{AnalysisError, EvaluationControl, NativeAtoms, PredicateAtom, Reader, check};
 use dive_runtime::capture::CsrCapture;
 

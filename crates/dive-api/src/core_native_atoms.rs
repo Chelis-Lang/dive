@@ -30,6 +30,7 @@ struct Compiled {
     column: Option<prefix::Column>,
     emission: Option<(usize, dive_core::compile::ClosedEnabled)>,
     producer: Option<usize>,
+    image_guard_key: Option<Projection>,
     identity: *const PredicateAtom,
     plan: dive_core::plan::Plan,
     false_guard: Option<dive_core::plan::P>,
@@ -133,6 +134,10 @@ pub(crate) struct NativeAtoms {
     live_emissions: bool,
     producer_images: [Option<dive_core::compile::ClosedEnabled>; 64],
     image_hits: u64,
+    direct_image_columns: u64,
+    direct_image_sources: u64,
+    direct_guard_time: std::time::Duration,
+    direct_guard_cached: u64,
     emission_hits: [u64; 2],
     emission_peak_bytes: usize,
     projected: dive_core::memo::Memo,
@@ -316,7 +321,15 @@ impl NativeAtoms {
                 result.rejections.record(Rejection::Allocation);
                 continue;
             }
+            let image_guard_key = false_guard.batch.as_ref().and_then(|batch| {
+                Projection::new(
+                    batch.original_guard_reads(),
+                    model.ir.vars().len(),
+                    &mut key_lengths,
+                )
+            });
             result.compiled.push(Compiled {
+                image_guard_key,
                 producer: if false_guard
                     .batch
                     .as_ref()
@@ -401,6 +414,10 @@ impl NativeAtoms {
             live_emissions: false,
             producer_images: [None; 64],
             image_hits: 0,
+            direct_image_columns: 0,
+            direct_image_sources: 0,
+            direct_guard_time: std::time::Duration::ZERO,
+            direct_guard_cached: 0,
             emission_hits: [0; 2],
             emission_peak_bytes: 0,
             projected: dive_core::memo::Memo::default(),
@@ -465,7 +482,7 @@ impl NativeAtoms {
 
     pub(crate) fn metrics(&self) -> serde_json::Value {
         serde_json::json!({"total_atoms": self.total, "eligible_atoms": self.eligible,
-            "action_batches":{"plans":self.compiled.iter().filter(|p|p.batch.is_some()).count(),"rows":self.batch_rows, "producer_images": self.image_hits},
+            "action_batches":{"plans":self.compiled.iter().filter(|p|p.batch.is_some()).count(),"rows":self.batch_rows, "producer_images": self.image_hits, "direct_image_columns":self.direct_image_columns, "direct_image_sources":self.direct_image_sources, "direct_guard_ms":self.direct_guard_time.as_secs_f64()*1000.0, "direct_guard_cached":self.direct_guard_cached},
             "unchanged_target_guards":{"plans":self.compiled.iter().filter(|p|p.unchanged_guard.is_some()).count(),"probes":self.unchanged_probes,"rows":self.unchanged_rows,"edges":self.unchanged_edges},
             "action_source_guards": {"plans": self.compiled.iter().filter(|p| p.false_guard.is_some()).count(),
                 "probes": self.guard_probes, "false_rows": self.guard_rows},
@@ -1165,6 +1182,7 @@ pub(crate) struct Reader<'a, 'model> {
     prefix: Option<bool>,
     prefix_validated: usize,
     emissions: emissions::Rows,
+    image_words: Vec<u64>,
     emission_capture: Option<dive_runtime::capture::CsrCapture<'a>>,
     proofs: RowProofs<'a>,
     pub(crate) values: &'a mut NativeValues<'model>,
@@ -1182,6 +1200,7 @@ impl<'a, 'model> Reader<'a, 'model> {
             prefix: None,
             prefix_validated: 0,
             emissions: emissions::Rows::default(),
+            image_words: Vec::new(),
             emission_capture: None,
             proofs: RowProofs::new(graph),
             unchanged: None,
@@ -1493,6 +1512,15 @@ impl NativeReader for Reader<'_, '_> {
         control: &EvaluationControl,
     ) -> Result<Option<dive_liveness::analyze::periodic::external::LabelPrefix<'_>>, AnalysisError>
     {
+        if self.original_image_column(atom, graph, control)? {
+            return Ok(Some(
+                dive_liveness::analyze::periodic::external::LabelPrefix {
+                    sources: graph.closed_rows(),
+                    cells: graph.offsets().last().copied().unwrap_or(0),
+                    words: &self.image_words,
+                },
+            ));
+        }
         self.previous_column(atom, graph, control)
     }
 
