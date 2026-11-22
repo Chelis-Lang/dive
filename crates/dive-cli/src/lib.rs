@@ -100,7 +100,7 @@ fn usage() -> String {
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
                [--distributed-worker IP:port]... [--worker-key FILE] [--worker-timeout-ms N] [--distributed-retries N]
-               [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive worker <FILE.tla> --seed N --fp N --worker-key FILE [--listen IP:port] [--worker-timeout-ms N] [--worker-max-units N]\n                [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--output human|json]\n    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> [--trace TRACE.json] [--inputs RUN.json] [--config FILE.cfg] [--claim ENDING] [--sample]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
+               [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive worker <FILE.tla> --seed N --fp N --worker-key FILE [--listen IP:port] [--worker-timeout-ms N] [--worker-max-units N]\n                [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--output human|json]\n    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> [--trace TRACE.json] [--inputs RUN.json] [--config FILE.cfg] [--claim ENDING] [--sample | --repair]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
     profile and final checking in the TLC profile.
     dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to none in both profiles, as in TLC; --max-memory defaults to\n    half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) selects existing TLC-compatible behavior; known gaps are documented.\n    The compiled Core is the engine of check, simulate, dfid and tlc; what it does not\n    implement is a named refusal, never a fallback. --core-sample N\n    also compares the successors of N sampled states with an independent evaluator's, in the JSON\n    report (core.sample); it is diagnostic and changes no result.
     Options Core does not implement are not listed; they still parse and refuse by name\n    (exit 3).\n",
@@ -1097,6 +1097,7 @@ fn validate_trace_command(
     let mut claim: Option<&str> = None;
     let mut json = false;
     let mut sample = false;
+    let mut repair = false;
     let mut seed: Option<i64> = None;
     let mut fp: Option<usize> = None;
     let mut opts = dive_api::trace::TraceOptions {
@@ -1111,6 +1112,7 @@ fn validate_trace_command(
     while let Some(a) = it.next() {
         match a.as_str() {
             "--sample" => sample = true,
+            "--repair" => repair = true,
             "--output" => match it.next().map(String::as_str) {
                 Some("json") => json = true,
                 Some("human") => json = false,
@@ -1207,6 +1209,12 @@ fn validate_trace_command(
             ),
         );
     };
+    if repair && (!json || sample) {
+        return usage_error(
+            err,
+            "--repair requires --output json and counterexample validation",
+        );
+    }
     let input_document = if let Some(path) = input_report {
         let report = match read_external_input_report(path) {
             Ok(report) => report,
@@ -1239,7 +1247,12 @@ fn validate_trace_command(
     let spec = std::path::Path::new(file);
     // TLC's default: the configuration next to the specification.
     let cfg = cfg.map_or_else(|| spec.with_extension("cfg"), std::path::PathBuf::from);
-    let document = if let Some(trace) = trace {
+    let document = if let (true, Some(path)) = (repair, trace) {
+        match read_bounded_json(path, "repair trace") {
+            Ok(doc) => doc,
+            Err(message) => return usage_error(err, &message),
+        }
+    } else if let Some(trace) = trace {
         let text = match std::fs::read_to_string(trace) {
             Ok(text) => text,
             Err(error) => return usage_error(err, &format!("cannot read {trace}: {error}")),
@@ -1287,7 +1300,33 @@ fn validate_trace_command(
         }
         Err(e) => return usage_error(err, &e.to_string()),
     };
-    let report = match if sample {
+    let mut repair_details = None;
+    let report = match if repair {
+        match model.repair_word(&doc) {
+            Ok(attempt) => {
+                // Return the exact document just validated. A consuming worker
+                // need not reopen a donor path that may have since changed.
+                let word = (attempt.validation.validation == dive_api::trace::Validation::Valid)
+                    .then(|| attempt.replacement.as_ref().unwrap_or(&doc).to_json());
+                repair_details = Some(serde_json::json!({
+                    "status": if attempt.replacement.is_some() { "repaired" } else if attempt.validation.validation == dive_api::trace::Validation::Valid { "unchanged" } else { "unrepaired" },
+                    "candidate_validation": attempt.rejected.as_ref().map(dive_api::trace::report_json),
+                    "gaps": attempt.gaps, "generated": attempt.generated,
+                    "search_ms": attempt.search_ms, "validation_ms": attempt.validation_ms,
+                    "reason": attempt.reason, "trace": word
+                }));
+                Ok(attempt.validation)
+            }
+            Err(message) => {
+                let _ = writeln!(
+                    out,
+                    "{}",
+                    serde_json::json!({"result":"unsupported", "unsupported":message, "validation_goal":"repair"})
+                );
+                return ExitCode::from(EXIT_UNSUPPORTED);
+            }
+        }
+    } else if sample {
         model.try_validate_sample(&doc)
     } else {
         model.try_validate(&doc)
@@ -1297,6 +1336,9 @@ fn validate_trace_command(
     };
     if json {
         let mut document = dive_api::trace::report_json(&report);
+        if let Some(details) = repair_details {
+            document["repair"] = details;
+        }
         if sample {
             document["validation_goal"] = serde_json::json!("sample");
         }
@@ -1313,6 +1355,10 @@ fn validate_trace_command(
 }
 
 fn read_external_input_report(path: &str) -> Result<serde_json::Value, String> {
+    read_bounded_json(path, "external input report")
+}
+
+fn read_bounded_json(path: &str, kind: &str) -> Result<serde_json::Value, String> {
     const LIMIT: usize = 8 << 20;
     let file = std::fs::File::open(path).map_err(|error| format!("cannot read {path}: {error}"))?;
     let mut reader = std::io::Read::take(file, u64::try_from(LIMIT + 1).unwrap_or(u64::MAX));
@@ -1320,7 +1366,7 @@ fn read_external_input_report(path: &str) -> Result<serde_json::Value, String> {
     std::io::Read::read_to_end(&mut reader, &mut bytes)
         .map_err(|error| format!("cannot read {path}: {error}"))?;
     if bytes.len() > LIMIT {
-        return Err("external input report exceeds 8 MiB".into());
+        return Err(format!("{kind} exceeds 8 MiB"));
     }
     serde_json::from_slice(&bytes).map_err(|error| format!("{path}: {error}"))
 }

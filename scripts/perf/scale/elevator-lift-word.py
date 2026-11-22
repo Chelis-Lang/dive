@@ -59,7 +59,7 @@ def moving_car(before, after):
     return index
 
 
-def lift(word, floor_map):
+def lift(word, floor_map, *, anchors_only=False):
     if len(floor_map) < 2 or floor_map[0] != 1 or any(
         a >= b for a, b in zip(floor_map, floor_map[1:])
     ):
@@ -71,6 +71,8 @@ def lift(word, floor_map):
     if len(states) != word["length"] or not 0 <= loop < len(states):
         raise ValueError("invalid donor length or loop target")
     mapped = [map_state(state, floor_map) for state in states]
+    if anchors_only:
+        return {**word, "states": mapped}
     positions = []
     result = []
     for i, state in enumerate(mapped):
@@ -96,8 +98,9 @@ def main():
     parser.add_argument("trace", type=Path)
     parser.add_argument("floor_map", help="comma-separated new floor for each old floor, starting at 1")
     parser.add_argument("output", type=Path)
+    parser.add_argument("--anchors-only", action="store_true", help="map the existing states and leave missing steps for dive validate-trace --repair")
     options = parser.parse_args()
-    word = lift(json.loads(options.trace.read_text()), [int(x) for x in options.floor_map.split(",")])
+    word = lift(json.loads(options.trace.read_text()), [int(x) for x in options.floor_map.split(",")], anchors_only=options.anchors_only)
     with options.output.open("x") as output:
         json.dump(word, output, separators=(",", ":"))
 

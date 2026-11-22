@@ -18,7 +18,9 @@ use crate::State;
 use crate::enabled::enabled;
 
 mod prefix;
+mod truth;
 pub use prefix::refutes_prefix;
+use truth::Truth;
 
 /// Why temporal evaluation cannot establish a truth value.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -120,7 +122,17 @@ pub fn evaluate_lasso(
             "a lasso state does not assign every variable".into(),
         ));
     }
-    for state in states {
+    if states.len() > Word::LIMIT {
+        return Err(TemporalError::Unsupported(format!(
+            "temporal validation word length {} exceeds {}",
+            states.len(),
+            Word::LIMIT
+        )));
+    }
+    for (i, state) in states.iter().enumerate() {
+        if i % 256 == 0 {
+            model.evaluator.poll_host_control()?;
+        }
         crate::trace::validate_state_names(model, state).map_err(TemporalError::Unsupported)?;
     }
     let guard = crate::enabled::ComposeGuard::install(model);
@@ -129,10 +141,13 @@ pub fn evaluate_lasso(
         states,
         back_to,
         cells: 0,
+        stutters: None,
         levels: WalkMemo::default(),
         contexts: WalkMemo::default(),
     };
-    let truth = cx.eval(formula.expr, &formula.scope, 0);
+    let truth = cx
+        .eval(formula.expr, &formula.scope, 0)
+        .map(|t| t.unpack(states.len()));
     if matches!(truth, Err(TemporalError::Interrupted(_))) {
         return truth;
     }
@@ -177,6 +192,7 @@ pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), T
         states: &[],
         back_to: 0,
         cells: 0,
+        stutters: None,
         levels: WalkMemo::default(),
         contexts: WalkMemo::default(),
     }
@@ -265,27 +281,44 @@ struct Word<'a> {
     states: &'a [State],
     back_to: usize,
     cells: usize,
+    stutters: Option<(ExprId, Truth)>,
     levels: WalkMemo<Level>,
     contexts: WalkMemo<()>,
 }
 
 impl Word<'_> {
+    const LIMIT: usize = 1_000_000;
+
+    fn charge(&mut self, units: usize) -> Result<(), TemporalError> {
+        self.cells = self.cells.saturating_add(units);
+        if self.cells > Self::LIMIT {
+            return Err(TemporalError::Unsupported(format!(
+                "temporal validation resource bound: {} work units exceed {} on {} positions",
+                self.cells,
+                Self::LIMIT,
+                self.states.len()
+            )));
+        }
+        self.model.evaluator.poll_host_control()?;
+        Ok(())
+    }
+
+    fn leaf(&mut self, expr: ExprId, scope: &Scope) -> Result<Truth, TemporalError> {
+        self.charge(self.states.len())?;
+        Ok(Truth::pack(&self.atom(expr, scope)?))
+    }
+
     #[allow(
         clippy::too_many_lines,
         reason = "one explicit arm per supported temporal constructor"
     )]
-    fn eval(
-        &mut self,
-        expr: ExprId,
-        scope: &Scope,
-        depth: usize,
-    ) -> Result<Vec<bool>, TemporalError> {
-        self.cells = self.cells.saturating_add(self.states.len());
-        if depth > 256 || self.cells > 1_000_000 {
+    fn eval(&mut self, expr: ExprId, scope: &Scope, depth: usize) -> Result<Truth, TemporalError> {
+        if depth > 256 {
             return Err(TemporalError::Unsupported(
-                "temporal validation resource bound".into(),
+                "temporal validation depth exceeds 256".into(),
             ));
         }
+        self.charge(1)?;
         let ev = &self.model.evaluator;
         let node = self
             .model
@@ -342,18 +375,20 @@ impl Word<'_> {
                 .native_parameter(scope, *local, args, depth + 1, &mut 0)?
                 .is_some()
             {
-                return self.atom(expr, scope);
+                return self.leaf(expr, scope);
             }
             let (def, called) = self.parameter_call(scope, *local, args, depth + 1, &mut 0)?;
             return self.eval(self.model.ir.def(def).body, &called, depth + 1);
         }
         if let Expr::StepAngle { action, sub } | Expr::StepBox { action, sub } = &node.expr {
-            return self.temporal_action(
+            self.charge(self.states.len())?;
+            return Ok(Truth::pack(&self.temporal_action(
                 *action,
                 *sub,
                 scope,
                 matches!(node.expr, Expr::StepBox { .. }),
-            );
+                true,
+            )?));
         }
         let level = self.scoped_level(expr, scope, depth, &mut 0)?;
         // Keep established state-level temporal lowering (including direct
@@ -364,65 +399,73 @@ impl Word<'_> {
             && (!node.effects.contains(Effects::USES_ENABLED)
                 || self.scoped_level_mode(expr, scope, depth, &mut 0, true)? == Level::Action)
         {
-            return self.atom(expr, scope);
+            return self.leaf(expr, scope);
         }
         let child = depth + 1;
+        let n = self.states.len();
+        let words = n.div_ceil(64);
         match &node.expr {
-            Expr::Enabled(action) => self
-                .states
-                .iter()
-                .map(|state| {
-                    enabled(self.model, &Pred::new(*action, scope.clone()), None, state)
-                        .map_err(|e| enabled_refusal(&e, ""))
-                })
-                .collect(),
-            Expr::Always(e) | Expr::Eventually(e) => {
-                let always = matches!(node.expr, Expr::Always(_));
-                let values = self.eval(*e, scope, child)?;
-                Ok(self.future(values, always))
+            Expr::Enabled(action) => {
+                self.charge(self.states.len())?;
+                let pred = Pred::new(*action, scope.clone());
+                let values = self
+                    .states
+                    .iter()
+                    .enumerate()
+                    .map(|(i, state)| {
+                        if i % 256 == 0 {
+                            self.model.evaluator.poll_host_control()?;
+                        }
+                        enabled(self.model, &pred, None, state).map_err(|e| enabled_refusal(&e, ""))
+                    })
+                    .collect::<Result<Vec<_>, _>>()?;
+                Ok(Truth::pack(&values))
             }
-            Expr::Not(e) => Ok(self
-                .eval(*e, scope, child)?
-                .into_iter()
-                .map(|b| !b)
-                .collect()),
+            Expr::Always(e) | Expr::Eventually(e) => {
+                let values = self.eval(*e, scope, child)?;
+                self.charge(words)?;
+                Ok(values.future(n, self.back_to, matches!(node.expr, Expr::Always(_))))
+            }
+            Expr::Not(e) => {
+                let values = self.eval(*e, scope, child)?;
+                self.charge(words)?;
+                Ok(values.invert())
+            }
             Expr::Implies(a, b) | Expr::Equiv(a, b) | Expr::LeadsTo(a, b) => {
                 let a = self.eval(*a, scope, child)?;
                 let b = self.eval(*b, scope, child)?;
-                let equivalent = matches!(node.expr, Expr::Equiv(..));
-                let leads = matches!(node.expr, Expr::LeadsTo(..));
-                let b = if leads { self.future(b, false) } else { b };
-                let values = a
-                    .into_iter()
-                    .zip(b)
-                    .map(|(a, b)| if equivalent { a == b } else { !a || b })
-                    .collect();
-                Ok(if leads {
-                    self.future(values, true)
-                } else {
-                    values
-                })
+                self.charge(words)?;
+                match node.expr {
+                    Expr::LeadsTo(..) => {
+                        self.charge(2 * words)?;
+                        let eventual = b.future(n, self.back_to, false);
+                        Ok(a.combine(&eventual, |l, r| !l | r)
+                            .future(n, self.back_to, true))
+                    }
+                    Expr::Equiv(..) => Ok(a.combine(&b, |l, r| !(l ^ r))),
+                    _ => Ok(a.combine(&b, |l, r| !l | r)),
+                }
             }
             Expr::Junction { kind, items, .. } => {
-                let conjunction = matches!(kind, JunctionKind::And);
-                let mut values = vec![conjunction; self.states.len()];
+                let and = *kind == JunctionKind::And;
+                self.charge(words)?;
+                let mut values = Truth::constant(n, and);
                 for item in items {
                     let rhs = self.eval(*item, scope, child)?;
-                    for (a, b) in values.iter_mut().zip(rhs) {
-                        *a = if conjunction { *a && b } else { *a || b };
-                    }
+                    self.charge(words)?;
+                    values = values.combine(&rhs, |l, r| if and { l & r } else { l | r });
                 }
                 Ok(values)
             }
             Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
                 let scopes = self.finite_scopes(expr, scope, child, &mut 0)?;
-                let conjunction = *kind == QuantKind::Forall;
-                let mut values = vec![conjunction; self.states.len()];
-                for scope in scopes {
-                    let rhs = self.eval(*body, &scope, child)?;
-                    for (a, b) in values.iter_mut().zip(rhs) {
-                        *a = if conjunction { *a && b } else { *a || b };
-                    }
+                let and = *kind == QuantKind::Forall;
+                self.charge(words)?;
+                let mut values = Truth::constant(n, and);
+                for bound in scopes {
+                    let rhs = self.eval(*body, &bound, child)?;
+                    self.charge(words)?;
+                    values = values.combine(&rhs, |l, r| if and { l & r } else { l | r });
                 }
                 Ok(values)
             }
@@ -435,12 +478,8 @@ impl Word<'_> {
                 let guards = self.eval(*cond, scope, child)?;
                 let yes = self.eval(*then, scope, child)?;
                 let no = self.eval(*other, scope, child)?;
-                Ok(guards
-                    .into_iter()
-                    .zip(yes)
-                    .zip(no)
-                    .map(|((guard, yes), no)| if guard { yes } else { no })
-                    .collect())
+                self.charge(words)?;
+                Ok(guards.select(&yes, &no))
             }
             Expr::Apply {
                 callee: OpRef::Def(d),
@@ -475,45 +514,82 @@ impl Word<'_> {
     // condition needs no ENABLED search or witness. Checking only the finite
     // prefix would be unsound: the occurrence must be on the repeated cycle.
     fn fairness(
-        &self,
+        &mut self,
         action: ExprId,
         sub: ExprId,
         scope: &Scope,
         strong: bool,
-    ) -> Result<Vec<bool>, TemporalError> {
-        let occurrences = self.temporal_action(action, sub, scope, false)?;
+    ) -> Result<Truth, TemporalError> {
+        self.charge(self.states.len())?;
+        let occurrences = self.temporal_action(action, sub, scope, false, true)?;
         let recurrent = occurrences[self.back_to..].iter().any(|occurs| *occurs);
         if recurrent {
-            Ok(vec![true; self.states.len()])
+            Ok(Truth::constant(self.states.len(), true))
         } else {
+            self.charge(self.states.len() - self.back_to)?;
             let action = Pred::new(action, scope.clone());
-            let disabled: Vec<bool> = self.states[self.back_to..]
-                .iter()
-                .map(|state| {
-                    enabled(self.model, &action, Some(sub), state)
-                        .map(|enabled| !enabled)
-                        .map_err(|e| enabled_refusal(&e, "fairness "))
-                })
-                .collect::<Result<_, _>>()?;
-            // WF = GF(~enabled) OR GF(occurs); SF = FG(~enabled) OR GF(occurs).
-            // On this repeated finite cycle GF and FG reduce to any and all.
-            let holds = if strong {
-                disabled.iter().all(|b| *b)
-            } else {
-                disabled.iter().any(|b| *b)
-            };
-            Ok(vec![holds; self.states.len()])
+            // Evaluate every cycle position in source order. A later reached
+            // error still decides validation after the Boolean fold is known.
+            let mut holds = strong;
+            for (i, state) in self.states[self.back_to..].iter().enumerate() {
+                if i % 256 == 0 {
+                    self.model.evaluator.poll_host_control()?;
+                }
+                let disabled = !enabled(self.model, &action, Some(sub), state)
+                    .map_err(|e| enabled_refusal(&e, "fairness "))?;
+                holds = if strong {
+                    holds && disabled
+                } else {
+                    holds || disabled
+                };
+            }
+            Ok(Truth::constant(self.states.len(), holds))
+        }
+    }
+
+    // Only root variable reads and literal tuples of them are independent of
+    // the current quantified frame. Definitions must resolve to this same
+    // top-level body in the active CFG. Everything else takes the scoped path.
+    fn subscript_key(&self, sub: ExprId, scope: &Scope) -> Option<ExprId> {
+        let ir = &self.model.ir;
+        let ev = &self.model.evaluator;
+        if !scope.shares_pure_source_walk(scope, ev, sub) {
+            return None;
+        }
+        let body = match ir.node(sub).expr {
+            Expr::Def(d) => {
+                let target = ev.redirected(d);
+                let def = ir.def(target);
+                if def.scope != DefScope::TopLevel
+                    || def.std.is_some()
+                    || def.recursive
+                    || !def.params.is_empty()
+                    || ev.is_value_override(d)
+                    || ev.is_value_override(target)
+                {
+                    return None;
+                }
+                def.body
+            }
+            _ => sub,
+        };
+        let variable = |e| matches!(ir.node(e).expr, Expr::Var { primed: false, .. });
+        match &ir.node(body).expr {
+            Expr::Tuple(items) if items.iter().copied().all(variable) => Some(body),
+            _ if variable(body) => Some(body),
+            _ => None,
         }
     }
 
     // Independent LNAction semantics: a subscript stutter determines the
     // value before the body is evaluated, including the actual closing edge.
     fn temporal_action(
-        &self,
+        &mut self,
         action: ExprId,
         sub: ExprId,
         scope: &Scope,
         boxed: bool,
+        retain: bool,
     ) -> Result<Vec<bool>, TemporalError> {
         self.check_atom_context(action, scope)?;
         self.check_scoped_context_mode(sub, scope, 0, &mut 0, false)?;
@@ -523,22 +599,38 @@ impl Word<'_> {
             ));
         }
         let ev = &self.model.evaluator;
+        let key = retain.then(|| self.subscript_key(sub, scope)).flatten();
+        let saved = self.stutters.as_ref().filter(|(id, _)| Some(*id) == key);
+        let mut recording = key
+            .filter(|_| saved.is_none())
+            .map(|_| Truth::constant(self.states.len(), false));
         let mut out = Vec::with_capacity(self.states.len());
         for (i, state) in self.states.iter().enumerate() {
+            if i % 256 == 0 {
+                self.model.evaluator.poll_host_control()?;
+            }
             let next = if i + 1 == self.states.len() {
                 self.back_to
             } else {
                 i + 1
             };
             let read = |at: usize| ev.eval_scoped(scope, sub, &St::state(self.states[at].clone()));
-            let same = (|| {
-                let before = read(i)?;
-                let after = read(next)?;
-                ev.equal_values(&before, &after)
-            })()
-            .map_err(|e: dive_eval::EvalError| {
-                TemporalError::evaluation(e, &format!("temporal subscript at position {i}: "))
-            })?;
+            let same = if let Some((_, column)) = saved {
+                column.at(i)
+            } else {
+                let same = (|| {
+                    let before = read(i)?;
+                    let after = read(next)?;
+                    ev.equal_values(&before, &after)
+                })()
+                .map_err(|e: dive_eval::EvalError| {
+                    TemporalError::evaluation(e, &format!("temporal subscript at position {i}: "))
+                })?;
+                if same && let Some(bits) = &mut recording {
+                    bits.set(i);
+                }
+                same
+            };
             if same {
                 out.push(boxed);
                 continue;
@@ -560,6 +652,9 @@ impl Word<'_> {
                 }
             }
         }
+        if let Some(pair) = key.zip(recording) {
+            self.stutters = Some(pair);
+        }
         Ok(out)
     }
 
@@ -567,6 +662,9 @@ impl Word<'_> {
         self.check_atom_context(expr, scope)?;
         let mut out = Vec::with_capacity(self.states.len());
         for (i, state) in self.states.iter().enumerate() {
+            if i % 256 == 0 {
+                self.model.evaluator.poll_host_control()?;
+            }
             let next = if i + 1 == self.states.len() {
                 self.back_to
             } else {
@@ -1952,22 +2050,5 @@ impl Word<'_> {
             );
         }
         Ok(())
-    }
-
-    fn future(&self, mut values: Vec<bool>, always: bool) -> Vec<bool> {
-        let cycle = if always {
-            values[self.back_to..].iter().all(|b| *b)
-        } else {
-            values[self.back_to..].iter().any(|b| *b)
-        };
-        values[self.back_to..].fill(cycle);
-        for i in (0..self.back_to).rev() {
-            values[i] = if always {
-                values[i] && values[i + 1]
-            } else {
-                values[i] || values[i + 1]
-            };
-        }
-        values
     }
 }

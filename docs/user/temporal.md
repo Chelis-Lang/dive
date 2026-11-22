@@ -642,8 +642,51 @@ constructing the 121-floor word took 26 ms and independent replay took
 2.57 s. These timings exclude the initial four-floor search. Two people each have an initial location and destination, and two
 cars each have an initial floor, giving this configuration 121⁶ =
 3,138,428,376,721 initial assignments. Replay verifies one concrete
-counterexample. At 151 floors this donor reached the validator’s work limit.
+counterexample.
 [All floor maps, word hashes and independent controls](../../conformance/reports/perf/2026-11-22-elevator-seven.json)
+
+### Repair a saved counterexample after an edit
+
+Use the original native word and the current module and configuration.
+
+```sh
+dive validate-trace Clock.tla --config Clock.cfg --trace saved.json --repair --output json
+```
+
+A still-valid named lasso or stuttering word returns `repair.status = unchanged` and the checked input in `repair.trace`.
+For a broken Next transition, Dive can insert a short path of current-source successors.
+`repaired` includes the complete replacement in `repair.trace`. Its exit status is
+zero only after independent replay checked the whole replacement, including Init,
+the loop closure, all configured fairness assumptions and the named false properties.
+An unsuccessful attempt retains the supplied word's validation. A client can then
+run its ordinary check on the current inputs. `candidate_validation` records a
+rejected replacement. Rust callers can use `SpecModel::repair_word`.
+
+Search accepts unlabeled native words with complete states and explicit property names.
+It declines recorded draws, existential witnesses and sampled run settings. Each gap
+can span four transitions. A search retains at most 4,096 frontier and predecessor
+states per gap and allows at most 128 gaps and 32,768 generated successor occurrences
+in total. The repair input and output have at most 4,096 states. The CLI also limits
+the supplied JSON file to 8 MiB. Generation uses a 30 s watchdog and a sampled
+512 MiB whole-process memory ceiling. Initial and final replay use the independent
+validator's own limits. A worker requiring a hard whole-job deadline or memory limit
+must supervise the entire process, including parsing and replay.
+
+When a parameter edit changes coordinates, supply an explicit mapping before repair.
+On MultiCarElevator the family-specific helper can map just the saved states.
+
+```sh
+python3 scripts/perf/scale/elevator-lift-word.py --anchors-only seven.json 1,3,4,5,6,7,8 anchors.json
+dive validate-trace Elevator.tla --config eight.cfg --trace anchors.json --repair --output json
+```
+
+For the published seven-floor word, the mapping took 7.1 ms. On eight floors Dive
+repaired 13 gaps after generating 189 successor occurrences in 16.2 ms.
+The complete process took 118 ms and 35,028 KiB peak RSS. Standalone replay
+accepted the 262-state word and rejected its damaged closing edge. The same
+search repaired a changed transition in the published real-time clock and
+independently rejected candidates after a fairness edit and a property fix.
+[Source hashes, commands, timings and negative controls](../../conformance/reports/perf/2026-11-22-temporal-repair.json)
 
 A default Core file check can also use component search when ordinary formula
 decomposition succeeds. If one temporal core has at least eight alternatives
@@ -845,6 +888,25 @@ already decided error are not interrupted. A stop during replay reports
 `stopped` at `trace-validation` with the capture flag and optional
 `resources.validation` progress, and publishes no counterexample. Memory
 accounting is incomplete, and sampled process memory is not a true peak.
+
+### Work limits for independent lasso replay
+
+On the original Elevator configuration, standalone replay accepts the 1,082-position word at 151 floors, the
+1,282-position word at 181 floors, and a different 1,712-position word at 121
+floors. The validator evaluates state and action predicates at the original
+positions and combines their results in 64-position blocks. A repeated
+subscript over the same root variables can reuse equality results from the
+same concrete word, including its closing edge. Quantified bindings and
+source expressions that can affect the result keep their scoped evaluation.
+
+Each temporal formula has a one-million-unit limit. A scoped expression visit,
+a concrete position evaluated for a predicate, and one block of a Boolean
+operation each use a unit. The separate one-million-position limit bounds the
+size of a column, and the validator retains at most one extra equality column
+(125,000 bytes of bits). Parsing and storing the supplied states takes
+additional memory. A 241-floor control exceeded the formula limit. A work-limit
+refusal reports the positions, required charge and limit.
+[Word sizes, memory, timings and controls](../../conformance/reports/perf/2026-11-22-packed-word-replay.json)
 
 ## Metrics
 

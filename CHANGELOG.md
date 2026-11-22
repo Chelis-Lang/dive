@@ -6,6 +6,7 @@ are in git history.
 ## Unreleased
 
 - The source-checkout [named induction checker](docs/user/symbolic.md#check-a-named-inductive-predicate) verifies a compact safety predicate through original TLA+ actions, including MongoLoglessDynamicRaft membership changes.
+- [Repair a saved temporal counterexample](docs/user/temporal.md#repair-a-saved-counterexample-after-an-edit) by searching short paths through the edited source and independently validating the complete replacement.
 
 - The source checkout can [build a native successor worker](docs/user/checking.md#build-a-source-bound-native-successor-worker) from unmodified TLA+ and reuse its compiled control flow after a property or guard edit.
 
@@ -20,6 +21,8 @@ are in git history.
 - Core reuses values written by a deterministic successor when checking [fairness on original transitions](docs/user/temporal.md#fairness).
 
 - Single-worker Core checks can reuse original successors to answer [fairness enabledness queries](docs/user/temporal.md#fairness) while preserving warnings, action bindings and stuttering semantics.
+
+- Independent [periodic trace validation](docs/user/temporal.md#fairness) accepts longer concrete counterexamples under an explicit per-formula work bound, including the 181-floor Elevator word.
 
 - Core sizes two [fairness workspaces](docs/user/temporal.md#fairness) for growing graphs and reads reachable product vertices directly from a dense discovery bitmap.
 

@@ -34,6 +34,8 @@ The scripts that produced the records are in
 
 [Seven-floor Elevator](2026-11-22-elevator-seven.json) compares ordinary Core and Manyan, records the workspace and Cartesian-ordering experiments, and includes genuine and damaged witness checks. It also records timeouts under alternative schedules.
 
+[Independent lasso validation](2026-11-22-packed-word-replay.json) records the 121-, 151-, 181- and 241-floor controls, per-formula work, damaged loops and closed graph 7.
+
 [Four-floor Elevator prefix placement](2026-11-22-elevator-prefix-placement.json) compares seven replayable thresholds, three independent CLI runs per selected setting, holding controls, peak RSS and both original/damaged word replays. At 100,000 states the CLI median was 6.40 s, versus 9.73 s for its default and 7.46 s for Manyan.
 
 [Batched fairness actions](2026-11-22-batched-fairness-actions.json) compares three-, four-, and five-floor Elevator with Manyan, validates both tools’ counterexamples, and includes the four-server Kafka transfer check.
@@ -577,3 +579,5 @@ field before quoting a number.
 [Whole-process-family time and memory for both named proof checkers](2026-11-22-recomp-process-memory.json) records all 68 matched runs, including deadlines, refusals and a Sharded KV mutation.
 
 [All 34 original Recomp-Verify configurations](2026-11-22-recomp-originals.json) compare named safety results and 30-second whole-process timings with the upstream portfolio.
+
+[Saved temporal counterexample repair](2026-11-22-temporal-repair.json) records source-driven gap searches on the published Elevator and real-time clock, fresh replay, stale properties, changed fairness and ordinary fallback.

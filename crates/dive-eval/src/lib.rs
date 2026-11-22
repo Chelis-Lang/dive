@@ -484,6 +484,14 @@ impl Evaluator {
         })
     }
 
+    /// Poll the installed cooperative control while a caller processes evaluated values.
+    ///
+    /// # Errors
+    /// Returns the driver's typed interruption if the active control requests a stop.
+    pub fn poll_host_control(&self) -> Result<()> {
+        self.core.host.check_control()
+    }
+
     /// The installed host, if any.
     #[must_use]
     pub fn host(&self) -> Option<Arc<dyn Host>> {
