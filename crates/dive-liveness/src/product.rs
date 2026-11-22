@@ -132,7 +132,14 @@ struct Parts<A, G> {
 // renumbering, so promise columns follow the final vertex order.
 struct Ordered<'a> {
     pairs: &'a [(usize, usize)],
-    order: &'a [usize],
+    // Dense discovery can already supply pairs in Cartesian order.
+    order: Option<&'a [usize]>,
+}
+
+impl Ordered<'_> {
+    fn iter(&self) -> impl ExactSizeIterator<Item = (usize, usize)> + '_ {
+        (0..self.pairs.len()).map(|i| self.pairs[self.order.map_or(i, |ids| ids[i])])
+    }
 }
 
 #[cfg(test)]
@@ -272,7 +279,7 @@ impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
         let graph = self.rows.finish(&ordered, &renumber, roots)?;
         let acceptance = acceptance(Ordered {
             pairs: &self.pairs,
-            order: &ordered,
+            order: Some(&ordered),
         })?;
         let mut behavior_states = csr::reserve(ordered.len())?;
         for (position, &old) in ordered.iter().enumerate() {
@@ -365,7 +372,7 @@ impl Product {
                         input
                             .order
                             .iter()
-                            .map(|&old| tableau.nodes[input.pairs[old].1].fulfilled[p])
+                            .map(|&old| tableau.nodes[node].fulfilled[p])
                             .collect()
                     })
                     .collect::<Vec<Vec<bool>>>())
@@ -486,13 +493,9 @@ impl CompactAcceptance {
     fn new(input: &Ordered<'_>, tableau: &Tableau) -> Self {
         let states = (0..tableau.promise_count)
             .map(|p| {
-                let mut words = vec![0; input.order.len().div_ceil(64)];
-                for (v, &old) in input.order.iter().enumerate() {
-                    set_bit(
-                        &mut words,
-                        v,
-                        tableau.nodes[input.pairs[old].1].fulfilled[p],
-                    );
+                let mut words = vec![0; input.pairs.len().div_ceil(64)];
+                for (v, (_, node)) in input.iter().enumerate() {
+                    set_bit(&mut words, v, tableau.nodes[node].fulfilled[p]);
                 }
                 words
             })

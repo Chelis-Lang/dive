@@ -709,3 +709,38 @@ fn an_absent_grant_can_force_a_second_persistence_filter() {
         assert_eq!(fallback.is_some(), has_loop);
     }
 }
+
+#[test]
+fn dense_and_sparse_discovery_keep_the_same_cartesian_ids() {
+    use super::Seen;
+    // The three pairs cross physical word and vertex boundaries. The very
+    // large vertex range also exercises dense discovery with sparse occupancy.
+    for (vertices, width, direct) in [(65, 3, true), (200_000, 3, false), (65, 513, false)] {
+        let mut seen = Seen::new(vertices, width).expect("index");
+        let mut pairs = [(64, 0), (0, 2), (21, 1)];
+        for (count, &(v, n)) in pairs.iter().enumerate() {
+            assert!(seen.insert(v, n, count).expect("new"));
+            assert!(!seen.insert(v, n, count + 1).expect("duplicate"));
+        }
+        let order = seen.order(&mut pairs).expect("final ordering");
+        assert_eq!(order.is_none(), direct);
+        let ordered = super::Ordered {
+            pairs: &pairs,
+            order: order.as_deref(),
+        };
+        assert_eq!(
+            ordered.iter().collect::<Vec<_>>(),
+            [(0, 2), (21, 1), (64, 0)]
+        );
+    }
+    let watchdog = crate::budget::expired_for_test();
+    let _scope = crate::budget::enter(watchdog.budget());
+    let seen = Seen::Dense {
+        words: vec![1],
+        width: 1,
+    };
+    assert!(matches!(
+        seen.order(&mut [(0, 0)]),
+        Err(super::ProductError::Limit(crate::budget::EXHAUSTED))
+    ));
+}
