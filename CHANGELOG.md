@@ -9,6 +9,8 @@ are in git history.
 
 - Core keeps the component search available on larger fairness graphs. On six-floor Elevator, Core found a validated counterexample in 73.33 s at 541 MiB peak RSS. [Fairness](docs/user/temporal.md#fairness)
 
+- Single-worker Core checks can reuse original successors to answer [fairness enabledness queries](docs/user/temporal.md#fairness) while preserving warnings, action bindings and stuttering semantics.
+
 - Core evaluates finite predecessor function equations in the default profile, including the released LuPastry+ routing table.
 
 - Named symbolic proofs can infer and certify finite layouts for sources without a default layout operator.

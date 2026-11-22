@@ -1,0 +1,865 @@
+{
+  "question": "Can ordinary Core reuse exact bound fairness enabledness from the complete original emissions of a closed source while preserving original warnings and liveness words?",
+  "sources": {
+    "baseline": "efccb99be",
+    "examples": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "manyan": "a39816a873a2c2aabc00dbcef50908e996f3d44b",
+    "manyan_executable_provenance": "2026-11-22-streett-component-search.json"
+  },
+  "host": "Dedicated AWS c7i.4xlarge, Ubuntu 24.04.5 LTS x86_64, Intel Xeon Platinum 8488C; Rust 1.99.0 release. One checker at a time. Three repetitions per arm and model in alternating arm order.",
+  "clock": "GNU time %e fresh process wall seconds and %M peak resident KiB. Three sequential repetitions per binary and size. Core arms alternate; all three Manyan runs per size used the same isolated node without compilation.",
+  "comparison": "For the four-floor violation the engines select different first words and prefixes. Two- and three-floor results exhaust equivalent spaces. Earlier #1326 measurements are in 2026-11-22-projected-fairness.json; the paired baseline here also includes the subsequent component-plan chooser.",
+  "commands": [
+    "dive check Elevator.tla --config CFG --workers 1 --seed 0 --fp 0 --compat dive --time-limit 100s --max-memory 8g --output json",
+    "manyan -workers 1 -seed 0 -fp 0 -config CFG Elevator.tla",
+    "Change only FloorCount = 3 to 4 in ElevatorLivenessLarge.cfg for four-floor.cfg.",
+    "manyan -workers 1 -seed 0 -fp 0 -dumpTrace json peer.json -config four-floor.cfg Elevator.tla; run scripts/perf/scale/elevator-peer-word.py peer.json word.json. For Core use counterexample.trace.",
+    "dive validate-trace Elevator.tla --config four-floor.cfg --trace word.json --fp 0 --seed 0 --output json; repeat changing only ending.back_to to zero.",
+    "DIVE_NATIVE_ATOM_AUDIT=1 on each masked, binding, warning and public-model control. The small Elevator CFG reduces Person/Elevator to one element each. The masked spec deletes only SF_Vars(MoveElevator(e)). The constrained allocator wrapper and CFG are in 2026-11-22-streett-component-search.json.",
+    "CoffeeCan uses the original CoffeeCan100Beans.cfg without any edits."
+  ],
+  "input_sha256": {
+    "Elevator.tla": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+    "ElevatorLivenessMedium.cfg": "3e6d67656512a5d2e4795c7de9c13d510096608e506c56f31f0fa4eb618d9290",
+    "ElevatorLivenessLarge.cfg": "f41449494507bb7def26453fd0bfc46a3928b6436de0da8d6aa888a13aed410c",
+    "four-floor.cfg": "707f56c9952ed53cee5dda44b20ed51224f0035039c73cd96a51ea02d34c0c49",
+    "CoffeeCan.tla": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+    "CoffeeCan100Beans.cfg": "850aac3ef82a64b7a61f3445bf4772cc4c737d24e46a5ce00ccef3c65d08073a",
+    "SimpleAllocator.tla": "39180889fb44ea7cbba47e97c2fa727a54c43f8f7ff983caf61d67eb0a2db0e3",
+    "FairAllocatorHoldout.tla": "defd202f1fece912d2bc1670c5775fdc1e615bb8a505f36e9123eab0ae201d15",
+    "allocator.cfg": "bda8927da1f7d0094b3604b8b58039e72f607eaf9f81ed03408a58413fc36bed"
+  },
+  "binary_sha256": {
+    "baseline": "91aa114457d72aef9e1d4caff0a2056640a0ccefcde2dfaf042a11fb64004ea7",
+    "candidate": "49f4ca7168482d1d5379ed91656e4295c801abbdd9472b935066f53660e0b86b",
+    "manyan": "355d9b0eb50c721206aaa1b8a62885525f857c5141db5003af33a9b7a723971b"
+  },
+  "medians": {
+    "Medium": {
+      "baseline": {
+        "wall_s": 0.24,
+        "peak_rss_kib": 32408
+      },
+      "candidate": {
+        "wall_s": 0.2,
+        "peak_rss_kib": 32524
+      },
+      "Manyan": {
+        "wall_s": 0.08,
+        "peak_rss_kib": 10384
+      }
+    },
+    "Large": {
+      "baseline": {
+        "wall_s": 3.15,
+        "peak_rss_kib": 73472
+      },
+      "candidate": {
+        "wall_s": 2.65,
+        "peak_rss_kib": 75344
+      },
+      "Manyan": {
+        "wall_s": 1.12,
+        "peak_rss_kib": 46556
+      }
+    },
+    "Four": {
+      "baseline": {
+        "wall_s": 10.87,
+        "peak_rss_kib": 175500
+      },
+      "candidate": {
+        "wall_s": 9.37,
+        "peak_rss_kib": 175444
+      },
+      "Manyan": {
+        "wall_s": 6.64,
+        "peak_rss_kib": 270112
+      }
+    }
+  },
+  "runs": [
+    {
+      "arm": "baseline",
+      "size": "Medium",
+      "repeat": 1,
+      "wall_s": 0.24,
+      "peak_rss_kib": 32408,
+      "phases_ms": {
+        "atoms": 152.235,
+        "product": 16.959
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 4122,
+      "generated": 14296,
+      "depth": 36,
+      "native_enabled": 22130,
+      "closed_enabled": null,
+      "reference_state": 0
+    },
+    {
+      "arm": "candidate",
+      "size": "Medium",
+      "repeat": 1,
+      "wall_s": 0.2,
+      "peak_rss_kib": 32544,
+      "phases_ms": {
+        "atoms": 104.26,
+        "product": 16.95
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 4122,
+      "generated": 14296,
+      "depth": 36,
+      "native_enabled": 0,
+      "closed_enabled": {
+        "absent": 63740,
+        "peak_mask_bytes": 32976,
+        "plans": 18,
+        "present": 10456
+      },
+      "reference_state": 0
+    },
+    {
+      "arm": "baseline",
+      "size": "Large",
+      "repeat": 1,
+      "wall_s": 3.15,
+      "peak_rss_kib": 73356,
+      "phases_ms": {
+        "atoms": 2039.029,
+        "product": 325.221
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "native_enabled": 525108,
+      "closed_enabled": null,
+      "reference_state": 0
+    },
+    {
+      "arm": "candidate",
+      "size": "Large",
+      "repeat": 1,
+      "wall_s": 2.65,
+      "peak_rss_kib": 75344,
+      "phases_ms": {
+        "atoms": 1530.936,
+        "product": 326.216
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "native_enabled": 0,
+      "closed_enabled": {
+        "absent": 876262,
+        "peak_mask_bytes": 405224,
+        "plans": 20,
+        "present": 136798
+      },
+      "reference_state": 0
+    },
+    {
+      "arm": "baseline",
+      "size": "Four",
+      "repeat": 1,
+      "wall_s": 10.96,
+      "peak_rss_kib": 175288,
+      "phases_ms": {
+        "atoms": 6534.381,
+        "attribution": 21.494,
+        "product": 1886.998
+      },
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "exit": 13,
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "native_enabled": 1653966,
+      "closed_enabled": null,
+      "reference_state": 0
+    },
+    {
+      "arm": "candidate",
+      "size": "Four",
+      "repeat": 1,
+      "wall_s": 9.26,
+      "peak_rss_kib": 175444,
+      "phases_ms": {
+        "atoms": 4915.716,
+        "attribution": 21.392,
+        "product": 1920.229
+      },
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "exit": 13,
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "native_enabled": 256299,
+      "closed_enabled": {
+        "absent": 2428448,
+        "peak_mask_bytes": 1105632,
+        "plans": 22,
+        "present": 325204
+      },
+      "reference_state": 0
+    },
+    {
+      "arm": "candidate",
+      "size": "Medium",
+      "repeat": 2,
+      "wall_s": 0.2,
+      "peak_rss_kib": 32524,
+      "phases_ms": {
+        "atoms": 104.186,
+        "product": 17.045
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 4122,
+      "generated": 14296,
+      "depth": 36,
+      "native_enabled": 0,
+      "closed_enabled": {
+        "absent": 63740,
+        "peak_mask_bytes": 32976,
+        "plans": 18,
+        "present": 10456
+      },
+      "reference_state": 0
+    },
+    {
+      "arm": "baseline",
+      "size": "Medium",
+      "repeat": 2,
+      "wall_s": 0.24,
+      "peak_rss_kib": 32440,
+      "phases_ms": {
+        "atoms": 152.138,
+        "product": 16.737
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 4122,
+      "generated": 14296,
+      "depth": 36,
+      "native_enabled": 22130,
+      "closed_enabled": null,
+      "reference_state": 0
+    },
+    {
+      "arm": "candidate",
+      "size": "Large",
+      "repeat": 2,
+      "wall_s": 2.65,
+      "peak_rss_kib": 71304,
+      "phases_ms": {
+        "atoms": 1535.582,
+        "product": 327.658
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "native_enabled": 0,
+      "closed_enabled": {
+        "absent": 876262,
+        "peak_mask_bytes": 405224,
+        "plans": 20,
+        "present": 136798
+      },
+      "reference_state": 0
+    },
+    {
+      "arm": "baseline",
+      "size": "Large",
+      "repeat": 2,
+      "wall_s": 3.16,
+      "peak_rss_kib": 75456,
+      "phases_ms": {
+        "atoms": 2041.326,
+        "product": 326.615
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "native_enabled": 525108,
+      "closed_enabled": null,
+      "reference_state": 0
+    },
+    {
+      "arm": "candidate",
+      "size": "Four",
+      "repeat": 2,
+      "wall_s": 9.51,
+      "peak_rss_kib": 175548,
+      "phases_ms": {
+        "atoms": 5104.639,
+        "attribution": 21.771,
+        "product": 1903.288
+      },
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "exit": 13,
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "native_enabled": 256299,
+      "closed_enabled": {
+        "absent": 2428448,
+        "peak_mask_bytes": 1105632,
+        "plans": 22,
+        "present": 325204
+      },
+      "reference_state": 0
+    },
+    {
+      "arm": "baseline",
+      "size": "Four",
+      "repeat": 2,
+      "wall_s": 10.33,
+      "peak_rss_kib": 175500,
+      "phases_ms": {
+        "atoms": 6118.085,
+        "attribution": 21.493,
+        "product": 1787.357
+      },
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "exit": 13,
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "native_enabled": 1653966,
+      "closed_enabled": null,
+      "reference_state": 0
+    },
+    {
+      "arm": "baseline",
+      "size": "Medium",
+      "repeat": 3,
+      "wall_s": 0.24,
+      "peak_rss_kib": 32356,
+      "phases_ms": {
+        "atoms": 152.131,
+        "product": 16.864
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 4122,
+      "generated": 14296,
+      "depth": 36,
+      "native_enabled": 22130,
+      "closed_enabled": null,
+      "reference_state": 0
+    },
+    {
+      "arm": "candidate",
+      "size": "Medium",
+      "repeat": 3,
+      "wall_s": 0.2,
+      "peak_rss_kib": 32356,
+      "phases_ms": {
+        "atoms": 104.046,
+        "product": 16.919
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 4122,
+      "generated": 14296,
+      "depth": 36,
+      "native_enabled": 0,
+      "closed_enabled": {
+        "absent": 63740,
+        "peak_mask_bytes": 32976,
+        "plans": 18,
+        "present": 10456
+      },
+      "reference_state": 0
+    },
+    {
+      "arm": "baseline",
+      "size": "Large",
+      "repeat": 3,
+      "wall_s": 3.12,
+      "peak_rss_kib": 73472,
+      "phases_ms": {
+        "atoms": 2035.016,
+        "product": 317.906
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "native_enabled": 525108,
+      "closed_enabled": null,
+      "reference_state": 0
+    },
+    {
+      "arm": "candidate",
+      "size": "Large",
+      "repeat": 3,
+      "wall_s": 2.68,
+      "peak_rss_kib": 75348,
+      "phases_ms": {
+        "atoms": 1590.277,
+        "product": 315.971
+      },
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "native_enabled": 0,
+      "closed_enabled": {
+        "absent": 876262,
+        "peak_mask_bytes": 405224,
+        "plans": 20,
+        "present": 136798
+      },
+      "reference_state": 0
+    },
+    {
+      "arm": "baseline",
+      "size": "Four",
+      "repeat": 3,
+      "wall_s": 10.87,
+      "peak_rss_kib": 175556,
+      "phases_ms": {
+        "atoms": 6528.907,
+        "attribution": 21.518,
+        "product": 1861.072
+      },
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "exit": 13,
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "native_enabled": 1653966,
+      "closed_enabled": null,
+      "reference_state": 0
+    },
+    {
+      "arm": "candidate",
+      "size": "Four",
+      "repeat": 3,
+      "wall_s": 9.37,
+      "peak_rss_kib": 175408,
+      "phases_ms": {
+        "atoms": 5123.479,
+        "attribution": 21.321,
+        "product": 1832.26
+      },
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "exit": 13,
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "native_enabled": 256299,
+      "closed_enabled": {
+        "absent": 2428448,
+        "peak_mask_bytes": 1105632,
+        "plans": 22,
+        "present": 325204
+      },
+      "reference_state": 0
+    },
+    {
+      "arm": "Manyan",
+      "size": "Four",
+      "repeat": 1,
+      "wall_s": 6.64,
+      "peak_rss_kib": 270112,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "generated": 1583418,
+      "distinct": 281976,
+      "depth": 41
+    },
+    {
+      "arm": "Manyan",
+      "size": "Four",
+      "repeat": 2,
+      "wall_s": 6.63,
+      "peak_rss_kib": 270160,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "generated": 1583418,
+      "distinct": 281976,
+      "depth": 41
+    },
+    {
+      "arm": "Manyan",
+      "size": "Four",
+      "repeat": 3,
+      "wall_s": 6.65,
+      "peak_rss_kib": 270084,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "generated": 1583418,
+      "distinct": 281976,
+      "depth": 41
+    },
+    {
+      "arm": "Manyan",
+      "size": "Large",
+      "repeat": 1,
+      "wall_s": 1.12,
+      "peak_rss_kib": 46556,
+      "exit": 0,
+      "verdict": "success",
+      "generated": 230899,
+      "distinct": 50653,
+      "depth": 39
+    },
+    {
+      "arm": "Manyan",
+      "size": "Large",
+      "repeat": 2,
+      "wall_s": 1.13,
+      "peak_rss_kib": 46556,
+      "exit": 0,
+      "verdict": "success",
+      "generated": 230899,
+      "distinct": 50653,
+      "depth": 39
+    },
+    {
+      "arm": "Manyan",
+      "size": "Large",
+      "repeat": 3,
+      "wall_s": 1.11,
+      "peak_rss_kib": 46696,
+      "exit": 0,
+      "verdict": "success",
+      "generated": 230899,
+      "distinct": 50653,
+      "depth": 39
+    },
+    {
+      "arm": "Manyan",
+      "size": "Medium",
+      "repeat": 1,
+      "wall_s": 0.08,
+      "peak_rss_kib": 10432,
+      "exit": 0,
+      "verdict": "success",
+      "generated": 14296,
+      "distinct": 4122,
+      "depth": 36
+    },
+    {
+      "arm": "Manyan",
+      "size": "Medium",
+      "repeat": 2,
+      "wall_s": 0.08,
+      "peak_rss_kib": 10384,
+      "exit": 0,
+      "verdict": "success",
+      "generated": 14296,
+      "distinct": 4122,
+      "depth": 36
+    },
+    {
+      "arm": "Manyan",
+      "size": "Medium",
+      "repeat": 3,
+      "wall_s": 0.08,
+      "peak_rss_kib": 10380,
+      "exit": 0,
+      "verdict": "success",
+      "generated": 14296,
+      "distinct": 4122,
+      "depth": 36
+    }
+  ],
+  "experiments": {
+    "quiet guards and only independently quiet assignment expressions": {
+      "Medium": {
+        "wall_s": [
+          0.23,
+          0.23,
+          0.24
+        ],
+        "enabled": 22013
+      },
+      "Large": {
+        "wall_s": [
+          3.06,
+          3.06,
+          3.08
+        ],
+        "enabled": 344085
+      },
+      "Four": {
+        "wall_s": [
+          10.26,
+          10.15,
+          10.26
+        ],
+        "enabled": 1134671
+      }
+    },
+    "diagnostic veto including positive EXCEPT writes, before source-only function guards": {
+      "Medium": {
+        "wall_s": [
+          0.21,
+          0.21,
+          0.21
+        ],
+        "enabled": 16928
+      },
+      "Large": {
+        "wall_s": [
+          2.86,
+          2.84,
+          2.84
+        ],
+        "enabled": 207856
+      },
+      "Four": {
+        "wall_s": [
+          9.8,
+          10.15,
+          10.05
+        ],
+        "enabled": 767295
+      }
+    }
+  },
+  "independent_word_controls": {
+    "baseline": {
+      "original": {
+        "length": 102,
+        "back_to": 2,
+        "result": "valid",
+        "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc",
+        "exit": 0
+      },
+      "damaged": {
+        "length": 102,
+        "back_to": 0,
+        "result": "invalid",
+        "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca",
+        "exit": 1
+      }
+    },
+    "candidate": {
+      "original": {
+        "length": 102,
+        "back_to": 2,
+        "result": "valid",
+        "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc",
+        "exit": 0
+      },
+      "damaged": {
+        "length": 102,
+        "back_to": 0,
+        "result": "invalid",
+        "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca",
+        "exit": 1
+      }
+    },
+    "manyan": [
+      {
+        "case": "recorded",
+        "result": "valid",
+        "exit": 0,
+        "sha256": "654d158471c6ff4c04e70c6eecd19b9d3eb4b68db63c6d27e8854c0253afcfcc",
+        "length": 202
+      },
+      {
+        "case": "damaged",
+        "result": "invalid",
+        "exit": 1,
+        "sha256": "b0141e2ac6c6eec969f14576693278e5f841a2d34acf00d50b3223ba35340848",
+        "length": 202
+      }
+    ]
+  },
+  "audited_controls": {
+    "all-fair": {
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "counts": [
+        68,
+        36,
+        12
+      ],
+      "closed": {
+        "absent": 352,
+        "peak_mask_bytes": 288,
+        "plans": 11,
+        "present": 44
+      },
+      "warnings": [],
+      "stderr": ""
+    },
+    "masked-move": {
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "exit": 13,
+      "counts": [
+        68,
+        36,
+        12
+      ],
+      "closed": {
+        "absent": 318,
+        "peak_mask_bytes": 288,
+        "plans": 10,
+        "present": 42
+      },
+      "warnings": [],
+      "stderr": ""
+    },
+    "bindings": {
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "counts": [
+        5,
+        2,
+        2
+      ],
+      "closed": {
+        "absent": 2,
+        "peak_mask_bytes": 16,
+        "plans": 2,
+        "present": 2
+      },
+      "warnings": [],
+      "stderr": ""
+    },
+    "state-filter": {
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "counts": [
+        3,
+        1,
+        1
+      ],
+      "closed": {
+        "absent": 0,
+        "peak_mask_bytes": 0,
+        "plans": 2,
+        "present": 0
+      },
+      "warnings": [],
+      "stderr": ""
+    },
+    "action-filter": {
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "counts": [
+        3,
+        1,
+        1
+      ],
+      "closed": {
+        "absent": 0,
+        "peak_mask_bytes": 0,
+        "plans": 2,
+        "present": 0
+      },
+      "warnings": [],
+      "stderr": ""
+    },
+    "view": {
+      "verdict": "unsupported",
+      "property": null,
+      "exit": 3,
+      "counts": [
+        null,
+        null,
+        null
+      ],
+      "closed": null,
+      "warnings": [],
+      "stderr": ""
+    },
+    "noisy-guard-conflict-empty-domain": {
+      "verdict": "liveness-violation",
+      "property": "P",
+      "exit": 13,
+      "counts": [
+        2,
+        1,
+        1
+      ],
+      "closed": {
+        "absent": 0,
+        "peak_mask_bytes": 8,
+        "plans": 1,
+        "present": 0
+      },
+      "warnings": [],
+      "stderr": ""
+    },
+    "public-allocator-constraint": {
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "counts": [
+        43,
+        3,
+        3
+      ],
+      "closed": {
+        "absent": 0,
+        "peak_mask_bytes": 0,
+        "plans": 0,
+        "present": 0
+      },
+      "warnings": [],
+      "stderr": ""
+    },
+    "public-coffee-can": {
+      "verdict": "success",
+      "property": null,
+      "exit": 0,
+      "counts": [
+        20002,
+        5150,
+        1
+      ],
+      "closed": {
+        "absent": 5148,
+        "peak_mask_bytes": 41200,
+        "plans": 1,
+        "present": 2
+      },
+      "warnings": [],
+      "stderr": ""
+    }
+  }
+}

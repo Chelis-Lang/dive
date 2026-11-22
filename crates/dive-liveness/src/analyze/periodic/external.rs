@@ -126,6 +126,23 @@ pub trait NativeReader {
         Ok(false)
     }
 
+    /// Optional state truth certified by the actual source's closed producer row.
+    /// Readers must establish their graph identity, original unrestricted action,
+    /// bound scope, complete emission coverage and preservation of diagnostics.
+    ///
+    /// # Errors
+    /// An owned interruption or resource stop.
+    fn closed_state_predicate(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+        _graph: &dive_runtime::capture::CsrCapture<'_>,
+        _source: usize,
+        _before: usize,
+        _control: &dive_runtime::budget::EvaluationControl,
+    ) -> Result<Option<bool>, AnalysisError> {
+        Ok(None)
+    }
+
     /// Optionally evaluates the exact retained atom on original row IDs.
     /// `None` preserves ordinary reference evaluation. Predicate wrappers,
     /// unknown scopes and unproved representations must use that fallback.

@@ -41,6 +41,20 @@ fn run(name: &str, workers: usize, tlc: bool, every_level: bool) -> Value {
 }
 
 #[test]
+fn startup_output_keeps_closed_enabledness_on_the_original_evaluator() {
+    let report = run("FairStartupOutput", 1, false, false);
+    assert_eq!(report["verdict"], "success", "{report}");
+    assert_eq!(report["output"], serde_json::json!([r#""startup""#]));
+    assert_eq!(report["statistics"]["distinct"], 2);
+    assert_eq!(report["statistics"]["generated"], 3);
+    assert_eq!(report["statistics"]["depth"], 2);
+    let atoms = &report["core"]["metrics"]["liveness"]["atoms"];
+    assert!(atoms["enabled_evaluations"].as_u64() > Some(0));
+    assert_eq!(atoms["closed_enabled"]["absent"], 0);
+    assert_eq!(atoms["closed_enabled"]["present"], 0);
+}
+
+#[test]
 fn capture_budget_stop_retains_actual_periodic_checks() {
     for (tlc, min_states) in [(false, 2), (false, u64::MAX), (true, 2)] {
         for workers in [1, 4] {
