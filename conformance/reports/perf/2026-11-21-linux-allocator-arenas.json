@@ -889,29 +889,211 @@
           "queue": 86871560,
           "disk": 0,
           "checker_s": 182.7
+        },
+        "23": {
+          "generated": 1405007876,
+          "distinct": 354509790,
+          "queue": 121071586,
+          "disk": 0,
+          "checker_s": 281.1
+        },
+        "24": {
+          "generated": 2058422381,
+          "distinct": 515066444,
+          "queue": 160556654,
+          "disk": 0,
+          "checker_s": 415.2
+        },
+        "25": {
+          "generated": 2893352283,
+          "distinct": 721363081,
+          "queue": 206296637,
+          "disk": 0,
+          "checker_s": 586.9
+        },
+        "26": {
+          "generated": 3945375616,
+          "distinct": 983406036,
+          "queue": 262042955,
+          "disk": 37281355,
+          "checker_s": 808.1
+        },
+        "27": {
+          "generated": 5278339394,
+          "distinct": 1316260334,
+          "queue": 332854298,
+          "disk": 108560410,
+          "checker_s": 1089.4
+        },
+        "28": {
+          "generated": 6974861405,
+          "distinct": 1735446530,
+          "queue": 419186196,
+          "disk": 195403284,
+          "checker_s": 1449.1
+        },
+        "29": {
+          "generated": 9092467579,
+          "distinct": 2247915868,
+          "queue": 512469338,
+          "disk": 289292890,
+          "checker_s": 1885.4
+        },
+        "30": {
+          "generated": 11620401090,
+          "distinct": 2846395167,
+          "queue": 598479299,
+          "disk": 375658691,
+          "checker_s": 2422.1
+        },
+        "31": {
+          "generated": 14478218490,
+          "distinct": 3511583498,
+          "queue": 665188331,
+          "disk": 442546411,
+          "checker_s": 3050.3
+        },
+        "32": {
+          "generated": 17560979325,
+          "distinct": 4219428443,
+          "queue": 707844945,
+          "disk": 485165137,
+          "checker_s": 3706.6
+        },
+        "33": {
+          "generated": 20783798544,
+          "distinct": 4945892746,
+          "queue": 726464303,
+          "disk": 503631151,
+          "checker_s": 4392.8
+        },
+        "34": {
+          "generated": 24067024964,
+          "distinct": 5669316827,
+          "queue": 723424081,
+          "disk": 500325201,
+          "checker_s": 5094.9
+        },
+        "35": {
+          "generated": 27331074508,
+          "distinct": 6377493600,
+          "queue": 708176773,
+          "disk": 484949893,
+          "checker_s": 5921.0
+        },
+        "36": {
+          "generated": 30535682612,
+          "distinct": 7067849139,
+          "queue": 690355539,
+          "disk": 467166803,
+          "checker_s": 6775.1
+        },
+        "37": {
+          "generated": 33644426312,
+          "distinct": 7728671035,
+          "queue": 660821896,
+          "disk": 437541768,
+          "checker_s": 7578.0
+        },
+        "38": {
+          "generated": 36525465292,
+          "distinct": 8323360880,
+          "queue": 594689845,
+          "disk": 370923829,
+          "checker_s": 8309.6
+        },
+        "39": {
+          "generated": 38949061575,
+          "distinct": 8806235706,
+          "queue": 482874826,
+          "disk": 258371018,
+          "checker_s": 8916.9
+        },
+        "40": {
+          "generated": 40753395782,
+          "distinct": 9158521456,
+          "queue": 352285750,
+          "disk": 127228470,
+          "checker_s": 9351.4
+        },
+        "41": {
+          "generated": 41983948402,
+          "distinct": 9400210191,
+          "queue": 241688735,
+          "disk": 15936159,
+          "checker_s": 9622.4
+        },
+        "42": {
+          "generated": 42807155235,
+          "distinct": 9565250718,
+          "queue": 165040527,
+          "disk": 0,
+          "checker_s": 9793.0
+        },
+        "43": {
+          "generated": 43353368598,
+          "distinct": 9676835249,
+          "queue": 111584531,
+          "disk": 0,
+          "checker_s": 9910.1
+        },
+        "44": {
+          "generated": 43689552416,
+          "distinct": 9746335329,
+          "queue": 69500080,
+          "disk": 0,
+          "checker_s": 9984.9
+        },
+        "45": {
+          "generated": 43873266369,
+          "distinct": 9784199007,
+          "queue": 37863678,
+          "disk": 0,
+          "checker_s": 10030.1
+        },
+        "46": {
+          "generated": 43967373081,
+          "distinct": 9803354278,
+          "queue": 19155271,
+          "disk": 0,
+          "checker_s": 10052.7
+        },
+        "47": {
+          "generated": 44016875470,
+          "distinct": 9813441106,
+          "queue": 10086828,
+          "disk": 0,
+          "checker_s": 10064.5
+        },
+        "50": {
+          "generated": 44055745610,
+          "distinct": 9820941113,
+          "queue": 496662,
+          "disk": 0,
+          "checker_s": 10075.4
         }
       },
       "mappings": {
-        "n": 3,
+        "n": 167,
         "highest_map_count_sample": {
-          "epoch_s": 1795277688,
-          "rss_kib": 226576748,
+          "epoch_s": 1795283574,
+          "rss_kib": 1245600896,
           "waits": {
             "futex_do_wait": 1,
             "0": 192
           },
-          "maps": 1543,
+          "maps": 1634,
           "maps_64k": 198,
           "map_read_s": 0.003
         },
         "last": {
-          "epoch_s": 1795277688,
-          "rss_kib": 226576748,
+          "epoch_s": 1795287543,
+          "rss_kib": 1230974256,
           "waits": {
             "futex_do_wait": 1,
             "0": 192
           },
-          "maps": 1543,
+          "maps": 1634,
           "maps_64k": 198,
           "map_read_s": 0.003
         }
@@ -928,7 +1110,12 @@
           "checker_s": 130.7
         }
       },
-      "full_result": "Prefix; the original exact check was still running at observation."
+      "full_result": "44056598336 states generated, 9821039057 distinct states found. Depth 52. Checked in 10077.834s (974519 distinct/s).",
+      "exit": 0,
+      "wall_s": 10139.7,
+      "peak_rss_kib": 1364391304,
+      "repeated_fingerprints": 7,
+      "overlapping_guards": 83107713
     },
     "sailfish": {
       "host_and_command": "Same host, original files, Linux map limit and commands as the sailfish comparison above. Fresh processes alternate on one guest.",
@@ -1028,6 +1215,67 @@
                 "0": 1
               },
               "maps": 143,
+              "maps_64k": 1,
+              "map_read_s": 0.0
+            }
+          }
+        },
+        "3.3.2-full": {
+          "exit": 124,
+          "verdict": "no report",
+          "wall_s": 19629.32,
+          "peak_rss_kib": 213976472,
+          "mappings": {
+            "n": 325,
+            "highest_map_count_sample": {
+              "epoch_s": 1795316845,
+              "rss_kib": 213709812,
+              "waits": {
+                "futex_do_wait": 4,
+                "0": 14
+              },
+              "maps": 658216,
+              "maps_64k": 657491,
+              "map_read_s": 1.674
+            },
+            "last": {
+              "epoch_s": 1795316845,
+              "rss_kib": 213709812,
+              "waits": {
+                "futex_do_wait": 4,
+                "0": 14
+              },
+              "maps": 658216,
+              "maps_64k": 657491,
+              "map_read_s": 1.674
+            }
+          }
+        },
+        "3.7.0-full": {
+          "exit": 124,
+          "verdict": "no report",
+          "wall_s": 19625.67,
+          "peak_rss_kib": 223327916,
+          "mappings": {
+            "n": 327,
+            "highest_map_count_sample": {
+              "epoch_s": 1795296975,
+              "rss_kib": 220423520,
+              "waits": {
+                "futex_do_wait": 2,
+                "0": 16
+              },
+              "maps": 185,
+              "maps_64k": 1,
+              "map_read_s": 0.001
+            },
+            "last": {
+              "epoch_s": 1795297275,
+              "rss_kib": 215005412,
+              "waits": {
+                "0": 1
+              },
+              "maps": 147,
               "maps_64k": 1,
               "map_read_s": 0.0
             }
