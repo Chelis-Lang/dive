@@ -1881,6 +1881,31 @@ python3 scripts/perf/scale/proof-controls.py \
   --deadline 90 --work "$SCRATCH/proof-controls"
 ```
 
+### Discover a strengthening for one finite induction step
+
+`scripts/perf/scale/discover_induction.py` takes a released module, a target
+invariant, an action, a finite prestate predicate and a carrier. It replays a
+counterexample to the induction step, then forms equality and membership atoms
+from the target and action expressions. Terms can read variables and indexed
+function values, constants, literals, finite sets and records. It projects at
+most two carrier elements and builds universally quantified clauses that forbid
+combinations found in the replayed prestate. It checks that each clause preserves
+every typed prestate already safe for the action. It then checks original Init
+inclusion, the target's preservation and the candidate's own preservation.
+
+On two-manager TwoPhase, the derived strengthening is equivalent to the
+published receive-abort lemma on the finite target prestates. On two-server
+AsyncRaft with terms 0 and 1 and bounded vote state, it matches the published
+leader-election strengthening and preserves the target for the selected step.
+The AsyncRaft candidate itself has a replayed preservation failure. Both
+examples leave the other actions open. The trial checks report a budget cutoff
+as inconclusive.
+
+Run `scripts/perf/scale/check_induction_discovery.py` with the pinned Scimitar
+benchmark directory, the installed checker, the `symbolic_input` exporter and
+the pinned TLC jar to rerun both domains and their independent controls.
+[Domains, candidates, checked obligations and timings](../../conformance/reports/perf/2026-11-22-lemma-discovery.json).
+
 ## Prove a property on the original Recomp-Verify models
 
 The published four-process portfolio proved the 20-client lock server in 2 s

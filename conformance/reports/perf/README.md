@@ -101,6 +101,8 @@ The [exact population searches](2026-11-21-source-occupancy.json) cover both lab
 
 The [population edit-session measurements](2026-11-21-occupancy-edits.json) pair fresh labeled searches, portable proofs and native replay after property and transition edits at 8,192 managers.
 
+[Finite lemma discovery](2026-11-22-lemma-discovery.json) records predicates derived from counterexamples to induction on TwoPhase and AsyncRaft, checked against the pinned TLC and the published formulas.
+
 ## 0.1.0 release records
 
 | File | Family | Question | Source | Host |
