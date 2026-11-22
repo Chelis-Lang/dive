@@ -31,8 +31,8 @@ impl Compiler<'_> {
         let complete_image = function_image(&terms, self.ir.vars().len());
         Some(ActionBatch {
             changed,
-            terms,
             complete_image,
+            terms,
         })
     }
 
