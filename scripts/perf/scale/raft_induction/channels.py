@@ -24,6 +24,13 @@ class Channel:
             name, *(v.sort() for v in self.key(schema)), z3.BoolSort()
         )
 
+    def __eq__(self, other):
+        # The inherited expression evaluator short-circuits identical objects.
+        # Never use Python identity as a false TLA+ equality for two images.
+        if self is other:
+            return True
+        raise ValueError("unsupported equality of distinct channel expressions")
+
     def arbitrary(self, prefix=None):
         if prefix is None:
             prefix = z3.FreshInt("selected_message").decl().name()

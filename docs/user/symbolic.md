@@ -22,7 +22,7 @@ python3 scripts/perf/scale/raft_induction/check.py scimitar/benchmarks \
 
 Replace `--save` with `--verify` to rebind the source, independently repeat
 every solver obligation and compare the receipt, including after moving the
-checkout. Use `--servers 2` for the smaller carrier. The supported model
+checkout. Use `--servers 2` for the smaller carrier. The slot encoding
 has terms 0–2 and at most two entries per log. Each channel holds up to two
 messages by default. Add `--max-messages 3` to check three. The receiver must
 use the same capacity. The checker derives the number of symbolic message
@@ -58,6 +58,47 @@ eight-state word reaches its first failure at index 1.
 On the original module, a repeated send has cardinality one, and another
 execution step consumes one of three distinct requests.
 [Source, commands, peer results and measurements](../../conformance/reports/perf/2026-11-22-asyncraft-log-induction.json).
+
+### Use the published term, log and channel bounds
+
+For three servers, terms through 3, logs of length 3 and 1,000 messages per
+channel, pass `--message-sets`. The checker represents each channel by a
+membership function on complete wire records. Checking all 30 predicates
+covers 28 guarded action alternatives. Increasing the configured channel
+capacity adds no Boolean slots.
+
+On a dedicated c7i.4xlarge, six action workers proved the published bounds in
+**18.19 s** and a relocated process verified the 2,438-byte receipt in
+**18.33 s**. One worker verified the same receipt in **52.67 s**. Six-worker
+Core found 8,878,296 distinct states and still had 5,989,499 queued at its
+30-second cutoff. Both runs checked the same log invariant on the same CFG.
+
+The Scimitar CFG uses these exact bounds and names a different invariant.
+Select the published proof graph’s log invariant and retain its constants:
+
+```sh
+sed 's/^INVARIANT H_CandidatesOrLeadersVotedForSelf$/INVARIANT H_PrimaryHasEntriesItCreated/' \
+  scimitar/benchmarks/AsyncRaft.cfg > RaftLog.cfg
+printf '\nCHECK_DEADLOCK FALSE\n' >> RaftLog.cfg
+python3 scripts/perf/scale/raft_induction/check.py scimitar/benchmarks \
+  --exporter target/release/examples/symbolic_input --config RaftLog.cfg \
+  --message-sets --jobs 6 --save published-log.json
+```
+
+To verify the saved receipt, use the same inputs and replace `--save` with
+`--verify`. The verifier can use a different number of worker processes.
+Each receipt binds the supplied CFG bytes, resolved TLA+ and strengthening
+formulas, named target, bounds, encoding and action coverage. The output also
+reports solver formula size and query counts. A timeout, unsupported expression
+or undischarged obligation returns `inconclusive`. A reachable violation
+requires a separately validated original execution.
+
+For terms through 2 and logs of length 2 at capacity 1,000, omit `--config`
+and pass `--servers 3 --max-term 2 --max-log-length 2 --max-messages 1000`.
+The same membership proof checks all generated destinations for safety,
+including those outside the configured state constraint. Each retained
+destination must also satisfy every strengthening and the typed representation.
+[Measurements, peer controls and reproduction commands](../../conformance/reports/perf/2026-11-22-asyncraft-channel-sets.json).
 
 ## Choose a strategy automatically
 

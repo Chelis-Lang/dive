@@ -69,7 +69,9 @@ def measured(argv, expected=0, timeout=300):
             out = stdout.read()
             err = stderr.read()
             require(
-                proc.returncode == expected and not err,
+                proc.returncode
+                in (expected if isinstance(expected, tuple) else (expected,))
+                and not err,
                 (proc.returncode, out[-500:], err[-500:]),
             )
             return json.loads(out), dict(
@@ -280,7 +282,9 @@ def run(args, root):
                     "--output",
                     "json",
                 ]
-                ordinary, resources = measured(argv, timeout=args.compare_core + 30)
+                ordinary, resources = measured(
+                    argv, expected=(0, 5), timeout=args.compare_core + 30
+                )
                 require(
                     ordinary["verdict"] in ("success", "stopped"),
                     "unexpected ordinary result",

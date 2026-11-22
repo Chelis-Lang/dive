@@ -16,6 +16,10 @@ from representation import representation
 from source import Model
 from values import con, dis, neg, require
 
+sys.path.append(str(Path(__file__).resolve().parents[3] / "symbolic"))
+from induction import write_atomic
+
+
 TARGET = "H_PrimaryHasEntriesItCreated"
 ORIGINAL_SOURCE = "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322"
 FOLLOWER_MUTANT = "5dc0736072b5e660a3b3a01dafa5f4052d37f5618397677cfe8e45ea15c56767"
@@ -413,7 +417,7 @@ def main():
                     "receipt differs from independent action discharge",
                 )
             else:
-                args.save.write_bytes(canonical(result) + b"\n")
+                write_atomic(args.save, canonical(result) + b"\n")
             print(
                 json.dumps({**result, "solver_metrics": metrics} if metrics else result)
             )

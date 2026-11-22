@@ -133,6 +133,8 @@ The [population edit-session measurements](2026-11-21-occupancy-edits.json) pair
 
 [Complete finite TwoPhase induction](2026-11-22-twophase-induction.json) records the learned clauses, every checked action binding, and independent TLC certification on both manager counts.
 
+[AsyncRaft arbitrary message sets](2026-11-22-asyncraft-channel-sets.json) records exact source-level log proofs at 1,000 messages per channel, including original three-server, three-term, three-entry bounds, receipt rechecks and bounded Core comparisons.
+
 [AsyncRaft log induction](2026-11-22-asyncraft-log-induction.json) compares a source-checked Scimitar strengthening with exhaustive Core on two and three servers, including the crossover at three messages per channel, real two-index replication, and a reachable three-message follower mutant.
 
 [MongoLoglessDynamicRaft reconfiguration induction](2026-11-22-mongo-reconfiguration-induction.json) checks the published three-server election property through reconfiguration and records all constraint crossings, replay controls and proof costs.

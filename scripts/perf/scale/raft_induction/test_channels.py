@@ -84,6 +84,12 @@ def test_records(doc):
         solve(z3.And(empty, image.cardinality_equals(2, 8000))) == z3.unsat,
         "three live messages fit into two",
     )
+    try:
+        _ = image == request
+    except ValueError:
+        pass
+    else:
+        raise ValueError("Python identity used for channel equality")
     removed = image.update(False, Set([(True, same)]))
     require(
         solve(

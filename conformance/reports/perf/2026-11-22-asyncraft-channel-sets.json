@@ -1,0 +1,603 @@
+{
+  "schema": "dive-asyncraft-membership-study-v1",
+  "question": "Can the published 29 strengthening formulas prove H_PrimaryHasEntriesItCreated on the released AsyncRaft action relation with 1,000 messages in each channel?",
+  "source": "https://github.com/will62794/scimitar/tree/f1b902dc0801cf435cb9dd6e6be495d5ed121787/benchmarks",
+  "source_sha256": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+  "upstream_cfg_sha256": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+  "graph_sha256": "c71a7d7e4f036d97025c0c6091c9fe0f6bfec146b9eceeca7c0511870d7d5d16",
+  "dive_sha256": "8d3e35534d9d7b63b3c9ce410e8071d9d098079c190f199495a3d4c828a0162d",
+  "symbolic_input_sha256": "f1d230f0f4fd4532c28a8efc73a465b36c3d27555065939cd923289f7a81a562",
+  "machine": {
+    "platform": "dedicated EC2 c7i.4xlarge, Intel Xeon Platinum 8488C, Ubuntu 24.04.5, Python 3.12.3",
+    "solver": "z3-solver 5.4.1.0, one solver thread per independent action worker",
+    "timing": "Single runs, sequential panel, six concurrent actions per membership run unless specified. Wall seconds measured by parent. Summed process-tree resident KiB including shared pages, sampled every 40 ms."
+  },
+  "scope": {
+    "target": "H_PrimaryHasEntriesItCreated",
+    "strengthening_formulas": 29,
+    "servers": 3,
+    "init": "Init",
+    "next": "Next",
+    "constraint": "StateConstraint",
+    "action_families": 11,
+    "max_messages_each_channel": 1000,
+    "term_log_limits": [
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        3
+      ]
+    ],
+    "configuration": "The 2/2 study uses generated normalized CFG. The 3/3 study uses the published raw CFG with only its invariant changed from H_CandidatesOrLeadersVotedForSelf to the graph target and CHECK_DEADLOCK FALSE appended. Source and all action definitions are unchanged. Input identities in the rows bind actual CFG bytes and resolved IR.",
+    "claim": "Every original initial state is covered. Every raw action successor satisfies definedness and the target, including destinations crossing the original constraint. All successors within term/log bounds also preserve typed representation and all 29 strengthening predicates. Dropping only the four channel cardinality conjuncts proves a stronger property. No bound on execution length. Counts are symbolic obligations, not reachable states."
+  },
+  "encoding": "Each of four membership predicates is keyed by the entire typed record including a canonical payload. Set insertion/deletion changes only the matching key. Other records retain their prestate membership. Negated obligations are Skolemized, then universally quantified assumptions may be weakened to selected full-key instances. Only UNSAT discharges an obligation.",
+  "ordinary_method": {
+    "command": "dive check AsyncRaft.tla --config RaftLog.cfg --workers W --store fp --seed 0 --fp 0 --max-memory 2147483648 --time-limit 30s --output json",
+    "comparison": "Identical original source, selected invariant and concrete configuration in each proof/Core pair. One- and six-worker Core stops are prefixes, with no verdict on safety."
+  },
+  "commands": [
+    "git clone https://github.com/will62794/scimitar.git && git -C scimitar checkout f1b902dc0801cf435cb9dd6e6be495d5ed121787",
+    "python3 -m pip install z3-solver==5.4.1.0",
+    "cargo build --locked --release -p dive-api --example symbolic_input",
+    "cargo build --locked --release -p dive-cli",
+    "python3 scripts/perf/scale/raft_induction/test_channels.py scimitar/benchmarks --exporter target/release/examples/symbolic_input",
+    "python3 -O scripts/perf/scale/raft_induction/test_channels.py scimitar/benchmarks --exporter target/release/examples/symbolic_input",
+    "PYTHONOPTIMIZE=1 python3 scripts/perf/scale/raft_induction/channel_panel.py scimitar/benchmarks --exporter target/release/examples/symbolic_input --dive target/release/dive --jobs 6 --compare-core 30",
+    "python3 scripts/perf/scale/raft_induction/check.py scimitar/benchmarks --exporter target/release/examples/symbolic_input --config RaftLog.cfg --message-sets --jobs 6 --save proof.json",
+    "python3 scripts/perf/scale/raft_induction/check.py scimitar/benchmarks --exporter target/release/examples/symbolic_input --config RaftLog.cfg --message-sets --jobs 1 --verify proof.json"
+  ],
+  "peer_checking": {
+    "source_graph": {
+      "lemma_nodes": 31,
+      "formula_strings": 29,
+      "graph_nodes": 76,
+      "distinct_edges": 111,
+      "serialized_edges": 275,
+      "stats": {
+        "num_lemma_nodes": 31,
+        "num_failed_lemma_nodes": 0,
+        "state_cache_duration_secs": 0,
+        "invcheck_duration_secs": 0,
+        "ctielimcheck_duration_secs": 0,
+        "total_duration_secs": 10.104620933532715,
+        "num_preds": 142,
+        "date": "2024-11-13 19:02:17"
+      },
+      "notes": "Peer's stored graph reports no invariant-check time. The 10.10 s recorded total is historical graph metadata. No new Scimitar discovery run."
+    },
+    "matched_checking": "Scimitar supplied formulas. Its graph metadata records 0 s invariant checking and 10.10 s total, so the total cannot serve as a timing for these independent proof checks. Historical TLC, Apalache and TLAPS runs and scope differences are in the earlier report.",
+    "earlier_report": "2026-11-22-asyncraft-log-induction.json"
+  },
+  "independent_review": {
+    "initial_scope": "Independent full published-bounds run over all 11 actions. Independent exact-source model controls for initial non-vacuity, complete message keys, typed/domain errors and both follower mutants.",
+    "portability": "A separate process reproduced the membership receipt using the mapped published CFG. Four-worker producer, two-worker verifier and a six-worker rejection of a tampered obligation count.",
+    "published_bound_receipt_sha256": "0926dee52a2b3a9e128cd5c370565f30c3b04375645265c4db7a1963ea833a8a",
+    "failure_controls": "Child process timeout/exit, solver unknown, malformed worker output, missing action and an out-of-domain read returned inconclusive."
+  },
+  "engineering_probes": {
+    "quantified_backend": "An early direct Z3 quantified check reached its 8 s obligation timeout in RequestVoteAction. The checker subsequently used satisfiability-preserving Skolemization and proof-sufficient universal instances.",
+    "grounded_action_seconds": {
+      "RequestVoteAction": 7.744,
+      "AcceptAppendEntriesRequestAppendAction": 3.443,
+      "AcceptAppendEntriesRequestLearnCommitAction": 2.579,
+      "AdvanceCommitIndexAction": 4.468,
+      "AppendEntriesAction": 13.91,
+      "BecomeLeaderAction": 8.261,
+      "ClientRequestAction": 6.708,
+      "HandleAppendEntriesResponseAction": 2.978,
+      "HandleRequestVoteRequestAction": 2.656,
+      "HandleRequestVoteResponseAction": 4.806,
+      "UpdateTermAction": 14.809
+    },
+    "grounded_action_method": "Exploratory full 3/3/1000 scope, concurrent independent action probes. Times exclude parsing and hypothesis setup. The final integrated serial panel rows include setup and should be used for end-to-end comparison."
+  },
+  "rows": [
+    {
+      "kind": "literal_slots",
+      "max_messages": 2,
+      "usage": {
+        "wall_s": 27.4646,
+        "sampled_process_tree_rss_kib": 81612
+      },
+      "sha256": "64e36f6e8c508bf7c9ec8ac365c4512858ced51bec2de7da9eca939d9bbb4bce"
+    },
+    {
+      "kind": "literal_slots",
+      "max_messages": 3,
+      "usage": {
+        "wall_s": 44.6854,
+        "sampled_process_tree_rss_kib": 83336
+      },
+      "sha256": "4a64982114f2da706efcf9eb0efa5f484e16bd61e6aff86bfb922690f8c2ad07"
+    },
+    {
+      "kind": "membership",
+      "jobs": 6,
+      "max_term": 2,
+      "max_log_length": 2,
+      "max_messages": 1000,
+      "receipt": {
+        "actions": [
+          {
+            "action": "RequestVoteAction",
+            "guarded_images": 3,
+            "preservation_obligations": 87,
+            "raw_record_shape_obligations": 3,
+            "raw_safety_obligations": 3
+          },
+          {
+            "action": "UpdateTermAction",
+            "guarded_images": 4,
+            "preservation_obligations": 116,
+            "raw_record_shape_obligations": 4,
+            "raw_safety_obligations": 4
+          },
+          {
+            "action": "HandleRequestVoteRequestAction",
+            "guarded_images": 1,
+            "preservation_obligations": 29,
+            "raw_record_shape_obligations": 1,
+            "raw_safety_obligations": 1
+          },
+          {
+            "action": "HandleRequestVoteResponseAction",
+            "guarded_images": 1,
+            "preservation_obligations": 29,
+            "raw_record_shape_obligations": 1,
+            "raw_safety_obligations": 1
+          },
+          {
+            "action": "BecomeLeaderAction",
+            "guarded_images": 3,
+            "preservation_obligations": 87,
+            "raw_record_shape_obligations": 3,
+            "raw_safety_obligations": 3
+          },
+          {
+            "action": "ClientRequestAction",
+            "guarded_images": 3,
+            "preservation_obligations": 87,
+            "raw_record_shape_obligations": 3,
+            "raw_safety_obligations": 3
+          },
+          {
+            "action": "AppendEntriesAction",
+            "guarded_images": 6,
+            "preservation_obligations": 174,
+            "raw_record_shape_obligations": 6,
+            "raw_safety_obligations": 6
+          },
+          {
+            "action": "AcceptAppendEntriesRequestAppendAction",
+            "guarded_images": 1,
+            "preservation_obligations": 29,
+            "raw_record_shape_obligations": 1,
+            "raw_safety_obligations": 1
+          },
+          {
+            "action": "AcceptAppendEntriesRequestLearnCommitAction",
+            "guarded_images": 1,
+            "preservation_obligations": 29,
+            "raw_record_shape_obligations": 1,
+            "raw_safety_obligations": 1
+          },
+          {
+            "action": "HandleAppendEntriesResponseAction",
+            "guarded_images": 2,
+            "preservation_obligations": 58,
+            "raw_record_shape_obligations": 2,
+            "raw_safety_obligations": 2
+          },
+          {
+            "action": "AdvanceCommitIndexAction",
+            "guarded_images": 3,
+            "preservation_obligations": 87,
+            "raw_record_shape_obligations": 3,
+            "raw_safety_obligations": 3
+          }
+        ],
+        "encoding": "extensional-message-membership-v1",
+        "format": "asyncraft-membership-induction-v1",
+        "initial": 1,
+        "input": {
+          "bound_ir": "78e7160e38291f1a45a959f981132f8bf9823436b7e90b628b45dcd66b628c86",
+          "config": "0ae8804880c22ca07cf58539d6660675f0b9191ef8c437be84a533ffa9f48733",
+          "graph": "c71a7d7e4f036d97025c0c6091c9fe0f6bfec146b9eceeca7c0511870d7d5d16",
+          "max_messages": 1000,
+          "servers": 3,
+          "source": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+          "upstream_cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284"
+        },
+        "max_log_length": 2,
+        "max_term": 2,
+        "omitted_cardinality_conjuncts": [
+          "requestVoteRequestMsgs",
+          "requestVoteResponseMsgs",
+          "appendEntriesRequestMsgs",
+          "appendEntriesResponseMsgs"
+        ],
+        "predicates": 30,
+        "property": "H_PrimaryHasEntriesItCreated",
+        "result": "proved"
+      },
+      "checking": {
+        "wall_s": 17.3253,
+        "sampled_process_tree_rss_kib": 594100
+      },
+      "receiving": {
+        "wall_s": 17.3196,
+        "sampled_process_tree_rss_kib": 594708
+      },
+      "solver_metrics": {
+        "hypothesis_ast_nodes": 1192,
+        "solver_queries": {
+          "RequestVoteAction": 94,
+          "UpdateTermAction": 119,
+          "HandleRequestVoteRequestAction": 20,
+          "HandleRequestVoteResponseAction": 24,
+          "BecomeLeaderAction": 66,
+          "ClientRequestAction": 27,
+          "AppendEntriesAction": 67,
+          "AcceptAppendEntriesRequestAppendAction": 10,
+          "AcceptAppendEntriesRequestLearnCommitAction": 5,
+          "HandleAppendEntriesResponseAction": 8,
+          "AdvanceCommitIndexAction": 12
+        }
+      },
+      "bytes": 2438,
+      "receipt_sha256": "425a02677e6b50dc4bc9efea73899219e34e1d022b2d122d2582f98bbc205ef8",
+      "ordinary": [
+        {
+          "workers": 1,
+          "seconds_budget": 30,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 15,
+            "distinct": 1792152,
+            "exhaustive": false,
+            "generated": 9460890,
+            "initial_generated": 1,
+            "left_on_queue": 831751,
+            "reported_by_tlc": false
+          },
+          "usage": {
+            "wall_s": 30.0823,
+            "sampled_process_tree_rss_kib": 112752
+          }
+        },
+        {
+          "workers": 6,
+          "seconds_budget": 30,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 18,
+            "distinct": 5965526,
+            "exhaustive": false,
+            "generated": 34759353,
+            "initial_generated": 1,
+            "left_on_queue": 2476730,
+            "reported_by_tlc": false
+          },
+          "usage": {
+            "wall_s": 30.0583,
+            "sampled_process_tree_rss_kib": 301240
+          }
+        }
+      ]
+    },
+    {
+      "kind": "membership",
+      "jobs": 6,
+      "max_term": 3,
+      "max_log_length": 3,
+      "max_messages": 1000,
+      "receipt": {
+        "actions": [
+          {
+            "action": "RequestVoteAction",
+            "guarded_images": 3,
+            "preservation_obligations": 87,
+            "raw_record_shape_obligations": 3,
+            "raw_safety_obligations": 3
+          },
+          {
+            "action": "UpdateTermAction",
+            "guarded_images": 4,
+            "preservation_obligations": 116,
+            "raw_record_shape_obligations": 4,
+            "raw_safety_obligations": 4
+          },
+          {
+            "action": "HandleRequestVoteRequestAction",
+            "guarded_images": 1,
+            "preservation_obligations": 29,
+            "raw_record_shape_obligations": 1,
+            "raw_safety_obligations": 1
+          },
+          {
+            "action": "HandleRequestVoteResponseAction",
+            "guarded_images": 1,
+            "preservation_obligations": 29,
+            "raw_record_shape_obligations": 1,
+            "raw_safety_obligations": 1
+          },
+          {
+            "action": "BecomeLeaderAction",
+            "guarded_images": 3,
+            "preservation_obligations": 87,
+            "raw_record_shape_obligations": 3,
+            "raw_safety_obligations": 3
+          },
+          {
+            "action": "ClientRequestAction",
+            "guarded_images": 3,
+            "preservation_obligations": 87,
+            "raw_record_shape_obligations": 3,
+            "raw_safety_obligations": 3
+          },
+          {
+            "action": "AppendEntriesAction",
+            "guarded_images": 6,
+            "preservation_obligations": 174,
+            "raw_record_shape_obligations": 6,
+            "raw_safety_obligations": 6
+          },
+          {
+            "action": "AcceptAppendEntriesRequestAppendAction",
+            "guarded_images": 1,
+            "preservation_obligations": 29,
+            "raw_record_shape_obligations": 1,
+            "raw_safety_obligations": 1
+          },
+          {
+            "action": "AcceptAppendEntriesRequestLearnCommitAction",
+            "guarded_images": 1,
+            "preservation_obligations": 29,
+            "raw_record_shape_obligations": 1,
+            "raw_safety_obligations": 1
+          },
+          {
+            "action": "HandleAppendEntriesResponseAction",
+            "guarded_images": 2,
+            "preservation_obligations": 58,
+            "raw_record_shape_obligations": 2,
+            "raw_safety_obligations": 2
+          },
+          {
+            "action": "AdvanceCommitIndexAction",
+            "guarded_images": 3,
+            "preservation_obligations": 87,
+            "raw_record_shape_obligations": 3,
+            "raw_safety_obligations": 3
+          }
+        ],
+        "encoding": "extensional-message-membership-v1",
+        "format": "asyncraft-membership-induction-v1",
+        "initial": 1,
+        "input": {
+          "bound_ir": "46b338d3788340e51dba83d8d3ed4ac5556a7513d1a6da2493a8106204bf5386",
+          "config": "2bbd43110e0520ea36c067684ecc55bdb855be8ced4b544bfe24bad4a7022065",
+          "graph": "c71a7d7e4f036d97025c0c6091c9fe0f6bfec146b9eceeca7c0511870d7d5d16",
+          "max_messages": 1000,
+          "servers": 3,
+          "source": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+          "upstream_cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284"
+        },
+        "max_log_length": 3,
+        "max_term": 3,
+        "omitted_cardinality_conjuncts": [
+          "requestVoteRequestMsgs",
+          "requestVoteResponseMsgs",
+          "appendEntriesRequestMsgs",
+          "appendEntriesResponseMsgs"
+        ],
+        "predicates": 30,
+        "property": "H_PrimaryHasEntriesItCreated",
+        "result": "proved"
+      },
+      "checking": {
+        "wall_s": 18.1927,
+        "sampled_process_tree_rss_kib": 601424
+      },
+      "receiving": {
+        "wall_s": 18.3319,
+        "sampled_process_tree_rss_kib": 600060
+      },
+      "solver_metrics": {
+        "hypothesis_ast_nodes": 1399,
+        "solver_queries": {
+          "RequestVoteAction": 93,
+          "UpdateTermAction": 120,
+          "HandleRequestVoteRequestAction": 20,
+          "HandleRequestVoteResponseAction": 24,
+          "BecomeLeaderAction": 66,
+          "ClientRequestAction": 27,
+          "AppendEntriesAction": 65,
+          "AcceptAppendEntriesRequestAppendAction": 10,
+          "AcceptAppendEntriesRequestLearnCommitAction": 5,
+          "HandleAppendEntriesResponseAction": 9,
+          "AdvanceCommitIndexAction": 12
+        }
+      },
+      "bytes": 2438,
+      "receipt_sha256": "0926dee52a2b3a9e128cd5c370565f30c3b04375645265c4db7a1963ea833a8a",
+      "single_worker_verification": {
+        "wall_s": 52.6689,
+        "sampled_process_tree_rss_kib": 162228
+      },
+      "original_word": {
+        "states": 18,
+        "sha256": "335b52a06f4be0b55d3a9a9502bbbe5c3b140611d939afadcf4b231cfdd71ea1",
+        "validated": true,
+        "damaged_rejected": true,
+        "steps": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction",
+          "ClientRequestAction",
+          "ClientRequestAction",
+          "AppendEntriesAction",
+          "AcceptAppendEntriesRequestAppendAction",
+          "HandleAppendEntriesResponseAction",
+          "AppendEntriesAction",
+          "AcceptAppendEntriesRequestAppendAction",
+          "HandleAppendEntriesResponseAction",
+          "RequestVoteAction"
+        ],
+        "copied_indices": [
+          1,
+          2
+        ],
+        "elected": "n1",
+        "replicated_to": "n2",
+        "final_follower_term": 2
+      },
+      "third_message_word": {
+        "states": 10,
+        "sha256": "bf6fd03faf13b9292e70ad4859b9a2d54e30698c41090cb3131b293a6f0f5020",
+        "validated": true,
+        "damaged_rejected": true,
+        "steps": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction",
+          "AppendEntriesAction",
+          "AppendEntriesAction",
+          "RequestVoteAction",
+          "HandleRequestVoteRequestAction"
+        ],
+        "duplicate_send_cardinality": 1,
+        "distinct_requests_before_delivery": 3,
+        "after_delivery": 2
+      },
+      "controls": {
+        "mutants": {
+          "ordinary_follower": {
+            "word": {
+              "states": 7,
+              "sha256": "7d7291d6e81f56c21af357713722bfe1cfc0dea0c0a990cf22467cbde2ad29d6",
+              "validated": true,
+              "damaged_rejected": true,
+              "first_bad_step": 6,
+              "distinct_pending_before_failure": 1,
+              "first_bad_entries": [
+                [
+                  "n1",
+                  "n2",
+                  1,
+                  1
+                ]
+              ],
+              "steps": [
+                "RequestVoteAction",
+                "UpdateTermAction",
+                "HandleRequestVoteRequestAction",
+                "HandleRequestVoteResponseAction",
+                "BecomeLeaderAction",
+                "ClientRequestAction"
+              ],
+              "original_rejected": true,
+              "core": {
+                "seconds": 0.0766,
+                "peak_rss_kib": 33204
+              }
+            },
+            "induction": "ClientRequestAction alternative 0 raw destination safety: sat unknown; [('requestVoteRequestMsgs', 0), ('requestVoteResponseMsgs', 6), ('appendEntriesRequestMsgs', 0), ('appendEntriesResponseMsgs', 0)]",
+            "usage": {
+              "wall_s": 18.7239,
+              "sampled_process_tree_rss_kib": 551992
+            }
+          },
+          "three_pending_follower": {
+            "word": {
+              "states": 8,
+              "sha256": "3ac71abb709856b5fb7b8cd719ec842d25b0c13bedbab3ce897fe92a5b483de3",
+              "validated": true,
+              "damaged_rejected": true,
+              "first_bad_step": 7,
+              "distinct_pending_before_failure": 3,
+              "first_bad_entries": [
+                [
+                  "n1",
+                  "n2",
+                  1,
+                  2
+                ]
+              ],
+              "steps": [
+                "RequestVoteAction",
+                "RequestVoteAction",
+                "UpdateTermAction",
+                "HandleRequestVoteRequestAction",
+                "HandleRequestVoteResponseAction",
+                "BecomeLeaderAction",
+                "ClientRequestAction"
+              ],
+              "original_rejected": true,
+              "core": {
+                "seconds": 0.098571,
+                "peak_rss_kib": 33244
+              }
+            },
+            "induction": "ClientRequestAction alternative 1 raw destination safety: sat unknown; [('requestVoteRequestMsgs', 3), ('requestVoteResponseMsgs', 6), ('appendEntriesRequestMsgs', 0), ('appendEntriesResponseMsgs', 0)]",
+            "usage": {
+              "wall_s": 18.2769,
+              "sampled_process_tree_rss_kib": 569308
+            }
+          }
+        },
+        "changed_cfg_rejected": true,
+        "corrupt_encoding_rejected": true
+      },
+      "ordinary": [
+        {
+          "workers": 1,
+          "seconds_budget": 30,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 13,
+            "distinct": 2738306,
+            "exhaustive": false,
+            "generated": 9774087,
+            "initial_generated": 1,
+            "left_on_queue": 1896744,
+            "reported_by_tlc": false
+          },
+          "usage": {
+            "wall_s": 30.0918,
+            "sampled_process_tree_rss_kib": 149792
+          }
+        },
+        {
+          "workers": 6,
+          "seconds_budget": 30,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 14,
+            "distinct": 8878296,
+            "exhaustive": false,
+            "generated": 34695044,
+            "initial_generated": 1,
+            "left_on_queue": 5989499,
+            "reported_by_tlc": false
+          },
+          "usage": {
+            "wall_s": 30.0727,
+            "sampled_process_tree_rss_kib": 457068
+          }
+        }
+      ]
+    }
+  ]
+}
