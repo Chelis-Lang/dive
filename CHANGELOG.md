@@ -7,6 +7,8 @@ are in git history.
 
 - Named symbolic proofs can [reuse authenticated transition obligations in a new process](docs/user/symbolic.md#reuse-certified-action-obligations-in-another-process).
 
+- Core names the [formula work limit](docs/user/temporal.md#storage-and-limits) when independent fairness assumptions exhaust temporal decomposition.
+
 ### Added
 
 - [Match partial etcd Raft event logs](docs/user/traces.md#match-an-etcd-implementation-log) against the upstream trace and protocol specifications, with independently replayable complete states.
