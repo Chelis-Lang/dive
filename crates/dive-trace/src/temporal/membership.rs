@@ -215,7 +215,10 @@ impl Word<'_> {
         if self.membership.variable.is_some() || scopes.len() < 4 {
             return Ok(());
         }
-        while let Expr::Junction { items, .. } = self.model.ir.expr(body) {
+        for _ in 0..24 {
+            let Expr::Junction { items, .. } = self.model.ir.expr(body) else {
+                break;
+            };
             let [only] = items.as_ref() else {
                 return Ok(());
             };

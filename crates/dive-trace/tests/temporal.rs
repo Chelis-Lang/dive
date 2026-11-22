@@ -679,3 +679,24 @@ Plain(key) == (~(key \notin active)) ~> x
         assert_eq!(got, [true], "{name}");
     }
 }
+
+#[test]
+fn one_dense_query_keeps_its_previous_word_budget() {
+    let src = format!(
+        r"---- MODULE Dense ----
+VARIABLE x, active
+Init == x = FALSE /\ active = {{1,2,3,4}}
+Next == UNCHANGED <<x,active>>
+P == (\A k \in {{1}} : (k \in active) ~> x){}
+====",
+        " /\\ <>x".repeat(55)
+    );
+    let model = bound(&src, "INIT Init\nNEXT Next\n");
+    let set =
+        Value::set((1..=4).map(Value::Int).collect(), dive_value::Ctx::tlc()).expect("dense set");
+    let row: State = Arc::from([Some(Value::FALSE), Some(set)]);
+    let word = vec![row; 16_000];
+    let answer =
+        evaluate_lasso(&model, &predicate(&model, "P"), &word, 0).expect("dense baseline fits");
+    assert!(answer.into_iter().all(|v| !v));
+}
