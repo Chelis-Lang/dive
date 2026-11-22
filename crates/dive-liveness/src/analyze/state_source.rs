@@ -292,7 +292,7 @@ impl StateSource for NativeStates<'_, '_> {
             atom,
             self.graph,
             words,
-            crate::budget::optional_buffer_limit(),
+            crate::budget::prefix_buffer_limit(),
             self.control,
         )
     }
