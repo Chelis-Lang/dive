@@ -467,6 +467,8 @@ fn check_command_mode(
     let mut counters_given = false;
     let mut final_check = false;
     let mut cold_fair = false;
+    let mut cold_roots = None;
+    let mut cold_emissions = None;
     let mut short_lasso = false;
     let mut file: Option<&str> = None;
     let mut json = false;
@@ -590,6 +592,21 @@ fn check_command_mode(
                     );
                 }
             },
+            "--cold-roots" => {
+                let Some(roots) = value().and_then(|s| s.parse::<u8>().ok()) else {
+                    return usage_error(err, "--cold-roots expects a root count from 2 to 64");
+                };
+                cold_roots = Some(roots);
+            }
+            "--cold-init-emissions" => {
+                let Some(emissions) = value().and_then(|s| s.parse::<u64>().ok()) else {
+                    return usage_error(
+                        err,
+                        "--cold-init-emissions expects an Init emission bound",
+                    );
+                };
+                cold_emissions = Some(emissions);
+            }
             "--lasso" => match value().as_deref() {
                 Some("short") => short_lasso = true,
                 Some("tlc") => {
@@ -898,6 +915,25 @@ fn check_command_mode(
         }
         req.seen_disk = Some(seen_policy);
     }
+    let cold_selection = match (cold_fair, cold_roots, cold_emissions) {
+        (_, None, None) => None,
+        (true, Some(roots), Some(emissions)) => {
+            let Some(selection) = dive_api::cold_fair::Diversification::new(roots, emissions)
+            else {
+                return usage_error(
+                    err,
+                    "cold selection expects 2 to 64 roots and an emission limit between the root count and 1000000",
+                );
+            };
+            Some(selection)
+        }
+        _ => {
+            return usage_error(
+                err,
+                "--cold-roots and --cold-init-emissions must be used together with --lncheck cold-fair",
+            );
+        }
+    };
     if cold_fair
         && (worker_mode || final_check || req.temporal == dive_api::TemporalMode::PeriodicAll)
     {
@@ -1050,7 +1086,7 @@ fn check_command_mode(
                 "--lncheck cold-fair does not use checkpoints or recovery",
             );
         }
-        return cold_fair_report(&req, json, exit_convention, out, err);
+        return cold_fair_report(&req, cold_selection, json, exit_convention, out, err);
     }
     let checked = if let Some(request) = &checkpoint {
         dive_api::check_file_checkpoint(&req, request)
@@ -1094,12 +1130,17 @@ fn check_command_mode(
 
 fn cold_fair_report(
     request: &dive_api::CheckRequest,
+    selection: Option<dive_api::cold_fair::Diversification>,
     json: bool,
     convention: dive_api::ExitConvention,
     out: &mut impl std::io::Write,
     err: &mut impl std::io::Write,
 ) -> ExitCode {
-    match dive_api::cold_fair::check_file(request) {
+    let checked = match selection {
+        Some(selection) => dive_api::cold_fair::check_diversified(request, selection),
+        None => dive_api::cold_fair::check_file(request),
+    };
+    match checked {
         Ok(report) => {
             if json {
                 let _ = writeln!(out, "{}", report.to_json(convention));

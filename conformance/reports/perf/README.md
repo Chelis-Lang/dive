@@ -42,6 +42,8 @@ The scripts that produced the records are in
 
 [Cold fair counterexample search](2026-11-22-cold-fair-elevator.json) records original three-, seven- and eight-floor Elevator, the graph-7 simulation control, failed search attempts and independent genuine and damaged replays.
 
+[Cold fair root diversification](2026-11-22-cold-root-diversification.json) compares four exact original Init roots with first-root search under equal caps, and records seed-dependent selection and per-root work.
+
 [Independent lasso validation](2026-11-22-packed-word-replay.json) records the 121-, 151-, 181- and 241-floor controls, per-formula work, damaged loops and closed graph 7.
 
 [Four-floor Elevator prefix placement](2026-11-22-elevator-prefix-placement.json) compares seven replayable thresholds, three independent CLI runs per selected setting, holding controls, peak RSS and both original/damaged word replays. At 100,000 states the CLI median was 6.40 s, versus 9.73 s for its default and 7.46 s for Manyan.

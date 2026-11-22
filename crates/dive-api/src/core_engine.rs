@@ -1478,7 +1478,9 @@ pub(crate) fn check(
             run,
         );
     }
-    if route.flatten().is_some_and(|(_, _, cold)| cold)
+    if route
+        .flatten()
+        .is_some_and(|(_, _, roots)| roots != dive_explore::storage::InitialStates::All)
         && (prepared.model.implied_temporals.is_empty()
             || dive_runtime::admission::effectful(&prepared.model))
     {
@@ -2047,6 +2049,9 @@ pub(crate) fn metrics_json(
         "thunks": {"forced": m.thunks.0, "cached": m.thunks.1},
         "memo": memo,
     });
+    if let Some(roots) = &m.initial_roots {
+        report["initial_roots"] = json!(roots);
+    }
     if m.initial_workers > 0 {
         report["parallel_init_workers"] = json!(m.initial_workers);
     }

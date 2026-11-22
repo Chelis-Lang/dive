@@ -79,10 +79,12 @@ USAGE: dive check FILE.tla [OPTIONS]
 --exit-codes native|tlc process statuses (default tlc in either profile)
 -deadlock               disable deadlock checking
 --time-limit DURATION|none --max-memory BYTES|auto|none
+--cold-roots N         diversify a cold-fair search across at most N distinct roots
+--cold-init-emissions N  bound original Init emissions inspected for diversification
 --max-states N|none --max-depth N|none
 --action-composition off|tla --symmetry-liveness unreduced|refuse|tlc
 --periodic-min-states N  first completed-level liveness check (default 65536)
---lncheck cold-fair     seek a validated fair word from one original Init state
+--lncheck cold-fair     seek a validated fair word from selected original Init states
 --lncheck periodic-all  search every temporal property at each scheduled level
 --core-sample N         compare N sampled states' successors (diagnostic)
 --library-path DIR --module-path DIR (repeatable)

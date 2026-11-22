@@ -20,6 +20,8 @@ pub enum InitialStates {
     /// Retain the first admitted original Init row for witness discovery.
     /// Requires exact temporal capture and cannot prove the original model.
     FirstAdmitted,
+    /// Retain distinct original roots under a bounded seeded selection.
+    Diversified(crate::initial_roots::Selection),
 }
 
 /// Storage and initial-root policies for a native search.
