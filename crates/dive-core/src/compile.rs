@@ -2884,6 +2884,9 @@ impl Compiler<'_> {
                 let action = self.p(r.expr, env, Mode::Plain)?;
                 self.step = false;
                 let complete = self.push(Node::And([changed, action].into()))?;
+                if self.with_target_guard && !self.m.heap.store().semantics().tlc_comparisons {
+                    self.bound_guards.batch = self.action_batch(action, same);
+                }
                 // SameVars is total on the materialized physical row pairs
                 // admitted by the native reader, absent a forced alias or
                 // TLC's shape-sensitive comparisons. On an unchanged pair
@@ -2896,9 +2899,6 @@ impl Compiler<'_> {
                     // Bound-test compilation disables folding, so the
                     // projected wrappers retain their ordinary fuel charges.
                     self.bound_guards.direct_stutter = true;
-                    if self.with_target_guard {
-                        self.bound_guards.batch = self.action_batch(action, same);
-                    }
                     self.bound_guards.source = self.necessary_guard(action, 0, 0)?;
                     self.bound_guards.guard_reads = self
                         .bound_guards

@@ -1120,5 +1120,309 @@
         ]
       }
     ]
+  },
+  "bare_variable_subscript": {
+    "source": "specifications/SpecifyingSystems/Liveness/LiveHourClock.tla on the same Examples pin. Unmodified LiveHourClock.cfg selects AlwaysTick, AllTimes and TypeInvariance.",
+    "sha256": {
+      "LiveHourClock.tla": "44d1b10e8b617196589965b053720886a08cb2aeccc784e079dcc955b0c2313b",
+      "HourClock.tla": "985903176db4725f9cf25df84ad84dcd53ba94be80d26298b87ec86fbc9b08b3",
+      "LiveHourClock.cfg": "995eb191aa9f074854082b63c3c43a2c6376809ac7f1e18800f47a675178bce0",
+      "scalar-image": "5048cbe7ea9979b059574f346853a458fe5b7f3833f8603f42ca18032e759ef2"
+    },
+    "command": "DIVE_NATIVE_ATOM_AUDIT=1 dive check LiveHourClock.tla --config LiveHourClock.cfg --workers 1 --seed 0 --fp 0 --max-memory 1g --time-limit 10s --output json",
+    "both": {
+      "verdict": "success",
+      "distinct": 12,
+      "generated": 24,
+      "initial_generated": 12,
+      "depth": 1,
+      "left_on_queue": 0
+    },
+    "control": {
+      "plans": 0,
+      "rows": 0,
+      "producer_images": 0
+    },
+    "candidate": {
+      "plans": 3,
+      "rows": 36,
+      "producer_images": 36
+    },
+    "purpose": "Checks admission and per-cell agreement on a second published shape. No wall-time speedup claimed."
+  },
+  "main_qualification": {
+    "source": "d71cb39d10df60f0a8768cf225a404f142124ff4",
+    "purpose": "Fresh main check after #1358 on the validation host. Two-floor Core used full reference audit, so its time must not be compared with an unaudited run. All three four-floor words from each tool independently accepted and damaged endpoints rejected.",
+    "trials": [
+      {
+        "arm": "main-image",
+        "cfg": "ElevatorLivenessMedium",
+        "wall_rss": "4.62 75064",
+        "rc": 0,
+        "verdict": "success",
+        "stats": {
+          "depth": 36,
+          "distinct": 4122,
+          "generated": 14296,
+          "initial_generated": 64,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "property": null,
+        "batch": {
+          "plans": 18,
+          "producer_images": 10456,
+          "rows": 74196
+        },
+        "audit": true
+      },
+      {
+        "arm": "published-manyan",
+        "cfg": "ElevatorLivenessMedium",
+        "wall_rss": "0.11 10872",
+        "rc": 0,
+        "counts": [
+          [
+            "14296",
+            "4122",
+            "0"
+          ]
+        ]
+      },
+      {
+        "arm": "main-image",
+        "cfg": "ElevatorLivenessLarge",
+        "wall_rss": "1.52 76148",
+        "rc": 0,
+        "verdict": "success",
+        "stats": {
+          "depth": 39,
+          "distinct": 50653,
+          "generated": 230899,
+          "initial_generated": 729,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "property": null,
+        "batch": {
+          "plans": 20,
+          "producer_images": 136798,
+          "rows": 217370
+        },
+        "audit": false
+      },
+      {
+        "arm": "published-manyan",
+        "cfg": "ElevatorLivenessLarge",
+        "wall_rss": "1.32 47484",
+        "rc": 0,
+        "counts": [
+          [
+            "230899",
+            "50653",
+            "0"
+          ]
+        ]
+      },
+      {
+        "arm": "published-manyan",
+        "cfg": "ElevatorLivenessLarge",
+        "wall_rss": "1.32 47548",
+        "rc": 0,
+        "counts": [
+          [
+            "230899",
+            "50653",
+            "0"
+          ]
+        ]
+      },
+      {
+        "arm": "main-image",
+        "cfg": "ElevatorLivenessLarge",
+        "wall_rss": "1.51 75968",
+        "rc": 0,
+        "verdict": "success",
+        "stats": {
+          "depth": 39,
+          "distinct": 50653,
+          "generated": 230899,
+          "initial_generated": 729,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "property": null,
+        "batch": {
+          "plans": 20,
+          "producer_images": 136798,
+          "rows": 217370
+        },
+        "audit": false
+      },
+      {
+        "arm": "main-image",
+        "cfg": "ElevatorLivenessLarge",
+        "wall_rss": "1.58 75884",
+        "rc": 0,
+        "verdict": "success",
+        "stats": {
+          "depth": 39,
+          "distinct": 50653,
+          "generated": 230899,
+          "initial_generated": 729,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "property": null,
+        "batch": {
+          "plans": 20,
+          "producer_images": 136798,
+          "rows": 217370
+        },
+        "audit": false
+      },
+      {
+        "arm": "published-manyan",
+        "cfg": "ElevatorLivenessLarge",
+        "wall_rss": "1.37 47480",
+        "rc": 0,
+        "counts": [
+          [
+            "230899",
+            "50653",
+            "0"
+          ]
+        ]
+      },
+      {
+        "arm": "main-image",
+        "cfg": "four-floor",
+        "wall_rss": "5.44 176076",
+        "rc": 13,
+        "verdict": "liveness-violation",
+        "stats": {
+          "depth": 20,
+          "distinct": 150372,
+          "generated": 717693,
+          "initial_generated": 4096,
+          "left_on_queue": 12168,
+          "reported_by_tlc": false
+        },
+        "property": "TemporalInvariant",
+        "batch": {
+          "plans": 22,
+          "producer_images": 364393,
+          "rows": 593260
+        },
+        "audit": false,
+        "length": 102,
+        "word_sha256": "218c526dde86e962c8fabb4711cbb1c660d95d8edf035ef3f28243019874f314",
+        "good": "valid",
+        "damaged": "invalid"
+      },
+      {
+        "arm": "published-manyan",
+        "cfg": "four-floor",
+        "wall_rss": "7.66 266416",
+        "rc": 13,
+        "counts": [
+          [
+            "1583418",
+            "281976",
+            "0"
+          ]
+        ],
+        "length": 202,
+        "word_sha256": "8b66315631d6707f300946be20f0cd9234bba8056ef2b307662759c14a80e134",
+        "good": "valid",
+        "damaged": "invalid"
+      },
+      {
+        "arm": "published-manyan",
+        "cfg": "four-floor",
+        "wall_rss": "7.66 266384",
+        "rc": 13,
+        "counts": [
+          [
+            "1583418",
+            "281976",
+            "0"
+          ]
+        ],
+        "length": 202,
+        "word_sha256": "8b66315631d6707f300946be20f0cd9234bba8056ef2b307662759c14a80e134",
+        "good": "valid",
+        "damaged": "invalid"
+      },
+      {
+        "arm": "main-image",
+        "cfg": "four-floor",
+        "wall_rss": "5.32 200520",
+        "rc": 13,
+        "verdict": "liveness-violation",
+        "stats": {
+          "depth": 20,
+          "distinct": 150372,
+          "generated": 717693,
+          "initial_generated": 4096,
+          "left_on_queue": 12168,
+          "reported_by_tlc": false
+        },
+        "property": "TemporalInvariant",
+        "batch": {
+          "plans": 22,
+          "producer_images": 364393,
+          "rows": 593260
+        },
+        "audit": false,
+        "length": 102,
+        "word_sha256": "218c526dde86e962c8fabb4711cbb1c660d95d8edf035ef3f28243019874f314",
+        "good": "valid",
+        "damaged": "invalid"
+      },
+      {
+        "arm": "main-image",
+        "cfg": "four-floor",
+        "wall_rss": "5.31 196680",
+        "rc": 13,
+        "verdict": "liveness-violation",
+        "stats": {
+          "depth": 20,
+          "distinct": 150372,
+          "generated": 717693,
+          "initial_generated": 4096,
+          "left_on_queue": 12168,
+          "reported_by_tlc": false
+        },
+        "property": "TemporalInvariant",
+        "batch": {
+          "plans": 22,
+          "producer_images": 364393,
+          "rows": 593260
+        },
+        "audit": false,
+        "length": 102,
+        "word_sha256": "218c526dde86e962c8fabb4711cbb1c660d95d8edf035ef3f28243019874f314",
+        "good": "valid",
+        "damaged": "invalid"
+      },
+      {
+        "arm": "published-manyan",
+        "cfg": "four-floor",
+        "wall_rss": "7.53 266436",
+        "rc": 13,
+        "counts": [
+          [
+            "1583418",
+            "281976",
+            "0"
+          ]
+        ],
+        "length": 202,
+        "word_sha256": "8b66315631d6707f300946be20f0cd9234bba8056ef2b307662759c14a80e134",
+        "good": "valid",
+        "damaged": "invalid"
+      }
+    ]
   }
 }

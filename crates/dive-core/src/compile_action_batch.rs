@@ -6,9 +6,14 @@ use crate::{Error, Handle, Machine};
 
 /// A source-bound nonstuttering action evaluated on a group of materialized edges.
 pub struct ActionBatch {
-    changed: u64,
+    subscript: Subscript,
     complete_image: bool,
     terms: Vec<Term>,
+}
+
+enum Subscript {
+    Tuple(u64),
+    Variable(usize),
 }
 
 enum Term {
@@ -20,17 +25,38 @@ enum Term {
 
 impl Compiler<'_> {
     pub(super) fn action_batch(&self, action: P, changed: P) -> Option<ActionBatch> {
-        let Node::SameVars { leaves, .. } = &self.code.nodes[changed as usize] else {
-            return None;
+        let subscript = match &self.code.nodes[changed as usize] {
+            Node::SameVars { leaves, thunks, .. }
+                if thunks.iter().all(|&s| !self.preset_slot(s)) =>
+            {
+                Subscript::Tuple(leaves.iter().try_fold(0, |mask, &(var, _)| {
+                    Some(mask | 1u64.checked_shl(var.into())?)
+                })?)
+            }
+            Node::Eq(x, y) => {
+                let (Node::Var(v), Node::Primed(n)) =
+                    (&self.code.nodes[*x as usize], &self.code.nodes[*y as usize])
+                else {
+                    return None;
+                };
+                if v != n {
+                    return None;
+                }
+                Subscript::Variable(usize::from(*v))
+            }
+            _ => return None,
         };
-        let changed = leaves.iter().try_fold(0, |mask, &(var, _)| {
-            Some(mask | 1u64.checked_shl(var.into())?)
-        })?;
         let mut terms = Vec::new();
         self.batch_terms(action, &mut terms, 0)?;
         let complete_image = function_image(&terms, self.ir.vars().len());
+        // A bare subscript uses the ordinary scoped wrapper unless the action
+        // has a guard prefix followed by one source-defined write per variable.
+        // In particular a guard after a write can demand a lazy function body.
+        if matches!(subscript, Subscript::Variable(_)) && !complete_image {
+            return None;
+        }
         Some(ActionBatch {
-            changed,
+            subscript,
             complete_image,
             terms,
         })
@@ -209,7 +235,13 @@ impl ActionBatch {
         let mut used = false;
         let mut live = 0;
         for (i, row) in targets.iter().enumerate() {
-            if !same(m, before, row, self.changed) {
+            // Equality on a bare variable may diagnose a cross-class comparison.
+            // Tuple-wrapped subscripts compare their members extensionally.
+            let unchanged = match self.subscript {
+                Subscript::Tuple(mask) => same(m, before, row, mask),
+                Subscript::Variable(v) => crate::compare::equals(&m.heap, before[v], row[v])?,
+            };
+            if !unchanged {
                 live |= 1u64 << i;
             }
         }
