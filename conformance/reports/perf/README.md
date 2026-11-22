@@ -125,7 +125,7 @@ The [population edit-session measurements](2026-11-21-occupancy-edits.json) pair
 
 [Complete finite TwoPhase induction](2026-11-22-twophase-induction.json) records the learned clauses, every checked action binding, and independent TLC certification on both manager counts.
 
-[AsyncRaft log induction](2026-11-22-asyncraft-log-induction.json) compares a source-checked Scimitar strengthening with exhaustive Core on two and three servers, including a real two-index replication path and a reachable follower mutant.
+[AsyncRaft log induction](2026-11-22-asyncraft-log-induction.json) compares a source-checked Scimitar strengthening with exhaustive Core on two and three servers, including the crossover at three messages per channel, real two-index replication, and a reachable three-message follower mutant.
 
 [Bounded AsyncRaft election induction](2026-11-22-asyncraft-election-induction.json) records original-action closure, boundary checks, genuine voting histories, and both reachable double-election mutations.
 

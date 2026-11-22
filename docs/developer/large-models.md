@@ -1961,10 +1961,15 @@ the reachable graph and checks cycles among strengthening formulas jointly.
 With terms, log lengths and channel capacities capped at 2, every one of the
 38 three-server guarded alternatives was feasible. Sixteen could leave the
 state constraint. All destinations satisfied the log property. The compact
-proof took 23.56 s and 80 MiB. Ordinary Core exhausted this exact model in
-3.89 s and 47 MiB. The previous election experiment used different capacities
-and checked a different invariant. Larger message capacities remain an open
-comparison. [Run the checker](../user/symbolic.md#check-the-asyncraft-log-invariant).
+proof took 23.31 s and 80 MiB. Ordinary Core exhausted this exact model in
+3.89 s and 47 MiB. At three messages per channel, the compact checker
+covered 48 feasible alternatives, including 18 with constraint-crossing
+destinations, in 38.17 s and 82 MiB. A separate host verified the proof in
+40.46 s. Its matched Core run stopped after
+65 seconds with 3,743,621 distinct states and 1,228,744 queued. Both
+configurations kept two log entries and terms through 2. The previous
+election experiment used different capacities and checked a different
+invariant. [Run the checker](../user/symbolic.md#check-the-asyncraft-log-invariant).
 [Evidence and peer runs](../../conformance/reports/perf/2026-11-22-asyncraft-log-induction.json).
 
 ### Certify bounded AsyncRaft elections

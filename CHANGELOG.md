@@ -7,7 +7,7 @@ are in git history.
 
 - [Repair a saved temporal counterexample](docs/user/temporal.md#repair-a-saved-counterexample-after-an-edit) by searching short paths through the edited source and independently validating the complete replacement.
 
-- [Check the original AsyncRaft log invariant](docs/user/symbolic.md#check-the-asyncraft-log-invariant) with a compact source-bound induction proof at two and three servers.
+- [Check the original AsyncRaft log invariant](docs/user/symbolic.md#check-the-asyncraft-log-invariant) with a compact source-bound induction proof at two and three servers and up to three messages per channel.
 
 - The source checkout can [build a native successor worker](docs/user/checking.md#build-a-source-bound-native-successor-worker) from unmodified TLA+ and reuse its compiled control flow after a property or guard edit.
 
