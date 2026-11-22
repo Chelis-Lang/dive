@@ -31,7 +31,11 @@ The [temporal analysis phase measurements](2026-11-21-temporal-analysis-phases.j
 
 The [source-driven EmergencyCall measurements](2026-11-21-source-whole-values.json) contain the installed Linux worker identities, monolithic and 64-cell counts, wall time, peak RSS, independent exact comparisons and trace controls.
 
+The [lemma selection and proof controls](2026-11-22-lemma-selection.json) connect fourteen replayed counterexamples to induction, a finite surviving lemma, and external TLAPS checks on TwoPhase, Raft and TCommit.
+
 The [compiled finite safety comparison](2026-11-21-compiled-finite-safety.json) records the exact Core and compiled KVS Medium runs, binding and compilation cost, same-host tlx, TCommit, and the named SlateDB holdout refusal.
+
+[SlateDB induction controls](2026-11-22-slatedb-preservation.json) locate the four-writer fix-on preservation gap at the replay cursor and distinguish it from the reachable fix-off violation.
 
 The [allocator-fixed large-model baseline](2026-11-21-allocator-fixed-large-baselines.json) records EmergencyCall f3 against pinned TLC, an EWD998 capture profile and action-witness counts, and an original KVS Large resource-bounded run.
 
@@ -400,6 +404,7 @@ The November 19 engineering runs separate the cost of storing more states, the c
 | Which properties fail on the original KIP-996 election loop? | [Original CFG fairness, all properties and concrete replay](2026-11-21-kafka-liveness.json) | Two properties fail on a fair translating execution. Includes all 255 action instances, a starved control, and independent native replay through 16 laps. |
 | Can a coordinator and several participant-indexed fields be counted together? | [TwoPhase product and direct checks](2026-11-21-two-phase-product.json) | Original exact Core and TLC through ten managers, labeled counts and depth at one million, three transition edits and a replayed unsafe commit. |
 | How large is the reconstructed tunable-set FIFO history graph? | [Exact counts, explicit controls and published times](2026-11-21-tunable-set-history.json) | The three-replica, three-element reconstruction has 2.358 trillion symmetry representatives. Includes proofs of the five reconstructed invariants, edit diagnostics, 27.12-million-state exact controls and the separate published disk stop. |
+| Can one complete etcd Raft behavior explain the recorded implementation events? | [Pinned log, matched histories, exact exhaustion and bounds](2026-11-22-etcd-event-histories.json) · [Replay commands](../../../docs/user/traces.md#match-an-etcd-implementation-log) | Both replays validate the first 512 events in 532 states. A term-three vote immediately after the term-two election has no matching history. |
 | How many labeled states does a SlateDB symmetry representative cover? | [Orbit histograms and unreduced controls](2026-11-20-slatedb-wal.json) · [Method and domain assumptions](../../../docs/user/checking.md#count-labeled-states-under-symmetry) | Direct exact search confirms all 350,341,877 labeled states and 1,360,205,173 generated occurrences predicted from 30,114,878 representatives. |
 | Can Dive reproduce Flint’s published three-writer storage checks? | [Archived model, oracle, commands and measurements](2026-11-21-flint-leanp1.json) | The 9.821-billion fingerprint result, exact and TLC controls at 39–48 million states, and 83,107,713 duplicate guard witnesses measured on the full three-writer graph. The weighted compiled traversal differs from Core by 26 generated occurrences and seven distinct fingerprints. |
 | How far did raising the native limits take seven historical models? | [Fourteen original-model process outcomes](2026-11-21-historical-terminal-captures.json) | Actual queued, distinct and generated counts, depth, time and memory, including the two process failures that produced no counts. |

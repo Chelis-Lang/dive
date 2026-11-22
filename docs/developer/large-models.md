@@ -1818,6 +1818,42 @@ Combine results only after all cells exhaust their queues and pass the closure c
 
 With the released `Init` and just the type and set safety invariants, the first four cells of a six-variable reconstruction each admitted 884,736 initial states. They reached 469,762,578–469,764,632 distinct exact states before the 40 GiB sampled cap. The count clusters near the growth threshold of the resident exact hash table. Each terminal queue remained open. At 84 GiB, cell zero exhausted with 600,429,632 exact identities, 3,862,251,520 generated and depth 39, in 1,884.64 s at 62.60 GiB peak RSS. Cell one exhausted with 912,926,560 exact identities, 6,006,048,236 generated, depth 43 and an empty queue in 2,913.01 s at 63.86 GiB peak RSS. Those are two of 64 cells in the reconstructed configuration. [Source, predicates and per-process peaks](../../conformance/reports/perf/2026-11-20-emergencycall-reference.json).
 
+## Recheck authored and inferred proofs
+
+The authored Examples TwoPhase proof, the generated Scimitar TwoPhase
+proof and the saved AsyncRaft candidates exercise different proof workflows.
+The [proof controls](../../conformance/reports/perf/2026-11-22-proof-controls.json)
+record the obligation outcomes from a fresh external TLAPS process and the
+separate lemma and counterexample counts recorded by Scimitar.
+
+TLAPS 1.5.0 discharged all 67 obligations in the authored TwoPhase module.
+The isolated commit preservation theorem also passed. Removing the conjunct
+requiring every member of `tmPrepared` to have sent a Prepared message made
+that theorem fail. A two-manager state with a full `tmPrepared` set and no
+messages satisfies the weakened premise. The original `TMCommit` action then
+broadcasts Commit without the required Prepared messages. Exact Core produces
+the two-state counterexample to induction, and `dive validate-trace` checks it
+against the same hypothesis and action.
+
+The native symbolic checker also certifies `H_TCConsistent` on Scimitar's
+original three-manager TwoPhase configuration, with 17 transition
+obligations in a 16-bit support. TLAPS discharged 272 obligations in the
+generated module under its own source assumptions. Both full AsyncRaft
+proof modules reached the 90-second budget with obligations outstanding.
+The report gives obligation totals by status at the cutoff.
+
+Use the Linux release bundle of Dive, the fetched Examples corpus, an extracted
+Scimitar archive at the revision in the report, and the Linux TLAPS 1.5.0
+installation. The command checks the source and artifact digests and puts
+prover logs and generated controls in a new directory.
+
+```sh
+python3 scripts/perf/scale/proof-controls.py \
+  --dive "$DIVE" --tlapm "$TLAPS/bin/tlapm" \
+  --examples "$EXAMPLES" --scimitar "$SCIMITAR" \
+  --deadline 90 --work "$SCRATCH/proof-controls"
+```
+
 ## Prove a property on the original Recomp-Verify models
 
 The published four-process portfolio proved the 20-client lock server in 2 s
@@ -1871,6 +1907,15 @@ avoided all three closure sweeps. On lockserv the warm and cold Sail checks both
 took 0.354 s at 20 clients. Binding the edited source and starting the worker
 still cost time. [Run a named-property check](../user/symbolic.md#prove-one-configured-state-invariant) · [Sail CLI](https://github.com/Chelis-Lang/sail/pull/792).
 
+On a separate five-transaction KVS configuration with two keys and two values,
+initially proving `TxLifecycle` cost 87.765 s. A fresh Sail/Dive process that
+restricted the imported `OpenTx` guard reused 40 of 45 certified transition
+images. Its median fell from 505 to 355 ms versus rechecking the same predicate
+with every image. Expanding a write guard reused 25 of 65 and fell from 555 to
+454 ms. The unsigned and authenticated paths broke even at four transactions.
+For TCommit at 100 managers the respective worker times were 0.69 and 0.72 s.
+[Trust boundary and key setup](../user/symbolic.md#reuse-certified-action-obligations-in-another-process) · [Source histories, fault controls and timing data](https://github.com/Chelis-Lang/sail/pull/794).
+
 ### Transfer a SlateDB witness to a larger configuration
 
 The restart-capable **four-writer fix-off configuration violates
@@ -1892,6 +1937,28 @@ manifest epoch and the prefix of committed writes. A candidate must establish
 that every writer entering READY has the matching prefix, including after a
 restart or a garbage-collection step. The fix-off witness is a regression
 control for that proof.
+
+On the fixed four-writer model the six configured invariants together are
+**insufficient as an induction hypothesis**. A writer can start in
+`VALIDATE_AFTER_REPLAY` with a current manifest, matching epoch and an
+incomplete or incorrect local copy of a one-entry committed history. All
+six invariants hold in that state. The original `ValidateEpochAfterReplay`
+moves it to `READY` and violates `ConsistentMachineData`. Independent replay
+accepted both two-state words under the full original `Next` and rejected
+their synthetic starting states under the original `Init`. These are
+counterexamples to induction. The reachable fix-off bug above is a separate
+result.
+
+A candidate lemma requiring the right prefix and length when post-replay
+refresh completes moves the failed obligation to `ReplayWAL`. In the
+fixed model an exhausted replay cursor can enter post-replay validation
+with stale local data under the proposed hypotheses. The next strengthening
+must relate data already applied at the cursor to committed WAL entries and
+the loaded snapshot. The original restart action reset the writer-local
+fields while retaining a one-entry committed history in the separate fenced
+control. The four-writer safety proof remains open.
+[Eight source-bound controls and replay outcomes](../../conformance/reports/perf/2026-11-22-slatedb-preservation.json)
+· [Reproducer](../../scripts/perf/scale/slatedb_history.py).
 
 ## Reproduce the comparisons
 

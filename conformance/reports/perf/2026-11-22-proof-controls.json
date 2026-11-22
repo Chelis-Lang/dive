@@ -1,0 +1,267 @@
+{
+  "schema": "dive-proof-controls-1",
+  "examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "scimitar_commit": "f1b902dc0801cf435cb9dd6e6be495d5ed121787",
+  "deadline_seconds": 90,
+  "tlapm_version": "1.5.0",
+  "tlapm_sha256": "537f46dd857d5a3861705b388798a13cb62bc65115e6c1c5edba1568b5980a08",
+  "dive_sha256": "57dea7423f6ddd9a465def62ce1777d760317af2a7c080cd2e9b3ff1b990be03",
+  "backend_versions": {
+    "Isabelle": "Isabelle2011-1: October 2011",
+    "zenon": "zenon version 0.8.4 [a268] 2017-11-14",
+    "Z3": "Z3 version 4.15.5 - 64 bit",
+    "SMT": "Z3 version 4.15.5 - 64 bit",
+    "LS4": "unknown"
+  },
+  "authored_inputs": {
+    "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+    "TwoPhase.tla": "e6e72ed0097cca55e80b97af33c3bc54792a504bcbdf639d6d9c666f49c17817",
+    "TwoPhase_proof.tla": "01a016d40ffdea5f0350dfe75c853d9b0766d3c7a62b41373a0c33af1f66df0b"
+  },
+  "authored": [
+    {
+      "module": "TwoPhase_proof",
+      "module_sha256": "01a016d40ffdea5f0350dfe75c853d9b0766d3c7a62b41373a0c33af1f66df0b",
+      "exit": 0,
+      "status": "proved",
+      "wall_seconds": 6.232,
+      "obligations": {
+        "proved": 26,
+        "trivial": 41
+      },
+      "discharged_by": {
+        "ls4": 3,
+        "tlapm": 41,
+        "smt": 21,
+        "zenon": 2
+      },
+      "first_failed_location": null
+    },
+    {
+      "module": "CommitPreserves",
+      "module_sha256": "29cdaf53db7c1a3f7329908d5ea353cd600b99c113e971f31e9fce99e8e81b13",
+      "exit": 0,
+      "status": "proved",
+      "wall_seconds": 0.15,
+      "obligations": {
+        "proved": 1
+      },
+      "discharged_by": {
+        "smt": 1
+      },
+      "first_failed_location": null
+    },
+    {
+      "module": "CommitWithoutPrepared",
+      "module_sha256": "640afe4642108dcd6961c9f24e069cbc3cfacfc4cba279c0665ca2749432e789",
+      "exit": 0,
+      "status": "unproved",
+      "wall_seconds": 45.203,
+      "obligations": {
+        "failed": 1
+      },
+      "discharged_by": {},
+      "first_failed_location": "17:1:17:3"
+    }
+  ],
+  "counterexample_to_induction": {
+    "depth": 2,
+    "ending": {
+      "kind": "invariant",
+      "name": "AfterCommit"
+    },
+    "trace_validated": true,
+    "claim": "Commit preservation from the weakened hypothesis",
+    "model_sha256": "3053cae5ba83ddef5455573ce84186e5fd6ea9a8bbd57bf4e772a6d655b3935d",
+    "config_sha256": "81cf5bf32d353f4a6f6f27a0726018a4c577b46d18da11c38d9f95e44a94344c"
+  },
+  "native_twophase": {
+    "config_sha256": "e8ba979a5927599985026b7b0907616501c95f8a2e1a6efb1bb9f2b312f1a03b",
+    "format": "dive-property-proof-v1",
+    "proof": "inductive-safety",
+    "property": "H_TCConsistent",
+    "transition_obligations": 17,
+    "support_bits": 16,
+    "seconds": 0.026976
+  },
+  "published": [
+    {
+      "property": "H_TCConsistent",
+      "graph_sha256": "1cc2b4e4aa764646886ef4749cf08e6085df51523b3a8902e33bd57700c3a311",
+      "seed": 3,
+      "lemma_names": [
+        "Inv1140_5b67_R3_2_I2",
+        "Inv11_9254_R0_1_I1",
+        "Inv1291_9644_R7_2_I2",
+        "Inv1325_1fb0_R7_2_I2",
+        "Inv16_c77c_R4_0_I1",
+        "Inv1_b34d_R2_0_I1",
+        "Inv23_b2ee_R0_2_I1",
+        "Inv29_4f76_R8_0_I1",
+        "Inv2_6383_R1_0_I1",
+        "Inv4_98a2_R5_0_I1",
+        "Inv53_f69d_R2_1_I1",
+        "Inv73_bad3_R0_0_I1",
+        "Inv7_2e0f_R5_1_I1",
+        "Safety"
+      ],
+      "initial_ctis": 2385,
+      "remaining_ctis": 0,
+      "action_nodes": 22,
+      "producer_stats": {
+        "num_lemma_nodes": 14,
+        "num_failed_lemma_nodes": 0,
+        "state_cache_duration_secs": 38.51143741607666,
+        "invcheck_duration_secs": 141.87529110908508,
+        "ctielimcheck_duration_secs": 68.54315543174744,
+        "total_duration_secs": 1256.31360912323,
+        "num_preds": 18,
+        "date": "2024-09-18 15:27:43"
+      },
+      "model": "TwoPhase",
+      "model_sha256": "787afe81e60270d4b1489527504a4fb42c471d26a516bc0562126b57f23f0b87",
+      "check": {
+        "module": "TwoPhase_IndProofs",
+        "module_sha256": "7a76e56e4177623195957fe22791f1ca91fa5f824b005131dff32fa6870e377f",
+        "exit": 0,
+        "status": "proved",
+        "wall_seconds": 7.092,
+        "obligations": {
+          "proved": 137,
+          "trivial": 135
+        },
+        "discharged_by": {
+          "smt": 125,
+          "tlapm": 135,
+          "zenon": 12
+        },
+        "first_failed_location": null
+      }
+    },
+    {
+      "property": "OnePrimaryPerTerm",
+      "graph_sha256": "1dd7b8e7abced903c3f5d76b9a24856c1a45e711a94727603927e32c984918b9",
+      "seed": 1,
+      "lemma_names": [
+        "Inv0_2c32_R2_1_I1",
+        "Inv10_e30e_R5_0_I1",
+        "Inv12_f533_R5_2_I0",
+        "Inv18_09bb_R3_0_I1",
+        "Inv2349_f747_R7_0_I1",
+        "Inv27_42ac_R1_1_I1",
+        "Inv2907_928b_R1_1_I1",
+        "Inv42_d848_R0_0_I0",
+        "Inv4738_3acc_R1_1_I1",
+        "Inv8_8e53_R1_0_I0",
+        "Inv9_3715_R8_0_I0",
+        "Inv9_82b3_R5_1_I0",
+        "Safety"
+      ],
+      "initial_ctis": 30892,
+      "remaining_ctis": 0,
+      "action_nodes": 17,
+      "producer_stats": {
+        "num_lemma_nodes": 13,
+        "num_failed_lemma_nodes": 0,
+        "state_cache_duration_secs": 0,
+        "invcheck_duration_secs": 0,
+        "ctielimcheck_duration_secs": 0,
+        "total_duration_secs": 5.75981593132019,
+        "num_preds": 142,
+        "date": "2024-11-19 21:14:50"
+      },
+      "model": "AsyncRaft",
+      "model_sha256": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+      "check": {
+        "module": "AsyncRaft_IndProofs_OnePrimaryPerTerm_1",
+        "module_sha256": "a7238f4cf990fb00613b40d4dae74b1a9f8ce0b463a8690cdca49f5620392c66",
+        "exit": 124,
+        "status": "budget-stop",
+        "wall_seconds": 90.008,
+        "obligations": {
+          "failed": 4,
+          "trivial": 44,
+          "proved": 18,
+          "to be proved": 620
+        },
+        "discharged_by": {
+          "tlapm": 44,
+          "smt": 17,
+          "zenon": 1
+        },
+        "first_failed_location": "11:7:11:9"
+      }
+    },
+    {
+      "property": "PrimaryHasEntriesItCreated",
+      "graph_sha256": "c71a7d7e4f036d97025c0c6091c9fe0f6bfec146b9eceeca7c0511870d7d5d16",
+      "seed": 4,
+      "lemma_names": [
+        "Inv0_2c32_R8_1_I1",
+        "Inv0_33b0_R0_0_I0",
+        "Inv10_82b3_R11_1_I0",
+        "Inv11_afc0_R17_0_I0",
+        "Inv11_d848_R2_1_I0",
+        "Inv127_0bd2_R5_1_I2",
+        "Inv1281_1f30_R6_2_I1",
+        "Inv12_9e78_R16_0_I0",
+        "Inv12_e9c6_R1_1_I0",
+        "Inv13_3715_R21_0_I0",
+        "Inv14_f533_R11_2_I0",
+        "Inv15967_602c_R4_1_I2",
+        "Inv15_7bad_R0_2_I0",
+        "Inv166_e30e_R11_0_I1",
+        "Inv21_c904_R28_0_I0",
+        "Inv24_ed8d_R0_1_I0",
+        "Inv2513_1e2e_R6_3_I1",
+        "Inv33_5a2e_R2_2_I0",
+        "Inv363_d176_R15_2_I1",
+        "Inv40_6261_R15_1_I1",
+        "Inv4_c57a_R6_2_I1",
+        "Inv61_fe26_R9_0_I1",
+        "Inv789_4aa6_R6_2_I1",
+        "Inv7_8db7_R7_1_I1",
+        "Inv82_3acc_R6_1_I1",
+        "Inv8_2014_R15_0_I0",
+        "Inv8_8e53_R5_0_I0",
+        "Inv9072_27f5_R5_1_I2",
+        "Inv9_42ac_R5_1_I2",
+        "Safety"
+      ],
+      "initial_ctis": 31087,
+      "remaining_ctis": 0,
+      "action_nodes": 46,
+      "producer_stats": {
+        "num_lemma_nodes": 31,
+        "num_failed_lemma_nodes": 0,
+        "state_cache_duration_secs": 0,
+        "invcheck_duration_secs": 0,
+        "ctielimcheck_duration_secs": 0,
+        "total_duration_secs": 10.104620933532715,
+        "num_preds": 142,
+        "date": "2024-11-13 19:02:17"
+      },
+      "model": "AsyncRaft",
+      "model_sha256": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+      "check": {
+        "module": "AsyncRaft_IndProofs_PrimaryHasEntriesItCreated_4",
+        "module_sha256": "57f506110f383f9fa83c647063971489d9e8db3d88344cd1e90e17706a41c5df",
+        "exit": 124,
+        "status": "budget-stop",
+        "wall_seconds": 90.015,
+        "obligations": {
+          "failed": 3,
+          "trivial": 27,
+          "proved": 1,
+          "being proved": 2,
+          "to be proved": 1455
+        },
+        "discharged_by": {
+          "tlapm": 27,
+          "smt": 1
+        },
+        "first_failed_location": "11:7:11:9"
+      }
+    }
+  ]
+}
