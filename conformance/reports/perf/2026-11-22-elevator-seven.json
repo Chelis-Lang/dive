@@ -1,0 +1,1361 @@
+{
+  "question": "Time to an independently validated violation of the original MultiCarElevator TemporalInvariant with both original invariants, two elevators and two people. Counts for violations describe the searched prefix. Results at a time or memory limit carry no model verdict.",
+  "inputs": {
+    "examples": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "module_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+    "cfg": "specifications/MultiCarElevator/ElevatorLivenessLarge.cfg with only FloorCount changed. Seven-floor cfg SHA-256 a75424aeb60b0e1ed5d4c06a35b23d9e4c00678da6ffd81879e1cebc89811e62.",
+    "manyan": "a39816a873a2c2aabc00dbcef50908e996f3d44b",
+    "manyan_sha256": "89f6da894a58220f7607853ca3907122f692fe66e507c148e1898731b8b4fcf1",
+    "validator_sha256": "3f9c242a3a347327de96d8f8e3f7b4669c00ede5fd5dc29190bca0392304d28a"
+  },
+  "hosts": "Dedicated c7i.4xlarge in us-east-2, Linux 7.0.0-1018-aws, rustc 1.99.0 --locked --release. Trials on one node run sequentially. A separate node of the same type measured standalone Cartesian ordering and integration. GNU time wall seconds and peak RSS in KiB include startup.",
+  "commands": [
+    "dive check Elevator.tla --config CFG --workers 1 --seed 0 --fp 0 --max-memory 8g --time-limit LIMIT --output json",
+    "manyan -workers 1 -seed 0 -fp 0 -dumpTrace json WORD.json -config CFG Elevator.tla. The peer limits are external wall time. Bug-finding time includes the native search policy of each checker.",
+    "Extract counterexample.trace or translate the peer word using scripts/perf/scale/elevator-peer-word.py. Use independent dive validate-trace on both the genuine word and the same word with ending.back_to changed to zero."
+  ],
+  "designs": {
+    "components": "Original 128 MiB shared component workspace. Earlier five/six qualification in 2026-11-22-streett-workspace.json.",
+    "dense-workspace": "Closed original enabledness, windowed above one million rows. Dense eight-byte original truth words and two u32 fields per cached product edge. Component allowance 512 MiB and at most 128 MiB across saved prefix columns at 8 GiB.",
+    "fullscale": "Same window and allowances. Adds experimentally packed product destinations and original ordinals if their sizes fit u32, and one-byte deltas for action words that vary by at most one bit within the source row; otherwise wide.",
+    "linear": "As fullscale, with a bitmap walk in place of Cartesian merge sorting. This diagnostic built an explicit vector of consecutive IDs; the final implementation iterates them directly.",
+    "selected-seven": "Same fullscale executable; changed only the first periodic threshold to 2,000,000.",
+    "order-base": "Unmodified Core following original enabledness support; exact source of #1350 on main.",
+    "order-new": "Only bitmap enumeration and direct iteration of canonical IDs. Sparse indices and low dense occupancy fall back to the previous cancellable sort.",
+    "production-storage": "Windowed original enabledness on main, packed-product prototypes excluded. Explicit component/prefix fractions 1/16 and 1/64, capped at 512 and 128 MiB respectively. Dense discovery supplies Cartesian order directly. One worker, default prefix schedule, 240 s. This binary includes the main successor assignment improvement (#1357), without the producer-action images (#1358).",
+    "integrated": "Same dense storage policy at 8 GiB and direct Cartesian iteration with #1358, on the earlier developer base. Four periodic checks. No edge packing. A separate 240 s run."
+  },
+  "diagnostic_sha256": {
+    "components": "6c973588bb6dd4fe403c8f09f0afc8ace13bc44fe5b339fd4d095ee1f0ea4704",
+    "dense-workspace": "61885a1f13002d199a9dc3a570d1a72f155d21f54f9abc5293ac4b85033fc4d5",
+    "fullscale": "0005b2fbf282f1027013de48d3c13f6e12d2f1babe73ae69b448160c780ea170",
+    "linear": "714c7c34f3ef2bf4c86f22af14b42bc7e4cf2c333e1782cdc10a5805897124e5",
+    "order-base": "580c1eb6cb69f313be103d72b69d9a45143044bfaf8cf976fd29837caa73b718",
+    "order-new": "a701e7d879533db905248f4465b53fbdbe67a44b80a9d598ccba34c53c8ffde7",
+    "production-storage": "1edeeb9cab36abfd1e023c94244655604cd360a0709b46fb845a11790d5d755b",
+    "integrated": "dc0419f39e1a0b0a0eaa4e09a8de0246e95e1f005b49f2b174cb506161631a75"
+  },
+  "workspace_diagnostics": [
+    {
+      "product_vertices": 3193491,
+      "edge_occurrences": 24593994,
+      "word_bytes": 96306840,
+      "filter_membership_bytes": 51095856,
+      "dense_adjacency_bytes": 209525920
+    },
+    {
+      "product_vertices": 3437051,
+      "edge_occurrences": 28803013,
+      "word_bytes": 230424896,
+      "filter_membership_bytes": 54992816,
+      "dense_adjacency_bytes": 244172312
+    }
+  ],
+  "original_default_schedule": {
+    "first_minimum": 65536,
+    "growth": 2,
+    "answer_level": 20,
+    "prefixes": 4,
+    "saved_cells_reused": 682821956,
+    "final_saved_bytes": 126588672,
+    "genuine_word_length": 249,
+    "back_to": 2,
+    "sorted_json_word_sha256": "8f00421aa3a105de8822ab17f510d0e1b1e79a8da829e64a4525c4979ca35ed0"
+  },
+  "seven_floor_controls": [
+    {
+      "cfg": "seven-floor",
+      "arm": "components",
+      "rep": 1,
+      "rc": 5,
+      "wall_s": 240.01,
+      "peak_kib": 711548,
+      "verdict": "stopped",
+      "property": null,
+      "stats": {
+        "depth": 12,
+        "distinct": 1593315,
+        "exhaustive": false,
+        "generated": 10852198,
+        "initial_generated": 117649,
+        "left_on_queue": 289608,
+        "reported_by_tlc": false
+      },
+      "stopped": {
+        "elapsed_ms": 240004,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 240000,
+        "observed": 240003,
+        "phase": "temporal-analysis",
+        "resource": "time",
+        "unit": "ms"
+      },
+      "phases_ms": {
+        "atoms": 43674.094893,
+        "product": 173371.81225599998
+      }
+    },
+    {
+      "cfg": "seven-floor",
+      "arm": "manyan",
+      "rep": 1,
+      "rc": 124,
+      "wall_s": 240.23,
+      "peak_kib": 5268040,
+      "counts": null
+    },
+    {
+      "limit_s": 260,
+      "arm": "dense-workspace",
+      "cfg": "seven-floor",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stats": {
+        "depth": 21,
+        "distinct": 3437051,
+        "generated": 25765017,
+        "initial_generated": 117649,
+        "left_on_queue": 281406,
+        "reported_by_tlc": false
+      },
+      "phases_ms": {
+        "atoms": 81215.40883300001,
+        "attribution": 54.846346,
+        "product": 100107.020095
+      },
+      "stopped": null,
+      "batches": {
+        "plans": 28,
+        "rows": 13440408
+      },
+      "time_rss": "240.91 1545428",
+      "audit": false,
+      "good": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "limit_s": 360,
+      "arm": "fullscale",
+      "cfg": "seven-floor",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stats": {
+        "depth": 21,
+        "distinct": 3437051,
+        "generated": 25765017,
+        "initial_generated": 117649,
+        "left_on_queue": 281406,
+        "reported_by_tlc": false
+      },
+      "phases_ms": {
+        "atoms": 81484.438471,
+        "attribution": 56.645566,
+        "product": 81706.12814
+      },
+      "stopped": null,
+      "batches": {
+        "plans": 28,
+        "rows": 13440408
+      },
+      "time_rss": "223.37 1651944",
+      "audit": false,
+      "good": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "limit_s": 360,
+      "arm": "linear",
+      "cfg": "seven-floor",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stats": {
+        "depth": 21,
+        "distinct": 3437051,
+        "generated": 25765017,
+        "initial_generated": 117649,
+        "left_on_queue": 281406,
+        "reported_by_tlc": false
+      },
+      "phases_ms": {
+        "atoms": 80554.040297,
+        "attribution": 57.117217999999994,
+        "product": 74043.433269
+      },
+      "stopped": null,
+      "batches": {
+        "plans": 28,
+        "rows": 13440408
+      },
+      "time_rss": "213.62 1661640",
+      "audit": false,
+      "good": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "limit_s": 360,
+      "arm": "selected-seven",
+      "cfg": "seven-floor",
+      "verdict": "stopped",
+      "property": null,
+      "stats": {
+        "depth": 24,
+        "distinct": 4486359,
+        "exhaustive": false,
+        "generated": 35831235,
+        "initial_generated": 117649,
+        "left_on_queue": 334756,
+        "reported_by_tlc": false
+      },
+      "phases_ms": {
+        "atoms": 192720.55794899998,
+        "product": 87575.159147
+      },
+      "stopped": {
+        "elapsed_ms": 360008,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 360000,
+        "observed": 360006,
+        "phase": "temporal-analysis",
+        "resource": "time",
+        "unit": "ms"
+      },
+      "batches": {
+        "plans": 28,
+        "rows": 16918922
+      },
+      "time_rss": "360.02 1686048",
+      "audit": false
+    }
+  ],
+  "standalone_order_trials": [
+    {
+      "arm": "order-base",
+      "cfg": "ElevatorLivenessLarge",
+      "cap": "8g",
+      "verdict": "success",
+      "property": null,
+      "stopped": null,
+      "wall_s": 1.65,
+      "rss_kib": 75956,
+      "stats": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 635.473255,
+        "product": 291.773278
+      },
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "enabled": {
+        "absent": 876262,
+        "peak_mask_bytes": 405224,
+        "plans": 20,
+        "present": 136798
+      }
+    },
+    {
+      "arm": "order-new",
+      "cfg": "ElevatorLivenessLarge",
+      "cap": "8g",
+      "verdict": "success",
+      "property": null,
+      "stopped": null,
+      "wall_s": 1.61,
+      "rss_kib": 75768,
+      "stats": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 634.9785959999999,
+        "product": 258.645462
+      },
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "enabled": {
+        "absent": 876262,
+        "peak_mask_bytes": 405224,
+        "plans": 20,
+        "present": 136798
+      }
+    },
+    {
+      "arm": "order-new",
+      "cfg": "ElevatorLivenessLarge",
+      "cap": "8g",
+      "verdict": "success",
+      "property": null,
+      "stopped": null,
+      "wall_s": 1.61,
+      "rss_kib": 75748,
+      "stats": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 632.985061,
+        "product": 259.090463
+      },
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "enabled": {
+        "absent": 876262,
+        "peak_mask_bytes": 405224,
+        "plans": 20,
+        "present": 136798
+      }
+    },
+    {
+      "arm": "order-base",
+      "cfg": "ElevatorLivenessLarge",
+      "cap": "8g",
+      "verdict": "success",
+      "property": null,
+      "stopped": null,
+      "wall_s": 1.65,
+      "rss_kib": 75928,
+      "stats": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 634.9928729999999,
+        "product": 291.363561
+      },
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "enabled": {
+        "absent": 876262,
+        "peak_mask_bytes": 405224,
+        "plans": 20,
+        "present": 136798
+      }
+    },
+    {
+      "arm": "order-base",
+      "cfg": "ElevatorLivenessLarge",
+      "cap": "8g",
+      "verdict": "success",
+      "property": null,
+      "stopped": null,
+      "wall_s": 1.64,
+      "rss_kib": 75988,
+      "stats": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 636.340418,
+        "product": 291.51243500000004
+      },
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "enabled": {
+        "absent": 876262,
+        "peak_mask_bytes": 405224,
+        "plans": 20,
+        "present": 136798
+      }
+    },
+    {
+      "arm": "order-new",
+      "cfg": "ElevatorLivenessLarge",
+      "cap": "8g",
+      "verdict": "success",
+      "property": null,
+      "stopped": null,
+      "wall_s": 1.62,
+      "rss_kib": 75512,
+      "stats": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 637.262149,
+        "product": 263.034679
+      },
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "enabled": {
+        "absent": 876262,
+        "peak_mask_bytes": 405224,
+        "plans": 20,
+        "present": 136798
+      }
+    },
+    {
+      "arm": "order-base",
+      "cfg": "four-floor",
+      "cap": "8g",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stopped": null,
+      "wall_s": 5.72,
+      "rss_kib": 175924,
+      "stats": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 2096.60067,
+        "attribution": 18.999492999999998,
+        "product": 1429.814571
+      },
+      "batch": {
+        "plans": 22,
+        "rows": 593260
+      },
+      "enabled": {
+        "absent": 2428448,
+        "peak_mask_bytes": 1105632,
+        "plans": 22,
+        "present": 325204
+      },
+      "good": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "arm": "order-new",
+      "cfg": "four-floor",
+      "cap": "8g",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stopped": null,
+      "wall_s": 5.57,
+      "rss_kib": 175836,
+      "stats": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 2100.495543,
+        "attribution": 18.890559,
+        "product": 1266.341229
+      },
+      "batch": {
+        "plans": 22,
+        "rows": 593260
+      },
+      "enabled": {
+        "absent": 2428448,
+        "peak_mask_bytes": 1105632,
+        "plans": 22,
+        "present": 325204
+      },
+      "good": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "arm": "order-new",
+      "cfg": "four-floor",
+      "cap": "8g",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stopped": null,
+      "wall_s": 5.84,
+      "rss_kib": 194368,
+      "stats": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 2208.95916,
+        "attribution": 19.738691,
+        "product": 1338.67912
+      },
+      "batch": {
+        "plans": 22,
+        "rows": 593260
+      },
+      "enabled": {
+        "absent": 2428448,
+        "peak_mask_bytes": 1105632,
+        "plans": 22,
+        "present": 325204
+      },
+      "good": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "arm": "order-base",
+      "cfg": "four-floor",
+      "cap": "8g",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stopped": null,
+      "wall_s": 5.71,
+      "rss_kib": 176048,
+      "stats": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 2102.251311,
+        "attribution": 18.846394999999998,
+        "product": 1416.1128589999998
+      },
+      "batch": {
+        "plans": 22,
+        "rows": 593260
+      },
+      "enabled": {
+        "absent": 2428448,
+        "peak_mask_bytes": 1105632,
+        "plans": 22,
+        "present": 325204
+      },
+      "good": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "arm": "order-base",
+      "cfg": "four-floor",
+      "cap": "8g",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stopped": null,
+      "wall_s": 5.71,
+      "rss_kib": 196584,
+      "stats": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 2103.69398,
+        "attribution": 18.88722,
+        "product": 1416.820812
+      },
+      "batch": {
+        "plans": 22,
+        "rows": 593260
+      },
+      "enabled": {
+        "absent": 2428448,
+        "peak_mask_bytes": 1105632,
+        "plans": 22,
+        "present": 325204
+      },
+      "good": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "arm": "order-new",
+      "cfg": "four-floor",
+      "cap": "8g",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stopped": null,
+      "wall_s": 5.58,
+      "rss_kib": 175868,
+      "stats": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 2099.863154,
+        "attribution": 18.933033,
+        "product": 1269.186672
+      },
+      "batch": {
+        "plans": 22,
+        "rows": 593260
+      },
+      "enabled": {
+        "absent": 2428448,
+        "peak_mask_bytes": 1105632,
+        "plans": 22,
+        "present": 325204
+      },
+      "good": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "arm": "order-base",
+      "cfg": "six-floor",
+      "cap": "8g",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stopped": null,
+      "wall_s": 71.83,
+      "rss_kib": 564068,
+      "stats": {
+        "depth": 17,
+        "distinct": 1150990,
+        "generated": 7767089,
+        "initial_generated": 46656,
+        "left_on_queue": 64340,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 26722.910989,
+        "attribution": 54.898668,
+        "product": 26066.865846999997
+      },
+      "batch": {
+        "plans": 26,
+        "rows": 4780028
+      },
+      "enabled": {
+        "absent": 7841360,
+        "peak_mask_bytes": 3622160,
+        "plans": 26,
+        "present": 766720
+      },
+      "good": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "arm": "order-new",
+      "cfg": "six-floor",
+      "cap": "8g",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stopped": null,
+      "wall_s": 71.14,
+      "rss_kib": 573384,
+      "stats": {
+        "depth": 17,
+        "distinct": 1150990,
+        "generated": 7767089,
+        "initial_generated": 46656,
+        "left_on_queue": 64340,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 27587.002467,
+        "attribution": 58.530964,
+        "product": 23984.663204
+      },
+      "batch": {
+        "plans": 26,
+        "rows": 4780028
+      },
+      "enabled": {
+        "absent": 7841360,
+        "peak_mask_bytes": 3622160,
+        "plans": 26,
+        "present": 766720
+      },
+      "good": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "arm": "order-new",
+      "cfg": "six-floor",
+      "cap": "8g",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stopped": null,
+      "wall_s": 68.27,
+      "rss_kib": 574900,
+      "stats": {
+        "depth": 17,
+        "distinct": 1150990,
+        "generated": 7767089,
+        "initial_generated": 46656,
+        "left_on_queue": 64340,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 26087.611862,
+        "attribution": 59.381731,
+        "product": 23541.896846999996
+      },
+      "batch": {
+        "plans": 26,
+        "rows": 4780028
+      },
+      "enabled": {
+        "absent": 7841360,
+        "peak_mask_bytes": 3622160,
+        "plans": 26,
+        "present": 766720
+      },
+      "good": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "arm": "order-base",
+      "cfg": "six-floor",
+      "cap": "8g",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stopped": null,
+      "wall_s": 71.56,
+      "rss_kib": 562496,
+      "stats": {
+        "depth": 17,
+        "distinct": 1150990,
+        "generated": 7767089,
+        "initial_generated": 46656,
+        "left_on_queue": 64340,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 27137.741457,
+        "attribution": 54.764061000000005,
+        "product": 25636.806752
+      },
+      "batch": {
+        "plans": 26,
+        "rows": 4780028
+      },
+      "enabled": {
+        "absent": 7841360,
+        "peak_mask_bytes": 3622160,
+        "plans": 26,
+        "present": 766720
+      },
+      "good": "valid",
+      "damaged": "invalid"
+    }
+  ],
+  "additional_controls": "Window-only six-floor pairs and masks are in 2026-11-22-windowed-enabled.json. Original fairness evaluation and proof controls are in 2026-11-22-closed-enabled.json.",
+  "integrated": [
+    {
+      "cfg": "seven-floor",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stats": {
+        "depth": 21,
+        "distinct": 3437051,
+        "generated": 25765017,
+        "initial_generated": 117649,
+        "left_on_queue": 281406,
+        "reported_by_tlc": false
+      },
+      "phases_ms": {
+        "atoms": 74066.95978800001,
+        "attribution": 58.625032,
+        "product": 88066.372087
+      },
+      "stopped": null,
+      "batches": {
+        "plans": 28,
+        "producer_images": 8050508,
+        "rows": 13440408
+      },
+      "time_rss": "219.98 1571928",
+      "audit": false,
+      "good": "valid",
+      "damaged": "invalid"
+    }
+  ],
+  "longer_manyan": [
+    {
+      "cfg": "seven-floor",
+      "arm": "manyan",
+      "rep": 1,
+      "rc": 124,
+      "wall_s": 480.32,
+      "peak_kib": 7924996,
+      "counts": null
+    }
+  ],
+  "window_main": {
+    "binary": "window-merged",
+    "sha256": "8fb83562f66ad1a226d417525977c4b2d1548ffdaf788f8c5fa105c4b08a6144",
+    "wall_s": 240.05,
+    "rss_kib": 727980,
+    "exit": 5,
+    "verdict": "stopped",
+    "property": null,
+    "statistics": {
+      "depth": 12,
+      "distinct": 1593315,
+      "exhaustive": false,
+      "generated": 10852198,
+      "initial_generated": 117649,
+      "left_on_queue": 289608,
+      "reported_by_tlc": false
+    },
+    "phase_ms": {
+      "atoms": 39236.509342,
+      "product": 175245.582781
+    },
+    "enabled_direct": 6662539,
+    "enabled": {
+      "absent": 26253757,
+      "peak_mask_bytes": 4450264,
+      "plans": 28,
+      "present": 2472367
+    },
+    "periodic": {
+      "bounds_scope": "capture cumulative; label and product per property per check; no total-run work or byte cap",
+      "exhausted": false,
+      "final_check": false,
+      "growth_factor": 2,
+      "last_level": 11,
+      "last_size": 1593315,
+      "min_states": 65536,
+      "prefix_checks": 3
+    },
+    "stopped": {
+      "elapsed_ms": 240041,
+      "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+      "limit": 240000,
+      "observed": 240040,
+      "phase": "temporal-analysis",
+      "resource": "time",
+      "unit": "ms"
+    }
+  },
+  "standalone_production": [
+    {
+      "cfg": "seven-floor",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stats": {
+        "depth": 21,
+        "distinct": 3437051,
+        "generated": 25765017,
+        "initial_generated": 117649,
+        "left_on_queue": 281406,
+        "reported_by_tlc": false
+      },
+      "phases_ms": {
+        "atoms": 81268.55115800002,
+        "attribution": 58.456047999999996,
+        "product": 87764.791841
+      },
+      "stopped": null,
+      "batches": {
+        "plans": 28,
+        "rows": 13440408
+      },
+      "time_rss": "226.29 1560140",
+      "audit": false,
+      "good": "valid",
+      "damaged": "invalid"
+    }
+  ],
+  "window_main_six": {
+    "binary": "window-merged",
+    "sha256": "8fb83562f66ad1a226d417525977c4b2d1548ffdaf788f8c5fa105c4b08a6144",
+    "wall_s": 70.94,
+    "rss_kib": 577820,
+    "verdict": "liveness-violation",
+    "property": "TemporalInvariant",
+    "statistics": {
+      "depth": 17,
+      "distinct": 1150990,
+      "generated": 7767089,
+      "initial_generated": 46656,
+      "left_on_queue": 64340,
+      "reported_by_tlc": false
+    },
+    "phase_ms": {
+      "atoms": 23071.394407,
+      "attribution": 62.955352000000005,
+      "product": 27229.359931
+    },
+    "enabled_direct": 3305927,
+    "enabled": {
+      "absent": 19923108,
+      "peak_mask_bytes": 3622160,
+      "plans": 26,
+      "present": 2324312
+    },
+    "core_witness": [
+      {
+        "kind": "good",
+        "result": "valid",
+        "canonical_json_sha256": "bafd5a4f6e972341a00b75dd508329d3a56d39035c29ec9a9fd577fe22d7c189",
+        "length": 263
+      },
+      {
+        "kind": "damaged",
+        "result": "invalid",
+        "canonical_json_sha256": "3a9c3290045069cf3932353b63b349a5239172294486062db0a109f04bb8f205",
+        "length": 263
+      }
+    ],
+    "manyan_witness": [
+      {
+        "kind": "good",
+        "result": "valid",
+        "canonical_json_sha256": "a4d845a7da1b309980e8132e943932099a758c294171fa151dabbde1c6eb80e4",
+        "length": 329
+      },
+      {
+        "kind": "damaged",
+        "result": "invalid",
+        "canonical_json_sha256": "cb7a67e94dddc017db74a212bc28af3a97f2017bb9211f79296a099465dd0ac0",
+        "length": 329
+      }
+    ]
+  },
+  "eight_floor": [
+    {
+      "cfg": "eight-floor",
+      "verdict": "stopped",
+      "property": null,
+      "stats": {
+        "depth": 22,
+        "distinct": 7109953,
+        "exhaustive": false,
+        "generated": 59957591,
+        "initial_generated": 262144,
+        "left_on_queue": 535593,
+        "reported_by_tlc": false
+      },
+      "phases_ms": {
+        "atoms": 147490.66377599997,
+        "product": 84469.456196
+      },
+      "stopped": {
+        "elapsed_ms": 360036,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 360000,
+        "observed": 360035,
+        "phase": "graph-capture",
+        "resource": "time",
+        "unit": "ms"
+      },
+      "batches": {
+        "plans": 30,
+        "rows": 10610498
+      },
+      "time_rss": "360.06 1768856",
+      "audit": false
+    }
+  ],
+  "eight_floor_context": "Exploratory cold search on the linear arm, 360 seconds. Counterexample transfer has its own results below.",
+  "growth_replay": {
+    "baseline_validator_sha256": "3f9c242a3a347327de96d8f8e3f7b4669c00ede5fd5dc29190bca0392304d28a",
+    "four_floor_donor": {
+      "length": 102,
+      "sorted_json_sha256": "218c526dde86e962c8fabb4711cbb1c660d95d8edf035ef3f28243019874f314"
+    },
+    "seven_floor_donor": {
+      "length": 249,
+      "sorted_json_sha256": "8f00421aa3a105de8822ab17f510d0e1b1e79a8da829e64a4525c4979ca35ed0"
+    },
+    "method": "Construct only a candidate from the original donor using scripts/perf/scale/elevator-lift-word.py and the recorded floor map. Independent baseline validate-trace binds the unmodified Elevator.tla, new CFG and the full named property. Timings below cover validator process only, excluding donor discovery and rewriting. Failure check changes only ending.back_to to 0. The helper re-created all six seven-floor donor candidate hashes and results.",
+    "unchanged_word_control": [
+      {
+        "floors": 7,
+        "source": "genuine",
+        "sha256_cfg": "a75424aeb60b0e1ed5d4c06a35b23d9e4c00678da6ffd81879e1cebc89811e62",
+        "status": 0,
+        "result": "valid",
+        "message": null,
+        "time_rss": "0.07 28676"
+      },
+      {
+        "floors": 7,
+        "source": "damaged",
+        "sha256_cfg": "a75424aeb60b0e1ed5d4c06a35b23d9e4c00678da6ffd81879e1cebc89811e62",
+        "status": 1,
+        "result": "invalid",
+        "message": null,
+        "time_rss": "0.03 29468"
+      },
+      {
+        "floors": 8,
+        "source": "genuine",
+        "sha256_cfg": "8e47b6d02a43b7da679a04d8b521c9dfdae7c51407f2e492002361ee6f48ac43",
+        "status": 1,
+        "result": "invalid",
+        "message": null,
+        "time_rss": "0.02 29316"
+      },
+      {
+        "floors": 12,
+        "source": "genuine",
+        "sha256_cfg": "1f754d6e41aae8ff41bf04ed93412ec4d6ac0540b628a9237c9eddde965e428a",
+        "status": 1,
+        "result": "invalid",
+        "message": null,
+        "time_rss": "0.02 29444"
+      },
+      {
+        "floors": 4,
+        "source": "genuine",
+        "sha256_cfg": "707f56c9952ed53cee5dda44b20ed51224f0035039c73cd96a51ea02d34c0c49",
+        "status": 1,
+        "result": "invalid",
+        "message": null,
+        "time_rss": "0.02 29448"
+      }
+    ],
+    "unchanged_word_failure_eight": "Next fails at state index 19 (zero based); a car that could stop at the old top must keep moving under the changed config. The unchanged-word checks on the validation host overlapped an untimed build and supply correctness controls only.",
+    "seven_floor_donor_trials": [
+      {
+        "floors": 8,
+        "map": [
+          1,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "length": 262,
+        "back_to": 2,
+        "sha256": "7aabfa8cedb992f00e7b18a7408412ab8cd9c800219482e0a76355744162f670",
+        "genuine": {
+          "rc": 0,
+          "result": "valid",
+          "failure": null,
+          "time_rss": "0.08 32164"
+        },
+        "damaged": {
+          "rc": 1,
+          "result": "invalid",
+          "failure": {
+            "check": "next",
+            "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+            "state": 261
+          },
+          "time_rss": "0.03 31912"
+        }
+      },
+      {
+        "floors": 13,
+        "map": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          13
+        ],
+        "length": 326,
+        "back_to": 2,
+        "sha256": "e7bc274e01940b8440922e6b37d90d0a7e523fbd1f821d8065b21b3e13010e3a",
+        "genuine": {
+          "rc": 0,
+          "result": "valid",
+          "failure": null,
+          "time_rss": "0.12 36100"
+        },
+        "damaged": {
+          "rc": 1,
+          "result": "invalid",
+          "failure": {
+            "check": "next",
+            "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+            "state": 325
+          },
+          "time_rss": "0.03 36096"
+        }
+      },
+      {
+        "floors": 19,
+        "map": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19
+        ],
+        "length": 403,
+        "back_to": 2,
+        "sha256": "3f96ce05d0e27635cab85f99a0d84469308e00e0f645efc36e0c9aa7f50148ac",
+        "genuine": {
+          "rc": 0,
+          "result": "valid",
+          "failure": null,
+          "time_rss": "0.18 40320"
+        },
+        "damaged": {
+          "rc": 1,
+          "result": "invalid",
+          "failure": {
+            "check": "next",
+            "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+            "state": 402
+          },
+          "time_rss": "0.04 40060"
+        }
+      },
+      {
+        "floors": 31,
+        "map": [
+          1,
+          6,
+          11,
+          16,
+          21,
+          26,
+          31
+        ],
+        "length": 557,
+        "back_to": 2,
+        "sha256": "af892893f3469c9fb8e1e0c74354903debdccc711361433a943b58f582ab3e19",
+        "genuine": {
+          "rc": 0,
+          "result": "valid",
+          "failure": null,
+          "time_rss": "0.36 48340"
+        },
+        "damaged": {
+          "rc": 1,
+          "result": "invalid",
+          "failure": {
+            "check": "next",
+            "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+            "state": 556
+          },
+          "time_rss": "0.06 48216"
+        }
+      },
+      {
+        "floors": 61,
+        "map": [
+          1,
+          11,
+          21,
+          31,
+          41,
+          51,
+          61
+        ],
+        "length": 942,
+        "back_to": 2,
+        "sha256": "539169e0ba0318bc1a804e48e219c6340f8da057e789349513c6232f8248c515",
+        "genuine": {
+          "rc": 0,
+          "result": "valid",
+          "failure": null,
+          "time_rss": "1.18 72988"
+        },
+        "damaged": {
+          "rc": 1,
+          "result": "invalid",
+          "failure": {
+            "check": "next",
+            "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+            "state": 941
+          },
+          "time_rss": "0.12 73080"
+        }
+      },
+      {
+        "floors": 121,
+        "map": [
+          1,
+          21,
+          41,
+          61,
+          81,
+          101,
+          121
+        ],
+        "length": 1712,
+        "back_to": 2,
+        "sha256": "e2b3cdd96518d81230ba7f6c6245c738c8eb2840de9c331dba1b9dd7931feac4",
+        "genuine": {
+          "rc": 3,
+          "result": "unsupported",
+          "failure": null,
+          "time_rss": "4.26 119900"
+        }
+      }
+    ],
+    "four_floor_donor_trials": [
+      {
+        "from": 4,
+        "floors": 61,
+        "map": [
+          1,
+          21,
+          41,
+          61
+        ],
+        "length": 482,
+        "back_to": 2,
+        "genuine": {
+          "rc": 0,
+          "result": "valid",
+          "failure": null,
+          "time_rss": "0.63 50208"
+        },
+        "sha256": "0cf71df7a096952f1668584ecc0921c6de9e597933e1ff02476ae4f4aefa677b",
+        "damaged": {
+          "rc": 1,
+          "result": "invalid",
+          "failure": {
+            "check": "next",
+            "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+            "state": 481
+          },
+          "time_rss": "0.08 50452"
+        }
+      },
+      {
+        "from": 4,
+        "floors": 91,
+        "map": [
+          1,
+          31,
+          61,
+          91
+        ],
+        "length": 682,
+        "back_to": 2,
+        "genuine": {
+          "rc": 0,
+          "result": "valid",
+          "failure": null,
+          "time_rss": "1.39 69080"
+        },
+        "sha256": "63dc38fe42726c0eb6ae5a81f164ab4fa98ade2a83b0356eb6c3823e80618766",
+        "damaged": {
+          "rc": 1,
+          "result": "invalid",
+          "failure": {
+            "check": "next",
+            "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+            "state": 681
+          },
+          "time_rss": "0.13 66592"
+        }
+      },
+      {
+        "from": 4,
+        "floors": 103,
+        "map": [
+          1,
+          35,
+          69,
+          103
+        ],
+        "length": 762,
+        "back_to": 2,
+        "genuine": {
+          "rc": 0,
+          "result": "valid",
+          "failure": null,
+          "time_rss": "1.79 76952"
+        },
+        "sha256": "86934b4ea419d69cd20e9383bae0e1ce5fd77f036b742dfeb803e1945058a9f6",
+        "damaged": {
+          "rc": 1,
+          "result": "invalid",
+          "failure": {
+            "check": "next",
+            "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+            "state": 761
+          },
+          "time_rss": "0.16 77064"
+        }
+      },
+      {
+        "from": 4,
+        "floors": 121,
+        "map": [
+          1,
+          41,
+          81,
+          121
+        ],
+        "length": 882,
+        "back_to": 2,
+        "genuine": {
+          "rc": 0,
+          "result": "valid",
+          "failure": null,
+          "time_rss": "2.52 81340"
+        },
+        "sha256": "e89b6e16ad7d497b1fe7f4838db11be5f22a19a0c4e9c19d0071cd0b5abe658b",
+        "damaged": {
+          "rc": 1,
+          "result": "invalid",
+          "failure": {
+            "check": "next",
+            "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+            "state": 881
+          },
+          "time_rss": "0.20 81112"
+        }
+      },
+      {
+        "from": 4,
+        "floors": 151,
+        "map": [
+          1,
+          51,
+          101,
+          151
+        ],
+        "length": 1082,
+        "back_to": 2,
+        "genuine": {
+          "rc": 3,
+          "result": "unsupported",
+          "failure": null,
+          "time_rss": "3.92 101864"
+        },
+        "sha256": "6794d191fab5fc3a5f506fd5e946cccfde59b60a42a9eeb2dedb806e7129519e"
+      }
+    ],
+    "larger_refusals": "The seven-floor donor at 121 floors and four-floor donor at 151 floors encountered temporal validation resource bound. These carry no validated conclusion. The shorter four-floor donor validates at 121."
+  }
+}
