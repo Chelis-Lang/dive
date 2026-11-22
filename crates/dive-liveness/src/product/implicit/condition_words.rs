@@ -7,7 +7,7 @@ use crate::formula::Recurrence;
 use crate::product::BehaviorEdges;
 use crate::search::{Adjacency, Poll, SearchError, restricted_components};
 
-fn optional<T>(count: usize, remaining: &mut usize) -> Option<Vec<T>> {
+pub(super) fn optional<T>(count: usize, remaining: &mut usize) -> Option<Vec<T>> {
     if count.checked_mul(size_of::<T>())? > *remaining {
         return None;
     }

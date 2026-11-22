@@ -443,7 +443,7 @@ fn grouped_fairness_elimination_matches_ordinary_search_on_labelled_multigraphs(
             .search_rows(&product, &labels, &group.alternatives, 0)
             .expect("ordinary search");
         let lazy = product
-            .find_lasso_with_streett(&labels, &factored[0].alternatives, &pairs)
+            .find_lasso_with_streett(&labels, &factored[0].alternatives, &pairs, None)
             .expect("factored search");
         assert_eq!(lazy.is_some(), reference.is_some());
         if let Some(lasso) = lazy {
@@ -478,4 +478,217 @@ fn grouped_fairness_elimination_matches_ordinary_search_on_labelled_multigraphs(
         );
     }
     assert!(witnesses > 0 && eliminated > 0);
+}
+
+fn streett_test_formula() -> Formula {
+    let mut nodes = vec![
+        atom(AtomKind::State, 0),
+        atom(AtomKind::Action, 0),
+        atom(AtomKind::State, 1),
+        atom(AtomKind::Action, 1),
+        Node::Always(0),
+        Node::Eventually(4),
+        Node::Eventually(1),
+        Node::Always(6),
+        Node::Or(vec![5, 7]),
+        Node::Always(3),
+        Node::Eventually(9),
+        Node::Eventually(2),
+        Node::Always(11),
+        Node::Or(vec![10, 12]),
+        Node::Or(vec![0, 3]),
+        Node::Eventually(14),
+        Node::Always(15),
+        Node::Not(1),
+        Node::Always(17),
+        Node::Eventually(18),
+        Node::Always(2),
+        Node::And(vec![0, 20]),
+        Node::Eventually(21),
+    ];
+    let root = nodes.len();
+    nodes.push(Node::And(vec![8, 13, 16, 19, 22]));
+    Formula::new(nodes, root).expect("two Streett pairs, base GF/FG, residual promise")
+}
+
+#[test]
+fn streett_components_match_exhaustive_alternatives_and_original_word_truth() {
+    let f = streett_test_formula();
+    let explicit = formula::decompose(&f, formula::Limits::default()).expect("explicit");
+    let factored = formula::streett(&f, formula::Limits::default()).expect("factored");
+    let mut rng = Rng(0x1311);
+    let mut cases = [0; 2];
+    for _ in 0..500 {
+        let (graph, labels) = random_case(&mut rng);
+        let mut targets = Vec::new();
+        let mut offsets = vec![0];
+        for row in &graph.edges {
+            targets.extend(row.iter().map(|&n| u32::try_from(n).expect("small")));
+            offsets.push(targets.len());
+        }
+        let csr = crate::product::CsrTopology::new(&offsets, &targets, &graph.roots).expect("csr");
+        let words = super::StreettWords::new(
+            (&csr).into(),
+            &labels,
+            &factored.pairs,
+            factored.groups.iter().flat_map(|g| &g.alternatives),
+        )
+        .expect("index")
+        .expect("fits");
+        let mut expected = false;
+        for group in &explicit {
+            let tab = formula::compile_residual(&group.core, formula::Limits::default())
+                .expect("tableau");
+            let model = CompactProduct::with_policy(
+                &graph,
+                &tab,
+                &labels,
+                Limits::default(),
+                AcceptancePolicy::Cells,
+            )
+            .expect("reference");
+            for alt in &group.alternatives {
+                expected |= model
+                    .find_lasso_with_conditions(&labels, alt)
+                    .expect("reference word")
+                    .is_some();
+            }
+        }
+        let mut found = false;
+        for group in &factored.groups {
+            let tab = formula::compile_residual(&group.core, formula::Limits::default())
+                .expect("tableau");
+            let model = ImplicitProduct::new(
+                &csr,
+                &tab,
+                &labels,
+                Limits::default(),
+                AcceptancePolicy::Cells,
+            )
+            .expect("factored");
+            assert!(
+                matches!(
+                    words
+                        .solve(&model, &model, &group.alternatives[0], 0)
+                        .expect("optional cap"),
+                    super::streett_components::ComponentVerdict::Unknown
+                ) || model.states.is_empty()
+            );
+            if let Some(word) = model
+                .find_lasso_with_streett(
+                    &labels,
+                    &group.alternatives,
+                    &factored.pairs,
+                    Some(&words),
+                )
+                .expect("factored word")
+            {
+                let mut states = Vec::new();
+                let mut actions = Vec::new();
+                for step in word.prefix.iter().chain(&word.cycle) {
+                    assert_eq!(graph.edges[step.from][step.edge], step.to);
+                    states.push(labels.states.iter().map(|atom| atom[step.from]).collect());
+                    actions.push(
+                        labels
+                            .actions
+                            .iter()
+                            .map(|atom| atom[step.from][step.edge])
+                            .collect(),
+                    );
+                }
+                assert!(
+                    f.evaluate_word(&states, &actions, word.prefix.len(), usize::MAX)
+                        .expect("original word semantics")[0]
+                );
+                found = true;
+            }
+        }
+        assert_eq!(found, expected);
+        cases[usize::from(found)] += 1;
+    }
+    assert!(cases.iter().all(|n| *n > 0));
+}
+
+#[test]
+fn an_absent_grant_can_force_a_second_persistence_filter() {
+    use super::streett_components::ComponentVerdict;
+    let f = Formula::new(
+        vec![
+            atom(AtomKind::State, 0),
+            Node::Always(0),
+            Node::Eventually(1),
+            atom(AtomKind::Action, 0),
+            Node::Eventually(3),
+            Node::Always(4),
+            Node::Or(vec![2, 5]),
+            atom(AtomKind::State, 1),
+            Node::Always(7),
+            Node::Eventually(8),
+            atom(AtomKind::Action, 1),
+            Node::Eventually(10),
+            Node::Always(11),
+            Node::Or(vec![9, 12]),
+            Node::And(vec![6, 13]),
+        ],
+        14,
+    )
+    .expect("two pairs");
+    let plan = formula::streett(&f, formula::Limits::default()).expect("factored");
+    let group = &plan.groups[0];
+    let tableau =
+        formula::compile_residual(&group.core, formula::Limits::default()).expect("tableau");
+    for has_loop in [false, true] {
+        // Removing 0's outgoing edge removes the only reachable second
+        // grant. Vertex 2 must then persist forever. Vertex 3 is unreachable.
+        let edges = vec![
+            vec![1],
+            vec![0, 2],
+            if has_loop { vec![1, 2] } else { vec![1] },
+            vec![3],
+        ];
+        let labels = Labels {
+            states: vec![
+                vec![false, true, true, true],
+                vec![false, false, true, true],
+            ],
+            actions: vec![
+                edges.iter().map(|r| vec![false; r.len()]).collect(),
+                edges
+                    .iter()
+                    .enumerate()
+                    .map(|(v, r)| vec![v == 0; r.len()])
+                    .collect(),
+            ],
+        };
+        let mut offsets = vec![0];
+        let mut targets = Vec::new();
+        for row in edges {
+            targets.extend(row);
+            offsets.push(targets.len());
+        }
+        let csr = crate::product::CsrTopology::new(&offsets, &targets, &[0]).expect("csr");
+        let product = ImplicitProduct::new(
+            &csr,
+            &tableau,
+            &labels,
+            Limits::default(),
+            AcceptancePolicy::Cells,
+        )
+        .expect("product");
+        let words = super::StreettWords::new(
+            (&csr).into(),
+            &labels,
+            &plan.pairs,
+            group.alternatives.iter(),
+        )
+        .expect("words")
+        .expect("fits");
+        let verdict = words
+            .solve(&product, &product, &group.alternatives[0], usize::MAX)
+            .expect("solve");
+        assert!(matches!(
+            (has_loop, verdict),
+            (true, ComponentVerdict::Accept(0)) | (false, ComponentVerdict::Empty)
+        ));
+    }
 }

@@ -40,20 +40,51 @@ fn violated(
     Ok(None)
 }
 
+fn selected_conditions(
+    base: &CycleConditions,
+    pairs: &[StreettPair],
+    grants: u64,
+) -> CycleConditions {
+    let mut result = base.clone();
+    for (index, pair) in pairs.iter().enumerate() {
+        if grants & (1 << index) != 0 {
+            result.recurring.push(pair.recurring.clone());
+        } else {
+            result.always.push(pair.persistent.clone());
+        }
+    }
+    result
+}
+
 impl<T: TruthAccess> ImplicitProduct<'_, T> {
     pub(crate) fn find_lasso_with_streett(
         &self,
         labels: &impl TruthAccess,
         alternatives: &[CycleConditions],
         pairs: &[StreettPair],
+        words: Option<&super::StreettWords>,
     ) -> Result<Option<Lasso>, ProductError> {
         if pairs.is_empty() {
             return self.find_lasso_in_alternatives(labels, alternatives);
         }
-        if let Some(rows) = RepeatedRows::build(self, crate::budget::optional_buffer_limit())? {
-            return self.refine_streett(&rows, labels, alternatives, pairs);
+        let bytes = crate::budget::optional_buffer_limit()
+            .saturating_sub(words.map_or(0, super::StreettWords::bytes));
+        let row_bytes = if words.is_some() {
+            bytes.saturating_sub(super::StreettWords::workspace(self.vertex_count()))
+        } else {
+            bytes
+        };
+        if let Some(rows) = RepeatedRows::build(self, row_bytes)? {
+            return self.refine_streett(
+                &rows,
+                labels,
+                alternatives,
+                pairs,
+                words,
+                bytes.saturating_sub(rows.buffer_bytes()),
+            );
         }
-        self.refine_streett(self, labels, alternatives, pairs)
+        self.refine_streett(self, labels, alternatives, pairs, words, bytes)
     }
 
     fn refine_streett(
@@ -62,6 +93,8 @@ impl<T: TruthAccess> ImplicitProduct<'_, T> {
         labels: &impl TruthAccess,
         alternatives: &[CycleConditions],
         pairs: &[StreettPair],
+        words: Option<&super::StreettWords>,
+        bytes: usize,
     ) -> Result<Option<Lasso>, ProductError> {
         let all = CycleConditions {
             always: pairs.iter().map(|p| p.persistent.clone()).collect(),
@@ -73,7 +106,7 @@ impl<T: TruthAccess> ImplicitProduct<'_, T> {
                 labels,
                 &all,
                 self.policy,
-                || self.admit_cells(&all),
+                || self.admit_cells(all.recurring.len()),
                 &self.solution_setup_work,
             )
         };
@@ -82,6 +115,42 @@ impl<T: TruthAccess> ImplicitProduct<'_, T> {
         let mut search = LassoSearch::new(graph);
         let mut decisions = csr::reserve::<Decision>(pairs.len())?;
         for base in alternatives {
+            // On the logical-cell policy a decision shortcut may run only if
+            // even the most demanding selection of recurring arms fits.
+            if let Some(words) = words
+                && base
+                    .recurring
+                    .len()
+                    .checked_add(pairs.len())
+                    .is_some_and(|n| self.admit_cells(n).is_ok())
+            {
+                let outcome = match words.solve(graph, self, base, bytes) {
+                    Ok(outcome) => outcome,
+                    Err(crate::search::SearchError::Allocation) => {
+                        super::streett_components::ComponentVerdict::Unknown
+                    }
+                    Err(error) => return Err(ProductError::search(error)),
+                };
+                match outcome {
+                    super::streett_components::ComponentVerdict::Empty => {
+                        self.search_alternative(labels, base, &mut search, true)?;
+                        continue;
+                    }
+                    super::streett_components::ComponentVerdict::Accept(grants) => {
+                        let chosen = selected_conditions(base, pairs, grants);
+                        if let Some(word) =
+                            self.search_alternative(labels, &chosen, &mut search, false)?
+                            && violated(pairs, labels, &word, &mut scratch()?)?.is_none()
+                        {
+                            return Ok(Some(word));
+                        }
+                        return Err(ProductError::Shape(
+                            "feasible Streett component has no witness".into(),
+                        ));
+                    }
+                    super::streett_components::ComponentVerdict::Unknown => {}
+                }
+            }
             let mut conditions = base.clone();
             csr::grow(&mut conditions.always, pairs.len())?;
             csr::grow(&mut conditions.recurring, pairs.len())?;
