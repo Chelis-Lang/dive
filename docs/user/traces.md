@@ -84,6 +84,36 @@ The tool checks the three upstream source digests before building either input. 
 
 The first 512 events of upstream's 4,888-line log matched with **532 full Raft states**. Changing the first outgoing vote from term two to term three, including its sender's reported term, exhausted all 77 reachable matching states. Inserting a second election immediately before that same vote made it match. A 20-state search limit returned `inconclusive`; changing the saved pending-message bag failed independent replay. Repeat the controls with `python3 scripts/test-match-etcd-trace.py --source "$raft" --dive /path/to/dive`. [Inputs, controls, elapsed time and peak memory](../../conformance/reports/perf/2026-11-22-etcd-event-histories.json).
 
+## Match a Microsoft CCF consistency history
+
+Use the [pinned CCF sources](https://github.com/microsoft/CCF/tree/4ef031c6fb844e58baa820937bc1b65b4533a062/tla/consistency)
+with the source-checkout command below. It accepts the released
+`TraceMultiNodeReads.tla`, its CFG and an ordered NDJSON history.
+
+```sh
+python3 scripts/match-ccf-trace.py CCF/tla/consistency \
+  CCF/tla/consistency/traces/rollback_same_seqno.ndjson \
+  --dive /path/to/dive --out ccf-replay
+```
+
+`matched` means one complete word consumes every observation and independently
+replays against both the observation relation and the full CCF protocol. The
+word includes unobserved fields and each ledger backfill and election step.
+The original TLC CFG checks `TraceMatched`, `MNRSpec` and the
+`TraceMatchedNonTrivially` postcondition using TLC's queue and exit behavior.
+The [pinned measurements](../../conformance/reports/perf/2026-11-22-ccf-histories.json)
+record those runs and the complete Dive witnesses.
+
+`no-completion` reports the first incompatible observation after an exact
+search exhausts every matching path. `--max-states` caps each exact search and
+`--seconds` bounds the search and both replays. A cutoff returns `inconclusive`.
+An unrecognized source or unsupported input returns `unsupported`.
+
+The adapter reads the history supplied on the command line and binds its
+records as values in the replay models. These models have no host file or
+environment effects. The `--out` directory contains both words and their
+replay inputs for standalone `dive validate-trace`.
+
 ## Simulation samples
 
 For a finite simulation word, add `--sample`. This checks Init, Next and all
