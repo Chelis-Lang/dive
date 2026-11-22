@@ -490,3 +490,12 @@ bound model, with the time remaining in the original budget. Only a successful
 inductive proof writes the destination. A reachable violation still goes
 through independent replay. A successfully written authenticated candidate
 records the obligations for the current revision.
+
+For action-level diagnostics, keep both predicate files and the trusted report
+from the combined call. Init and the named invariant are checked on each
+revision. Each `closure_receipt.actions` entry identifies a compiled guard
+and update. On a successful transfer with positive `reused_obligations`, the
+intersection of the two authenticated lists identifies the reused images. The
+remaining current entries were rechecked. A report with zero reuse means
+every current image was checked. Changes in the number of images can follow
+from expanding a quantified guard.
