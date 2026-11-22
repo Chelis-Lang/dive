@@ -1,0 +1,846 @@
+{
+  "title": "Original-source declared carrier symmetry on Flint and Lamport safety models",
+  "issue": 1314,
+  "scope": "Every complete Flint check retains TypeOK, Inv_CitationsLive, Inv_OneName, Inv_AckedNamed, Inv_OneHolder, Inv_NoRegress, Inv_ShortcutSound, Inv_ReaderFetches, Prop_NoSilentRevert and Prop_DeleteSettles. Product comparison runs two separate exact searches. A single declared search requires source equivariance, preservation of checked predicates and occurrence multiplicity, and definedness on renamed states. Matched observables alone do not prove graph isomorphism.",
+  "host": "One isolated EC2 c7i.4xlarge, Ubuntu 24.04, Intel Xeon Platinum 8488C, eight distinct physical cores selected using taskset -c 0-7. Sequential fresh processes. Timed edit panels use Linux cgroup v2 memory.peak for the process and all children, including compilation and file-cache charges. Resource units are bytes and wall seconds. The follow-on Sail controls use separate fresh CLI processes and report process wall time.",
+  "inputs": {
+    "flint": "ddalton/flint@a466e4634a483fd8da57c97e41b8aa3d78bd5f45, lean/formal/LeanP1.tla and LeanP1Size3L1W3.cfg",
+    "examples": "tlaplus/Examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/transaction_commit, original TCommit and TwoPhase TLA and CFG files",
+    "peer": "ddalton/tla-mc@c8fce23493bb78fcd5405faf7b0653855db620ee",
+    "flint_file_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+    "flint_cfg_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"
+  },
+  "build": {
+    "product_source_base": "2c7d8f809",
+    "product": "rustc 1.99.0; CARGO_PROFILE_RELEASE_LTO=off CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16 cargo build --release --locked -p dive-cli --bin dive",
+    "peer": "cargo build --release --locked; model-specific binaries built with the pinned peer defaults",
+    "sha256": {
+      "ordinary_core": "a95423e502b5d9dfe0132315ab1d0481f15e16758cc2033dc93607ada6ea7b1c",
+      "audited_cli": "7e3e5795d4a8898120ab17eb16a9bc3e71502fdd0a65113094b462edbb7e063b",
+      "peer": "0fe4146579f5f0c55cfe329949ecac76254865da9db45cc782830d363279db1e",
+      "driver": "449661cc1e75dd1f6c52749386f74397aef3c768e61399abba264da07e656bfe"
+    },
+    "rust_product_tree": "e3666f959abc310bcf1bf419d15c3c4420cd1417",
+    "ordinary_core_base": "f27aa806aae679cff7896d3144f4258a6661b390"
+  },
+  "command": {
+    "declared": "taskset -c 0-7 python3 scripts/perf/scale/checked_orbit.py LeanP1.tla --config LeanP1Size3L1W3.cfg --carrier Writers --workers 8 --dive DIVE --seconds 240 --max-memory 24g --assume-equivariance",
+    "compare": "Same driver with --assume-equivariance removed, including both complete exact runs. Exit 0 verifies three observables and success. Exit 3 denotes a declared-only result. The driver copies the installed executable once per invocation.",
+    "peer": "TLAMC_CACHE=CACHE taskset -c 0-7 tla-mc -compile -config CFG -workers 8 MODULE. Independent initially empty cache per peer panel. The reduced peer uses exactly the adapter source and CFG suffix emitted by --prepare-only. Native peer search state identity is its own, with no weighted census.",
+    "explicit": "taskset -c 0-7 CORE check LeanP1.tla --config LeanP1Size3L1W3.cfg --store fp --compat=tlc --workers 8 --seed 0 --fp 0 --time-limit 150s --output json",
+    "edits": [
+      "cold, warm1, warm2, warm3: identical source/config and processes.",
+      "property: replace Inv_CitationsLive == with Inv_CitationsLive == TRUE /\\ . All eight invariants and two step properties remain configured.",
+      "grow: keep the property edit and change only the Consume(s) guard from barriers < MaxBarriers to barriers <= MaxBarriers. Preserve its s \\notin Readers and pc = \"idle\" conjuncts.",
+      "undoGuard: restore the property-edited source. undoAll: restore the original bytes."
+    ]
+  },
+  "graphs": {
+    "original_and_property": {
+      "reduced": [
+        78585,
+        343661,
+        33
+      ],
+      "orbit_sizes": {
+        "1": 75,
+        "3": 7180,
+        "6": 71330
+      },
+      "labeled": [
+        449595,
+        1954072,
+        33
+      ]
+    },
+    "growth": {
+      "reduced": [
+        1259125,
+        5332376,
+        40
+      ],
+      "orbit_sizes": {
+        "1": 223,
+        "3": 55226,
+        "6": 1203676
+      },
+      "labeled": [
+        7387957,
+        31281750,
+        40
+      ]
+    }
+  },
+  "stages": [
+    "cold",
+    "warm1",
+    "warm2",
+    "warm3",
+    "property",
+    "grow",
+    "undoGuard",
+    "undoAll"
+  ],
+  "row_fields": [
+    "stage",
+    "process_wall_s",
+    "family_peak_bytes",
+    "exit",
+    "search_s_or_null",
+    "compile_s_or_null"
+  ],
+  "rows": {
+    "declared": [
+      [
+        "cold",
+        1.5248,
+        191823872,
+        3,
+        1.324752,
+        null
+      ],
+      [
+        "warm1",
+        1.5257,
+        194273280,
+        3,
+        1.319317,
+        null
+      ],
+      [
+        "warm2",
+        1.5264,
+        192008192,
+        3,
+        1.320478,
+        null
+      ],
+      [
+        "warm3",
+        1.5262,
+        189968384,
+        3,
+        1.333335,
+        null
+      ],
+      [
+        "property",
+        1.5262,
+        185683968,
+        3,
+        1.326027,
+        null
+      ],
+      [
+        "grow",
+        19.8279,
+        376418304,
+        3,
+        19.634485,
+        null
+      ],
+      [
+        "undoGuard",
+        1.5273,
+        192331776,
+        3,
+        1.350022,
+        null
+      ],
+      [
+        "undoAll",
+        1.5243,
+        187920384,
+        3,
+        1.323169,
+        null
+      ]
+    ],
+    "compare": [
+      [
+        "cold",
+        6.6407,
+        240996352,
+        0,
+        1.350684,
+        null
+      ],
+      [
+        "property",
+        6.5402,
+        245284864,
+        0,
+        1.3234,
+        null
+      ],
+      [
+        "grow",
+        102.093,
+        915550208,
+        0,
+        19.560545,
+        null
+      ]
+    ],
+    "orbit-peer": [
+      [
+        "cold",
+        36.0532,
+        399310848,
+        0,
+        0.67,
+        35.3
+      ],
+      [
+        "warm1",
+        0.7236,
+        132726784,
+        0,
+        0.68,
+        null
+      ],
+      [
+        "warm2",
+        0.7241,
+        122757120,
+        0,
+        0.673,
+        null
+      ],
+      [
+        "warm3",
+        0.7239,
+        141602816,
+        0,
+        0.668,
+        null
+      ],
+      [
+        "property",
+        21.7989,
+        319041536,
+        0,
+        0.652,
+        21.1
+      ],
+      [
+        "grow",
+        30.9239,
+        438452224,
+        0,
+        9.49,
+        21.4
+      ],
+      [
+        "undoGuard",
+        0.7237,
+        131563520,
+        0,
+        0.66,
+        null
+      ],
+      [
+        "undoAll",
+        0.7245,
+        131375104,
+        0,
+        0.676,
+        null
+      ]
+    ],
+    "ordinary_core": [
+      [
+        "cold",
+        4.5337,
+        131276800,
+        0,
+        null,
+        null
+      ],
+      [
+        "warm1",
+        4.5853,
+        133308416,
+        0,
+        null,
+        null
+      ],
+      [
+        "warm2",
+        4.5895,
+        135135232,
+        0,
+        null,
+        null
+      ],
+      [
+        "warm3",
+        4.5892,
+        137469952,
+        0,
+        null,
+        null
+      ],
+      [
+        "property",
+        4.5841,
+        137310208,
+        0,
+        null,
+        null
+      ],
+      [
+        "grow",
+        73.9181,
+        394141696,
+        0,
+        null,
+        null
+      ],
+      [
+        "undoGuard",
+        4.6317,
+        130895872,
+        0,
+        null,
+        null
+      ],
+      [
+        "undoAll",
+        4.5339,
+        135208960,
+        0,
+        null,
+        null
+      ]
+    ],
+    "ordinary_peer": [
+      [
+        "cold",
+        37.1049,
+        395321344,
+        0,
+        1.414,
+        35.7
+      ],
+      [
+        "warm1",
+        1.4304,
+        296173568,
+        0,
+        1.399,
+        null
+      ],
+      [
+        "warm2",
+        1.4233,
+        300736512,
+        0,
+        1.398,
+        null
+      ],
+      [
+        "warm3",
+        1.4766,
+        300883968,
+        0,
+        1.441,
+        null
+      ],
+      [
+        "property",
+        22.5025,
+        324382720,
+        0,
+        1.42,
+        21.1
+      ],
+      [
+        "grow",
+        43.6599,
+        1478705152,
+        0,
+        22.421,
+        21.2
+      ],
+      [
+        "undoGuard",
+        1.4753,
+        307154944,
+        0,
+        1.414,
+        null
+      ],
+      [
+        "undoAll",
+        1.4759,
+        264847360,
+        0,
+        1.411,
+        null
+      ]
+    ]
+  },
+  "flint_source_sha_by_stage": {
+    "cold": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+    "warm1": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+    "warm2": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+    "warm3": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+    "property": "1532acc1e8b12c5ac0fb237d64c57a951ac90e187d6516497f72cd37e422c3b7",
+    "grow": "e6cb769c8fb0e6a3bb03463d68c4c63e68ec584cb9029fee2adabae236ace785",
+    "undoGuard": "1532acc1e8b12c5ac0fb237d64c57a951ac90e187d6516497f72cd37e422c3b7",
+    "undoAll": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211"
+  },
+  "fresh_unreduced_inside_compare": {
+    "cold": {
+      "seconds": 5.085936,
+      "exact_states": 449595,
+      "stats": [
+        449595,
+        1954072,
+        33
+      ]
+    },
+    "property": {
+      "seconds": 5.042099,
+      "exact_states": 449595,
+      "stats": [
+        449595,
+        1954072,
+        33
+      ]
+    },
+    "grow": {
+      "seconds": 82.321613,
+      "exact_states": 7387957,
+      "stats": [
+        7387957,
+        31281750,
+        40
+      ]
+    }
+  },
+  "lamport": {
+    "TCommit": {
+      "status": "verified-observables",
+      "workers": 1,
+      "prepare_and_reduced_seconds": 0.08323,
+      "reduced": {
+        "census": {
+          "labeled_orbit_union": "34",
+          "orbit_sizes": {
+            "1": 4,
+            "3": 8,
+            "6": 1
+          },
+          "representatives": 13,
+          "weighted_generated": "94"
+        },
+        "exact_states": 13,
+        "seconds": 0.006694,
+        "statistics": {
+          "depth": 7,
+          "distinct": 13,
+          "generated": 37,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "verdict": "success"
+      },
+      "unreduced": {
+        "exact_states": 34,
+        "seconds": 0.005688,
+        "statistics": {
+          "depth": 7,
+          "distinct": 34,
+          "generated": 94,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "verdict": "success"
+      },
+      "inputs": {
+        "atoms": [
+          "r1",
+          "r2",
+          "r3"
+        ],
+        "carrier": "RM",
+        "config_sha256": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415",
+        "config_suffix": "\nSYMMETRY DiveDeclaredOrbitGroup\n",
+        "files": {
+          "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d"
+        },
+        "invariants": [
+          "TCTypeOK",
+          "TCConsistent"
+        ],
+        "observers": {
+          "choice_domains": [],
+          "refusals": []
+        },
+        "properties": [],
+        "wrapper_module": "DiveDeclaredOrbit.tla",
+        "wrapper_source": "---- MODULE DiveDeclaredOrbit ----\nEXTENDS TCommit\nLOCAL DiveOrbitSwaps == {[DiveOrbitKey \\in RM |-> IF DiveOrbitKey = DiveOrbitLeft THEN DiveOrbitRight ELSE IF DiveOrbitKey = DiveOrbitRight THEN DiveOrbitLeft ELSE DiveOrbitKey] : DiveOrbitLeft, DiveOrbitRight \\in RM}\nDiveDeclaredOrbitGroup == DiveOrbitSwaps\n====\n"
+      }
+    },
+    "TwoPhase": {
+      "status": "verified-observables",
+      "workers": 1,
+      "prepare_and_reduced_seconds": 0.08989,
+      "reduced": {
+        "census": {
+          "labeled_orbit_union": "288",
+          "orbit_sizes": {
+            "1": 12,
+            "3": 44,
+            "6": 24
+          },
+          "representatives": 80,
+          "weighted_generated": "1146"
+        },
+        "exact_states": 80,
+        "seconds": 0.00881,
+        "statistics": {
+          "depth": 11,
+          "distinct": 80,
+          "generated": 318,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "verdict": "success"
+      },
+      "unreduced": {
+        "exact_states": 288,
+        "seconds": 0.007177,
+        "statistics": {
+          "depth": 11,
+          "distinct": 288,
+          "generated": 1146,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "verdict": "success"
+      },
+      "inputs": {
+        "atoms": [
+          "r1",
+          "r2",
+          "r3"
+        ],
+        "carrier": "RM",
+        "config_sha256": "6f443b596657a26c817ee130a89c0ba84aa1cd06a60d07db449d06382de4fd87",
+        "config_suffix": "\nSYMMETRY DiveDeclaredOrbitGroup\n",
+        "files": {
+          "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+          "TwoPhase.tla": "e6e72ed0097cca55e80b97af33c3bc54792a504bcbdf639d6d9c666f49c17817"
+        },
+        "invariants": [
+          "TPTypeOK"
+        ],
+        "observers": {
+          "choice_domains": [],
+          "refusals": []
+        },
+        "properties": [],
+        "wrapper_module": "DiveDeclaredOrbit.tla",
+        "wrapper_source": "---- MODULE DiveDeclaredOrbit ----\nEXTENDS TwoPhase\nLOCAL DiveOrbitSwaps == {[DiveOrbitKey \\in RM |-> IF DiveOrbitKey = DiveOrbitLeft THEN DiveOrbitRight ELSE IF DiveOrbitKey = DiveOrbitRight THEN DiveOrbitLeft ELSE DiveOrbitKey] : DiveOrbitLeft, DiveOrbitRight \\in RM}\nDiveDeclaredOrbitGroup == DiveOrbitSwaps\n====\n"
+      }
+    }
+  },
+  "witnesses": [
+    {
+      "case": "BarrierBound",
+      "workers": 1,
+      "rc": 1,
+      "status": "validated-counterexample",
+      "source": {
+        "LeanP1.tla": "d58a8fac93ed3ae650eec4926617e97f60dbe032d1d9eb50e3e75c62743bf8a4"
+      },
+      "reduced": {
+        "verdict": "invariant-violation",
+        "property": "BarrierBound",
+        "length": 4,
+        "genuine": "valid",
+        "damaged": "invalid"
+      },
+      "unreduced": {
+        "verdict": "invariant-violation",
+        "property": "BarrierBound",
+        "length": 4,
+        "genuine": "valid",
+        "damaged": "invalid"
+      }
+    },
+    {
+      "case": "BarrierBound",
+      "workers": 8,
+      "rc": 1,
+      "status": "validated-counterexample",
+      "source": {
+        "LeanP1.tla": "d58a8fac93ed3ae650eec4926617e97f60dbe032d1d9eb50e3e75c62743bf8a4"
+      },
+      "reduced": {
+        "verdict": "invariant-violation",
+        "property": "BarrierBound",
+        "length": 4,
+        "genuine": "valid",
+        "damaged": "invalid"
+      },
+      "unreduced": {
+        "verdict": "invariant-violation",
+        "property": "BarrierBound",
+        "length": 4,
+        "genuine": "valid",
+        "damaged": "invalid"
+      }
+    },
+    {
+      "case": "NeverAdvances",
+      "workers": 1,
+      "rc": 1,
+      "status": "validated-counterexample",
+      "source": {
+        "LeanP1.tla": "1f787ff198970c312b432aeb7b7319b0c870edd7e6b57654dc304ac660189ed3"
+      },
+      "reduced": {
+        "verdict": "action-property-violation",
+        "property": "NeverAdvances",
+        "length": 4,
+        "genuine": "valid",
+        "damaged": "invalid"
+      },
+      "unreduced": {
+        "verdict": "action-property-violation",
+        "property": "NeverAdvances",
+        "length": 4,
+        "genuine": "valid",
+        "damaged": "invalid"
+      }
+    },
+    {
+      "case": "NeverAdvances",
+      "workers": 8,
+      "rc": 1,
+      "status": "validated-counterexample",
+      "source": {
+        "LeanP1.tla": "1f787ff198970c312b432aeb7b7319b0c870edd7e6b57654dc304ac660189ed3"
+      },
+      "reduced": {
+        "verdict": "action-property-violation",
+        "property": "NeverAdvances",
+        "length": 4,
+        "genuine": "valid",
+        "damaged": "invalid"
+      },
+      "unreduced": {
+        "verdict": "action-property-violation",
+        "property": "NeverAdvances",
+        "length": 4,
+        "genuine": "valid",
+        "damaged": "invalid"
+      }
+    }
+  ],
+  "fault_recipe": "Before the final module delimiter insert BarrierBound == barriers = 0, or NeverAdvances == [][barriers'=barriers]_vars. Append INVARIANT BarrierBound or PROPERTY NeverAdvances to the unchanged CFG. On every word run validate-trace against the original source before and after replacing final barriers by 99.",
+  "rejected_mixed_successor_lowering": "https://github.com/Chelis-Lang/dive/issues/1314#issuecomment-7080598472",
+  "follow_up": {
+    "native_generation": 1314,
+    "automatic_equivariance_certificate": 1328
+  },
+  "sail": {
+    "TCommit": {
+      "binding": {
+        "sail": "9fe0a2b04378fa3533bc8e367cd96225cddb31433c94203f4a75a04ea57f7a6f",
+        "worker": "d8b3a42a1d775e7b0abda0a8cb0e83e6edf29481ddf647f28532c94e0571184a",
+        "manifest": "6513d97099efd45991061fe5f41c1d3dad898a6ed3be614e4a4aaef6c5f7ae1b",
+        "module": "TCommit",
+        "source": {
+          "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d"
+        },
+        "request_sha256": "37cf8de7713b2f52d3558edcf8c892225c63c47059d38a3c68496ba7f27c4423"
+      },
+      "measurements": [
+        {
+          "stage": "cold",
+          "seconds": 0.012276,
+          "exit": 0,
+          "cache_hit": false,
+          "outcome": "holds",
+          "completion": "safety",
+          "request_sha256": "094e64f752b7866047732b69b93338594d9a2039f5f823168bb63b721669ee87",
+          "requested_checks": {
+            "invariants": [
+              "TCTypeOK",
+              "TCConsistent"
+            ],
+            "properties": [],
+            "postconditions": [],
+            "possible": [],
+            "deadlock": false
+          },
+          "statistics": {
+            "depth": 7,
+            "distinct": 13,
+            "generated": 37,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "message": null
+        },
+        {
+          "stage": "repeat",
+          "seconds": 0.002273,
+          "exit": 0,
+          "cache_hit": true,
+          "outcome": "holds",
+          "completion": "safety",
+          "request_sha256": "094e64f752b7866047732b69b93338594d9a2039f5f823168bb63b721669ee87",
+          "requested_checks": {
+            "invariants": [
+              "TCTypeOK",
+              "TCConsistent"
+            ],
+            "properties": [],
+            "postconditions": [],
+            "possible": [],
+            "deadlock": false
+          },
+          "statistics": {
+            "depth": 7,
+            "distinct": 13,
+            "generated": 37,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "message": null
+        }
+      ]
+    },
+    "Flint": {
+      "binding": {
+        "sail": "9fe0a2b04378fa3533bc8e367cd96225cddb31433c94203f4a75a04ea57f7a6f",
+        "worker": "d8b3a42a1d775e7b0abda0a8cb0e83e6edf29481ddf647f28532c94e0571184a",
+        "manifest": "6513d97099efd45991061fe5f41c1d3dad898a6ed3be614e4a4aaef6c5f7ae1b",
+        "module": "LeanP1",
+        "source": {
+          "LeanP1.tla": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211"
+        },
+        "request_sha256": "347c358cf40443353f01a65749ef041bcedf2bfdfe599d4511299300eba32ce8"
+      },
+      "measurements": [
+        {
+          "stage": "cold",
+          "seconds": 5.400493,
+          "exit": 0,
+          "cache_hit": false,
+          "outcome": "holds",
+          "completion": "safety",
+          "request_sha256": "6b71a2e50ed22947601465da7c9cb0824c24a996ebf038e7b7c717b02fed07a7",
+          "requested_checks": {
+            "invariants": [
+              "TypeOK",
+              "Inv_CitationsLive",
+              "Inv_OneName",
+              "Inv_AckedNamed",
+              "Inv_OneHolder",
+              "Inv_NoRegress",
+              "Inv_ShortcutSound",
+              "Inv_ReaderFetches"
+            ],
+            "properties": [
+              "Prop_NoSilentRevert",
+              "Prop_DeleteSettles"
+            ],
+            "postconditions": [],
+            "possible": [],
+            "deadlock": false
+          },
+          "statistics": {
+            "depth": 33,
+            "distinct": 78585,
+            "generated": 343661,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "message": null
+        },
+        {
+          "stage": "repeat",
+          "seconds": 0.003235,
+          "exit": 0,
+          "cache_hit": true,
+          "outcome": "holds",
+          "completion": "safety",
+          "request_sha256": "6b71a2e50ed22947601465da7c9cb0824c24a996ebf038e7b7c717b02fed07a7",
+          "requested_checks": {
+            "invariants": [
+              "TypeOK",
+              "Inv_CitationsLive",
+              "Inv_OneName",
+              "Inv_AckedNamed",
+              "Inv_OneHolder",
+              "Inv_NoRegress",
+              "Inv_ShortcutSound",
+              "Inv_ReaderFetches"
+            ],
+            "properties": [
+              "Prop_NoSilentRevert",
+              "Prop_DeleteSettles"
+            ],
+            "postconditions": [],
+            "possible": [],
+            "deadlock": false
+          },
+          "statistics": {
+            "depth": 33,
+            "distinct": 78585,
+            "generated": 343661,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "message": null
+        }
+      ]
+    },
+    "scope": "Installed native Sail runtime execute in two separate processes with one local cache and the identical prepared model bytes. No Dive result is supplied. The Sail receipt reports native representative counts. Weighted labeled counts come from the separate checked-orbit comparison. Binary and worker SHA-256 identify the tested installation.",
+    "adapter_controls": "An initial adapter importing TLC was refused by this installed Sail worker with SAIL4202. The pure transposition generator needs no host module.",
+    "reproduce": {
+      "command": "sail runtime execute --cache CACHE --file -",
+      "files": "Verify every original file and configuration against the prepared SHA-256 values. Place those exact files, inputs.wrapper_module = inputs.wrapper_source, and orbit.cfg = original CFG bytes followed by inputs.config_suffix in the files map.",
+      "stdin": {
+        "version": 1,
+        "input": {
+          "kind": "temporal",
+          "job": {
+            "obligation_id": "original-carrier-adapter",
+            "requirement_ids": [],
+            "wall_time_ms": "60000 (TCommit) or 90000 (Flint)",
+            "request": {
+              "version": 1,
+              "model": {
+                "root": "DiveDeclaredOrbit.tla",
+                "config": "orbit.cfg",
+                "files": "as above"
+              },
+              "operation": {
+                "kind": "check",
+                "max_states": "100000 (TCommit) or 150000 (Flint)",
+                "max_depth": 1000
+              }
+            }
+          }
+        }
+      },
+      "identity": "binding.request_sha256 identifies the full job serialized with sorted keys and compact JSON separators. measurements.request_sha256 is the independent hash issued by Sail for its inner request."
+    }
+  }
+}

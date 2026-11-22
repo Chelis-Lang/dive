@@ -7,6 +7,8 @@ import sys
 import tempfile
 import unittest
 
+from checked_orbit import Refused, run_json
+
 SCRIPT = Path(__file__).with_name("checked_orbit.py")
 DIVE = os.environ.get("DIVE_ORBIT_BIN")
 SOURCE = r"""---- MODULE Workers ----
@@ -20,6 +22,18 @@ TypeOK == done \subseteq Actors
 ====
 """
 CONFIG = "INIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\nCONSTANT Actors = {A,B,C} Fixed = X\nINVARIANT TypeOK\n"
+
+
+class ReportStatus(unittest.TestCase):
+    def test_failed_process_cannot_attest_success(self):
+        with tempfile.TemporaryDirectory() as raw:
+            folder = Path(raw)
+            checker = folder / "checker"
+            for ending in ["exit 17", "kill -TERM $$"]:
+                checker.write_text("#!/bin/sh\nprintf '%s\\n' '{\"verdict\":\"success\"}'\n" + ending + "\n")
+                checker.chmod(0o700)
+                with self.assertRaises(Refused):
+                    run_json(str(checker), ["check"], folder, 5)
 
 
 @unittest.skipUnless(DIVE, "set DIVE_ORBIT_BIN to the built dive CLI")
@@ -68,6 +82,22 @@ class Orbit(unittest.TestCase):
             rc, row = self.run_case(source, cfg, "--assume-equivariance")
             self.assertEqual((rc, row["status"]), (2, "refused"), row)
             self.assertIn(reason, row["reason"])
+
+    def test_instantiated_choice_does_not_inherit_unrelated_root_binding(self):
+        (self.folder / "Picker.tla").write_text(
+            "---- MODULE Picker ----\nCONSTANT Fixed\nPick == CHOOSE a \\in Fixed : TRUE\n====\n")
+        source = r"""---- MODULE Workers ----
+CONSTANT Actors, Fixed
+VARIABLE owner
+H == INSTANCE Picker WITH Fixed <- Actors
+Init == owner = Fixed
+Next == owner' \in Actors
+TypeOK == owner = Fixed \/ owner = H!Pick
+====
+"""
+        rc, row = self.run_case(source, CONFIG.replace("Fixed = X", "Fixed = {X}"), "--assume-equivariance")
+        self.assertEqual((rc, row["status"]), (2, "refused"), row)
+        self.assertIn("CHOOSE", row["reason"])
 
     def test_portable_request_and_pointwise_choice(self):
         source = SOURCE.replace("TypeOK ==", "Pick == CHOOSE v \\in Fixed : TRUE\nTypeOK == Pick \\in Fixed /\\")
