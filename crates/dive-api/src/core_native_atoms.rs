@@ -29,9 +29,70 @@ struct Compiled {
     /// A directly syntactic `~ENABLED A` atom: the plan searches `A` and the
     /// truth is its negation, as the dive-eval evaluator negates its search.
     negate: bool,
+    direct_stutter: bool,
+    state_key: Option<Projection>,
+    guard_key: Option<Projection>,
     /// Fuel exhaustions in a row; at [`FUEL_STRIKES`] the atom stops running
     /// natively in this analysis.
     exhausted_in_a_row: u32,
+}
+
+/// A site is private to one compiled atom, its bound parameters, the run's
+/// store and one query (whole truth or source prefix). Only graph handles
+/// surviving heap resets may enter its exact key.
+#[derive(Clone, Copy)]
+struct Projection {
+    mask: u64,
+    site: u32,
+}
+
+impl Projection {
+    fn new(mask: Option<u64>, width: usize, lengths: &mut Vec<usize>) -> Option<Self> {
+        let mask = mask?;
+        let len = mask.count_ones() as usize;
+        if len >= width || len > dive_core::memo::MAX_KEY {
+            return None;
+        }
+        let site = u32::try_from(lengths.len()).ok()?;
+        lengths.push(len);
+        Some(Self { mask, site })
+    }
+
+    fn bind(self, row: &[Handle]) -> Option<ProjectedKey> {
+        let mut values = [Handle::EMPTY; dive_core::memo::MAX_KEY];
+        let mut mask = self.mask;
+        let mut len = 0;
+        while mask != 0 {
+            let val = *row.get(mask.trailing_zeros() as usize)?;
+            if val.is_transient() || val.is_empty() {
+                return None;
+            }
+            values[len] = val;
+            len += 1;
+            mask &= mask - 1;
+        }
+        Some(ProjectedKey {
+            site: self.site,
+            values,
+            len,
+        })
+    }
+}
+
+struct ProjectedKey {
+    site: u32,
+    values: [Handle; dive_core::memo::MAX_KEY],
+    len: usize,
+}
+
+impl ProjectedKey {
+    fn get(&self, memo: &mut dive_core::memo::Memo) -> Option<bool> {
+        memo.get(self.site, &self.values[..self.len])?.as_bool()
+    }
+
+    fn put(&self, memo: &mut dive_core::memo::Memo, truth: bool) {
+        memo.put(self.site, &self.values[..self.len], Handle::bool(truth));
+    }
 }
 
 /// Node visits one native atom demand may spend before it falls back. The
@@ -57,6 +118,11 @@ impl dive_core::eval::WorkControl for QueryControl {
 
 pub(crate) struct NativeAtoms {
     machine: Machine,
+    projected: dive_core::memo::Memo,
+    projected_state_hits: u64,
+    projected_enabled_hits: u64,
+    projected_guard_hits: u64,
+    stutter_hits: u64,
     control: Arc<EvaluationControl>,
     compiled: Vec<Compiled>,
     /// The last atom [`NativeAtoms::position`] found, with its index.
@@ -199,6 +265,11 @@ impl NativeAtoms {
             ..strategies
         };
         let mut result = Self {
+            projected: dive_core::memo::Memo::default(),
+            projected_state_hits: 0,
+            projected_enabled_hits: 0,
+            projected_guard_hits: 0,
+            stutter_hits: 0,
             machine: Machine::new(
                 Arc::clone(store),
                 model.ir.vars().len(),
@@ -245,6 +316,7 @@ impl NativeAtoms {
         // A warning Core does not record (2144) must reach the
         // dive-eval evaluator, which prints it.
         result.machine.set_refuse_unrecorded_warnings(true);
+        let mut key_lengths = Vec::new();
         for atom in atoms {
             result.total += 1;
             // (a) The exact retained atom and its source scope must bind to
@@ -277,6 +349,17 @@ impl NativeAtoms {
                 continue;
             }
             result.compiled.push(Compiled {
+                direct_stutter: false_guard.direct_stutter,
+                state_key: Projection::new(
+                    false_guard.state_reads,
+                    model.ir.vars().len(),
+                    &mut key_lengths,
+                ),
+                guard_key: Projection::new(
+                    false_guard.guard_reads,
+                    model.ir.vars().len(),
+                    &mut key_lengths,
+                ),
                 identity: std::ptr::from_ref(atom),
                 plan,
                 false_guard: false_guard.source,
@@ -290,6 +373,8 @@ impl NativeAtoms {
                 dive_liveness::formula::AtomKind::Action => result.eligible_action += 1,
             }
         }
+        result.projected = dive_core::memo::Memo::new(&key_lengths);
+        result.projected.set_cap(8 << 20);
         control.check().map_err(|cause| {
             control
                 .verdict(&EvalError::interrupted(cause))
@@ -309,6 +394,8 @@ impl NativeAtoms {
             "unchanged_target_guards":{"plans":self.compiled.iter().filter(|p|p.unchanged_guard.is_some()).count(),"probes":self.unchanged_probes,"rows":self.unchanged_rows,"edges":self.unchanged_edges},
             "action_source_guards": {"plans": self.compiled.iter().filter(|p| p.false_guard.is_some()).count(),
                 "probes": self.guard_probes, "false_rows": self.guard_rows},
+            "projected_truth": {"state_hits": self.projected_state_hits, "enabled_hits": self.projected_enabled_hits,
+                "guard_hits": self.projected_guard_hits, "stutters": self.stutter_hits, "table_bytes": self.projected.bytes()},
             "evaluated": self.evaluated, "fallback": self.fallback,
             "eligible_state_atoms": self.eligible_state, "eligible_action_atoms": self.eligible_action,
             "state_evaluations": self.evaluated_state, "action_evaluations": self.evaluated_action,
@@ -382,7 +469,7 @@ impl NativeAtoms {
         after: Option<&[Handle]>,
         control: &EvaluationControl,
     ) -> Result<Option<bool>, AnalysisError> {
-        self.evaluate_with(atom, before, after, control, |heap| {
+        self.evaluate_with(atom, before, after, control, false, |heap| {
             Ok(admissible_row(heap, before) && after.is_none_or(|row| admissible_row(heap, row)))
         })
     }
@@ -393,6 +480,7 @@ impl NativeAtoms {
         before: &[Handle],
         after: Option<&[Handle]>,
         control: &EvaluationControl,
+        graph_owned: bool,
         inputs_closed: impl FnOnce(&dive_core::Heap) -> Result<bool, AnalysisError>,
     ) -> Result<Option<bool>, AnalysisError> {
         check(&self.control, control)?;
@@ -414,6 +502,33 @@ impl NativeAtoms {
             self.fallback += 1;
             self.fallbacks.row_proof += 1;
             return Ok(None);
+        }
+        if graph_owned
+            && compiled.direct_stutter
+            && self.fuel == NATIVE_FUEL
+            && after.is_some_and(|row| std::ptr::eq(row, before))
+        {
+            self.stutter_hits += 1;
+            self.compiled[index].exhausted_in_a_row = 0;
+            return Ok(Some(false));
+        }
+        let key = compiled
+            .state_key
+            .filter(|p| {
+                graph_owned
+                    && after.is_none()
+                    && self.fuel == NATIVE_FUEL
+                    && self.projected.active(p.site)
+            })
+            .and_then(|p| p.bind(before));
+        if let Some(value) = key.as_ref().and_then(|k| k.get(&mut self.projected)) {
+            self.projected_state_hits += 1;
+            self.projected_enabled_hits += u64::from(matches!(
+                atom.test,
+                AtomTest::Enabled { .. } | AtomTest::NegatedEnabled { .. }
+            ));
+            self.compiled[index].exhausted_in_a_row = 0;
+            return Ok(Some(value));
         }
         let result = run_bound(
             &compiled.plan,
@@ -449,7 +564,13 @@ impl NativeAtoms {
                 dive_liveness::formula::AtomKind::State => self.evaluated_state += 1,
                 dive_liveness::formula::AtomKind::Action => self.evaluated_action += 1,
             }
-            Ok(Some(value != negate))
+            let truth = value != negate;
+            if let Some(key) = key
+                && !self.machine.heap.poisoned()
+            {
+                key.put(&mut self.projected, truth);
+            }
+            Ok(Some(truth))
         } else {
             self.fallback += 1;
             if exhausted {
@@ -487,6 +608,17 @@ impl NativeAtoms {
         let Some(fuel) = self.fuel.checked_sub(3) else {
             return Ok(false);
         };
+        let key = compiled
+            .guard_key
+            .filter(|p| self.fuel == NATIVE_FUEL && self.projected.active(p.site))
+            .and_then(|p| p.bind(before));
+        if let Some(holds) = key.as_ref().and_then(|k| k.get(&mut self.projected)) {
+            self.projected_guard_hits += 1;
+            if !holds {
+                compiled.exhausted_in_a_row = 0;
+            }
+            return Ok(!holds);
+        }
         self.guard_probes += 1;
         let result = run_bound(
             &compiled.plan,
@@ -497,10 +629,15 @@ impl NativeAtoms {
             Some(guard),
         );
         check(&self.control, control)?;
-        let proved = matches!(result, Ok(false))
-            && !self.machine.heap.poisoned()
+        let quiet = !self.machine.heap.poisoned()
             && self.machine.warnings.is_empty()
             && self.machine.printed.is_empty();
+        if let (Some(key), Ok(holds)) = (key, &result)
+            && quiet
+        {
+            key.put(&mut self.projected, *holds);
+        }
+        let proved = matches!(result, Ok(false)) && quiet;
         if proved {
             compiled.exhausted_in_a_row = 0;
         }
@@ -1006,6 +1143,7 @@ impl NativeReader for Reader<'_, '_> {
                 graph.row(before)?,
                 after.map(|row| graph.row(row)).transpose()?,
                 control,
+                graph.owns_store(self.atoms.machine.heap.store()),
                 |heap| {
                     if !self.proofs.closed(heap, before)? {
                         return Ok(false);
