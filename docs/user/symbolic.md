@@ -97,9 +97,13 @@ dive check MCKVS.tla --config MCKVSSafetyMedium.cfg --strategy compiled \
   --workers 8 --max-memory 4g --time-limit 30s --output json
 ```
 
-Compiled checking uses the same finite source admission as the symbolic
-strategy, with a layout of at most 32 bits and checked index symmetry. The
-layout comes from `TypeInvariant`, or the configured invariant selected with
+Compiled checking uses the finite Boolean source admission. It accepts layouts
+up to 32 bits directly. Layouts from 33 through 63 bits require proved index
+symmetry with two to six interchangeable lanes, each narrower than 16 bits.
+The unswapped part must also be narrower than 16 bits. The wide checker ranks
+sorted lane values using the projections of the configured invariants and
+admits a membership bitset of up to 8 GiB. The layout comes from
+`TypeInvariant`, or the configured invariant selected with
 `--type-invariant NAME`. The checker requires a complete `Init` and `Next`,
 supports configured safety invariants and deadlock checking, and refuses
 state constraints, liveness and expressions outside the supported fragment.
@@ -108,8 +112,10 @@ Every invocation binds and compiles the current source and configuration.
 The worker searches breadth-first using exact keys. It counts each enabled
 successor occurrence before deduplication and reports states modulo configured
 symmetry. `--workers` accepts 1 through 8 and defaults to 1. The JSON report
-gives the largest width used, compilation and search times, and complete
-counts on success. On a possible violation, exact Core searches for a shortest
+gives the largest width used, `state_bits`, the membership bitset capacity in
+bits, `membership_bits`, compilation and search times, and complete counts
+on success. A successor outside the projected rank space still undergoes
+invariant checking. On a possible violation, exact Core searches for a shortest
 trace in the same breadth-first layer and independently validates it.
 `--trace FILE` saves the validated trace. The time limit covers binding,
 compilation, search, and replay. The memory limit applies to each process's

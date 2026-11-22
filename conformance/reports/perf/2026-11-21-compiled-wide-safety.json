@@ -1,0 +1,150 @@
+{
+  "schema": "dive-compiled-wide-safety-1",
+  "methods": {
+    "host": "EC2 c7i.4xlarge; Intel Xeon Platinum 8488C; eight physical CPUs; SMT and swap disabled",
+    "kernel": "7.0.0-1018-aws",
+    "map_limit": 1048576,
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "build": "Shipped release profile (fat LTO, one codegen unit); package-worker.sh; mimalloc 3.7.0 in Dive; system allocator in generated Rust workers.",
+    "affinity": "CPU 0 at one worker, CPUs 0-7 at eight workers, one timed process group at a time.",
+    "memory": "GNU time peak per-process RSS in KiB; child processes included, RSS not summed.",
+    "input_source": "tlaplus/Examples pin 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f, specifications/KeyValueStore/"
+  },
+  "model_sha256": {
+    "KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+    "MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+    "MCKVSSafetyLarge.cfg": "c1f414a1caf84df31089ecb569de0dd6b835fad640f7545b2b7b239b7aad7964",
+    "MCKVSSafetyMedium.cfg": "d3272277738dce3a0f0c16480e96870a1630c9ea1fb7e64fdca0f0763fc7a629"
+  },
+  "programs_sha256": {
+    "installed/dive": "cca3ed312d01ee33b4b1ef024b3091c7215565e77b2069219bdbaaff25e1b114",
+    "installed/libexec/dive-symbolic/symbolic_input": "5511bf1e980acf62b11972723679545a1b97f68414975aa7db032780b3da5a30",
+    "installed/libexec/dive-symbolic/compiled.py": "cc2eb8c587bd1f5244361ba5a39c5e6ef9cc4a5525d5a046b066b8e4daf95de0",
+    "installed/libexec/dive-symbolic/packed_codegen.py": "da9d2ba4220ec99f45d62a7c043e6cfbeeb6b692f1c6856ce2a15cc0d0a89829",
+    "installed/libexec/dive-symbolic/packed_worker.rs.in": "763b5172b17326deb4dab1da84abd25b520a6f2e95dc490709878b6a1bd68a29"
+  },
+  "workload": {
+    "type_invariant": "TypeInvariant",
+    "invariants": [
+      "TypeInvariant",
+      "TxLifecycle"
+    ],
+    "initial_generated": 1,
+    "distinct": 594616815,
+    "generated": 13385471536,
+    "depth": 30,
+    "left_on_queue": 0,
+    "state_bits": 45,
+    "fixed_bits": 6,
+    "lane_bits": 13,
+    "symmetry_lanes": 3,
+    "fixed_projected_values": 27,
+    "lane_projected_values": 1729,
+    "membership_bits": 23299718715,
+    "direct_bitmap_bits": 35184372088832
+  },
+  "invocation": {
+    "cold": "dive check MCKVS.tla --config MCKVSSafetyLarge.cfg --strategy compiled --workers N --max-memory 24g --time-limit 480s --output json",
+    "warm": "Emit the same native worker from the frontend export, compile with rustc -Copt-level=3 -Cpanic=abort -Clto=off -Ccodegen-units=1, and time only the worker at width N.",
+    "symbolic": "dive check MCKVS.tla --config MCKVSSafetyLarge.cfg --strategy symbolic --max-memory 24g --time-limit 480s --output json",
+    "symbolic_counts": "Symbolic exhausts the fixed point; its report has no explicit queue field.",
+    "artifact_note": "Measured scripts differ from the merged release candidate only in the diagnostic for an internally inconsistent rank."
+  },
+  "comparison": [
+    {
+      "name": "large-compiled-cold-8",
+      "workers_affinity": 8,
+      "exit": 0,
+      "wall_seconds": 41.35,
+      "cpu_seconds": 284.25,
+      "peak_rss_kib": 5058232,
+      "verdict": "success",
+      "workers_used": 8,
+      "state_bits": 45,
+      "membership_bits": 23299718715,
+      "compile_seconds": 0.442124,
+      "search_seconds": 40.625885,
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "depth": 30,
+      "left_on_queue": 0,
+      "initial_generated": 1
+    },
+    {
+      "name": "large-symbolic-8-affinity",
+      "workers_affinity": 8,
+      "exit": 0,
+      "wall_seconds": 29.93,
+      "cpu_seconds": 29.89,
+      "peak_rss_kib": 635412,
+      "verdict": "success",
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "depth": 30
+    },
+    {
+      "name": "large-compiled-warm-8",
+      "workers_affinity": 8,
+      "exit": 0,
+      "wall_seconds": 39.99,
+      "cpu_seconds": 278.12,
+      "peak_rss_kib": 5059216,
+      "workers_used": 8,
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "depth": 30,
+      "initial_generated": 1
+    },
+    {
+      "name": "large-compiled-cold-1",
+      "workers_affinity": 1,
+      "exit": 0,
+      "wall_seconds": 268.65,
+      "cpu_seconds": 268.63000000000005,
+      "peak_rss_kib": 4348172,
+      "verdict": "success",
+      "workers_used": 1,
+      "state_bits": 45,
+      "membership_bits": 23299718715,
+      "compile_seconds": 0.449417,
+      "search_seconds": 267.957315,
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "depth": 30,
+      "left_on_queue": 0,
+      "initial_generated": 1
+    },
+    {
+      "name": "large-compiled-warm-1",
+      "workers_affinity": 1,
+      "exit": 0,
+      "wall_seconds": 252.19,
+      "cpu_seconds": 252.17000000000002,
+      "peak_rss_kib": 4348100,
+      "workers_used": 1,
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "depth": 30,
+      "initial_generated": 1
+    },
+    {
+      "name": "medium-compiled-cold-8",
+      "workers_affinity": 8,
+      "exit": 0,
+      "wall_seconds": 1.29,
+      "cpu_seconds": 4.07,
+      "peak_rss_kib": 571096,
+      "verdict": "success",
+      "workers_used": 8,
+      "state_bits": 32,
+      "membership_bits": 4294967296,
+      "compile_seconds": 0.37673,
+      "search_seconds": 0.700494,
+      "distinct": 17220672,
+      "generated": 365609473,
+      "depth": 22,
+      "left_on_queue": 0,
+      "initial_generated": 1
+    }
+  ]
+}

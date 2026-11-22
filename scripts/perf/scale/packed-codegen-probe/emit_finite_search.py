@@ -26,7 +26,7 @@ def main():
         parser.exit(2, f"Binder exited {bound.returncode}: {bound.stderr.decode(errors='replace')}")
     doc = json.loads(bound.stdout)
     try:
-        rust = Rust(SourceModel(doc, args.type_invariant))
+        rust = Rust(SourceModel(doc, args.type_invariant, state_bit_limit=32))
         worker = rust.emit(Path(__file__).with_name("finite_worker.rs.in").read_text())
     except Unsupported as error:
         parser.exit(2, f"Unsupported: {error}\n")

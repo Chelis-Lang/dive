@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 import itertools
+from math import comb
 
 from engine import require
 
@@ -15,6 +16,7 @@ class Rust:
         self.fixed = len(fields)
         fields.extend(itertools.chain.from_iterable(model.roles))
         self.bits = {name: index for index, name in enumerate(fields)}
+        self.word_size = 32 if len(fields) <= 32 else 64
         self.model = model
         self.total_nodes = 0
 
@@ -59,10 +61,10 @@ class Rust:
                 pass
             elif root == self.model.b.var(root.var):
                 src = self.bits[root.var]
-                copies[(index - src) % 32] |= 1 << src
+                copies[(index - src) % self.word_size] |= 1 << src
             else:
-                compute.append(f"((({self.edge(root, nodes, after_guard)}) as u32) << {index})")
-        terms = [f"row & {~written & 0xffffffff:#x}"]
+                compute.append(f"((({self.edge(root, nodes, after_guard)}) as u{self.word_size}) << {index})")
+        terms = [f"row & {((1 << self.word_size) - 1) ^ written:#x}"]
         if set_bits:
             terms.append(f"{set_bits:#x}")
         terms.extend(f"(row & {mask:#x}).rotate_left({shift})" for shift, mask in sorted(copies.items()))
@@ -74,10 +76,44 @@ class Rust:
     def rank(self, point):
         return sum(1 << bit for name, bit in self.bits.items() if point[name])
 
+    def orbit_ranks(self):
+        model = self.model
+        roles = model.roles
+        require(model.symmetry and len(roles) >= 2, "wide compiled states require proved index symmetry")
+        require(self.fixed < 16 and 0 < len(roles[0]) < 16,
+                "wide compiled states require fixed fields and symmetry lanes narrower than 16 bits")
+        legal = model.conjunction(prop for _, prop in model.properties)
+
+        def projected_words(fields):
+            projected = model.b.exist(set(self.bits) - set(fields), legal)
+            return sorted(sum(1 << i for i, name in enumerate(fields) if point[name])
+                          for point in model.b.pick_iter(projected, set(fields)))
+
+        def table(words, width):
+            entries = ["INVALID"] * (1 << width)
+            for rank, word in enumerate(words):
+                entries[word] = str(rank)
+            return ", ".join(entries)
+
+        fixed_words = projected_words(list(self.bits)[:self.fixed])
+        lane_words = projected_words(roles[0])
+        require(all(projected_words(lane) == lane_words for lane in roles[1:]),
+                "asymmetric projected compiled ranks")
+        # Sorted lane ordinals form a multiset of the projected lane values.
+        capacity = len(fixed_words) * comb(len(lane_words) + len(roles) - 1, len(roles))
+        require(capacity <= 1 << 36, "exact dense orbit membership exceeds 8 GiB")
+        return dict(
+            FIXED_RANKS=table(fixed_words, self.fixed),
+            LANE_RANKS=table(lane_words, len(roles[0])),
+            FIXED_SPACE=len(fixed_words),
+            LANE_RANGE=len(lane_words),
+            MEMBERSHIP_BITS=capacity,
+        )
+
     def emit(self, template):
         model = self.model
         require(model.constraint == model.b.true, "state constraints in compiled checking")
-        require(0 < len(self.bits) <= 32, "expected one to 32 state bits")
+        require(0 < len(self.bits) < 64, "expected one to 63 state bits")
         require(len(model.roles) <= 6, "too many symmetry lanes")
         require(not model.roles or len({len(lane) for lane in model.roles}) == 1,
                 "unequal compiled symmetry lanes")
@@ -96,8 +132,16 @@ class Rust:
                 continue
             properties.append("{ " + " ".join(lines) + f" {holds} }}")
         condition = " && ".join(f"({part})" for part in properties) or "true"
+        ranked = self.word_size == 64
+        ranks = self.orbit_ranks() if ranked else dict(
+            FIXED_RANKS="", LANE_RANKS="", FIXED_SPACE=0, LANE_RANGE=0,
+            MEMBERSHIP_BITS=1 << len(self.bits),
+        )
         values = dict(
+            **ranks,
             WIDTH=len(self.bits),
+            WORD=f"u{self.word_size}",
+            RANKED=str(ranked).lower(),
             FIXED=self.fixed,
             ROLES=len(model.roles),
             LANE=len(model.roles[0]) if model.roles else 0,
@@ -112,6 +156,7 @@ class Rust:
             worker = worker.replace(f"@{key}@", str(value))
         self.metadata = {
             "width": len(self.bits),
+            "membership_bits": ranks["MEMBERSHIP_BITS"],
             "symmetry_lanes": len(model.roles),
             "decision_nodes": self.total_nodes,
             "actions": model.effects.total(),
