@@ -3436,6 +3436,51 @@ P == <> (y=2)
     }
 
     #[test]
+    fn a_bare_fairness_subscript_preserves_a_demanded_cross_class_error() {
+        let text = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLE x
+Init == x=0
+Next == x'=1
+Spec == Init /\ [][Next]_x /\ WF_x(Next)
+P == <>(x=2)
+====";
+        with_wrappers(text, false, |_prepared, driver, atoms, _control| {
+            let atom = driver
+                .native_predicates()
+                .find(|a| matches!(a.test, AtomTest::Nonstuttering { .. }))
+                .expect("action");
+            let compiled = &atoms.compiled[atoms.position(atom).expect("bound plan")];
+            let batch = compiled.batch.as_ref().expect("bare subscript");
+            let start = [Handle::int(0).expect("zero")];
+            let end = [Handle::int(1).expect("one")];
+            let foreign_class = [Handle::TRUE];
+            assert_eq!(
+                batch.evaluate_image(
+                    &compiled.plan,
+                    &mut atoms.machine,
+                    &start,
+                    &[&start, &end, &end],
+                    NATIVE_FUEL,
+                    Some((&end, true))
+                ),
+                Some((6, true))
+            );
+            assert_eq!(
+                batch.evaluate_image(
+                    &compiled.plan,
+                    &mut atoms.machine,
+                    &start,
+                    &[&start, &end, &foreign_class],
+                    NATIVE_FUEL,
+                    Some((&end, true))
+                ),
+                None
+            );
+        });
+    }
+
+    #[test]
     fn action_batch_declines_a_demanded_type_error_and_skips_an_unreachable_one() {
         let text = r#"---- MODULE Atoms ----
 EXTENDS Naturals
