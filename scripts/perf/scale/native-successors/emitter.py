@@ -41,14 +41,14 @@ def lower(plan):
             raise ValueError("unrecognized generator export record")
     if not roots or not nodes:
         raise ValueError("input has no Next generator")
-    functions = []
+    functions = {}
     kinds = {}
 
     def function(body):
         if len(functions) >= LIMIT:
             raise ValueError(f"generated worker exceeds {LIMIT} continuations")
         name = f"next_{len(functions)}"
-        functions.append(f"fn {name}(m:&mut Machine,c:&Code,s:&mut dyn Sink)->Result<(),Error>{{{body}}}")
+        functions[name] = body
         return name
 
     def call(name):
@@ -113,6 +113,17 @@ def lower(plan):
 
     arms = [f"{root}=>{{observe({root});{call(branch(root, ()))}}}, " for root in dict.fromkeys(roots)]
     dispatch = "pub(super) fn run(m:&mut Machine,c:&Code,g:u32,s:&mut dyn Sink)->Result<(),Error>{match g{" + "".join(arms) + "_=>m.run_action(c,g,s),}}"
+    # Some generic fallback sites consume the whole pending continuation.
+    # Emit only routines reachable from the bound action roots.
+    used = set()
+    pending = re.findall(r"next_\d+", dispatch)
+    while pending:
+        name = pending.pop()
+        if name not in used:
+            used.add(name)
+            pending.extend(re.findall(r"next_\d+", functions[name]))
+    bodies = [f"fn {name}(m:&mut Machine,c:&Code,s:&mut dyn Sink)->Result<(),Error>{{{body}}}"
+              for name, body in functions.items() if name in used]
     prefix = (HERE / "runtime.rs").read_text()
-    source = "\n".join([prefix, (HERE / "binding.rs").read_text(), *functions, dispatch])
-    return source, "".join(node + "\n" for node in nodes), {"roots": len(set(roots)), "generator_nodes": len(nodes), "continuations": len(functions), "kinds": kinds}
+    source = "\n".join([prefix, (HERE / "binding.rs").read_text(), *bodies, dispatch])
+    return source, "".join(node + "\n" for node in nodes), {"roots": len(set(roots)), "generator_nodes": len(nodes), "continuations": len(bodies), "kinds": kinds}
