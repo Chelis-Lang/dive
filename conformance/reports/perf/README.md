@@ -6,6 +6,8 @@ dive evidence archive bucket (us-east-1), and each release record cites its tarb
 name and SHA-256 so a later reader can fetch it and check that it is the
 same file.
 
+The [projected action-column experiment](2026-11-22-projected-action-columns-experiment.json) records measurements from three through six floors against row-batched Core, a matched Manyan panel on three and four floors, independent word replay, and the memory tradeoff tracked in #1311.
+
 The 0.1.0 release records are listed first. They are the baseline for
 comparing later releases. The human-readable results page is
 [`docs/developer/release-performance-results.md`](../../../docs/developer/release-performance-results.md),

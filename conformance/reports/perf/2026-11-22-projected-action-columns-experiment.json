@@ -1,0 +1,1921 @@
+{
+  "issue": 1311,
+  "question": "Can an exact compact column of original deterministic action truth improve on the existing row batches?",
+  "status": "Isolated engineering experiment",
+  "sources": {
+    "base": "fb86840d9bafb9ad31ea3696d9c1ed36588edd0e",
+    "small": "8c79530ea1da57197f0289db2d9020b572d0f082",
+    "append": "49e5f001a07b264448b815da34e5e1169bba89b4",
+    "select": "73d55003ae487d4c63ae47280ab07a61a50f6487",
+    "six_floor_main": "d71cb39d10df60f0a8768cf225a404f142124ff4",
+    "examples": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "manyan": "a39816a873a2c2aabc00dbcef50908e996f3d44b",
+    "six_floor_select": "3dafa85464dc01c8f65c5796f9b300964a7d975a"
+  },
+  "inputs": {
+    "module": "tlaplus/Examples MultiCarElevator, original Elevator.tla and ElevatorLivenessMedium/Large.cfg. Substitute only FloorCount in Large for four and six. See 2026-11-22-closed-enabled.json and 2026-11-22-windowed-enabled.json for input hashes.",
+    "pinned_peer": "Same installed Manyan executable as 2026-11-22-streett-component-search.json."
+  },
+  "commands": [
+    "dive check Elevator.tla --config CFG --workers 1 --seed 0 --fp 0 --compat dive --time-limit 100s --max-memory 8g --output json",
+    "manyan -workers 1 -seed 0 -fp 0 -config CFG Elevator.tla",
+    "dive validate-trace Elevator.tla --config CFG --trace WORD --seed 0 --fp 0 --output json",
+    "Set DIVE_NATIVE_ATOM_AUDIT=1 for the two-floor original and the synthetic differential inputs. Six-floor checks use 180s."
+  ],
+  "method": "Dedicated c7i.4xlarge, Intel Xeon Platinum 8488C, Ubuntu 24.04.5, Linux 7.0.0-1018-aws. Rust 1.99.0 release --locked. One checker at a time. Fresh process walls in seconds and peak RSS in KiB via GNU time. Arm order rotated across repetitions. Divergent witnesses may explore different prefixes. All Core observations match within each panel. The small and four-floor baseline is the previously validated #1358 pre-merge source. Six-floor source includes landed #1358, prior windowed enabledness and projected successor values. Timings are paired only within each panel.",
+  "binary_sha256": {
+    "img-base": "247c641bdbe855d8ddca875b747dc516b8b609a25576ca7399bb36bee0a40a66",
+    "img-columns": "66dbd800b6fc3835f10ada949f98ce8aaf9f296a31ac20f933270a8b7ca427aa",
+    "img-wide": "ffc34a0433b7f228632992e462df843dd5399455443a266cf001cddf23170028",
+    "img-memo": "0082969e8ccab7cf2966cb60e0f53aea9e588e825c460d63fec0f6dbc5a905f9",
+    "img-append": "b9f9331ddcdd30cfe2654c0735067487307d18c3ca4d49ba8fde5142fb3208dc",
+    "img-small": "08fbe0f01281e5721da42aeaba75677217631df8f62a12824e669de76d484665",
+    "img-select": "7f4f2ce44a407fdd63facb69af0eb69824732ef89367fae772f264f9a45ab8b4",
+    "final-head": "d78b9b6fa2f8ee4bf07d364c544817ffee3aad14d616e465fd04c1dfde491668",
+    "manyan-src/manyan": "355d9b0eb50c721206aaa1b8a62885525f857c5141db5003af33a9b7a723971b"
+  },
+  "arms": {
+    "img-base": "Original row batching with the original generated complete destination from #1358.",
+    "img-columns": "Whole columns for statically proved identical Boolean/generator guards only.",
+    "img-wide": "Also evaluate every original Boolean guard in its original order, and require a real matching producer when true. No projected memo, no append reuse.",
+    "img-memo": "As wide, with bounded cache of exact immutable source handles for statically enumerated guard reads.",
+    "img-append": "As memo, restoring previous append-only packed prefix then classifying new closed rows.",
+    "img-small": "Project original guards inside #1358 row batching instead, with no whole-column implementation.",
+    "img-select": "As append, with whole-column classification limited to static equivalence or a complete projectable guard. Other cases keep base row batching."
+  },
+  "scope": {
+    "three": {
+      "verdict": "success",
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39
+    },
+    "four": {
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "left_on_queue": 12168,
+      "core_word_length": 102
+    },
+    "four_peer_replay": [
+      {
+        "case": "recorded",
+        "result": "valid",
+        "exit": 0,
+        "sha256": "654d158471c6ff4c04e70c6eecd19b9d3eb4b68db63c6d27e8854c0253afcfcc",
+        "length": 202
+      },
+      {
+        "case": "damaged",
+        "result": "invalid",
+        "exit": 1,
+        "sha256": "b0141e2ac6c6eec969f14576693278e5f841a2d34acf00d50b3223ba35340848",
+        "length": 202
+      }
+    ]
+  },
+  "panels": {
+    "guard_without_memo": {
+      "ElevatorLivenessLarge": {
+        "img-base": {
+          "wall_s": [
+            1.64,
+            1.61,
+            1.61,
+            1.61,
+            1.61
+          ],
+          "peak_kib": [
+            76108,
+            76088,
+            76140,
+            76084,
+            76112
+          ],
+          "phases_ms": {
+            "atoms": [
+              566.575,
+              543.88,
+              543.337,
+              543.2,
+              542.556
+            ],
+            "product": [
+              309.495,
+              309.321,
+              310.499,
+              308.489,
+              306.06
+            ]
+          },
+          "label_counters": {
+            "plans": [
+              20,
+              20,
+              20,
+              20,
+              20
+            ],
+            "producer_images": [
+              136798,
+              136798,
+              136798,
+              136798,
+              136798
+            ],
+            "rows": [
+              217370,
+              217370,
+              217370,
+              217370,
+              217370
+            ]
+          }
+        },
+        "img-columns": {
+          "wall_s": [
+            1.63,
+            1.63,
+            1.69,
+            1.62,
+            1.62
+          ],
+          "peak_kib": [
+            76112,
+            76076,
+            76148,
+            76024,
+            76064
+          ],
+          "phases_ms": {
+            "atoms": [
+              544.429,
+              543.364,
+              568.833,
+              543.744,
+              543.294
+            ],
+            "product": [
+              310.491,
+              310.245,
+              310.718,
+              308.106,
+              308.943
+            ]
+          },
+          "label_counters": {
+            "direct_image_columns": [
+              2,
+              2,
+              2,
+              2,
+              2
+            ],
+            "direct_image_sources": [
+              101306,
+              101306,
+              101306,
+              101306,
+              101306
+            ],
+            "plans": [
+              20,
+              20,
+              20,
+              20,
+              20
+            ],
+            "producer_images": [
+              136798,
+              136798,
+              136798,
+              136798,
+              136798
+            ],
+            "rows": [
+              186278,
+              186278,
+              186278,
+              186278,
+              186278
+            ]
+          }
+        },
+        "img-wide": {
+          "wall_s": [
+            1.62,
+            1.61,
+            1.62,
+            1.61,
+            1.61
+          ],
+          "peak_kib": [
+            75588,
+            76092,
+            76092,
+            74036,
+            76148
+          ],
+          "phases_ms": {
+            "atoms": [
+              541.395,
+              541.18,
+              541.973,
+              541.469,
+              541.089
+            ],
+            "product": [
+              314.728,
+              308.466,
+              315.114,
+              312.086,
+              310.304
+            ]
+          },
+          "label_counters": {
+            "direct_guard_ms": [
+              379.812,
+              380.095,
+              380.355,
+              380.254,
+              379.574
+            ],
+            "direct_image_columns": [
+              20,
+              20,
+              20,
+              20,
+              20
+            ],
+            "direct_image_sources": [
+              1013060,
+              1013060,
+              1013060,
+              1013060,
+              1013060
+            ],
+            "plans": [
+              20,
+              20,
+              20,
+              20,
+              20
+            ],
+            "producer_images": [
+              136798,
+              136798,
+              136798,
+              136798,
+              136798
+            ],
+            "rows": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "manyan": {
+          "wall_s": [
+            1.05,
+            1.04,
+            1.05,
+            1.04,
+            1.05
+          ],
+          "peak_kib": [
+            46604,
+            46568,
+            46532,
+            46692,
+            46700
+          ],
+          "phases_ms": {},
+          "label_counters": {}
+        }
+      },
+      "four-floor": {
+        "img-base": {
+          "wall_s": [
+            5.75,
+            5.72,
+            5.65
+          ],
+          "peak_kib": [
+            176072,
+            176108,
+            176084
+          ],
+          "phases_ms": {
+            "atoms": [
+              1883.263,
+              1846.392,
+              1835.955
+            ],
+            "attribution": [
+              21.421,
+              20.302,
+              20.393
+            ],
+            "product": [
+              1500.393,
+              1507.583,
+              1497.463
+            ]
+          },
+          "label_counters": {
+            "plans": [
+              22,
+              22,
+              22
+            ],
+            "producer_images": [
+              364393,
+              364393,
+              364393
+            ],
+            "rows": [
+              593260,
+              593260,
+              593260
+            ]
+          },
+          "replay": {
+            "length": 102,
+            "cases": {
+              "good": {
+                "verdict": "valid",
+                "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc"
+              },
+              "damaged": {
+                "verdict": "invalid",
+                "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca"
+              }
+            }
+          }
+        },
+        "img-columns": {
+          "wall_s": [
+            5.71,
+            5.71,
+            5.81
+          ],
+          "peak_kib": [
+            194572,
+            176108,
+            176208
+          ],
+          "phases_ms": {
+            "atoms": [
+              1858.477,
+              1858.052,
+              1906.688
+            ],
+            "attribution": [
+              20.479,
+              20.424,
+              21.552
+            ],
+            "product": [
+              1513.853,
+              1507.37,
+              1506.862
+            ]
+          },
+          "label_counters": {
+            "direct_image_columns": [
+              4,
+              4,
+              4
+            ],
+            "direct_image_sources": [
+              397616,
+              397616,
+              397616
+            ],
+            "plans": [
+              22,
+              22,
+              22
+            ],
+            "producer_images": [
+              405433,
+              405433,
+              405433
+            ],
+            "rows": [
+              508120,
+              508120,
+              508120
+            ]
+          },
+          "replay": {
+            "length": 102,
+            "cases": {
+              "good": {
+                "verdict": "valid",
+                "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc"
+              },
+              "damaged": {
+                "verdict": "invalid",
+                "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca"
+              }
+            }
+          }
+        },
+        "img-wide": {
+          "wall_s": [
+            6.21,
+            6.26,
+            6.43
+          ],
+          "peak_kib": [
+            176164,
+            176092,
+            176036
+          ],
+          "phases_ms": {
+            "atoms": [
+              2391.892,
+              2397.429,
+              2468.682
+            ],
+            "attribution": [
+              21.377,
+              20.382,
+              21.423
+            ],
+            "product": [
+              1507.867,
+              1534.701,
+              1519.418
+            ]
+          },
+          "label_counters": {
+            "direct_guard_ms": [
+              1470.589,
+              1470.87,
+              1519.35
+            ],
+            "direct_image_columns": [
+              44,
+              44,
+              44
+            ],
+            "direct_image_sources": [
+              4373776,
+              4373776,
+              4373776
+            ],
+            "plans": [
+              22,
+              22,
+              22
+            ],
+            "producer_images": [
+              509772,
+              509772,
+              509772
+            ],
+            "rows": [
+              0,
+              0,
+              0
+            ]
+          },
+          "replay": {
+            "length": 102,
+            "cases": {
+              "good": {
+                "verdict": "valid",
+                "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc"
+              },
+              "damaged": {
+                "verdict": "invalid",
+                "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca"
+              }
+            }
+          }
+        },
+        "manyan": {
+          "wall_s": [
+            6.1,
+            6.23,
+            6.1
+          ],
+          "peak_kib": [
+            270076,
+            270096,
+            270060
+          ],
+          "phases_ms": {},
+          "label_counters": {}
+        }
+      }
+    },
+    "projected_guard_vs_row_batches": {
+      "ElevatorLivenessLarge": {
+        "img-base": {
+          "wall_s": [
+            1.61,
+            1.61,
+            1.64,
+            1.61,
+            1.61
+          ],
+          "peak_kib": [
+            76132,
+            76088,
+            75512,
+            76064,
+            76104
+          ],
+          "phases_ms": {
+            "atoms": [
+              542.756,
+              543.131,
+              566.375,
+              543.581,
+              547.532
+            ],
+            "product": [
+              308.284,
+              308.784,
+              310.124,
+              309.506,
+              308.902
+            ]
+          },
+          "label_counters": {
+            "plans": [
+              20,
+              20,
+              20,
+              20,
+              20
+            ],
+            "producer_images": [
+              136798,
+              136798,
+              136798,
+              136798,
+              136798
+            ],
+            "rows": [
+              217370,
+              217370,
+              217370,
+              217370,
+              217370
+            ]
+          }
+        },
+        "img-small": {
+          "wall_s": [
+            1.58,
+            1.59,
+            1.58,
+            1.58,
+            1.58
+          ],
+          "peak_kib": [
+            75936,
+            76096,
+            76160,
+            76020,
+            76052
+          ],
+          "phases_ms": {
+            "atoms": [
+              506.372,
+              518.757,
+              507.854,
+              506.216,
+              507.141
+            ],
+            "product": [
+              313.406,
+              314.949,
+              314.565,
+              315.551,
+              316.756
+            ]
+          },
+          "label_counters": {
+            "complete_guard_hits": [
+              559016,
+              559016,
+              559016,
+              559016,
+              559016
+            ],
+            "plans": [
+              20,
+              20,
+              20,
+              20,
+              20
+            ],
+            "producer_images": [
+              136798,
+              136798,
+              136798,
+              136798,
+              136798
+            ],
+            "rows": [
+              217370,
+              217370,
+              217370,
+              217370,
+              217370
+            ]
+          }
+        },
+        "img-append": {
+          "wall_s": [
+            1.49,
+            1.49,
+            1.49,
+            1.49,
+            1.49
+          ],
+          "peak_kib": [
+            75948,
+            75584,
+            76036,
+            76096,
+            75948
+          ],
+          "phases_ms": {
+            "atoms": [
+              417.862,
+              417.057,
+              417.192,
+              417.701,
+              417.108
+            ],
+            "product": [
+              309.269,
+              308.838,
+              307.484,
+              309.232,
+              307.786
+            ]
+          },
+          "label_counters": {
+            "direct_guard_cached": [
+              459850,
+              459850,
+              459850,
+              459850,
+              459850
+            ],
+            "direct_guard_ms": [
+              252.388,
+              252.077,
+              252.231,
+              252.429,
+              252.375
+            ],
+            "direct_image_columns": [
+              20,
+              20,
+              20,
+              20,
+              20
+            ],
+            "direct_image_sources": [
+              1013060,
+              1013060,
+              1013060,
+              1013060,
+              1013060
+            ],
+            "plans": [
+              20,
+              20,
+              20,
+              20,
+              20
+            ],
+            "producer_images": [
+              136798,
+              136798,
+              136798,
+              136798,
+              136798
+            ],
+            "rows": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "manyan": {
+          "wall_s": [
+            1.04,
+            1.04,
+            1.05,
+            1.05,
+            1.04
+          ],
+          "peak_kib": [
+            46552,
+            46568,
+            46580,
+            46572,
+            46636
+          ],
+          "phases_ms": {},
+          "label_counters": {}
+        }
+      },
+      "four-floor": {
+        "img-base": {
+          "wall_s": [
+            5.64,
+            5.66,
+            5.64
+          ],
+          "peak_kib": [
+            176136,
+            176116,
+            176160
+          ],
+          "phases_ms": {
+            "atoms": [
+              1836.53,
+              1839.095,
+              1839.335
+            ],
+            "attribution": [
+              20.405,
+              20.359,
+              20.333
+            ],
+            "product": [
+              1496.561,
+              1510.439,
+              1492.627
+            ]
+          },
+          "label_counters": {
+            "plans": [
+              22,
+              22,
+              22
+            ],
+            "producer_images": [
+              364393,
+              364393,
+              364393
+            ],
+            "rows": [
+              593260,
+              593260,
+              593260
+            ]
+          },
+          "replay": {
+            "length": 102,
+            "cases": {
+              "good": {
+                "verdict": "valid",
+                "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc"
+              },
+              "damaged": {
+                "verdict": "invalid",
+                "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca"
+              }
+            }
+          }
+        },
+        "img-small": {
+          "wall_s": [
+            5.55,
+            5.63,
+            5.55
+          ],
+          "peak_kib": [
+            176156,
+            176012,
+            175924
+          ],
+          "phases_ms": {
+            "atoms": [
+              1714.715,
+              1758.333,
+              1715.089
+            ],
+            "attribution": [
+              20.331,
+              21.379,
+              20.354
+            ],
+            "product": [
+              1523.857,
+              1519.795,
+              1521.133
+            ]
+          },
+          "label_counters": {
+            "complete_guard_hits": [
+              1794294,
+              1794294,
+              1794294
+            ],
+            "plans": [
+              22,
+              22,
+              22
+            ],
+            "producer_images": [
+              364393,
+              364393,
+              364393
+            ],
+            "rows": [
+              593260,
+              593260,
+              593260
+            ]
+          },
+          "replay": {
+            "length": 102,
+            "cases": {
+              "good": {
+                "verdict": "valid",
+                "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc"
+              },
+              "damaged": {
+                "verdict": "invalid",
+                "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca"
+              }
+            }
+          }
+        },
+        "img-append": {
+          "wall_s": [
+            5.32,
+            5.31,
+            5.34
+          ],
+          "peak_kib": [
+            206760,
+            198664,
+            200428
+          ],
+          "phases_ms": {
+            "atoms": [
+              1486.515,
+              1486.701,
+              1488.66
+            ],
+            "attribution": [
+              20.383,
+              20.37,
+              20.383
+            ],
+            "product": [
+              1500.423,
+              1500.592,
+              1513.358
+            ]
+          },
+          "label_counters": {
+            "direct_guard_cached": [
+              1524228,
+              1524228,
+              1524228
+            ],
+            "direct_guard_ms": [
+              660.665,
+              660.857,
+              661.133
+            ],
+            "direct_image_columns": [
+              44,
+              44,
+              44
+            ],
+            "direct_image_sources": [
+              3040488,
+              3040488,
+              3040488
+            ],
+            "plans": [
+              22,
+              22,
+              22
+            ],
+            "producer_images": [
+              364393,
+              364393,
+              364393
+            ],
+            "rows": [
+              0,
+              0,
+              0
+            ]
+          },
+          "replay": {
+            "length": 102,
+            "cases": {
+              "good": {
+                "verdict": "valid",
+                "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc"
+              },
+              "damaged": {
+                "verdict": "invalid",
+                "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca"
+              }
+            }
+          }
+        },
+        "manyan": {
+          "wall_s": [
+            6.1,
+            6.1,
+            6.1
+          ],
+          "peak_kib": [
+            270272,
+            270076,
+            270144
+          ],
+          "phases_ms": {},
+          "label_counters": {}
+        }
+      }
+    },
+    "selective_vs_all_columns": {
+      "ElevatorLivenessLarge": {
+        "img-base": {
+          "wall_s": [
+            1.61,
+            1.62,
+            1.61
+          ],
+          "peak_kib": [
+            75512,
+            75944,
+            75884
+          ],
+          "phases_ms": {
+            "atoms": [
+              543.306,
+              555.564,
+              542.902
+            ],
+            "product": [
+              308.398,
+              307.801,
+              308.231
+            ]
+          },
+          "label_counters": {
+            "plans": [
+              20,
+              20,
+              20
+            ],
+            "producer_images": [
+              136798,
+              136798,
+              136798
+            ],
+            "rows": [
+              217370,
+              217370,
+              217370
+            ]
+          }
+        },
+        "img-select": {
+          "wall_s": [
+            1.5,
+            1.5,
+            1.5
+          ],
+          "peak_kib": [
+            75960,
+            75956,
+            71896
+          ],
+          "phases_ms": {
+            "atoms": [
+              428.845,
+              429.801,
+              430.398
+            ],
+            "product": [
+              309.328,
+              310.455,
+              309.585
+            ]
+          },
+          "label_counters": {
+            "direct_guard_cached": [
+              459850,
+              459850,
+              459850
+            ],
+            "direct_guard_ms": [
+              173.584,
+              174.394,
+              174.465
+            ],
+            "direct_image_columns": [
+              18,
+              18,
+              18
+            ],
+            "direct_image_sources": [
+              911754,
+              911754,
+              911754
+            ],
+            "plans": [
+              20,
+              20,
+              20
+            ],
+            "producer_images": [
+              136798,
+              136798,
+              136798
+            ],
+            "rows": [
+              101306,
+              101306,
+              101306
+            ]
+          }
+        },
+        "img-append": {
+          "wall_s": [
+            1.5,
+            1.49,
+            1.49
+          ],
+          "peak_kib": [
+            76036,
+            76040,
+            76024
+          ],
+          "phases_ms": {
+            "atoms": [
+              419.138,
+              417.601,
+              417.766
+            ],
+            "product": [
+              310.653,
+              311.21,
+              310.736
+            ]
+          },
+          "label_counters": {
+            "direct_guard_cached": [
+              459850,
+              459850,
+              459850
+            ],
+            "direct_guard_ms": [
+              253.789,
+              252.433,
+              252.491
+            ],
+            "direct_image_columns": [
+              20,
+              20,
+              20
+            ],
+            "direct_image_sources": [
+              1013060,
+              1013060,
+              1013060
+            ],
+            "plans": [
+              20,
+              20,
+              20
+            ],
+            "producer_images": [
+              136798,
+              136798,
+              136798
+            ],
+            "rows": [
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "four-floor": {
+        "img-base": {
+          "wall_s": [
+            5.72,
+            5.77
+          ],
+          "peak_kib": [
+            176200,
+            175984
+          ],
+          "phases_ms": {
+            "atoms": [
+              1887.385,
+              1905.686
+            ],
+            "attribution": [
+              21.316,
+              21.408
+            ],
+            "product": [
+              1511.687,
+              1491.977
+            ]
+          },
+          "label_counters": {
+            "plans": [
+              22,
+              22
+            ],
+            "producer_images": [
+              364393,
+              364393
+            ],
+            "rows": [
+              593260,
+              593260
+            ]
+          },
+          "replay": {
+            "length": 102,
+            "cases": {
+              "good": {
+                "verdict": "valid",
+                "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc"
+              },
+              "damaged": {
+                "verdict": "invalid",
+                "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca"
+              }
+            }
+          }
+        },
+        "img-select": {
+          "wall_s": [
+            5.37,
+            5.34
+          ],
+          "peak_kib": [
+            176044,
+            198604
+          ],
+          "phases_ms": {
+            "atoms": [
+              1528.918,
+              1524.894
+            ],
+            "attribution": [
+              20.396,
+              20.338
+            ],
+            "product": [
+              1505.975,
+              1492.078
+            ]
+          },
+          "label_counters": {
+            "direct_guard_cached": [
+              1524228,
+              1524228
+            ],
+            "direct_guard_ms": [
+              428.047,
+              427.235
+            ],
+            "direct_image_columns": [
+              40,
+              40
+            ],
+            "direct_image_sources": [
+              2764080,
+              2764080
+            ],
+            "plans": [
+              22,
+              22
+            ],
+            "producer_images": [
+              364393,
+              364393
+            ],
+            "rows": [
+              276408,
+              276408
+            ]
+          },
+          "replay": {
+            "length": 102,
+            "cases": {
+              "good": {
+                "verdict": "valid",
+                "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc"
+              },
+              "damaged": {
+                "verdict": "invalid",
+                "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca"
+              }
+            }
+          }
+        },
+        "img-append": {
+          "wall_s": [
+            5.31,
+            5.31
+          ],
+          "peak_kib": [
+            206864,
+            175972
+          ],
+          "phases_ms": {
+            "atoms": [
+              1486.514,
+              1489.377
+            ],
+            "attribution": [
+              20.334,
+              20.435
+            ],
+            "product": [
+              1497.212,
+              1496.273
+            ]
+          },
+          "label_counters": {
+            "direct_guard_cached": [
+              1524228,
+              1524228
+            ],
+            "direct_guard_ms": [
+              659.405,
+              661.544
+            ],
+            "direct_image_columns": [
+              44,
+              44
+            ],
+            "direct_image_sources": [
+              3040488,
+              3040488
+            ],
+            "plans": [
+              22,
+              22
+            ],
+            "producer_images": [
+              364393,
+              364393
+            ],
+            "rows": [
+              0,
+              0
+            ]
+          },
+          "replay": {
+            "length": 102,
+            "cases": {
+              "good": {
+                "verdict": "valid",
+                "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc"
+              },
+              "damaged": {
+                "verdict": "invalid",
+                "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "audits": [
+    {
+      "arm": "img-append",
+      "cfg": "ElevatorLivenessMedium",
+      "audit": true,
+      "rc": 0,
+      "time": 4.92,
+      "rss": 75196,
+      "verdict": "success",
+      "property": null,
+      "stats": {
+        "depth": 36,
+        "distinct": 4122,
+        "generated": 14296,
+        "initial_generated": 64,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phases": {
+        "atoms": 4831.135178,
+        "product": 17.152457
+      },
+      "batch": {
+        "direct_guard_cached": 27456,
+        "direct_guard_ms": 22.129017,
+        "direct_image_columns": 18,
+        "direct_image_sources": 74196,
+        "plans": 18,
+        "producer_images": 10456,
+        "rows": 0
+      },
+      "mismatch": null
+    },
+    {
+      "arm": "img-base",
+      "cfg": "ElevatorLivenessMedium",
+      "audit": true,
+      "rc": 0,
+      "time": 4.28,
+      "rss": 75628,
+      "verdict": "success",
+      "property": null,
+      "stats": {
+        "depth": 36,
+        "distinct": 4122,
+        "generated": 14296,
+        "initial_generated": 64,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phases": {
+        "atoms": 4194.713508999999,
+        "product": 14.712415
+      },
+      "batch": {
+        "plans": 18,
+        "producer_images": 10456,
+        "rows": 74196
+      },
+      "mismatch": null
+    },
+    {
+      "arm": "img-columns",
+      "cfg": "ElevatorLivenessMedium",
+      "audit": true,
+      "rc": 0,
+      "time": 4.31,
+      "rss": 75584,
+      "verdict": "success",
+      "property": null,
+      "stats": {
+        "depth": 36,
+        "distinct": 4122,
+        "generated": 14296,
+        "initial_generated": 64,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phases": {
+        "atoms": 4225.627214,
+        "product": 14.880244000000001
+      },
+      "batch": {
+        "direct_image_columns": 2,
+        "direct_image_sources": 8244,
+        "plans": 18,
+        "producer_images": 10456,
+        "rows": 65952
+      },
+      "mismatch": null
+    },
+    {
+      "arm": "img-memo",
+      "cfg": "ElevatorLivenessMedium",
+      "audit": true,
+      "rc": 0,
+      "time": 4.99,
+      "rss": 75520,
+      "verdict": "success",
+      "property": null,
+      "stats": {
+        "depth": 36,
+        "distinct": 4122,
+        "generated": 14296,
+        "initial_generated": 64,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phases": {
+        "atoms": 4900.698361,
+        "product": 17.024026000000003
+      },
+      "batch": {
+        "direct_guard_cached": 27456,
+        "direct_guard_ms": 22.748566,
+        "direct_image_columns": 18,
+        "direct_image_sources": 74196,
+        "plans": 18,
+        "producer_images": 10456,
+        "rows": 0
+      },
+      "mismatch": null
+    },
+    {
+      "arm": "img-select",
+      "cfg": "ElevatorLivenessMedium",
+      "audit": true,
+      "rc": 0,
+      "time": 4.92,
+      "rss": 75632,
+      "verdict": "success",
+      "property": null,
+      "stats": {
+        "depth": 36,
+        "distinct": 4122,
+        "generated": 14296,
+        "initial_generated": 64,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phases": {
+        "atoms": 4822.222680999999,
+        "product": 17.076321
+      },
+      "batch": {
+        "direct_guard_cached": 27456,
+        "direct_guard_ms": 15.672368999999998,
+        "direct_image_columns": 16,
+        "direct_image_sources": 65952,
+        "plans": 18,
+        "producer_images": 10456,
+        "rows": 8244
+      },
+      "mismatch": null
+    },
+    {
+      "arm": "img-small",
+      "cfg": "ElevatorLivenessMedium",
+      "audit": true,
+      "rc": 0,
+      "time": 4.98,
+      "rss": 75588,
+      "verdict": "success",
+      "property": null,
+      "stats": {
+        "depth": 36,
+        "distinct": 4122,
+        "generated": 14296,
+        "initial_generated": 64,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phases": {
+        "atoms": 4885.093921000001,
+        "product": 17.342845999999998
+      },
+      "batch": {
+        "complete_guard_hits": 0,
+        "plans": 18,
+        "producer_images": 10456,
+        "rows": 74196
+      },
+      "mismatch": null
+    },
+    {
+      "arm": "img-wide",
+      "cfg": "ElevatorLivenessMedium",
+      "audit": true,
+      "rc": 0,
+      "time": 4.9,
+      "rss": 75684,
+      "verdict": "success",
+      "property": null,
+      "stats": {
+        "depth": 36,
+        "distinct": 4122,
+        "generated": 14296,
+        "initial_generated": 64,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phases": {
+        "atoms": 4804.040351000001,
+        "product": 17.26157
+      },
+      "batch": {
+        "direct_guard_ms": 29.428757,
+        "direct_image_columns": 18,
+        "direct_image_sources": 74196,
+        "plans": 18,
+        "producer_images": 10456,
+        "rows": 0
+      },
+      "mismatch": null
+    }
+  ],
+  "synthetic_controls": {
+    "compared_fields": [
+      "verdict",
+      "property",
+      "statistics",
+      "warnings",
+      "output",
+      "counterexample",
+      "exit_code",
+      "message"
+    ],
+    "cross_product": {
+      "inputs": [
+        "overlapping branches with the same destination",
+        "heterogeneous values on otherwise identical branches",
+        "partial subscript",
+        "startup PrintT",
+        "ACTION_CONSTRAINT",
+        "existential guard with a different generator demand shape"
+      ],
+      "profiles_and_workers": [
+        "dive / 1",
+        "tlc / 1",
+        "dive / 2"
+      ]
+    },
+    "matched": 18
+  },
+  "additional_smoke": {
+    "late_wide_row": [
+      {
+        "exe": "img-landed",
+        "rc": 0,
+        "verdict": "success",
+        "stat": {
+          "depth": 10002,
+          "distinct": 11027,
+          "generated": 11027,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "time_rss": [
+          "0.02",
+          "28792"
+        ],
+        "atoms": {
+          "plans": 1,
+          "producer_images": 10000,
+          "rows": 10000
+        }
+      },
+      {
+        "exe": "img-landed-select",
+        "rc": 0,
+        "verdict": "success",
+        "stat": {
+          "depth": 10002,
+          "distinct": 11027,
+          "generated": 11027,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "time_rss": [
+          "0.02",
+          "28852"
+        ],
+        "atoms": {
+          "direct_guard_cached": 0,
+          "direct_guard_ms": 0.0,
+          "direct_image_columns": 0,
+          "direct_image_sources": 0,
+          "plans": 1,
+          "producer_images": 10000,
+          "rows": 10000
+        }
+      }
+    ],
+    "public_and_diagnostic_controls": {
+      "all-fair": {
+        "verdict": "success",
+        "property": null,
+        "exit": 0,
+        "counts": [
+          68,
+          36,
+          12
+        ],
+        "closed": {
+          "absent": 352,
+          "peak_mask_bytes": 288,
+          "plans": 11,
+          "present": 44
+        },
+        "warnings": [],
+        "stderr": ""
+      },
+      "masked-move": {
+        "verdict": "liveness-violation",
+        "property": "TemporalInvariant",
+        "exit": 13,
+        "counts": [
+          68,
+          36,
+          12
+        ],
+        "closed": {
+          "absent": 318,
+          "peak_mask_bytes": 288,
+          "plans": 10,
+          "present": 42
+        },
+        "warnings": [],
+        "stderr": ""
+      },
+      "bindings": {
+        "verdict": "success",
+        "property": null,
+        "exit": 0,
+        "counts": [
+          5,
+          2,
+          2
+        ],
+        "closed": {
+          "absent": 2,
+          "peak_mask_bytes": 16,
+          "plans": 2,
+          "present": 2
+        },
+        "warnings": [],
+        "stderr": ""
+      },
+      "state-filter": {
+        "verdict": "success",
+        "property": null,
+        "exit": 0,
+        "counts": [
+          3,
+          1,
+          1
+        ],
+        "closed": {
+          "absent": 0,
+          "peak_mask_bytes": 0,
+          "plans": 2,
+          "present": 0
+        },
+        "warnings": [],
+        "stderr": ""
+      },
+      "action-filter": {
+        "verdict": "success",
+        "property": null,
+        "exit": 0,
+        "counts": [
+          3,
+          1,
+          1
+        ],
+        "closed": {
+          "absent": 0,
+          "peak_mask_bytes": 0,
+          "plans": 2,
+          "present": 0
+        },
+        "warnings": [],
+        "stderr": ""
+      },
+      "view": {
+        "verdict": "unsupported",
+        "property": null,
+        "exit": 3,
+        "counts": [
+          null,
+          null,
+          null
+        ],
+        "closed": null,
+        "warnings": [],
+        "stderr": ""
+      },
+      "noisy-guard-conflict-empty-domain": {
+        "verdict": "liveness-violation",
+        "property": "P",
+        "exit": 13,
+        "counts": [
+          2,
+          1,
+          1
+        ],
+        "closed": {
+          "absent": 0,
+          "peak_mask_bytes": 8,
+          "plans": 1,
+          "present": 0
+        },
+        "warnings": [],
+        "stderr": ""
+      },
+      "public-allocator-constraint": {
+        "verdict": "success",
+        "property": null,
+        "exit": 0,
+        "counts": [
+          43,
+          3,
+          3
+        ],
+        "closed": {
+          "absent": 0,
+          "peak_mask_bytes": 0,
+          "plans": 0,
+          "present": 0
+        },
+        "warnings": [],
+        "stderr": ""
+      },
+      "public-coffee-can": {
+        "verdict": "success",
+        "property": null,
+        "exit": 0,
+        "counts": [
+          20002,
+          5150,
+          1
+        ],
+        "closed": {
+          "absent": 5148,
+          "peak_mask_bytes": 41200,
+          "plans": 1,
+          "present": 2
+        },
+        "warnings": [],
+        "stderr": ""
+      }
+    },
+    "inactive_formula_inputs": {
+      "matched": 10,
+      "cases": "Five Boolean/temporal combinations of A or B, with and without the extra fairness assumptions. Six successful or violating pairs and four identical frontend refusals."
+    },
+    "official_core_small_tier": {
+      "baseline": "conformance/baselines/small-core-dive-w1.json, selected stated IDs",
+      "verdict": "4/4 agree, no baseline changes",
+      "oracle": "tlc-2026.10.06.014338",
+      "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "ids": [
+        "specifications/ConfiguredReplyFails/ConfiguredReplyFails.cfg",
+        "specifications/ConfiguredReplyHolds/ConfiguredReplyHolds.cfg",
+        "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg",
+        "specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg"
+      ]
+    },
+    "late_wide_row_recipe": "One deterministic increment from 0 through 10000, plus a second branch at 10000 emitting y in 1..1025. Weak fairness on the increment. The final high-fanout row makes the attempted column decline and the existing row path finishes the graph."
+  },
+  "six_floor": [
+    {
+      "binary": "img-landed",
+      "sha256": "2ecc7ae10a8115c934018b933599492680e6c447d5cd4356dd862f0dfc46d7f8",
+      "wall_s": 67.34,
+      "rss_kib": 561360,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "statistics": {
+        "depth": 17,
+        "distinct": 1150990,
+        "generated": 7767089,
+        "initial_generated": 46656,
+        "left_on_queue": 64340,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 20318.880416,
+        "attribution": 62.006144,
+        "product": 26841.652235
+      },
+      "action_batches": {
+        "plans": 26,
+        "producer_images": 2901549,
+        "rows": 4780028
+      },
+      "enabled_direct": 3305927,
+      "enabled": {
+        "absent": 19923108,
+        "peak_mask_bytes": 3622160,
+        "plans": 26,
+        "present": 2324312
+      },
+      "core_witness": [
+        {
+          "kind": "good",
+          "result": "valid",
+          "canonical_json_sha256": "bafd5a4f6e972341a00b75dd508329d3a56d39035c29ec9a9fd577fe22d7c189",
+          "length": 263
+        },
+        {
+          "kind": "damaged",
+          "result": "invalid",
+          "canonical_json_sha256": "3a9c3290045069cf3932353b63b349a5239172294486062db0a109f04bb8f205",
+          "length": 263
+        }
+      ],
+      "manyan_witness": [
+        {
+          "kind": "good",
+          "result": "valid",
+          "canonical_json_sha256": "a4d845a7da1b309980e8132e943932099a758c294171fa151dabbde1c6eb80e4",
+          "length": 329
+        },
+        {
+          "kind": "damaged",
+          "result": "invalid",
+          "canonical_json_sha256": "cb7a67e94dddc017db74a212bc28af3a97f2017bb9211f79296a099465dd0ac0",
+          "length": 329
+        }
+      ]
+    },
+    {
+      "binary": "img-landed-select",
+      "sha256": "d5c2a1786bdbc1e00768b24e3ea0cf116ee3829b7efdeac48e78d04017a708df",
+      "wall_s": 64.85,
+      "rss_kib": 578872,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "statistics": {
+        "depth": 17,
+        "distinct": 1150990,
+        "generated": 7767089,
+        "initial_generated": 46656,
+        "left_on_queue": 64340,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 17423.867253,
+        "attribution": 62.801799,
+        "product": 27169.245143
+      },
+      "action_batches": {
+        "direct_guard_cached": 16268069,
+        "direct_guard_ms": 2825.981295,
+        "direct_image_columns": 96,
+        "direct_image_sources": 26079600,
+        "plans": 26,
+        "producer_images": 2901549,
+        "rows": 2173300
+      },
+      "enabled_direct": 3305927,
+      "enabled": {
+        "absent": 19923108,
+        "peak_mask_bytes": 3622160,
+        "plans": 26,
+        "present": 2324312
+      },
+      "core_witness": [
+        {
+          "kind": "good",
+          "result": "valid",
+          "canonical_json_sha256": "bafd5a4f6e972341a00b75dd508329d3a56d39035c29ec9a9fd577fe22d7c189",
+          "length": 263
+        },
+        {
+          "kind": "damaged",
+          "result": "invalid",
+          "canonical_json_sha256": "3a9c3290045069cf3932353b63b349a5239172294486062db0a109f04bb8f205",
+          "length": 263
+        }
+      ],
+      "manyan_witness": [
+        {
+          "kind": "good",
+          "result": "valid",
+          "canonical_json_sha256": "a4d845a7da1b309980e8132e943932099a758c294171fa151dabbde1c6eb80e4",
+          "length": 329
+        },
+        {
+          "kind": "damaged",
+          "result": "invalid",
+          "canonical_json_sha256": "cb7a67e94dddc017db74a212bc28af3a97f2017bb9211f79296a099465dd0ac0",
+          "length": 329
+        }
+      ]
+    }
+  ],
+  "decision": "Preserve as an experimental branch. On the three-floor hold the selective direct path saves 0.11 s while leaving a 0.46 s gap to the matched Manyan median. On six floors it saves 2.49 s (3.7%) with 17,512 KiB additional peak RSS in one matched pair. Revisit when compact original-edge storage or a shared labeling loop can avoid a second full-column classifier and contain mixed-row fallback cost.",
+  "limitations": [
+    "One six-floor pair. Four-floor peak RSS varied across processes. No inference across hosts, semaphore counts or search schedules.",
+    "Eligible direct columns are based on the actual scanned store-owned original rows and the complete original Boolean guards. Nonmatching actions, incomparable values, unknown labels or a late wide row can require fallback for the whole attempted column. Additional engineering would need a single row-level classifier or bounded progressive fallback and explicit inactive-action demand.",
+    "The prototype increments producer_images on a successful-column source with a matching emission, even when no original demanded term reads it. Use the explicit direct_image counters to compare this implementation; do not infer savings from producer_images alone."
+  ]
+}
