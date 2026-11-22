@@ -1,0 +1,886 @@
+{
+  "issue": 1314,
+  "date": "2026-11-22",
+  "measurement": "Fresh, complete explicit Core safety searches. No symmetry declaration or stored state graph. Wall clock includes loading and search. Each row starts a separate process.",
+  "host": {
+    "aws_type": "c7i.4xlarge",
+    "region": "us-east-2",
+    "os": "Ubuntu 24.04",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "taskset": "0-7",
+    "workers": 8,
+    "memory": "Fresh cgroup v2 memory.peak for checker process tree including descendants and charged file pages."
+  },
+  "sources": {
+    "core_baseline": "163eabca8",
+    "core_delta": "The assignment-site change in this PR, applied to the baseline. The integrated change also preserves the previous nested-query guard on definition sites.",
+    "core_before_binary_sha256": "6e5709443c34d3e6ea1e91711f51d74cfde19e464712275239de340b31f4c3b0",
+    "core_after_binary_sha256": "adb72cae5df613e128520db7155efa10656571c0bba221b5b5e373956cbab907",
+    "LeanP1.tla": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+    "LeanP1Size3L1W3.cfg": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+    "growth_LeanP1.tla": "e6cb769c8fb0e6a3bb03463d68c4c63e68ec584cb9029fee2adabae236ace785",
+    "model_sources_and_exact_source_edits": "2026-11-22-certified-orbits.json",
+    "native_peer": "ddalton/tla-mc@c8fce23493bb78fcd5405faf7b0653855db620ee",
+    "native_peer_binary_sha256": "9a1fa4ebc43420c03dd61b9dbb620b46ed16b15ae05fc324757112c9e5930e81"
+  },
+  "method": {
+    "build": "CARGO_PROFILE_RELEASE_LTO=off CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16 cargo build --release --locked -p dive-cli --bin dive",
+    "core": "taskset -c 0-7 dive check LeanP1.tla --config LeanP1Size3L1W3.cfg --workers 8 --store STORE --seed 0 --fp 0 --output json",
+    "groups": {
+      "original": "nominal --compat=tlc, fp store",
+      "default": "default profile, fp store",
+      "exact": "default profile, exact store",
+      "grow": "default profile, fp store; published equivalent property edit plus changed reachable guard",
+      "TCommit,TwoPhase": "default profile, exact store; set RM to {r1,...,rn}, n = 3, 5, 6. These inputs have no qualifying assignment sites."
+    },
+    "native_peer": "In a separate directory, taskset -c 0-7 tla-mc -compile -config LeanP1Size3L1W3.cfg -workers 8 LeanP1.tla. First call used an empty TLAMC_CACHE; later calls retained its compiled engine.",
+    "results": "fp means the ordinary fingerprint store; exact means full-state equality. All checked Flint configurations retain eight invariants and two step properties. Times below are not pooled across stores or profiles."
+  },
+  "rows": [
+    {
+      "label": "original-0-before",
+      "wall_s": 4.77504,
+      "family_peak_bytes": 131268608,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 4465.522591,
+      "commit_ms": 260.167887
+    },
+    {
+      "label": "original-1-after",
+      "wall_s": 4.34808,
+      "family_peak_bytes": 141922304,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [
+        {
+          "bypass": 0,
+          "hits": 108661,
+          "lookups": 180428,
+          "off": false,
+          "site": "successor component 14"
+        },
+        {
+          "bypass": 0,
+          "hits": 180415,
+          "lookups": 180428,
+          "off": false,
+          "site": "successor component 26"
+        }
+      ],
+      "expand_ms": 4027.394397,
+      "commit_ms": 262.168713
+    },
+    {
+      "label": "original-2-after",
+      "wall_s": 4.33092,
+      "family_peak_bytes": 137379840,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [
+        {
+          "bypass": 0,
+          "hits": 109508,
+          "lookups": 182091,
+          "off": false,
+          "site": "successor component 14"
+        },
+        {
+          "bypass": 0,
+          "hits": 182078,
+          "lookups": 182091,
+          "off": false,
+          "site": "successor component 26"
+        }
+      ],
+      "expand_ms": 4023.2833149999997,
+      "commit_ms": 259.12948600000004
+    },
+    {
+      "label": "original-3-before",
+      "wall_s": 4.73548,
+      "family_peak_bytes": 135548928,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 4419.530494,
+      "commit_ms": 260.116374
+    },
+    {
+      "label": "original-4-before",
+      "wall_s": 4.72774,
+      "family_peak_bytes": 137478144,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 4419.545383,
+      "commit_ms": 258.36868699999997
+    },
+    {
+      "label": "original-5-after",
+      "wall_s": 4.25043,
+      "family_peak_bytes": 140058624,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [
+        {
+          "bypass": 0,
+          "hits": 105155,
+          "lookups": 175692,
+          "off": false,
+          "site": "successor component 14"
+        },
+        {
+          "bypass": 0,
+          "hits": 175679,
+          "lookups": 175692,
+          "off": false,
+          "site": "successor component 26"
+        }
+      ],
+      "expand_ms": 3939.915961,
+      "commit_ms": 260.850464
+    },
+    {
+      "label": "default-0-before",
+      "wall_s": 3.99505,
+      "family_peak_bytes": 137261056,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 3678.081169,
+      "commit_ms": 261.92463399999997
+    },
+    {
+      "label": "default-1-after",
+      "wall_s": 3.47944,
+      "family_peak_bytes": 139505664,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [
+        {
+          "bypass": 0,
+          "hits": 106740,
+          "lookups": 178392,
+          "off": false,
+          "site": "successor component 14"
+        },
+        {
+          "bypass": 0,
+          "hits": 178379,
+          "lookups": 178392,
+          "off": false,
+          "site": "successor component 26"
+        }
+      ],
+      "expand_ms": 3168.9406999999997,
+      "commit_ms": 259.175485
+    },
+    {
+      "label": "default-2-after",
+      "wall_s": 3.46983,
+      "family_peak_bytes": 137187328,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [
+        {
+          "bypass": 0,
+          "hits": 105247,
+          "lookups": 176091,
+          "off": false,
+          "site": "successor component 14"
+        },
+        {
+          "bypass": 0,
+          "hits": 176078,
+          "lookups": 176091,
+          "off": false,
+          "site": "successor component 26"
+        }
+      ],
+      "expand_ms": 3158.481655,
+      "commit_ms": 260.030393
+    },
+    {
+      "label": "default-3-before",
+      "wall_s": 3.94291,
+      "family_peak_bytes": 135409664,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 3634.1942390000004,
+      "commit_ms": 260.07198
+    },
+    {
+      "label": "default-4-before",
+      "wall_s": 3.96653,
+      "family_peak_bytes": 133042176,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 3646.688221,
+      "commit_ms": 266.693705
+    },
+    {
+      "label": "default-5-after",
+      "wall_s": 3.49734,
+      "family_peak_bytes": 137310208,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [
+        {
+          "bypass": 0,
+          "hits": 104911,
+          "lookups": 175813,
+          "off": false,
+          "site": "successor component 14"
+        },
+        {
+          "bypass": 0,
+          "hits": 175800,
+          "lookups": 175813,
+          "off": false,
+          "site": "successor component 26"
+        }
+      ],
+      "expand_ms": 3187.29943,
+      "commit_ms": 257.942574
+    },
+    {
+      "label": "exact-0-before",
+      "wall_s": 4.50106,
+      "family_peak_bytes": 163278848,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 4031.618352,
+      "commit_ms": 419.03983900000003
+    },
+    {
+      "label": "exact-1-after",
+      "wall_s": 3.97767,
+      "family_peak_bytes": 166567936,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [
+        {
+          "bypass": 0,
+          "hits": 105493,
+          "lookups": 176167,
+          "off": false,
+          "site": "successor component 14"
+        },
+        {
+          "bypass": 0,
+          "hits": 176154,
+          "lookups": 176167,
+          "off": false,
+          "site": "successor component 26"
+        }
+      ],
+      "expand_ms": 3502.176505,
+      "commit_ms": 425.948677
+    },
+    {
+      "label": "exact-2-after",
+      "wall_s": 3.98737,
+      "family_peak_bytes": 168640512,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [
+        {
+          "bypass": 0,
+          "hits": 106647,
+          "lookups": 177858,
+          "off": false,
+          "site": "successor component 14"
+        },
+        {
+          "bypass": 0,
+          "hits": 177845,
+          "lookups": 177858,
+          "off": false,
+          "site": "successor component 26"
+        }
+      ],
+      "expand_ms": 3513.6484819999996,
+      "commit_ms": 422.069876
+    },
+    {
+      "label": "exact-3-before",
+      "wall_s": 4.51259,
+      "family_peak_bytes": 168632320,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 4041.875115,
+      "commit_ms": 421.35704899999996
+    },
+    {
+      "label": "exact-4-before",
+      "wall_s": 4.5648,
+      "family_peak_bytes": 165421056,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 4078.6189430000004,
+      "commit_ms": 429.233521
+    },
+    {
+      "label": "exact-5-after",
+      "wall_s": 4.00348,
+      "family_peak_bytes": 166760448,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [
+        {
+          "bypass": 0,
+          "hits": 108746,
+          "lookups": 181462,
+          "off": false,
+          "site": "successor component 14"
+        },
+        {
+          "bypass": 0,
+          "hits": 181449,
+          "lookups": 181462,
+          "off": false,
+          "site": "successor component 26"
+        }
+      ],
+      "expand_ms": 3528.378085,
+      "commit_ms": 426.483742
+    },
+    {
+      "label": "grow-0-before",
+      "wall_s": 64.49083,
+      "family_peak_bytes": 385925120,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 40,
+        "distinct": 7387957,
+        "generated": 31281750,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 59662.395462,
+      "commit_ms": 4773.342657
+    },
+    {
+      "label": "grow-1-after",
+      "wall_s": 57.91891,
+      "family_peak_bytes": 391499776,
+      "model": "LeanP1",
+      "cfg": "LeanP1Size3L1W3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 40,
+        "distinct": 7387957,
+        "generated": 31281750,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [
+        {
+          "bypass": 0,
+          "hits": 1513777,
+          "lookups": 2857187,
+          "off": false,
+          "site": "successor component 14"
+        },
+        {
+          "bypass": 0,
+          "hits": 2857174,
+          "lookups": 2857187,
+          "off": false,
+          "site": "successor component 26"
+        }
+      ],
+      "expand_ms": 53113.58621,
+      "commit_ms": 4746.630063
+    },
+    {
+      "label": "TCommit3-before",
+      "wall_s": 0.0197,
+      "family_peak_bytes": 21958656,
+      "model": "TCommit",
+      "cfg": "TCommit3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 7,
+        "distinct": 34,
+        "generated": 94,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 2.2300150000000003,
+      "commit_ms": 0.036917
+    },
+    {
+      "label": "TCommit3-after",
+      "wall_s": 0.01798,
+      "family_peak_bytes": 21954560,
+      "model": "TCommit",
+      "cfg": "TCommit3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 7,
+        "distinct": 34,
+        "generated": 94,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 1.674226,
+      "commit_ms": 0.053961
+    },
+    {
+      "label": "TCommit5-before",
+      "wall_s": 0.02112,
+      "family_peak_bytes": 26136576,
+      "model": "TCommit",
+      "cfg": "TCommit5.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 11,
+        "distinct": 274,
+        "generated": 1296,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 3.256202,
+      "commit_ms": 0.210721
+    },
+    {
+      "label": "TCommit5-after",
+      "wall_s": 0.01392,
+      "family_peak_bytes": 23986176,
+      "model": "TCommit",
+      "cfg": "TCommit5.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 11,
+        "distinct": 274,
+        "generated": 1296,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 2.592444,
+      "commit_ms": 0.205895
+    },
+    {
+      "label": "TCommit6-before",
+      "wall_s": 0.02099,
+      "family_peak_bytes": 36458496,
+      "model": "TCommit",
+      "cfg": "TCommit6.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 13,
+        "distinct": 792,
+        "generated": 4567,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 7.123276,
+      "commit_ms": 0.53773
+    },
+    {
+      "label": "TCommit6-after",
+      "wall_s": 0.02269,
+      "family_peak_bytes": 34373632,
+      "model": "TCommit",
+      "cfg": "TCommit6.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 13,
+        "distinct": 792,
+        "generated": 4567,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 7.462248000000001,
+      "commit_ms": 0.54279
+    },
+    {
+      "label": "TwoPhase3-before",
+      "wall_s": 0.01846,
+      "family_peak_bytes": 24051712,
+      "model": "TwoPhase",
+      "cfg": "TwoPhase3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 11,
+        "distinct": 288,
+        "generated": 1146,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 2.3499689999999998,
+      "commit_ms": 0.235966
+    },
+    {
+      "label": "TwoPhase3-after",
+      "wall_s": 0.02134,
+      "family_peak_bytes": 26075136,
+      "model": "TwoPhase",
+      "cfg": "TwoPhase3.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 11,
+        "distinct": 288,
+        "generated": 1146,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 2.221781,
+      "commit_ms": 0.258295
+    },
+    {
+      "label": "TwoPhase5-before",
+      "wall_s": 0.04355,
+      "family_peak_bytes": 44867584,
+      "model": "TwoPhase",
+      "cfg": "TwoPhase5.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 17,
+        "distinct": 8832,
+        "generated": 58146,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 19.746571,
+      "commit_ms": 6.321128
+    },
+    {
+      "label": "TwoPhase5-after",
+      "wall_s": 0.04071,
+      "family_peak_bytes": 44945408,
+      "model": "TwoPhase",
+      "cfg": "TwoPhase5.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 17,
+        "distinct": 8832,
+        "generated": 58146,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 18.611531,
+      "commit_ms": 6.940186
+    },
+    {
+      "label": "TwoPhase6-before",
+      "wall_s": 0.16399,
+      "family_peak_bytes": 57380864,
+      "model": "TwoPhase",
+      "cfg": "TwoPhase6.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 20,
+        "distinct": 50816,
+        "generated": 402306,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 111.333664,
+      "commit_ms": 35.072756
+    },
+    {
+      "label": "TwoPhase6-after",
+      "wall_s": 0.15745,
+      "family_peak_bytes": 53260288,
+      "model": "TwoPhase",
+      "cfg": "TwoPhase6.cfg",
+      "verdict": "success",
+      "stats": {
+        "depth": 20,
+        "distinct": 50816,
+        "generated": 402306,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exit": 0,
+      "memo": [],
+      "expand_ms": 105.026783,
+      "commit_ms": 35.777489
+    }
+  ],
+  "peer_runs": [
+    {
+      "cold": true,
+      "wall_s": 37.63254,
+      "family_peak_bytes": 403492864,
+      "exit": 0,
+      "depth": 33,
+      "distinct": 449595,
+      "generated": 1954072,
+      "worker_report": "generated engine, 31 variables, 0 symmetry permutations"
+    },
+    {
+      "cold": false,
+      "wall_s": 1.50614,
+      "family_peak_bytes": 267194368,
+      "exit": 0,
+      "depth": 33,
+      "distinct": 449595,
+      "generated": 1954072,
+      "worker_report": "generated engine, 31 variables, 0 symmetry permutations"
+    },
+    {
+      "cold": false,
+      "wall_s": 1.48656,
+      "family_peak_bytes": 281866240,
+      "exit": 0,
+      "depth": 33,
+      "distinct": 449595,
+      "generated": 1954072,
+      "worker_report": "generated engine, 31 variables, 0 symmetry permutations"
+    },
+    {
+      "cold": false,
+      "wall_s": 1.49856,
+      "family_peak_bytes": 273547264,
+      "exit": 0,
+      "depth": 33,
+      "distinct": 449595,
+      "generated": 1954072,
+      "worker_report": "generated engine, 31 variables, 0 symmetry permutations"
+    }
+  ],
+  "control_checks": {
+    "focused": "7/7 core_primed_memo integration tests including a new complete computed table, repeated hits and the disabled switch.",
+    "core_small_ratchet": {
+      "changed_ids": [],
+      "outcome": "Three released models agree, zero baseline regressions.",
+      "models": [
+        "specifications/DieHard/DieHard.cfg",
+        "specifications/transaction_commit/TCommit.cfg",
+        "specifications/transaction_commit/TwoPhase.cfg"
+      ],
+      "command": "dive-conformance run --impl dive:core --impl-profile dive --workers 1 --tier small --no-sany --baseline conformance/baselines/small-core-dive-w1.json --dive-bin DIVE --corpus examples --corpus probes --corpus validation-smoke --corpus configured-temporal-operators --filter specifications/DieHard/DieHard.cfg --filter specifications/transaction_commit/TCommit.cfg --filter specifications/transaction_commit/TwoPhase.cfg"
+    }
+  }
+}

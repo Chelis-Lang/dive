@@ -553,6 +553,8 @@ counterexample from any discovered state. In ordinary parallel safety runs,
 each worker handles at most 128 source states per batch before ordered commit.
 Core reduces the batch when the previous level generated many successors per source. In local resident safety search the coordinator queues the canonical values that workers already retained. Discovery order and predecessor information are preserved.
 See the [matched high-fanout measurements](../developer/large-models.md#high-fanout-parallel-safety).
+Core can also reuse a pure computed assignment across successors that agree on every source and successor component it reads. This benefits history tables and other derived state. [Computed successor components](../developer/core/06-memoization.md#24-definitions-a-next-state-action-reads-primed).
+
 A wide frontier or a single state with many successors can still require
 substantial memory. [Core storage measurements](../developer/core/07-engine.md#resident-storage-measurements).
 

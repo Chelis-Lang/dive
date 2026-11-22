@@ -143,3 +143,19 @@ fn a_primed_powerset_keeps_the_subset_rewrite() {
     assert_eq!(core["verdict"], "deadlock", "{core:#}");
     assert_eq!(core["statistics"]["distinct"], 4);
 }
+
+#[test]
+fn a_computed_component_ignores_unrelated_successor_choices() {
+    let req = request("Component");
+    let on = check_file_core_opts(&req, "")
+        .expect("projected update")
+        .to_json();
+    let off = check_file_core_opts(&req, "-primed-memo")
+        .expect("ordinary update")
+        .to_json();
+    assert_eq!(on["verdict"], "success");
+    assert_eq!(observed(&on), observed(&off));
+    let stats = site(&on, "successor component 2").expect("the table assignment is projected");
+    assert!(stats["hits"].as_u64().unwrap_or(0) > 0);
+    assert!(site(&off, "successor component 2").is_none());
+}

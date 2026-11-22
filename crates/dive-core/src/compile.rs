@@ -4309,6 +4309,14 @@ impl Compiler<'_> {
         {
             return Ok(body);
         }
+        let def_name = &self.ir.def(d).name;
+        self.primed_value_site(body, || format!("{def_name} ({mode:?}, action)"))
+    }
+
+    /// A computed generator assignment demands the complete component value.
+    /// It can memoize a function constructor even where applying the same
+    /// syntax as an operator would have demanded only one cell.
+    fn primed_value_site(&mut self, body: P, name: impl FnOnce() -> String) -> Result<P, Error> {
         let info = &self.info[body as usize];
         if info.primed == 0 || !info.free.is_empty() || info.effect || info.calls {
             return Ok(body);
@@ -4321,7 +4329,7 @@ impl Compiler<'_> {
         if vars.len() + primed.len() > MAX_KEY {
             return Ok(body);
         }
-        let name = format!("{} ({mode:?}, action)", self.ir.def(d).name);
+        let name = name();
         #[allow(clippy::cast_possible_truncation, reason = "bounded")]
         let site = self.code.sites.len() as u32;
         self.code.sites.push(MemoSite {
@@ -5504,6 +5512,17 @@ impl Compiler<'_> {
             } if args.len() == 2 => {
                 if let Some(var) = self.target(args[0], env, false)? {
                     let rhs = self.p(args[1], env, Mode::Plain)?;
+                    let rhs = if self.opts.primed_memo
+                        && self.code.source_map.is_none()
+                        && !self.init_mode
+                        && !self.is_trivial(rhs)
+                        && !self.info[rhs as usize].nested_query
+                        && !matches!(self.code.nodes[rhs as usize], Node::Memo { .. })
+                    {
+                        self.primed_value_site(rhs, || format!("successor component {var}"))?
+                    } else {
+                        rhs
+                    };
                     return Ok(self.gpush(GNode::Assign { var, rhs }));
                 }
                 self.guard_expr(e, env)
