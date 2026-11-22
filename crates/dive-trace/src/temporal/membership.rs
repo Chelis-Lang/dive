@@ -5,10 +5,10 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use dive_eval::{Scope, SlotView};
-use dive_ir::{Arg, BuiltinOp, DefScope, Expr, ExprId, JunctionKind, OpRef, VarId};
+use dive_ir::{Arg, BuiltinOp, DefScope, Effects, Expr, ExprId, JunctionKind, OpRef, Pass, VarId};
 use dive_value::{SetKind, Value};
 
-use super::{TemporalError, Word};
+use super::{TemporalError, Truth, Word};
 
 #[derive(Default)]
 pub(super) struct Membership {
@@ -52,6 +52,56 @@ fn compatible(a: &Value, b: &Value) -> bool {
 }
 
 impl Word<'_> {
+    pub(super) fn sparse_fairness(
+        &mut self,
+        action: ExprId,
+        sub: ExprId,
+        scope: &Scope,
+        strong: bool,
+    ) -> Result<Option<Truth>, TemporalError> {
+        if let Some(key) = self.subscript_key(sub, scope)
+            && self
+                .stutters
+                .as_ref()
+                .is_some_and(|(stored, _)| *stored == key)
+            && !self
+                .model
+                .ir
+                .node(action)
+                .effects
+                .intersects(Effects::IMPURE)
+            && let Some((var, binding)) = self.first_membership(action, scope, true)
+            && let Some(positions) = self.members(var, &binding)?
+        {
+            self.check_atom_context(action, scope)?;
+            self.check_scoped_context_mode(sub, scope, 0, &mut 0, false)?;
+            self.charge(positions.len() + self.states.len().div_ceil(64))?;
+            let mut recurrent = false;
+            for (j, &i) in positions.iter().enumerate() {
+                if j % 256 == 0 {
+                    self.model.evaluator.poll_host_control()?;
+                }
+                if self.stutters.as_ref().is_some_and(|(_, col)| col.at(i)) {
+                    continue;
+                }
+                let next = if i + 1 == self.states.len() {
+                    self.back_to
+                } else {
+                    i + 1
+                };
+                recurrent |= self.action_at(i, next, action, scope)? && i >= self.back_to;
+            }
+            if recurrent {
+                return Ok(Some(Truth::constant(self.states.len(), true)));
+            }
+            let cycle = &positions[positions.partition_point(|i| *i < self.back_to)..];
+            return self
+                .fair_enabled(action, sub, scope, strong, cycle.iter().copied())
+                .map(Some);
+        }
+        Ok(None)
+    }
+
     // Follow only lazy, non-evaluating source wrappers. In particular do not
     // inspect a later conjunct, substitute a caller's local by its spelling,
     // or speculate by evaluating an arbitrary actual.
@@ -78,7 +128,12 @@ impl Word<'_> {
                         || def.recursive
                         || def.std.is_some()
                         || def.scope != DefScope::TopLevel
-                        || !args.iter().all(|a| matches!(a, Arg::Expr { .. }))
+                        || !args.iter().all(|a| match a {
+                            Arg::Expr { pass: Pass::Lazy, .. } => true,
+                            Arg::Expr { expr, .. } => matches!(self.model.ir.expr(*expr),
+                                Expr::Local(r) if matches!(ev.scope_slot(&sc, *r), SlotView::Value(_))),
+                            Arg::Op { .. } => false,
+                        })
                     {
                         return None;
                     }
@@ -158,6 +213,10 @@ impl Word<'_> {
         if self.states.len() > MAX_ENTRIES {
             return Ok(None);
         }
+        #[allow(
+            clippy::mutable_key_type,
+            reason = "admission allows only immutable scalars and flat records of scalars; Value hash/equality does not depend on its internal caches"
+        )]
         let mut positions: HashMap<Value, Arc<Vec<usize>>> = HashMap::new();
         let mut sample: Option<Value> = None;
         let mut entries: usize = 0;

@@ -538,60 +538,8 @@ impl Word<'_> {
         scope: &Scope,
         strong: bool,
     ) -> Result<Truth, TemporalError> {
-        if let Some(key) = self.subscript_key(sub, scope)
-            && self
-                .stutters
-                .as_ref()
-                .is_some_and(|(stored, _)| *stored == key)
-            && !self
-                .model
-                .ir
-                .node(action)
-                .effects
-                .intersects(Effects::IMPURE)
-            && let Some((var, binding)) = self.first_membership(action, scope, true)
-            && let Some(positions) = self.members(var, &binding)?
-        {
-            self.check_atom_context(action, scope)?;
-            self.check_scoped_context_mode(sub, scope, 0, &mut 0, false)?;
-            self.charge(positions.len() + self.states.len().div_ceil(64))?;
-            let mut recurrent = false;
-            for (j, &i) in positions.iter().enumerate() {
-                if j % 256 == 0 {
-                    self.model.evaluator.poll_host_control()?;
-                }
-                if self.stutters.as_ref().is_some_and(|(_, col)| col.at(i)) {
-                    continue;
-                }
-                let next = if i + 1 == self.states.len() {
-                    self.back_to
-                } else {
-                    i + 1
-                };
-                recurrent |= self.action_at(i, next, action, scope)? && i >= self.back_to;
-            }
-            if recurrent {
-                return Ok(Truth::constant(self.states.len(), true));
-            }
-            let cycle = &positions[positions.partition_point(|i| *i < self.back_to)..];
-            self.charge(cycle.len())?;
-            // Inactive positions contribute a known disabled step. Still visit
-            // every reached source in order, including those after the fold decides.
-            let mut holds = strong || cycle.len() < self.states.len() - self.back_to;
-            let pred = Pred::new(action, scope.clone());
-            for (j, &i) in cycle.iter().enumerate() {
-                if j % 256 == 0 {
-                    self.model.evaluator.poll_host_control()?;
-                }
-                let disabled = !enabled(self.model, &pred, Some(sub), &self.states[i])
-                    .map_err(|e| enabled_refusal(&e, "fairness "))?;
-                holds = if strong {
-                    holds && disabled
-                } else {
-                    holds || disabled
-                };
-            }
-            return Ok(Truth::constant(self.states.len(), holds));
+        if let Some(result) = self.sparse_fairness(action, sub, scope, strong)? {
+            return Ok(result);
         }
         self.charge(self.states.len())?;
         let occurrences = self.temporal_action(action, sub, scope, false, true)?;
@@ -599,25 +547,36 @@ impl Word<'_> {
         if recurrent {
             Ok(Truth::constant(self.states.len(), true))
         } else {
-            self.charge(self.states.len() - self.back_to)?;
-            let action = Pred::new(action, scope.clone());
-            // Evaluate every cycle position in source order. A later reached
-            // error still decides validation after the Boolean fold is known.
-            let mut holds = strong;
-            for (i, state) in self.states[self.back_to..].iter().enumerate() {
-                if i % 256 == 0 {
-                    self.model.evaluator.poll_host_control()?;
-                }
-                let disabled = !enabled(self.model, &action, Some(sub), state)
-                    .map_err(|e| enabled_refusal(&e, "fairness "))?;
-                holds = if strong {
-                    holds && disabled
-                } else {
-                    holds || disabled
-                };
-            }
-            Ok(Truth::constant(self.states.len(), holds))
+            self.fair_enabled(action, sub, scope, strong, self.back_to..self.states.len())
         }
+    }
+
+    fn fair_enabled(
+        &mut self,
+        action: ExprId,
+        sub: ExprId,
+        scope: &Scope,
+        strong: bool,
+        positions: impl ExactSizeIterator<Item = usize>,
+    ) -> Result<Truth, TemporalError> {
+        self.charge(positions.len())?;
+        // An omitted cycle position is proved disabled. Evaluate every remaining
+        // position in source order even after the Boolean answer is known.
+        let mut holds = strong || positions.len() < self.states.len() - self.back_to;
+        let pred = Pred::new(action, scope.clone());
+        for (j, i) in positions.enumerate() {
+            if j % 256 == 0 {
+                self.model.evaluator.poll_host_control()?;
+            }
+            let disabled = !enabled(self.model, &pred, Some(sub), &self.states[i])
+                .map_err(|e| enabled_refusal(&e, "fairness "))?;
+            holds = if strong {
+                holds && disabled
+            } else {
+                holds || disabled
+            };
+        }
+        Ok(Truth::constant(self.states.len(), holds))
     }
 
     // Only root variable reads and literal tuples of them are independent of
