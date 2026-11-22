@@ -7,6 +7,7 @@ use crate::{Error, Handle, Machine};
 /// A source-bound nonstuttering action evaluated on a group of materialized edges.
 pub struct ActionBatch {
     changed: u64,
+    complete_image: bool,
     terms: Vec<Term>,
 }
 
@@ -27,7 +28,12 @@ impl Compiler<'_> {
         })?;
         let mut terms = Vec::new();
         self.batch_terms(action, &mut terms, 0)?;
-        Some(ActionBatch { changed, terms })
+        let complete_image = function_image(&terms, self.ir.vars().len());
+        Some(ActionBatch {
+            changed,
+            terms,
+            complete_image,
+        })
     }
 
     // ENABLED constructs its own primed row. A closed capture list binds
@@ -100,6 +106,26 @@ impl Compiler<'_> {
     }
 }
 
+// Only a leading source guard followed by disjoint, complete writes can
+// use assignments from a concrete generated destination.
+fn function_image(terms: &[Term], width: usize) -> bool {
+    let mut writes: u64 = 0;
+    for term in terms {
+        let mask = match term {
+            Term::Reset(_) => continue,
+            Term::Guard(_) if writes == 0 => continue,
+            Term::Guard(_) => return false,
+            Term::Match(variable, _) => 1u64 << variable,
+            Term::CopyTuple(mask) => *mask,
+        };
+        if mask & writes != 0 {
+            return false;
+        }
+        writes |= mask;
+    }
+    writes.count_ones() as usize == width
+}
+
 impl ActionBatch {
     /// Evaluates this plan on the original source and target rows, in its owning machine.
     /// All handles must already have been proved materialized in the same store.
@@ -113,7 +139,26 @@ impl ActionBatch {
         targets: &[&[Handle]],
         fuel: u64,
     ) -> Option<u64> {
+        self.evaluate_image(plan, machine, before, targets, fuel, None)
+    }
+
+    /// Uses the normalized destination writes of the same deterministic bound
+    /// action on the same closed original source. The caller must certify every
+    /// write, unchanged variable, store, warning and producer binding. A true
+    /// flag also certifies the identical ordered Boolean guard prefix.
+    #[must_use]
+    pub fn evaluate_image(
+        &self,
+        plan: &Plan,
+        machine: &mut Machine,
+        before: &[Handle],
+        targets: &[&[Handle]],
+        fuel: u64,
+        emitted: Option<(&[Handle], bool)>,
+    ) -> Option<u64> {
+        let emitted = emitted.filter(|_| self.complete_image);
         if targets.len() > 64
+            || emitted.is_some_and(|(row, _)| row.len() != before.len())
             || before.len() != machine.s0.len()
             || targets.iter().any(|r| r.len() != before.len())
         {
@@ -129,7 +174,7 @@ impl ActionBatch {
         }
         machine.warnings.clear();
         machine.printed.clear();
-        let result = self.match_edges(&plan.code, machine, before, targets);
+        let result = self.match_edges(&plan.code, machine, before, targets, emitted);
         machine.leave(frame);
         machine.heap.reset();
         result.ok().filter(|_| {
@@ -143,6 +188,7 @@ impl ActionBatch {
         m: &mut Machine,
         before: &[Handle],
         targets: &[&[Handle]],
+        emitted: Option<(&[Handle], bool)>,
     ) -> Result<u64, Error> {
         let mut live = 0;
         for (i, row) in targets.iter().enumerate() {
@@ -161,12 +207,15 @@ impl ActionBatch {
                     }
                 }
                 Term::Guard(p) => {
-                    if !m.eval_bool(code, *p)? {
+                    if !emitted.is_some_and(|(_, quiet)| quiet) && !m.eval_bool(code, *p)? {
                         return Ok(0);
                     }
                 }
                 Term::Match(var, rhs) => {
-                    let value = m.eval_norm(code, *rhs)?;
+                    let value = match emitted {
+                        Some((row, _)) => row[*var],
+                        None => m.eval_norm(code, *rhs)?,
+                    };
                     let mut pending = live;
                     while pending != 0 {
                         let i = pending.trailing_zeros() as usize;
