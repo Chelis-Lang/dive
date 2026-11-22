@@ -7,6 +7,8 @@ are in git history.
 
 - Symbolic proofs accept equality between Boolean-valued table cells and Boolean expressions.
 
+- Core reuses [native fairness labels](docs/user/temporal.md#fairness) across related states and successive checks on a growing graph. Together with component search, this cut four-floor Elevator time to a validated counterexample from 19.08 s to 9.62 s.
+
 - Fresh named symbolic checks try the requested invariant directly before searching for a closed predicate.
 
 - Named symbolic checks can [repair a rejected predicate](docs/user/symbolic.md#repair-a-candidate-on-the-currently-bound-source) in the same invocation.

@@ -569,7 +569,17 @@ fn concrete_set_read_cache_preserves_holds_violations_and_independent_words() {
             // refused, so its reference demands read rows through the cache.
             let atoms = &core["core"]["metrics"]["liveness"]["atoms"];
             assert!(atoms["eligible_atoms"].as_u64() >= Some(2), "{atoms}");
-            assert!(atoms["evaluated"].as_u64() >= Some(2 * 1101), "{atoms}");
+            // Each constant-on-these-rows predicate runs once and answers the
+            // other 1,100 demands from its exact projection. The violating
+            // configuration also has one row-dependent atom per state.
+            assert_eq!(atoms["projected_truth"]["state_hits"], 2 * 1100, "{atoms}");
+            let extra = if verdict == "liveness-violation" {
+                1101
+            } else {
+                0
+            };
+            assert_eq!(atoms["evaluated"], 2 + extra, "{atoms}");
+            assert_eq!(atoms["reference_evaluations"]["state"], 1101, "{atoms}");
             assert_eq!(atoms["fallback"], 0, "{atoms}");
             assert_eq!(atoms["rejections"]["fresh_string"], 1, "{atoms}");
             let cache = &core["core"]["metrics"]["liveness"]["values"];

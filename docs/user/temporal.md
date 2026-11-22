@@ -579,6 +579,16 @@ when the row closes. Each column belongs to one bound predicate and one graph.
 The `periodic_prefix` counters report reused cells and retained bytes. A new
 check after a source edit starts with fresh columns.
 
+On the matched one-worker Elevator comparison, the combined label and
+component-search changes reduced four-floor time to a validated violation
+from 19.08 s to 9.62 s. Native atom evaluations fell from 14,337,308 to
+3,674,172. The second periodic check reused 11,375,942 cells from the first.
+Manyan took 7.46 s. On the complete three-floor graph the corresponding
+medians were 4.21 s, 3.55 s and 1.33 s. The two-floor holding medians were
+0.285 s, 0.26 s and 0.11 s. Four-floor median peak RSS was 172 MiB before
+the changes, 192 MiB with both, and 264 MiB for Manyan.
+[Matched runs, intermediate builds and witness checks](../../conformance/reports/perf/2026-11-22-projected-fairness.json)
+
 From a source checkout, a strong-fairness model with three toggles
 (`crates/dive-liveness/tests/fixtures/solutions/Solutions.tla`, 8 states, 25
 generated) exercises holding and failing properties, including

@@ -20,6 +20,8 @@ The scripts that produced the records are in
 
 [Streett component search](2026-11-22-streett-component-search.json) compares the exact factored fairness searches on four-floor Elevator and a constrained public allocator. It includes elapsed time, peak RSS, phase timings, concrete word replay and source configuration.
 
+[Projected native fairness and periodic graph labels](2026-11-22-projected-fairness.json) records every measured arm, three Elevator sizes against Manyan, peak RSS, label evaluations, a second fair model, and independent replays of both tools’ words. Four-floor medians were 19.08 s before the label and SCC changes, 9.62 s with both, and 7.46 s for Manyan.
+
 [Four-floor Elevator](2026-11-22-factored-streett.json) records the native counterexample, the independent Manyan word, damaged-cycle controls, host, phase timings and compact reproduction commands.
 
 [Grouped fairness on Elevator](2026-11-22-fairness-components.json) records one-worker wall time, phase timings, the matching Manyan comparison and an independently validated four-floor counterexample. See [fairness](../../../docs/user/temporal.md#fairness).
