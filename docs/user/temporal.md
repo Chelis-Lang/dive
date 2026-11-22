@@ -518,6 +518,11 @@ Core used 38,880 images and exhausted 38,880 states in 0.42 s. Core without
 images took 0.43 s and Manyan took 0.27 s. CoffeeCan100Beans exercised the
 ordinary fallback. [Paired timings, counts and audit controls](../../conformance/reports/perf/2026-11-22-producer-action-images.json)
 
+On merged Core, three fresh processes per checker put the three-floor proof
+at 1.52 s versus Manyan’s 1.32 s. Four-floor time to an independently
+validated word was 5.32 s versus 7.66 s. Both tools checked the full
+configuration; they returned different valid words.
+
 A fairness subscript can be a single state variable. For example, Core batches
 `WF_hr(HCnxt)` in the published LiveHourClock and uses the ordinary equality
 operator for `hr = hr′`. A comparison between incompatible classes still
