@@ -33,6 +33,8 @@ The [source-driven EmergencyCall measurements](2026-11-21-source-whole-values.js
 
 The [automatic strategy comparison](2026-11-22-auto-strategy.json) records the KVS Medium/Large crossover, same-host direct controls and independent model-family controls.
 
+The [lemma selection and proof controls](2026-11-22-lemma-selection.json) connect fourteen replayed counterexamples to induction, a finite surviving lemma, and external TLAPS checks on TwoPhase, Raft and TCommit.
+
 The [compiled finite safety comparison](2026-11-21-compiled-finite-safety.json) records the exact Core and compiled KVS Medium runs, binding and compilation cost, same-host tlx, TCommit, and the named SlateDB holdout refusal.
 
 [SlateDB induction controls](2026-11-22-slatedb-preservation.json) locate the four-writer fix-on preservation gap at the replay cursor and distinguish it from the reachable fix-off violation.
