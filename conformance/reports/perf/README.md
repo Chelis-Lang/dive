@@ -70,6 +70,9 @@ The [named-property proof comparison](2026-11-21-named-property-proofs.json) rec
 [LockServer Boolean table equality](2026-11-22-lockserver-equality.json) records
 paired cold runs and an independently replayed double grant on the two-server variant.
 
+[Inferred ToyMutex layouts](2026-11-22-toy-mutex-layout.json) records the cold
+comparison, rejection of the unguarded counter, and the exact Core controls.
+
 The [released SlateDB source-edit comparison](2026-11-21-slatedb-source-edits.json) pairs the three-writer stale-replay witness with exact two-writer controls, input hashes and the independent validation result.
 
 The [poison queue comparisons](2026-11-21-poison-queue.json) cover the original five-by-five deadlock witnesses, complete small fair graphs and a checked projection of ordinary message identities.

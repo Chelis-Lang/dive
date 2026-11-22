@@ -435,6 +435,15 @@ A read in a guard, retained assignment, constraint or property can require
 that variable and cause a refusal. The checker reconstructs integer values
 when it produces a witness.
 
+If you omit `--type-invariant` and the source has no default `TypeInvariant`
+operator, a named proof can infer a layout. The checker starts from the original
+Init values, then grows the scalar and set domains and fixed-domain function
+ranges by checking enabled assignments. It certifies that every original
+guarded action stays within the layout before using it for a proof. The search
+tries up to eight layouts and grows at most 256 alternatives per field.
+It reports `"layout": "inferred"` when it uses a certified layout. Pass
+`--type-invariant NAME` to require a particular source operator.
+
 The `dive-property-proof-v1` report names the property. `inductive-safety`
 means the checker established initial inclusion, preservation by every guarded
 action and implication of the requested invariant. A fresh proof first tries the

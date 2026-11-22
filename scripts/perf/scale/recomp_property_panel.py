@@ -87,8 +87,10 @@ def main():
         row = dict(config=str(config.relative_to(base)), property=prop,
                    source_sha256=hashlib.sha256(model.read_bytes()).hexdigest())
         row["cfg_sha256"] = hashlib.sha256(config.read_bytes()).hexdigest()
-        layout = "TCTypeOK" if config.parent.parent.name == "tcommit" else "TypeOK"
-        row["layout"] = layout
+        family = config.parent.parent.name
+        layout = {"tcommit": "TCTypeOK", "toy_mutex": None}.get(family, "TypeOK")
+        layout_args = ["--type-invariant", layout] if layout is not None else []
+        row["layout"] = layout if layout is not None else "inferred"
         for tool in (("dive", "recomp") if args.tool == "both" else (args.tool,)):
             with TemporaryDirectory() as tmp:
                 folder = Path(tmp)
@@ -96,7 +98,7 @@ def main():
                     if item.is_file():
                         shutil.copyfile(item, folder / item.name)
                 cmd = ([str(args.dive.resolve()), "check", model.name, "--config", config.name,
-                        "--strategy", "symbolic", "--type-invariant", layout, "--property-proof", prop,
+                        "--strategy", "symbolic", *layout_args, "--property-proof", prop,
                         "--output", "json"] if tool == "dive" else
                        [sys.executable, "-u", root / "recomp-verify.py", model.name, config.name, "--parallel"])
                 status, wall, out, peak = measured(cmd, folder, args.seconds, args.cgroup_parent)
