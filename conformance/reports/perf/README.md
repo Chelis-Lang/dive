@@ -36,6 +36,8 @@ The scripts that produced the records are in
 
 [Projected native fairness and periodic graph labels](2026-11-22-projected-fairness.json) records every measured arm, three Elevator sizes against Manyan, peak RSS, label evaluations, a second fair model, and independent replays of both tools’ words. Four-floor medians were 19.08 s before the label and SCC changes, 9.62 s with both, and 7.46 s for Manyan.
 
+[Projected fairness rows and late fallback](2026-11-22-projected-fairness-row-fallback.json) records the original Elevator comparisons and the physical-edge fallback.
+
 [Seven-floor Elevator](2026-11-22-elevator-seven.json) compares ordinary Core and Manyan, records the workspace and Cartesian-ordering experiments, and includes genuine and damaged witness checks. It also records timeouts under alternative schedules.
 
 [Independent lasso validation](2026-11-22-packed-word-replay.json) records the 121-, 151-, 181- and 241-floor controls, per-formula work, damaged loops and closed graph 7.

@@ -354,6 +354,8 @@ are in git history.
   the report's `options.workers.reason` and the human header say so.
 
 ### Performance
+- Experimental projected fairness labels retain earlier source rows when a
+  later source requires ordinary evaluation.
 
 - Parallel resident [exact safety checks](docs/user/checking.md#time-and-memory-budgets) skip repeated invariant evaluations for states already committed by an earlier wave.
 
