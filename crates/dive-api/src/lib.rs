@@ -73,6 +73,7 @@ pub mod trace;
 pub use config::{ConfigReport, parse_config_file, parse_config_source};
 
 mod analyze;
+pub mod bounded;
 mod check;
 mod core_checkpoint;
 mod core_worker;

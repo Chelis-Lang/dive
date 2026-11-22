@@ -583,6 +583,7 @@ mod tests {
                 Node::Memo { site: 0, body: 1 },
             ],
             sites: vec![MemoSite {
+                row_input: false,
                 name: "step".into(),
                 vars: vec![].into(),
                 slots: vec![].into(),

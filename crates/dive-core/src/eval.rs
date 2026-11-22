@@ -1095,11 +1095,26 @@ impl Machine {
             } => self.prefix_fcn(code, bind, *function, *body),
             Node::Quant { kind, binds, body } => self.quant(code, *kind, binds, *body),
             Node::Apply(f, a) => {
+                if self.opts.actor_rows
+                    && self.fuel == u64::MAX
+                    && self.debugger.is_none()
+                    && let Some(value) = self.direct_cell(code, *f, *a)
+                {
+                    return Ok(value);
+                }
                 let fv = self.eval(code, *f)?;
                 let av = self.eval_norm(code, *a)?;
                 self.apply(fv, av)
             }
             Node::Select(r, field) => {
+                if self.opts.actor_rows
+                    && self.fuel == u64::MAX
+                    && self.debugger.is_none()
+                    && let Some(Node::Apply(table, key)) = code.nodes.get(*r as usize)
+                    && let Some(value) = self.direct_cell(code, *table, *key)
+                {
+                    return self.select(value, *field);
+                }
                 let rv = self.eval(code, *r)?;
                 self.select(rv, *field)
             }
@@ -1107,8 +1122,21 @@ impl Machine {
                 let fv = self.eval(code, *f)?;
                 self.domain(fv)
             }
-            Node::Except { base, updates } => {
+            Node::Except {
+                base,
+                updates,
+                row_fields,
+            } => {
                 let mut f = self.eval_norm(code, *base)?;
+                if self.opts.actor_rows
+                    && let Some(fields) = row_fields
+                    && self.fuel == u64::MAX
+                    && self.debugger.is_none()
+                    && self.transient_bound == usize::MAX
+                    && let Some(result) = self.except_row(code, f, updates, fields)?
+                {
+                    return Ok(result);
+                }
                 for u in updates {
                     f = self.except(code, f, u, 0)?;
                 }
@@ -2456,6 +2484,28 @@ impl Machine {
     // Functions and records
     // ------------------------------------------------------------------
 
+    /// A direct table and already-ground scalar index are effect-free.
+    /// Values behind unforced thunks and misses still run the original code.
+    fn direct_cell(&self, code: &Code, table: P, key: P) -> Option<Handle> {
+        let raw = |p: P| match *code.nodes.get(p as usize)? {
+            Node::Var(i) => self.s0.get(usize::from(i)).copied(),
+            Node::Const(h) => Some(h),
+            Node::Slot(s) => Some(self.slot(s)),
+            _ => None,
+        };
+        let table = raw(table)?;
+        let key = raw(key)?;
+        if !table.is_compound() || key.is_compound() || key.is_empty() {
+            return None;
+        }
+        let view = self.heap.view(table);
+        if !view.kind.is_fcn() {
+            return None;
+        }
+        let index = self.fcn_index(view, key).ok()??;
+        Some(view.values()[index])
+    }
+
     /// Look up a key in an already borrowed compound.
     fn fcn_index(&self, v: View<'_>, key: Handle) -> Result<Option<usize>, Error> {
         match v.kind {
@@ -2465,7 +2515,11 @@ impl Machine {
             })),
             Kind::Fcn => {
                 let keys = v.keys();
-                if key.as_str_id().is_some() || keys.len() <= 8 {
+                if self.opts.actor_rows
+                    && let Some(id) = key.as_str_id().or_else(|| key.as_model_id())
+                {
+                    Ok(self.heap.name_position(keys, key, id))
+                } else if key.as_str_id().is_some() || keys.len() <= 8 {
                     Ok(keys.iter().position(|&k| self.heap.eq(k, key)))
                 } else if let Some(i) = self.grid_index(keys, key) {
                     Ok(Some(i))
@@ -2541,10 +2595,17 @@ impl Machine {
             return Err(eval_err("field selection on a value that is not a record"));
         }
         let v = self.heap.view(r);
-        if v.kind == Kind::Fcn
-            && let Some(i) = v.keys().iter().position(|&k| k == field)
-        {
-            return Ok(v.values()[i]);
+        if v.kind == Kind::Fcn {
+            let index = if self.opts.actor_rows
+                && let Some(id) = field.as_str_id()
+            {
+                self.heap.name_position(v.keys(), field, id)
+            } else {
+                v.keys().iter().position(|&k| k == field)
+            };
+            if let Some(i) = index {
+                return Ok(v.values()[i]);
+            }
         }
         Err(eval_err(
             "Attempted to access a record field that does not exist",
@@ -2577,6 +2638,152 @@ impl Machine {
             }
             _ => Err(eval_err("DOMAIN of a set")),
         }
+    }
+
+    /// Only complete persistent operands enter a bounded row site. The outer
+    /// table must be a canonical identity so reusing an unchanged row cannot
+    /// retain a literal's different representation bits. Every slot, including
+    /// external actor and RHS inputs, participates in exact handle comparison.
+    fn row_memo_key(
+        &self,
+        code: &Code,
+        site: Option<u32>,
+        table: Handle,
+        row: Handle,
+    ) -> Option<(u32, [Handle; MAX_KEY], usize)> {
+        let site = site?;
+        if self.heap.speculative
+            || self.refuse_unrecorded_warnings
+            || !self.memo.active(site)
+            || !self.memo.may_keep()
+            || !table.is_persistent()
+            || table.is_lazy_persistent()
+            || row.is_transient()
+        {
+            return None;
+        }
+        let meta = code.sites.get(site as usize)?;
+        let len = meta.key_len();
+        if !meta.row_input || len > MAX_KEY || !meta.primed.is_empty() {
+            return None;
+        }
+        let mut key = [Handle::EMPTY; MAX_KEY];
+        key[0] = row;
+        for (i, &var) in meta.vars.iter().enumerate() {
+            key[1 + i] = *self.s0.get(usize::from(var))?;
+        }
+        for (i, &slot) in meta.slots.iter().enumerate() {
+            key[1 + meta.vars.len() + i] = self.slot(slot);
+        }
+        key[..len]
+            .iter()
+            .all(|h| !h.is_transient() && !h.is_empty())
+            .then_some((site, key, len))
+    }
+
+    /// Resolve every selector against the actual carrier before evaluating
+    /// any RHS. Missing keys, unsupported operand shapes and unbound slots
+    /// then take the original path with its exact demands and diagnostics.
+    fn except_row(
+        &mut self,
+        code: &Code,
+        table: Handle,
+        updates: &[Update],
+        plan: &crate::plan::RowUpdate,
+    ) -> Result<Option<Handle>, Error> {
+        let Some(first) = updates
+            .first()
+            .and_then(|u| u.path.first())
+            .and_then(|&p| code.nodes.get(p as usize))
+        else {
+            return Ok(None);
+        };
+        if updates.len() != plan.fields.len() || updates.len() > crate::plan::MAX_ROW_FIELDS {
+            return Ok(None);
+        }
+        let key = match *first {
+            Node::Const(h) => h,
+            Node::Slot(s) => self.slot(s),
+            _ => return Ok(None),
+        };
+        if key.is_empty() || key.is_compound() || !table.is_compound() {
+            return Ok(None);
+        }
+        let outer = self.heap.view(table);
+        if !outer.kind.is_fcn() {
+            return Ok(None);
+        }
+        let Some(index) = self.fcn_index(outer, key)? else {
+            return Ok(None);
+        };
+        let row = outer.values()[index];
+        if !row.is_compound() {
+            return Ok(None);
+        }
+        let record = self.heap.view(row);
+        if record.kind != Kind::Fcn {
+            return Ok(None);
+        }
+        let mut slots = [(0, Handle::EMPTY); crate::plan::MAX_ROW_FIELDS];
+        for (slot, &field) in slots.iter_mut().zip(&plan.fields) {
+            let Some(pos) = field
+                .as_str_id()
+                .and_then(|id| self.heap.name_position(record.keys(), field, id))
+            else {
+                return Ok(None);
+            };
+            *slot = (pos, record.values()[pos]);
+        }
+        let lookups = outer.len().saturating_add(record.len());
+        let copies = outer.data.len().saturating_add(record.data.len());
+        let memo = if outer.is_lazy() || record.is_lazy() {
+            None
+        } else {
+            self.row_memo_key(code, plan.site, table, row)
+        };
+        if let Some((site, key, len)) = &memo
+            && let Some(result) = self.memo.get(*site, &key[..*len])
+        {
+            self.charge(lookups)?;
+            return Ok(Some(if result == row {
+                table
+            } else {
+                self.heap.fcn_with(table, index, result)
+            }));
+        }
+
+        let mut changed = 0;
+        for (i, u) in updates.iter().enumerate() {
+            self.charge(lookups)?;
+            let (position, old) = slots[i];
+            let new = if u.path.len() == 2 {
+                self.set_slot(u.at, old);
+                self.eval_component(code, u.value)?
+            } else {
+                self.except(code, old, u, 2)?
+            };
+            if new != old {
+                self.charge(copies)?;
+                slots[changed] = (position, new);
+                changed += 1;
+            }
+        }
+        let result = self
+            .heap
+            .replace_row_fields(table, index, row, &slots[..changed]);
+        if let Some((site, key, len)) = memo
+            && slots[..changed].iter().all(|&(_, v)| !self.heap.is_lazy(v))
+        {
+            let output = self.heap.view(result).values()[index];
+            let added = self.heap.cache.added;
+            if let Ok(value) = self.heap.intern_exact(output)
+                && (value != row || result == table)
+            {
+                self.memo.put(site, &key[..len], value);
+            }
+            self.charge_kept(site, added);
+        }
+        Ok(Some(result))
     }
 
     fn except(
@@ -2941,6 +3148,7 @@ mod tests {
                 Node::Memo { site: 0, body: 1 },
             ],
             sites: vec![MemoSite {
+                row_input: false,
                 name: "F (Primed, action)".into(),
                 vars: vec![].into(),
                 slots: vec![].into(),
@@ -3630,6 +3838,7 @@ mod bounded_analysis_machine {
                 Node::Memo { site: 0, body: 0 },
             ],
             sites: vec![MemoSite {
+                row_input: false,
                 name: "site".into(),
                 vars: Box::new([0]),
                 slots: Box::new([]),

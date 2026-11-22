@@ -49,6 +49,27 @@ can share the same instructions close to the compiler’s constant-folding limit
 when the remaining allowance covers the recorded work with fuel to spare.
 [LuPastry+ measurements](../developer/large-models.md#lupastry-parallel-invariant-checking).
 
+## Check paths through a transition bound
+
+```sh
+dive check APtcp.tla --config APtcp.cfg --strategy bounded-path --path-bound 5 --output json
+```
+
+This mode checks the configured invariants on Init at depth zero and every
+reachable prefix through the requested number of Next transitions. Its layers
+preserve a state reached again at another depth. It uses the bound source
+operators and checks the source assumptions. It independently validates a
+counterexample and reports the depth at which the invariant failed.
+
+The configuration uses explicit INIT and NEXT. Repeated states and explicit
+stuttering transitions in Next count toward the bound. A state with no
+admissible successor ends that prefix. If every prefix ends before the bound,
+the result is `executions-too-short`. A reached bound with no violation yields
+`bounded-safe` and states the bound in `path_bound`. Both results have
+`model_proved: false`. Configurations asking for temporal, symmetry or explicit
+deadlock checking require their corresponding checking mode.
+
+
 ## Select a closed model input in the CFG
 
 When a zero-argument TLA+ definition selects a host input, you can give that
@@ -849,6 +870,8 @@ Rerun preparation after an edit. It resolves the current input, exports a fresh 
 At check time, the executable compares the entire bound generator structure with its compiled shape. A different shape, debugging, unbounded simulation or a non-exhaustive sink uses ordinary traversal. Current predicates and values are evaluated anew even when the control shape still matches. A fresh search reconstructs the graph, checks the configured obligations and retains their diagnostics. For a matched control set `DIVE_DISABLE_NATIVE_SUCCESSORS=1`. For a separate coverage run, `DIVE_NATIVE_SUCCESSOR_METER` can name a fresh file recording power-of-two counts of calls to compiled actions. A separate Sail installation accepts the underlying TLA+ inputs and maintains its own cache.
 
 Flint's property edit completed in 3.30 s including preparation, against 23.10 s for compiled tla-mc. Unchanged warm search on the same labeled graph took 3.07–3.18 s against 1.49 s. [Original and edited measurements, fallback and trace controls](../../conformance/reports/perf/2026-11-22-source-native-successors.json).
+
+Ordinary `dive check` recognizes repeated updates to distinct fields of the same finite actor record, such as `[w EXCEPT ![a].pc = next, ![a].seen = stamp]`. It preserves source order, nested paths and the old value bound to `@`. A missing key, a repeated field or a different runtime shape uses ordinary evaluation. The original Flint check took 2.94–3.02 s with this lowering, and the optional compiled worker took 2.62–2.63 s plus its binding check. Compiled tla-mc remained faster on unchanged warm checks. [Full equality, growing models and edit-cycle measurements](../../conformance/reports/perf/2026-11-22-actor-table-rows.json).
 
 ## Embedding notes
 

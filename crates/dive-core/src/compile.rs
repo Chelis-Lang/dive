@@ -418,7 +418,7 @@ fn push_operands(n: &Node, out: &mut Vec<P>) {
             out.push(*body);
         }
         Node::PrefixFcn { bind, body, .. } => out.extend([bind.domain, *body]),
-        Node::Except { base, updates } => {
+        Node::Except { base, updates, .. } => {
             out.push(*base);
             for u in updates {
                 out.extend(u.path.iter().copied());
@@ -1398,7 +1398,7 @@ impl Compiler<'_> {
                 binders(std::slice::from_ref(bind), &[*body], &mut i, &mut add);
                 minus(&mut i.free, &[*function]);
             }
-            Node::Except { base, updates } => {
+            Node::Except { base, updates, .. } => {
                 add(*base, &mut i);
                 for u in updates {
                     for &p in &u.path {
@@ -2011,6 +2011,80 @@ impl Compiler<'_> {
         data.into_iter().any(|d| self.holds_lazy_set(d, seen))
     }
 
+    /// Recognize clauses that independently replace distinct fields in one row.
+    /// Only a ground constant or the same bound slot may name the row.
+    fn row_fields(&self, updates: &[Update]) -> Option<Box<[Handle]>> {
+        if !self.opts.actor_rows || !(1..=crate::plan::MAX_ROW_FIELDS).contains(&updates.len()) {
+            return None;
+        }
+        let mut fields = Vec::with_capacity(updates.len());
+        let first = &self.code.nodes[*updates[0].path.first()? as usize];
+        for update in updates {
+            if update.path.iter().chain([&update.value]).any(|&p| {
+                let info = &self.info[p as usize];
+                info.effect || info.calls
+            }) {
+                return None;
+            }
+            let [key, field, ..] = &*update.path else {
+                return None;
+            };
+            match (first, &self.code.nodes[*key as usize]) {
+                (Node::Slot(a), Node::Slot(b)) if a == b => {}
+                (Node::Const(a), Node::Const(b)) if a == b && !a.is_compound() => {}
+                _ => return None,
+            }
+            let Node::Const(field) = self.code.nodes[*field as usize] else {
+                return None;
+            };
+            if field.as_str_id().is_none() || fields.contains(&field) {
+                return None;
+            }
+            fields.push(field);
+        }
+        Some(fields.into_boxed_slice())
+    }
+
+    /// The row itself, every unprimed state input and every free slot of
+    /// the RHSs form an exact key. Keep nested updates on the ordinary path
+    /// because a missing nested key can have an observable warning.
+    fn row_update_site(&mut self, updates: &[Update]) -> Option<u32> {
+        if !self.opts.primed_memo || self.init_mode || updates.iter().any(|u| u.path.len() != 2) {
+            return None;
+        }
+        let mut reads = 0;
+        let mut slots = Vec::new();
+        for u in updates {
+            let info = &self.info[u.value as usize];
+            if info.primed != 0 || info.calls || info.effect || info.nested_query {
+                return None;
+            }
+            reads |= info.vars;
+            for &slot in &info.free {
+                if slot != u.at && !slots.contains(&slot) {
+                    slots.push(slot);
+                }
+            }
+        }
+        let vars: Box<[_]> = (0..64u16).filter(|&v| reads & (1u64 << v) != 0).collect();
+        if vars.len() + slots.len() + 1 > MAX_KEY {
+            return None;
+        }
+        let site = u32::try_from(self.code.sites.len()).ok()?;
+        let name = format!("actor row #{site}");
+        self.code.sites.push(MemoSite {
+            name: name.clone(),
+            vars,
+            slots: slots.into(),
+            primed: Box::new([]),
+            step: true,
+            candidate: true,
+            row_input: true,
+        });
+        self.site_names.push(name);
+        Some(site)
+    }
+
     fn push(&mut self, n: Node) -> Result<P, Error> {
         if self.code.nodes.len() >= MAX_NODES {
             return Err(Error::unsupported(
@@ -2516,6 +2590,7 @@ impl Compiler<'_> {
         #[allow(clippy::cast_possible_truncation, reason = "bounded")]
         let site = self.code.sites.len() as u32;
         self.code.sites.push(MemoSite {
+            row_input: false,
             name: name.clone(),
             vars: vars.into(),
             slots: slots.into(),
@@ -3248,7 +3323,14 @@ impl Compiler<'_> {
                         value: v?,
                     });
                 }
+                let row_fields = self.row_fields(&out).map(|fields| {
+                    Box::new(crate::plan::RowUpdate {
+                        fields,
+                        site: self.row_update_site(&out),
+                    })
+                });
                 self.push(Node::Except {
+                    row_fields,
                     base: b,
                     updates: out.into(),
                 })
@@ -4105,6 +4187,7 @@ impl Compiler<'_> {
         #[allow(clippy::cast_possible_truncation, reason = "bounded")]
         let site = self.code.sites.len() as u32;
         self.code.sites.push(MemoSite {
+            row_input: false,
             name: name.clone(),
             vars: vars.into(),
             slots: Box::new([]),
@@ -4338,6 +4421,7 @@ impl Compiler<'_> {
         #[allow(clippy::cast_possible_truncation, reason = "bounded")]
         let site = self.code.sites.len() as u32;
         self.code.sites.push(MemoSite {
+            row_input: false,
             name: name.clone(),
             vars: vars.into(),
             slots: Box::new([]),

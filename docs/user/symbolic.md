@@ -639,3 +639,35 @@ intersection of the two authenticated lists identifies the reused images. The
 remaining current entries were rechecked. A report with zero reuse means
 every current image was checked. Changes in the number of images can follow
 from expanding a quantified guard.
+
+
+## Check a named inductive predicate
+
+From a source checkout, pass the finite layout, candidate operator and one
+configured safety property to the checker. It reads the bound TLA+ expressions
+and expands the original `Next`. It proves initial inclusion, implication of
+the property and preservation of every candidate conjunct on each constrained
+step. It also checks the property on every generated destination that crosses
+the constraint. An unwitnessed induction failure is reported as inconclusive.
+The layout must represent every source variable and every possible destination
+of an admitted source.
+
+```sh
+python3 scripts/symbolic/check_named_induction.py ProofTrial.tla ProofTrial.cfg \
+  --exporter target/release/examples/symbolic_input --layout Layout \
+  --candidate IndAuto --property Safety --save proof.json
+```
+
+Replace `--save` with `--verify` in a fresh process to bind the current program
+and repeat all obligations. The compact certificate identifies the source
+and lists every action with its enabled occurrences and constraint crossings.
+The command uses the symbolic checker's Python dependencies.
+
+On I3DP's three-server MongoLoglessDynamicRaft, the seven supplied strengthening
+conjuncts covered **12,240,225 candidate valuations**. The checker proved all
+four actions across **70,410,570 enabled occurrences** in **57.56 s** with
+606 MiB peak RSS. A fresh process re-exported a relocated source checkout
+and checked the certificate in 57.34 s. Independent replay accepted an eight-state path with
+two elections, a membership change and propagation to other servers. Removing
+one voting guard allowed two primaries in term 1 after two steps.
+[Source, reproduction, controls and timings](../../conformance/reports/perf/2026-11-22-mongo-reconfiguration-induction.json)

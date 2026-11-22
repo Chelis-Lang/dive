@@ -114,6 +114,18 @@ pub struct Bind {
     pub eligible: Option<P>,
 }
 
+/// Maximum number of disjoint row fields retained on the evaluator stack.
+pub(crate) const MAX_ROW_FIELDS: usize = 16;
+
+/// Disjoint field replacements localized to one selected row.
+#[derive(Clone, Debug)]
+pub struct RowUpdate {
+    /// Named field of each clause, in source order.
+    pub(crate) fields: Box<[Handle]>,
+    /// Optional persistent row-transform site.
+    pub(crate) site: Option<u32>,
+}
+
 /// One `EXCEPT` clause.
 #[derive(Clone, Debug)]
 pub struct Update {
@@ -290,6 +302,8 @@ pub enum Node {
         base: P,
         /// The clauses.
         updates: Box<[Update]>,
+        /// Distinct named fields of one ground-indexed row, in clause order.
+        row_fields: Option<Box<RowUpdate>>,
     },
     /// `<<a, b>>`
     Tuple(Box<[P]>),
@@ -589,6 +603,8 @@ pub struct Fun {
 pub struct MemoSite {
     /// A description for statistics.
     pub name: String,
+    /// The site has one extra key for the input actor row.
+    pub row_input: bool,
     /// The unprimed variables the body reads.
     pub vars: Box<[u16]>,
     /// The free slots the body reads.
@@ -613,7 +629,7 @@ impl MemoSite {
     /// The length of the site's key, in handles.
     #[must_use]
     pub fn key_len(&self) -> usize {
-        self.vars.len() + self.primed.len() + self.slots.len()
+        self.vars.len() + self.primed.len() + self.slots.len() + usize::from(self.row_input)
     }
 }
 

@@ -18,9 +18,13 @@ The scripts that produced the records are in
 
 [The 46 bounded peer configurations](2026-11-22-bounded-peers.json), [Core's explicit prefix on the same inputs](2026-11-22-explicit-prefix.json), [Elevator fairness controls](2026-11-22-elevator-fairness.json) and [the published Recomp-Verify and Scimitar artifacts](2026-11-22-published-peer-artifacts.json) have a shared [reproduction guide and interpretation](../../../docs/internal/survey/verification-workloads.md#bounded-checking-fairness-and-proofs).
 
+[APtcp through five Next transitions](2026-11-22-aptcp-bounded-paths.json) records the original invariant and the edited assertion, with two peer outcomes and fresh witness replay.
+
 [Windowed enabledness above one million closed states](2026-11-22-windowed-enabled.json) records the six-floor production comparison, two further matched engineering pairs and seven-floor limits. The production pair took 77.40 and 72.40 seconds with the same validated 263-state counterexample. The previous six-floor Manyan run took 162.48 seconds and found a different validated 329-state word.
 
 [Five- and six-floor Fairness workspace](2026-11-22-streett-workspace.json) records matched Manyan trials, replayed witnesses, peak RSS and a memory-stop control. The larger shared allowance cut five-floor product search from 124.56 s to about 12.4 s.
+
+[Actor-table reads and row updates](2026-11-22-actor-table-rows.json) records ordinary and emitted checks against pinned tla-mc, warm growth, exact-store runs, memory, edit/undo, two Lamport transfers and witness replay.
 
 [Source-built native successor workers](2026-11-22-source-native-successors.json) records original-source Flint edit and undo runs against compiled tla-mc, actual dispatch on both Lamport models and Elevator, witness replay, Sail transfers and the rejected whole-action cache experiments.
 
@@ -126,6 +130,8 @@ The [population edit-session measurements](2026-11-21-occupancy-edits.json) pair
 [Complete finite TwoPhase induction](2026-11-22-twophase-induction.json) records the learned clauses, every checked action binding, and independent TLC certification on both manager counts.
 
 [AsyncRaft log induction](2026-11-22-asyncraft-log-induction.json) compares a source-checked Scimitar strengthening with exhaustive Core on two and three servers, including the crossover at three messages per channel, real two-index replication, and a reachable three-message follower mutant.
+
+[MongoLoglessDynamicRaft reconfiguration induction](2026-11-22-mongo-reconfiguration-induction.json) checks the published three-server election property through reconfiguration and records all constraint crossings, replay controls and proof costs.
 
 [Bounded AsyncRaft election induction](2026-11-22-asyncraft-election-induction.json) records original-action closure, boundary checks, genuine voting histories, and both reachable double-election mutations.
 

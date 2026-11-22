@@ -6,6 +6,7 @@
 //! return named refusals.
 #![forbid(unsafe_code)]
 
+mod bounded;
 mod debug;
 mod explain;
 mod help;
@@ -2026,6 +2027,9 @@ pub fn main() -> ExitCode {
         Some("analyze") => analyze_command(&args[1..], &mut stdout, &mut stderr),
         Some("dfid") => dfid_command(&args[1..], &mut stdout, &mut stderr),
         Some("translate") => translate::command(&args[1..], &mut stdout, &mut stderr),
+        Some("check") if bounded::requested(&args[1..]) => {
+            bounded::run(&args[1..], &mut stdout, &mut stderr)
+        }
         Some("check") if symbolic::requested(&args[1..]) => {
             symbolic::run(&args[1..], &mut stdout, &mut stderr)
         }

@@ -33,6 +33,7 @@ worker proves no model. Give it the same build, FILE.tla, configuration,\n\
 
 const CHECK: &str = "USAGE: dive check FILE.tla [OPTIONS]\n\n\
     --strategy auto         select exhaustive checking from the bound model and requested options\n\
+    --strategy bounded-path --path-bound K  check paths through K explicit Next transitions\n\
     --strategy symbolic     exact finite safety, symbolic JSON reports (Linux release bundle)\n\
     --strategy finite-induction  portable finite induction certificates (Linux release bundle)\n\
     --strategy occupancy    exact labeled safety for interchangeable finite status tables (Linux)\n\
