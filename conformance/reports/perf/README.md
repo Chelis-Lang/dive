@@ -29,6 +29,8 @@ The [temporal analysis phase measurements](2026-11-21-temporal-analysis-phases.j
 
 The [source-driven EmergencyCall measurements](2026-11-21-source-whole-values.json) contain the installed Linux worker identities, monolithic and 64-cell counts, wall time, peak RSS, independent exact comparisons and trace controls.
 
+The [lemma selection and proof controls](2026-11-22-lemma-selection.json) connect fourteen replayed counterexamples to induction, a finite surviving lemma, and external TLAPS checks on TwoPhase, Raft and TCommit.
+
 The [compiled finite safety comparison](2026-11-21-compiled-finite-safety.json) records the exact Core and compiled KVS Medium runs, binding and compilation cost, same-host tlx, TCommit, and the named SlateDB holdout refusal.
 
 The [allocator-fixed large-model baseline](2026-11-21-allocator-fixed-large-baselines.json) records EmergencyCall f3 against pinned TLC, an EWD998 capture profile and action-witness counts, and an original KVS Large resource-bounded run.
