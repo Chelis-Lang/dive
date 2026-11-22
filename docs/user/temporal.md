@@ -539,6 +539,21 @@ product memory allowance. When these buffers do not fit, Core can check
 candidate cycles individually and split a failed fairness pair into its two
 alternatives. A nested disjunction can still reach the formula work limit.
 
+A default Core file check can also use component search when ordinary formula
+decomposition succeeds. If one temporal core has at least eight alternatives
+and the formula contains at least three independent positive fairness pairs,
+Core keeps those pairs together during cycle search. This applies to complete
+passing graphs as well as counterexamples. Checks with explicit finite
+analysis ceilings retain their original formula and product admission.
+
+On three-floor Elevator, both plans exhaust 50,653 states. In three alternating
+runs per build on a dedicated host, median product search fell from 924 ms to
+295 ms. Median wall time fell from 3.59 s to 2.94 s and peak RSS from 100 MiB to
+74 MiB. Two-floor wall time fell from 0.26 s to 0.23 s. Manyan took 1.33 s and
+0.11 s respectively on the same host. The four-floor run already used
+component search in both builds.
+[Plan-selection measurements](../../conformance/reports/perf/2026-11-22-fairness-plan-selection.json)
+
 On Elevator with four floors, two people and two elevators, both the component
 search and the individual-cycle search report a violation of
 `TemporalInvariant` after 150,372 distinct states. The component search finds

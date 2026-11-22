@@ -10,7 +10,9 @@ use std::collections::{BTreeMap, BTreeSet};
 mod recurrence;
 mod solution;
 pub(crate) use recurrence::Recurrence;
-pub(crate) use solution::{CycleConditions, FactoredSolutions, StreettPair, decompose, streett};
+pub(crate) use solution::{
+    CycleConditions, FactoredSolutions, SolutionGroup, StreettPair, decompose, streett,
+};
 
 /// The evaluation domain of an atomic predicate.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]

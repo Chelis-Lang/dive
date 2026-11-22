@@ -304,8 +304,15 @@ impl<'m> GraphCheck<'m> {
         let armed = armed.into_owned();
         let planned = {
             let _scope = crate::budget::enter(&armed.budget);
-            planned(model, &armed, limits, checks)
-                .map_err(|failure| Box::new(budget_failure(failure, &armed.budget)))?
+            planned(
+                model,
+                &armed,
+                limits,
+                checks,
+                armed.profile == dive_eval::Profile::Dive
+                    && super::uncapped_component_search(limits, policy, graph_labels),
+            )
+            .map_err(|failure| Box::new(budget_failure(failure, &armed.budget)))?
         };
         let (control, plans) = planned;
         Ok(Self {
