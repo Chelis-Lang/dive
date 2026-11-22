@@ -292,7 +292,7 @@ def run(args, root):
             mistyped["initial"] = True
             wrong = work / "mistyped.json"
             wrong.write_text(json.dumps(mistyped))
-            for flags in ([], ["-O"]):
+            for flags in (["-E"], ["-E", "-O"]):
                 refused, _ = invoke(
                     [
                         sys.executable,
