@@ -138,7 +138,12 @@ impl GraphSink for Recorder {
     }
 }
 
-fn run(exact: bool, collide: Option<u64>, workers: usize) -> (Verdict, Stats, usize, Vec<Event>) {
+fn run(
+    exact: bool,
+    collide: Option<u64>,
+    workers: usize,
+    capture: bool,
+) -> (Verdict, Stats, usize, Vec<Event>) {
     let store = Arc::new(Store::new(true));
     let plan = plan(&store).unwrap();
     let mut sink = Recorder::default();
@@ -154,7 +159,7 @@ fn run(exact: bool, collide: Option<u64>, workers: usize) -> (Verdict, Stats, us
             sample: None,
         },
         &|| false,
-        Some(&mut sink),
+        capture.then_some(&mut sink as &mut dyn GraphSink),
         None,
         &storage::Storage {
             exact,
@@ -217,17 +222,17 @@ fn resolved(events: &[Event]) -> Vec<Event> {
 
 #[test]
 fn exact_collisions_report_the_fingerprint_graph_with_discovery_ids() {
-    let (verdict, stats, _, reference) = run(false, None, 1);
+    let (verdict, stats, _, reference) = run(false, None, 1, true);
     assert_eq!(verdict, Verdict::Success);
     assert_eq!(stats.distinct, STATES as u64);
     assert!(stats.depth > 3, "several levels: {stats:?}");
     let expected = resolved(&reference);
     for workers in [1, 2, 4] {
-        let (fp_verdict, fp_stats, _, fp_events) = run(false, None, workers);
+        let (fp_verdict, fp_stats, _, fp_events) = run(false, None, workers, true);
         assert_eq!((fp_verdict, fp_stats), (Verdict::Success, stats));
         assert_eq!(fp_events, reference, "fingerprint at {workers} workers");
         for collide in [None, Some(0), Some(7)] {
-            let (verdict, exact_stats, retained, events) = run(true, collide, workers);
+            let (verdict, exact_stats, retained, events) = run(true, collide, workers, true);
             assert_eq!(verdict, Verdict::Success, "{workers} {collide:?}");
             assert_eq!(exact_stats, stats, "{workers} {collide:?}");
             assert_eq!(retained, STATES);
@@ -259,11 +264,25 @@ fn fingerprint_collisions_merge_states_without_ids() {
     // The control: the same forced collision in fingerprint mode loses every
     // state but the first of each key, so the exact equality above is not
     // vacuous.
-    let (_, stats, retained, events) = run(false, Some(0), 1);
+    let (_, stats, retained, events) = run(false, Some(0), 1, true);
     assert_eq!(stats.distinct, 1);
     assert_eq!(retained, 0);
     assert!(events.iter().all(|event| match event {
         Event::State { seen, .. } => seen.is_none(),
         _ => true,
     }));
+}
+
+#[test]
+fn resident_exact_hits_preserve_collisions_without_graph_capture() {
+    let (verdict, stats, _, _) = run(false, None, 1, false);
+    assert_eq!(verdict, Verdict::Success);
+    assert_eq!(stats.distinct, STATES as u64);
+    for workers in [2, 8] {
+        let (verdict, exact_stats, retained, _) = run(true, Some(0), workers, false);
+        assert_eq!(
+            (verdict, exact_stats, retained),
+            (Verdict::Success, stats, STATES)
+        );
+    }
 }

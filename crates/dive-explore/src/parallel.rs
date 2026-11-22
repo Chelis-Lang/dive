@@ -132,7 +132,7 @@ pub(crate) enum Occ {
     Old {
         key: u64,
         inside: bool,
-        /// A local worker read this fingerprint from the immutable resident table.
+        /// A local worker proved membership in the immutable resident table.
         /// Wave claims and decoded candidate records carry no such evidence.
         resident_hit: bool,
         /// Original values only when graph capture needs this accepted target.
@@ -389,6 +389,31 @@ impl WorkerSink<'_, '_> {
                     inv: Inv::Holds,
                     imp,
                     at,
+                },
+            )?;
+            return Ok(());
+        }
+        // With no graph consumer, an equality hit needs neither a target id
+        // nor a retained original row. Only committed full rows qualify:
+        // same-wave claims identify fingerprints and never prove equality.
+        if inside
+            && matches!(imp, Inv::Holds)
+            && self.capture_limit.is_none()
+            && !self.preserve_originals
+            && self.out.payloads.is_none()
+            && self.remote.is_none()
+            && !plan.effects.any
+            && let Some(exact) = &self.seen.exact
+            && !exact.is_detached()
+            && exact.lookup(key, &identity, &m.heap)?.is_some()
+        {
+            self.out.push(
+                self.action,
+                Occ::Old {
+                    key,
+                    inside,
+                    at: None,
+                    resident_hit: true,
                 },
             )?;
             return Ok(());
@@ -951,7 +976,7 @@ impl crate::Explorer<'_> {
                 } => {
                     self.metrics.probed += 1;
                     // Already inserted: never refused by a limit.
-                    // Earlier committed fingerprints cannot disappear during a wave.
+                    // Earlier committed rows cannot disappear during a wave.
                     // A wave claim still needs confirmation at its ordered position.
                     if (!*resident_hit || self.disk.is_some())
                         && !self.seen_contains(*key, &[], &m.heap, ("AdmissionMembership", None))?
@@ -961,8 +986,8 @@ impl crate::Explorer<'_> {
                         ));
                     }
                     if *inside {
-                        // Fingerprint claims only: exact mode never produces
-                        // an `Old` occurrence, so there is no id to report.
+                        // Exact resident hits reach this arm only without graph
+                        // capture. Fingerprint capture resolves the id by key.
                         self.record(m, *key, crate::Recorded::Seen(None), None)?;
                     }
                 }
