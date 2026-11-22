@@ -1,0 +1,179 @@
+{
+  "issue": 1332,
+  "config": "learning_switch_i4/4-3/learning_switch_i4.cfg",
+  "source_sha256": "4ae1f4e971b57b25db8733860c7e55da82c97ce6aa9fdce1942c48f5d746e81d",
+  "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+  "peer_commit": "0cbd95f0002af10f70f25c87638e8f2673229f2e",
+  "implementation_sha256": {
+    "dive": "b34d889d94f0d57ec66ba8f7cbf4ca739e0d8ee2cfbda6a5cd6d070288896469",
+    "engine.py": "d8d63cd1187673d6cde0e18bfccf9c5e60793c51850a81e80803803f5bc76f71",
+    "property_proof.py": "8c447f34574728a3d1b6d8f661d10072a9e5b64f946780e9c080a782f290d44e",
+    "symbolic_input": "2432417f01e16f76a375486aa9272fa1eab2b6e7c5686bc0957521f8e383c910"
+  },
+  "host": "Dedicated EC2 c7i.4xlarge, 8 physical cores / 16 vCPUs, Intel Xeon Platinum 8488C, Linux 7.0.0-1018-aws, OpenJDK 21.0.13.1, bundled CPython 3.11.14 and CUDD 3.0.0.",
+  "method": "Five alternating cold runs per tool in fresh cgroups. Run recomp_property_panel.py with --seconds 30 --config learning_switch_i4/4-3/learning_switch_i4.cfg --cgroup-parent GROUP. Peak memory covers the full process family.",
+  "original_dive": {
+    "config": "learning_switch_i4/4-3/learning_switch_i4.cfg",
+    "property": "Safety",
+    "source_sha256": "4ae1f4e971b57b25db8733860c7e55da82c97ce6aa9fdce1942c48f5d746e81d",
+    "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+    "layout": "TypeOK",
+    "dive": {
+      "exit": null,
+      "wall_s": 30.012,
+      "peak_cgroup_bytes": 60833792,
+      "result": "deadline"
+    }
+  },
+  "runs": [
+    {
+      "dive": {
+        "exit": 0,
+        "wall_s": 15.926,
+        "peak_cgroup_bytes": 194146304,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.008,
+        "peak_cgroup_bytes": 892485632,
+        "result": "deadline"
+      }
+    },
+    {
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.006,
+        "peak_cgroup_bytes": 887791616,
+        "result": "deadline"
+      }
+    },
+    {
+      "dive": {
+        "exit": 0,
+        "wall_s": 16.526,
+        "peak_cgroup_bytes": 191791104,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "dive": {
+        "exit": 0,
+        "wall_s": 15.978,
+        "peak_cgroup_bytes": 191524864,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.01,
+        "peak_cgroup_bytes": 901378048,
+        "result": "deadline"
+      }
+    },
+    {
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.008,
+        "peak_cgroup_bytes": 885948416,
+        "result": "deadline"
+      }
+    },
+    {
+      "dive": {
+        "exit": 0,
+        "wall_s": 16.474,
+        "peak_cgroup_bytes": 193884160,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "dive": {
+        "exit": 0,
+        "wall_s": 16.431,
+        "peak_cgroup_bytes": 191791104,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.008,
+        "peak_cgroup_bytes": 893259776,
+        "result": "deadline"
+      }
+    }
+  ],
+  "dive_summary": {
+    "median_wall_s": 16.431,
+    "range_s": [
+      15.926,
+      16.526
+    ],
+    "peak_cgroup_bytes": 194146304
+  },
+  "peer_summary": {
+    "deadline_runs": 5,
+    "budget_s": 30,
+    "peak_cgroup_bytes": 901378048
+  },
+  "diagnosis": "The three original Init function choices have 1,048,576 joint assignments before the link guards. The named proof forms their exact union directly in state bits. On a separate local probe, binding the new relation took 3.90 s, direct induction rejected the candidate in 5 ms, and three closure sweeps took 7.99 s.",
+  "controls": {
+    "proof": "inductive-safety",
+    "obligations": 195,
+    "closure_sweeps": 3,
+    "restored": "inductive-safety",
+    "edits": {
+      "initial": {
+        "witness_states": 1,
+        "replay_on_edit": "valid",
+        "replay_on_original": "invalid"
+      },
+      "flood": {
+        "witness_states": 4,
+        "replay_on_edit": "valid",
+        "replay_on_original": "invalid"
+      }
+    },
+    "two_node_exact": {
+      "depth": 11,
+      "distinct": 3424,
+      "generated": 28792,
+      "initial_generated": 64,
+      "left_on_queue": 0,
+      "reported_by_tlc": true
+    }
+  },
+  "transfers": [
+    {
+      "config": "learning_switch_trans/3/learning_switch.cfg",
+      "property": "Safety",
+      "source_sha256": "773efb904d2b369eb1a61576781f4e6bf3840beff11828a75f026df7b6caf89c",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "dive": {
+        "exit": 0,
+        "wall_s": 1.425,
+        "peak_cgroup_bytes": 55111680,
+        "result": "inductive-safety"
+      }
+    },
+    {
+      "config": "learning_switch_sym/2/learning_switch.cfg",
+      "property": "Safety",
+      "source_sha256": "dd34f9a20ccb766d920b0a3b23e1724f74a8e45620e95725b30aede03199009a",
+      "cfg_sha256": "57782959ca6e9d9a576aa5dac95004b7784cebb543904bc68ed320ce28b5a3f2",
+      "layout": "TypeOK",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.325,
+        "peak_cgroup_bytes": 54222848,
+        "result": "inductive-safety"
+      }
+    }
+  ],
+  "control_command": "python3 scripts/symbolic/test_learning_switch.py DIVE RECOMP/benchmarks/tla/learning_switch_i4/4-3 --i4"
+}

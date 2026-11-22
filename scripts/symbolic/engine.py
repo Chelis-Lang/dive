@@ -155,16 +155,8 @@ class SourceModel(FiniteRelation):
         self.invalid_sources = self.b.false
         self.initial = self.b.false
         self.initial_generated = 0
-        for index, (guard, assignments) in enumerate(self.branches(doc["init"], {}, True, self.b.true, {})):
-            require(index < 100000, "Init exceeds 100000 expanded witnesses")
-            require(guard in (self.b.true, self.b.false), "nonconstant Init guard")
-            if guard == self.b.false:
-                continue
-            bits = self.encode(assignments)
-            require(all(v in (self.b.true, self.b.false) for v in bits.values()), "nonground Init")
-            self.initial |= self.b.cube({name: value == self.b.true for name, value in bits.items()})
-            self.initial_generated += 1
-        require(self.initial_generated > 0, "empty Init")
+        self.build_initial(doc["init"])
+        require(self.initial != self.b.false, "empty Init")
         if self.initial_missing:
             raise Grow(self.initial_missing)
         self.reading_init = False
@@ -194,6 +186,17 @@ class SourceModel(FiniteRelation):
         self.action_effects = [(guard, frozenset(change)) for change, guards in merged.items() for guard in guards]
         self.effects = Counter(self.action_effects)
         self.single_partition = single_partition
+
+    def build_initial(self, expr):
+        for index, (guard, assignments) in enumerate(self.branches(expr, {}, True, self.b.true, {})):
+            require(index < 100000, "Init exceeds 100000 expanded witnesses")
+            require(guard in (self.b.true, self.b.false), "nonconstant Init guard")
+            if guard == self.b.false:
+                continue
+            bits = self.encode(assignments)
+            require(all(v in (self.b.true, self.b.false) for v in bits.values()), "nonground Init")
+            self.initial |= self.b.cube({name: value == self.b.true for name, value in bits.items()})
+            self.initial_generated += 1
 
     @cached_property
     def effect_parts(self):

@@ -427,6 +427,11 @@ It treats equivalent successors as one possibility in a named proof. A finite
 integer can be tested for membership in `Nat` or `Int`; modulo requires a
 positive divisor. Enumerating an unbounded integer set still refuses.
 
+When Init chooses a function from the layout's finite scalar function space,
+the named worker can represent the whole choice with the function's state
+bits. The original Init predicates still restrict the assigned values. If a
+predicate requires ground evaluation, the worker uses the bounded enumerator.
+
 The layout can be an unconfigured, parameterless source operator. Its bounds
 must admit Init and the encoded assignments. A variable without a finite
 declaration may be a private integer initialized to a literal. Each step must

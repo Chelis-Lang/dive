@@ -124,10 +124,62 @@ def check(dive, case, root):
     }
 
 
+def check_i4(dive, case, root):
+    original = case / "learning_switch_i4.tla"
+    cfg = original.with_suffix(".cfg")
+    symbolic = ("--strategy", "symbolic", "--type-invariant", "TypeOK", "--property-proof", "Safety",
+                "--time-limit", "30s")
+    exact = ("--store", "exact", "--workers", "1", "--seed", "0", "--fp", "0", "--exit-codes", "native")
+    proof = run(dive, "check", original, cfg, 0, *symbolic)
+    assert proof["proof"] == "inductive-safety" and proof["transition_obligations"] > 3
+
+    data = original.read_text()
+    diagonal = r"{<<n,x,y>> \in Node \X Node \X Node : x = y}"
+    preserve = r"\/ <<pa,x,y>> \in route_tc"
+    assert data.count(diagonal) == 1 and data.count(preserve) == 2
+    edit = root / original.name
+    trace = root / "word.json"
+    cases = {}
+    for label, edited, depth in (
+        ("initial", data.replace(diagonal, "{}"), 1),
+        ("flood", data.replace(preserve, r"\/ (x # y /\ <<pa,x,y>> \in route_tc)", 1), 4),
+    ):
+        edit.write_text(edited)
+        row = run(dive, "check", edit, cfg, 1, *symbolic, "--trace", trace)
+        assert row["trace_validated"] and row["depth"] == depth and row["ending"]["name"] == "Safety", row
+        assert run(dive, "validate-trace", edit, cfg, 0, "--trace", trace)["result"] == "valid"
+        assert run(dive, "validate-trace", original, cfg, 1, "--trace", trace)["result"] == "invalid"
+        cases[label] = {"witness_states": depth, "replay_on_edit": "valid", "replay_on_original": "invalid"}
+
+    # Restore the original four-node program, then compare the same relation
+    # in a finite explicit control with two nodes.
+    edit.write_text(data)
+    restored = run(dive, "check", edit, cfg, 0, *symbolic)
+    assert restored["proof"] == "inductive-safety"
+    carrier = '{"n1","n2","n3","n4"}'
+    assert data.count(carrier) == 1
+    small = data.replace(carrier, '{"n1","n2"}')
+    edit.write_text(small)
+    exact_report = run(dive, "check", edit, cfg, 0, *exact)
+    assert exact_report["verdict"] == "success"
+    assert run(dive, "check", edit, cfg, 0, *symbolic)["proof"] == "inductive-safety"
+    edit.write_text(small.replace(preserve, r"\/ (x # y /\ <<pa,x,y>> \in route_tc)", 1))
+    bad = run(dive, "check", edit, cfg, 10, *exact)
+    witness = bad["counterexample"]["trace"]
+    assert bad["property"] == "Safety" and len(witness["states"]) == cases["flood"]["witness_states"]
+    trace.write_text(json.dumps(witness))
+    assert run(dive, "validate-trace", edit, cfg, 0, "--trace", trace)["result"] == "valid"
+    return {"proof": proof["proof"], "obligations": proof["transition_obligations"],
+            "closure_sweeps": proof["closure_sweeps"], "restored": restored["proof"],
+            "edits": cases, "two_node_exact": exact_report["statistics"]}
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("dive", type=Path)
-    parser.add_argument("case", type=Path, help="pinned learning_switch_trans/3 directory")
+    parser.add_argument("case", type=Path, help="pinned learning-switch configuration directory")
+    parser.add_argument("--i4", action="store_true", help="check the four-node i4 variant")
     args = parser.parse_args()
     with TemporaryDirectory() as directory:
-        print(json.dumps(check(args.dive.resolve(), args.case.resolve(), Path(directory))))
+        accept = check_i4 if args.i4 else check
+        print(json.dumps(accept(args.dive.resolve(), args.case.resolve(), Path(directory))))
