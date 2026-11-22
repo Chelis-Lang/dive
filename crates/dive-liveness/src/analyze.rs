@@ -1573,12 +1573,24 @@ fn analyze_graph<S: StateSource + ?Sized>(
                 &mut reuse,
             )?;
             enter(Stage::Product, states);
+            let words = product::StreettWords::new(
+                graph,
+                &labels,
+                &prepared.streett,
+                prepared.groups.iter().flat_map(|g| &g.alternatives),
+            )
+            .map_err(AnalysisError::Product)?;
             for group in &prepared.groups {
                 let product =
                     ImplicitProduct::new(graph, &group.tableau, &labels, limits.product, policy)
                         .map_err(AnalysisError::Product)?;
                 if let Some(lasso) = product
-                    .find_lasso_with_streett(&labels, &group.alternatives, &prepared.streett)
+                    .find_lasso_with_streett(
+                        &labels,
+                        &group.alternatives,
+                        &prepared.streett,
+                        words.as_ref(),
+                    )
                     .map_err(AnalysisError::Product)?
                 {
                     let (word_states, _, edges) = original_word(captured, states, &lasso)?;

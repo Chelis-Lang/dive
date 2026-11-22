@@ -28,7 +28,7 @@ use csr::{CsrGraph, FlatRows};
 use csr::{OwnedRows, RowStorage};
 mod implicit;
 mod pair_order;
-pub(crate) use implicit::ImplicitProduct;
+pub(crate) use implicit::{ImplicitProduct, StreettWords};
 
 mod behavior;
 pub(crate) use behavior::BehaviorView;

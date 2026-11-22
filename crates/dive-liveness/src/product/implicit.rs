@@ -20,7 +20,9 @@ mod condition_words;
 use condition_words::ConditionWords;
 mod repeated_rows;
 mod streett;
+mod streett_components;
 use repeated_rows::RepeatedRows;
+pub(crate) use streett_components::StreettWords;
 
 /// Discovery uses a dense bitset while it costs at most this many tableau
 /// nodes per behavior vertex (64 bytes), and an exact hash set beyond that.
@@ -425,7 +427,7 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
                 labels,
                 conditions,
                 self.policy,
-                || self.admit_cells(conditions),
+                || self.admit_cells(conditions.recurring.len()),
                 &self.solution_setup_work,
             )?;
             if empty {
@@ -444,7 +446,7 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
     }
 
     // The materialized product's logical-cell admission for a solution.
-    fn admit_cells(&self, conditions: &CycleConditions) -> Result<(), ProductError> {
+    fn admit_cells(&self, recurring: usize) -> Result<(), ProductError> {
         if self.policy != AcceptancePolicy::Cells {
             return Ok(());
         }
@@ -453,9 +455,7 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
             .len()
             .checked_mul(self.states.len())
             .and_then(|states| {
-                conditions
-                    .recurring
-                    .len()
+                recurring
                     .checked_add(1)
                     .and_then(|actions| actions.checked_mul(self.edge_count))
                     .and_then(|actions| states.checked_add(actions))
