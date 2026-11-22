@@ -5,6 +5,8 @@ are in git history.
 
 ## Unreleased
 
+- Symbolic proofs accept equality between Boolean-valued table cells and Boolean expressions.
+
 - Fresh named symbolic checks try the requested invariant directly before searching for a closed predicate.
 
 - Named symbolic checks can [repair a rejected predicate](docs/user/symbolic.md#repair-a-candidate-on-the-currently-bound-source) in the same invocation.
