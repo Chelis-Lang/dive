@@ -221,7 +221,16 @@ fn guard_outcome(
         return outcome;
     }
     match &outcome {
-        CoreOutcome::TemporalFailure(_) => outcome,
+        CoreOutcome::TemporalFailure(failure)
+            if !matches!(
+                failure.error(),
+                crate::temporal::Error::Analysis(
+                    dive_liveness::analyze::AnalysisError::Atom { .. }
+                )
+            ) || !state_label_error(failure.state_evaluation()) =>
+        {
+            outcome
+        }
         CoreOutcome::Checked(result)
             if matches!(
                 result.verdict,
@@ -674,19 +683,24 @@ fn report_analysis_error(
     error: &dive_liveness::analyze::AnalysisError,
     state: Option<&dive_liveness::analyze::StateEvaluation>,
 ) -> bool {
-    use dive_liveness::analyze::{AnalysisError, StateEvaluationSite};
+    use dive_liveness::analyze::AnalysisError;
     match error {
         AnalysisError::Stopped(_)
         | AnalysisError::BudgetMeasurement(_)
         | AnalysisError::BudgetStartup(_) => true,
-        AnalysisError::Atom { .. } => state.is_some_and(|state| {
-            matches!(
-                state.site(),
-                StateEvaluationSite::FinalLabels | StateEvaluationSite::PeriodicLabels
-            ) && state.cause().class() == dive_eval::ErrorClass::Eval
-        }),
+        AnalysisError::Atom { .. } => state_label_error(state),
         _ => false,
     }
+}
+
+fn state_label_error(state: Option<&dive_liveness::analyze::StateEvaluation>) -> bool {
+    use dive_liveness::analyze::StateEvaluationSite;
+    state.is_some_and(|state| {
+        matches!(
+            state.site(),
+            StateEvaluationSite::FinalLabels | StateEvaluationSite::PeriodicLabels
+        ) && state.cause().class() == dive_eval::ErrorClass::Eval
+    })
 }
 
 fn report_outcome(
