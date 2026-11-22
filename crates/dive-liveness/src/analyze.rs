@@ -985,7 +985,28 @@ fn labels_with_reuse<'a>(
         let recipe = frozen_prefix.and_then(|prefix| prefix.atom(index, pred.kind));
         let mut fully_native = true;
         let mut consumed = false;
-        for v in 0..states.representative_count() {
+        let mut start = 0;
+        if !eager
+            && let OriginalEdges::Native(csr) = graph
+            && let Some(prefix) = states.label_prefix(pred)?
+        {
+            let limit = match pred.kind {
+                AtomKind::State => (csr.state_count() >= prefix.sources).then_some(prefix.sources),
+                AtomKind::Action => csr
+                    .offsets()
+                    .get(prefix.sources)
+                    .copied()
+                    .filter(|_| prefix.sources <= csr.closed_rows()),
+            };
+            if limit == Some(prefix.cells) && prefix.words.len() == prefix.cells.div_ceil(64) {
+                labels
+                    .restore_prefix(index, pred.kind, prefix.cells, prefix.words)
+                    .map_err(AnalysisError::Product)?;
+                start = prefix.sources;
+                consumed = start != 0;
+            }
+        }
+        for v in start..states.representative_count() {
             if crate::budget::exhausted() {
                 return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
             }
@@ -1100,6 +1121,14 @@ fn labels_with_reuse<'a>(
                     .set_action(index, v, position, value)
                     .map_err(AnalysisError::Product)?;
             }
+        }
+        if fully_native
+            && consumed
+            && !eager
+            && matches!(graph, OriginalEdges::Native(_))
+            && let Some(mut words) = labels.column_words(index, pred.kind == AtomKind::Action)
+        {
+            states.save_label_prefix(pred, &mut words)?;
         }
         reuse.complete(recipe, index, &labels, fully_native && consumed)?;
     }

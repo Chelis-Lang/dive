@@ -21,7 +21,10 @@ use dive_runtime::budget::EvaluationControl;
 use crate::core_native_graph::NativeGraph;
 use crate::core_native_values::NativeValues;
 
+mod prefix;
+
 struct Compiled {
+    column: Option<prefix::Column>,
     identity: *const PredicateAtom,
     plan: dive_core::plan::Plan,
     false_guard: Option<dive_core::plan::P>,
@@ -29,9 +32,71 @@ struct Compiled {
     /// A directly syntactic `~ENABLED A` atom: the plan searches `A` and the
     /// truth is its negation, as the dive-eval evaluator negates its search.
     negate: bool,
+    enabled_prefix: Option<(dive_core::plan::P, Projection)>,
+    direct_stutter: bool,
+    state_key: Option<Projection>,
+    guard_key: Option<Projection>,
     /// Fuel exhaustions in a row; at [`FUEL_STRIKES`] the atom stops running
     /// natively in this analysis.
     exhausted_in_a_row: u32,
+}
+
+/// A site is private to one compiled atom, its bound parameters, the run's
+/// store and one query (whole truth or source prefix). Only graph handles
+/// surviving heap resets may enter its exact key.
+#[derive(Clone, Copy)]
+struct Projection {
+    mask: u64,
+    site: u32,
+}
+
+impl Projection {
+    fn new(mask: Option<u64>, width: usize, lengths: &mut Vec<usize>) -> Option<Self> {
+        let mask = mask?;
+        let len = mask.count_ones() as usize;
+        if len >= width || len > dive_core::memo::MAX_KEY {
+            return None;
+        }
+        let site = u32::try_from(lengths.len()).ok()?;
+        lengths.push(len);
+        Some(Self { mask, site })
+    }
+
+    fn bind(self, row: &[Handle]) -> Option<ProjectedKey> {
+        let mut values = [Handle::EMPTY; dive_core::memo::MAX_KEY];
+        let mut mask = self.mask;
+        let mut len = 0;
+        while mask != 0 {
+            let val = *row.get(mask.trailing_zeros() as usize)?;
+            if val.is_transient() || val.is_empty() {
+                return None;
+            }
+            values[len] = val;
+            len += 1;
+            mask &= mask - 1;
+        }
+        Some(ProjectedKey {
+            site: self.site,
+            values,
+            len,
+        })
+    }
+}
+
+struct ProjectedKey {
+    site: u32,
+    values: [Handle; dive_core::memo::MAX_KEY],
+    len: usize,
+}
+
+impl ProjectedKey {
+    fn get(&self, memo: &mut dive_core::memo::Memo) -> Option<bool> {
+        memo.get(self.site, &self.values[..self.len])?.as_bool()
+    }
+
+    fn put(&self, memo: &mut dive_core::memo::Memo, truth: bool) {
+        memo.put(self.site, &self.values[..self.len], Handle::bool(truth));
+    }
 }
 
 /// Node visits one native atom demand may spend before it falls back. The
@@ -57,6 +122,15 @@ impl dive_core::eval::WorkControl for QueryControl {
 
 pub(crate) struct NativeAtoms {
     machine: Machine,
+    prefix_owner: Option<Arc<()>>,
+    prefix_bytes: usize,
+    prefix_cells_reused: u64,
+    projected: dive_core::memo::Memo,
+    projected_state_hits: u64,
+    projected_enabled_hits: u64,
+    disabled_prefixes: u64,
+    projected_guard_hits: u64,
+    stutter_hits: u64,
     control: Arc<EvaluationControl>,
     compiled: Vec<Compiled>,
     /// The last atom [`NativeAtoms::position`] found, with its index.
@@ -198,7 +272,97 @@ impl NativeAtoms {
             fold: false,
             ..strategies
         };
+        let mut result = Self::empty(model, store, control, opts);
+        let mut key_lengths = Vec::new();
+        for atom in atoms {
+            result.total += 1;
+            // (a) The exact retained atom and its source scope must bind to
+            // this model's evaluator; equal source text is not enough. A
+            // `~ENABLED A` atom validates both its source expression and the
+            // pure action it searches, as the dive-eval evaluator does.
+            let sub = match atom.test {
+                AtomTest::Enabled { sub } => sub,
+                AtomTest::Nonstuttering { sub } => Some(sub),
+                AtomTest::NegatedEnabled { action } => Some(action),
+                AtomTest::Predicate => None,
+            };
+            let ev = &model.evaluator;
+            if !ev.admits_scoped_expr(&atom.pred.scope, atom.pred.expr)
+                || sub.is_some_and(|sub| !ev.admits_scoped_expr(&atom.pred.scope, sub))
+            {
+                result.rejections.record(Rejection::ForeignScope);
+                continue;
+            }
+            let (plan, false_guard) = match compile(model, store, atom, opts, &result.machine.heap)
+            {
+                Ok(plan) => plan,
+                Err(reason) => {
+                    result.rejections.record(reason);
+                    continue;
+                }
+            };
+            if result.compiled.try_reserve(1).is_err() {
+                result.rejections.record(Rejection::Allocation);
+                continue;
+            }
+            result.compiled.push(Compiled {
+                column: None,
+                enabled_prefix: false_guard.enabled_prefix.and_then(|(p, reads)| {
+                    Projection::new(Some(reads), model.ir.vars().len(), &mut key_lengths)
+                        .map(|site| (p, site))
+                }),
+                direct_stutter: false_guard.direct_stutter,
+                state_key: Projection::new(
+                    false_guard.state_reads,
+                    model.ir.vars().len(),
+                    &mut key_lengths,
+                ),
+                guard_key: Projection::new(
+                    false_guard.guard_reads,
+                    model.ir.vars().len(),
+                    &mut key_lengths,
+                ),
+                identity: std::ptr::from_ref(atom),
+                plan,
+                false_guard: false_guard.source,
+                unchanged_guard: false_guard.unchanged,
+                negate: matches!(atom.test, AtomTest::NegatedEnabled { .. }),
+                exhausted_in_a_row: 0,
+            });
+            result.eligible += 1;
+            match atom.kind {
+                dive_liveness::formula::AtomKind::State => result.eligible_state += 1,
+                dive_liveness::formula::AtomKind::Action => result.eligible_action += 1,
+            }
+        }
+        result.projected = dive_core::memo::Memo::new(&key_lengths);
+        result.projected.set_cap(8 << 20);
+        control.check().map_err(|cause| {
+            control
+                .verdict(&EvalError::interrupted(cause))
+                .unwrap_or_else(|| dive_runtime::Verdict::InternalError {
+                    message: "native predicate preparation interruption lacks run authority".into(),
+                })
+        })?;
+        Ok(result)
+    }
+
+    fn empty(
+        model: &Model,
+        store: &Arc<Store>,
+        control: &Arc<EvaluationControl>,
+        opts: Opts,
+    ) -> Self {
         let mut result = Self {
+            prefix_owner: None,
+            prefix_bytes: 0,
+            prefix_cells_reused: 0,
+            projected: dive_core::memo::Memo::default(),
+            projected_state_hits: 0,
+            projected_enabled_hits: 0,
+            disabled_prefixes: 0,
+            projected_guard_hits: 0,
+            stutter_hits: 0,
             machine: Machine::new(
                 Arc::clone(store),
                 model.ir.vars().len(),
@@ -245,59 +409,7 @@ impl NativeAtoms {
         // A warning Core does not record (2144) must reach the
         // dive-eval evaluator, which prints it.
         result.machine.set_refuse_unrecorded_warnings(true);
-        for atom in atoms {
-            result.total += 1;
-            // (a) The exact retained atom and its source scope must bind to
-            // this model's evaluator; equal source text is not enough. A
-            // `~ENABLED A` atom validates both its source expression and the
-            // pure action it searches, as the dive-eval evaluator does.
-            let sub = match atom.test {
-                AtomTest::Enabled { sub } => sub,
-                AtomTest::Nonstuttering { sub } => Some(sub),
-                AtomTest::NegatedEnabled { action } => Some(action),
-                AtomTest::Predicate => None,
-            };
-            let ev = &model.evaluator;
-            if !ev.admits_scoped_expr(&atom.pred.scope, atom.pred.expr)
-                || sub.is_some_and(|sub| !ev.admits_scoped_expr(&atom.pred.scope, sub))
-            {
-                result.rejections.record(Rejection::ForeignScope);
-                continue;
-            }
-            let (plan, false_guard) = match compile(model, store, atom, opts, &result.machine.heap)
-            {
-                Ok(plan) => plan,
-                Err(reason) => {
-                    result.rejections.record(reason);
-                    continue;
-                }
-            };
-            if result.compiled.try_reserve(1).is_err() {
-                result.rejections.record(Rejection::Allocation);
-                continue;
-            }
-            result.compiled.push(Compiled {
-                identity: std::ptr::from_ref(atom),
-                plan,
-                false_guard: false_guard.source,
-                unchanged_guard: false_guard.unchanged,
-                negate: matches!(atom.test, AtomTest::NegatedEnabled { .. }),
-                exhausted_in_a_row: 0,
-            });
-            result.eligible += 1;
-            match atom.kind {
-                dive_liveness::formula::AtomKind::State => result.eligible_state += 1,
-                dive_liveness::formula::AtomKind::Action => result.eligible_action += 1,
-            }
-        }
-        control.check().map_err(|cause| {
-            control
-                .verdict(&EvalError::interrupted(cause))
-                .unwrap_or_else(|| dive_runtime::Verdict::InternalError {
-                    message: "native predicate preparation interruption lacks run authority".into(),
-                })
-        })?;
-        Ok(result)
+        result
     }
 
     pub(crate) fn analysis_ms(&self) -> &std::collections::BTreeMap<&'static str, f64> {
@@ -309,6 +421,9 @@ impl NativeAtoms {
             "unchanged_target_guards":{"plans":self.compiled.iter().filter(|p|p.unchanged_guard.is_some()).count(),"probes":self.unchanged_probes,"rows":self.unchanged_rows,"edges":self.unchanged_edges},
             "action_source_guards": {"plans": self.compiled.iter().filter(|p| p.false_guard.is_some()).count(),
                 "probes": self.guard_probes, "false_rows": self.guard_rows},
+            "periodic_prefix": {"cells_reused": self.prefix_cells_reused, "table_bytes":self.prefix_bytes},
+            "projected_truth": {"state_hits": self.projected_state_hits, "enabled_hits": self.projected_enabled_hits,
+                "enabled_prefix_false": self.disabled_prefixes, "guard_hits": self.projected_guard_hits, "stutters": self.stutter_hits, "table_bytes": self.projected.bytes()},
             "evaluated": self.evaluated, "fallback": self.fallback,
             "eligible_state_atoms": self.eligible_state, "eligible_action_atoms": self.eligible_action,
             "state_evaluations": self.evaluated_state, "action_evaluations": self.evaluated_action,
@@ -382,7 +497,7 @@ impl NativeAtoms {
         after: Option<&[Handle]>,
         control: &EvaluationControl,
     ) -> Result<Option<bool>, AnalysisError> {
-        self.evaluate_with(atom, before, after, control, |heap| {
+        self.evaluate_with(atom, before, after, control, false, |heap| {
             Ok(admissible_row(heap, before) && after.is_none_or(|row| admissible_row(heap, row)))
         })
     }
@@ -393,19 +508,13 @@ impl NativeAtoms {
         before: &[Handle],
         after: Option<&[Handle]>,
         control: &EvaluationControl,
+        graph_owned: bool,
         inputs_closed: impl FnOnce(&dive_core::Heap) -> Result<bool, AnalysisError>,
     ) -> Result<Option<bool>, AnalysisError> {
         check(&self.control, control)?;
-        let Some(index) = self.position(atom) else {
-            self.fallback += 1;
-            self.fallbacks.not_compiled += 1;
+        let Some(index) = self.active_atom(atom) else {
             return Ok(None);
         };
-        if self.compiled[index].exhausted_in_a_row >= FUEL_STRIKES {
-            self.fallback += 1;
-            self.fallbacks.fuel_retired += 1;
-            return Ok(None);
-        }
         let compiled = &self.compiled[index];
         let negate = compiled.negate;
         // The exact object came from this still-live driver's fixed plan Vec;
@@ -414,6 +523,51 @@ impl NativeAtoms {
             self.fallback += 1;
             self.fallbacks.row_proof += 1;
             return Ok(None);
+        }
+        if graph_owned
+            && compiled.direct_stutter
+            && self.fuel == NATIVE_FUEL
+            && after.is_some_and(|row| std::ptr::eq(row, before))
+        {
+            self.stutter_hits += 1;
+            self.compiled[index].exhausted_in_a_row = 0;
+            return Ok(Some(false));
+        }
+        let key = compiled
+            .state_key
+            .filter(|p| {
+                graph_owned
+                    && after.is_none()
+                    && self.fuel == NATIVE_FUEL
+                    && self.projected.active(p.site)
+            })
+            .and_then(|p| p.bind(before));
+        if let Some(value) = key.as_ref().and_then(|k| k.get(&mut self.projected)) {
+            self.projected_state_hits += 1;
+            self.projected_enabled_hits += u64::from(matches!(
+                atom.test,
+                AtomTest::Enabled { .. } | AtomTest::NegatedEnabled { .. }
+            ));
+            self.compiled[index].exhausted_in_a_row = 0;
+            return Ok(Some(value));
+        }
+        if graph_owned
+            && after.is_none()
+            && self.fuel == NATIVE_FUEL
+            && Self::prefix_false(
+                compiled,
+                before,
+                &mut self.projected,
+                &mut self.machine,
+                (&self.control, control),
+            )?
+        {
+            self.disabled_prefixes += 1;
+            self.compiled[index].exhausted_in_a_row = 0;
+            if let Some(key) = key {
+                key.put(&mut self.projected, negate);
+            }
+            return Ok(Some(negate));
         }
         let result = run_bound(
             &compiled.plan,
@@ -438,18 +592,14 @@ impl NativeAtoms {
             && self.machine.warnings.is_empty()
             && self.machine.printed.is_empty()
         {
-            self.evaluated += 1;
-            match atom.test {
-                AtomTest::Enabled { .. } => self.evaluated_enabled += 1,
-                AtomTest::Nonstuttering { .. } => self.evaluated_nonstuttering += 1,
-                AtomTest::NegatedEnabled { .. } => self.evaluated_negated_enabled += 1,
-                AtomTest::Predicate => {}
+            self.count_native(atom);
+            let truth = value != negate;
+            if let Some(key) = key
+                && !self.machine.heap.poisoned()
+            {
+                key.put(&mut self.projected, truth);
             }
-            match atom.kind {
-                dive_liveness::formula::AtomKind::State => self.evaluated_state += 1,
-                dive_liveness::formula::AtomKind::Action => self.evaluated_action += 1,
-            }
-            Ok(Some(value != negate))
+            Ok(Some(truth))
         } else {
             self.fallback += 1;
             if exhausted {
@@ -461,6 +611,71 @@ impl NativeAtoms {
             }
             Ok(None)
         }
+    }
+
+    fn active_atom(&mut self, atom: &PredicateAtom) -> Option<usize> {
+        let Some(index) = self.position(atom) else {
+            self.fallback += 1;
+            self.fallbacks.not_compiled += 1;
+            return None;
+        };
+        if self.compiled[index].exhausted_in_a_row >= FUEL_STRIKES {
+            self.fallback += 1;
+            self.fallbacks.fuel_retired += 1;
+            return None;
+        }
+        Some(index)
+    }
+
+    fn count_native(&mut self, atom: &PredicateAtom) {
+        self.evaluated += 1;
+        match atom.test {
+            AtomTest::Enabled { .. } => self.evaluated_enabled += 1,
+            AtomTest::Nonstuttering { .. } => self.evaluated_nonstuttering += 1,
+            AtomTest::NegatedEnabled { .. } => self.evaluated_negated_enabled += 1,
+            AtomTest::Predicate => {}
+        }
+        match atom.kind {
+            dive_liveness::formula::AtomKind::State => self.evaluated_state += 1,
+            dive_liveness::formula::AtomKind::Action => self.evaluated_action += 1,
+        }
+    }
+
+    fn prefix_false(
+        compiled: &Compiled,
+        before: &[Handle],
+        memo: &mut dive_core::memo::Memo,
+        machine: &mut Machine,
+        control: (&EvaluationControl, &EvaluationControl),
+    ) -> Result<bool, AnalysisError> {
+        if let Some((prefix, site)) = compiled.enabled_prefix
+            && memo.active(site.site)
+            && let Some(prefix_key) = site.bind(before)
+        {
+            let prefix_value = if let Some(v) = prefix_key.get(memo) {
+                Some(v)
+            } else {
+                let result = run_bound(
+                    &compiled.plan,
+                    machine,
+                    before,
+                    None,
+                    NATIVE_FUEL,
+                    Some(prefix),
+                );
+                check(control.0, control.1)?;
+                result
+                    .ok()
+                    .filter(|_| {
+                        !machine.heap.poisoned()
+                            && machine.warnings.is_empty()
+                            && machine.printed.is_empty()
+                    })
+                    .inspect(|&v| prefix_key.put(memo, v))
+            };
+            return Ok(prefix_value == Some(false));
+        }
+        Ok(false)
     }
 
     /// All target rows in this checked graph have already been certified.
@@ -487,6 +702,17 @@ impl NativeAtoms {
         let Some(fuel) = self.fuel.checked_sub(3) else {
             return Ok(false);
         };
+        let key = compiled
+            .guard_key
+            .filter(|p| self.fuel == NATIVE_FUEL && self.projected.active(p.site))
+            .and_then(|p| p.bind(before));
+        if let Some(holds) = key.as_ref().and_then(|k| k.get(&mut self.projected)) {
+            self.projected_guard_hits += 1;
+            if !holds {
+                compiled.exhausted_in_a_row = 0;
+            }
+            return Ok(!holds);
+        }
         self.guard_probes += 1;
         let result = run_bound(
             &compiled.plan,
@@ -497,10 +723,15 @@ impl NativeAtoms {
             Some(guard),
         );
         check(&self.control, control)?;
-        let proved = matches!(result, Ok(false))
-            && !self.machine.heap.poisoned()
+        let quiet = !self.machine.heap.poisoned()
             && self.machine.warnings.is_empty()
             && self.machine.printed.is_empty();
+        if let (Some(key), Ok(holds)) = (key, &result)
+            && quiet
+        {
+            key.put(&mut self.projected, *holds);
+        }
+        let proved = matches!(result, Ok(false)) && quiet;
         if proved {
             compiled.exhausted_in_a_row = 0;
         }
@@ -881,6 +1112,8 @@ struct UnchangedTarget {
 }
 
 pub(crate) struct Reader<'a, 'model> {
+    prefix: Option<bool>,
+    prefix_validated: usize,
     proofs: RowProofs<'a>,
     pub(crate) values: &'a mut NativeValues<'model>,
     atoms: &'a mut NativeAtoms,
@@ -894,6 +1127,8 @@ impl<'a, 'model> Reader<'a, 'model> {
         atoms: &'a mut NativeAtoms,
     ) -> Self {
         Self {
+            prefix: None,
+            prefix_validated: 0,
             proofs: RowProofs::new(graph),
             unchanged: None,
             values,
@@ -1006,6 +1241,7 @@ impl NativeReader for Reader<'_, '_> {
                 graph.row(before)?,
                 after.map(|row| graph.row(row)).transpose()?,
                 control,
+                graph.owns_store(self.atoms.machine.heap.store()),
                 |heap| {
                     if !self.proofs.closed(heap, before)? {
                         return Ok(false);
@@ -1075,6 +1311,27 @@ impl NativeReader for Reader<'_, '_> {
             }
             after.map_or(Ok(true), |row| self.proofs.closed(heap, row))
         })
+    }
+
+    fn label_prefix(
+        &mut self,
+        atom: &PredicateAtom,
+        graph: &dive_runtime::capture::CsrCapture<'_>,
+        control: &EvaluationControl,
+    ) -> Result<Option<dive_liveness::analyze::periodic::external::LabelPrefix<'_>>, AnalysisError>
+    {
+        self.previous_column(atom, graph, control)
+    }
+
+    fn save_label_prefix(
+        &mut self,
+        atom: &PredicateAtom,
+        graph: &dive_runtime::capture::CsrCapture<'_>,
+        words: &mut dyn ExactSizeIterator<Item = u64>,
+        cap: usize,
+        control: &EvaluationControl,
+    ) -> Result<(), AnalysisError> {
+        self.store_column(atom, graph, words, cap, control)
     }
 
     fn reference_predicate(&mut self, atom: &PredicateAtom) {
@@ -1374,6 +1631,50 @@ mod tests {
     }
 
     #[test]
+    fn enabled_projects_copied_variables_only_after_checking_its_actual_source() {
+        let source = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLES gate, payload
+vars == <<gate,payload>>
+Init == gate = 0 /\ payload = 0
+Next == gate' \in 0..2 /\ payload' \in 0..3
+Act == /\ 2 \div (2-gate)=1
+       /\ gate'=1 /\ UNCHANGED payload
+Spec == Init /\ [][Next]_vars /\ WF_vars(Act)
+P == <>(gate=1)
+====";
+        with_wrappers(source, false, |prepared, driver, atoms, control| {
+            let atom = driver
+                .native_predicates()
+                .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
+                .expect("bound enabledness");
+            let opts = dive_runtime::CheckOptions::dive(0);
+            let (graph, mut values) = capture(prepared, &opts);
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            for row in 0..graph.input().retained_rows {
+                let gate = graph.row(row).expect("row")[0].as_int().expect("gate");
+                let expected = match gate {
+                    0 => Some(true),
+                    1 => Some(false),
+                    _ => None,
+                };
+                assert_eq!(
+                    reader.predicate(atom, row, None, control).expect("query"),
+                    expected
+                );
+            }
+            assert_eq!(reader.atoms.projected_enabled_hits, 6);
+            assert_eq!(reader.atoms.fallbacks.error, 4);
+            reader.atoms.fuel = 0;
+            assert_eq!(
+                reader.predicate(atom, 0, None, control).expect("fuel"),
+                None
+            );
+            assert_eq!(reader.atoms.projected_enabled_hits, 6);
+        });
+    }
+
+    #[test]
     fn actual_reader_reuses_independent_source_target_proofs_and_rejects_copied_atoms() {
         let tuple = vec!["0"; 2200].join(",");
         let source = format!(
@@ -1521,6 +1822,93 @@ mod tests {
                 assert_eq!(reader.atoms.reuse.action, 2);
             });
         }
+    }
+
+    #[test]
+    fn periodic_column_requires_its_capture_even_when_the_store_and_shape_match() {
+        use dive_runtime::capture::CsrCapture;
+
+        let source = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLE x
+Init == x=0
+Next == x'=1-x
+Spec == Init /\ [][Next]_x
+P == <>(x=1)
+====";
+        with_wrappers(source, false, |prepared, driver, atoms, control| {
+            let options = dive_runtime::CheckOptions::dive(0);
+            let (graph, mut values) = capture(prepared, &options);
+            let atom = driver
+                .native_predicates()
+                .find(|atom| matches!(atom.test, AtomTest::Predicate))
+                .expect("state predicate");
+            let csr = CsrCapture::checked_targets(graph.input(), graph.limits(), control)
+                .expect("capture");
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            reader.live_prefix(true);
+            assert_eq!(
+                reader.predicate(atom, 0, None, control).expect("zero"),
+                Some(false)
+            );
+            assert_eq!(
+                reader.predicate(atom, 1, None, control).expect("one"),
+                Some(true)
+            );
+            reader
+                .save_label_prefix(atom, &csr, &mut [0b10].into_iter(), 8, control)
+                .expect("save");
+            drop(reader);
+
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            reader.live_prefix(false);
+            let prefix = reader
+                .label_prefix(atom, &csr, control)
+                .expect("same graph")
+                .expect("saved truths");
+            assert_eq!(
+                (prefix.sources, prefix.cells, prefix.words),
+                (2, 2, &[0b10][..])
+            );
+            reader.atoms.fuel = NATIVE_FUEL - 1;
+            assert!(
+                reader
+                    .label_prefix(atom, &csr, control)
+                    .expect("limited fuel")
+                    .is_none()
+            );
+            reader.atoms.fuel = NATIVE_FUEL;
+            reader.atoms.audit = true;
+            assert!(
+                reader
+                    .label_prefix(atom, &csr, control)
+                    .expect("audit")
+                    .is_none()
+            );
+            reader.atoms.audit = false;
+            let (replacement, mut other_values) = capture(prepared, &options);
+            let other =
+                CsrCapture::checked_targets(replacement.input(), replacement.limits(), control)
+                    .expect("second capture");
+            assert_eq!(csr.offsets(), other.offsets());
+            assert!(
+                reader
+                    .label_prefix(atom, &other, control)
+                    .expect("foreign CSR")
+                    .is_none()
+            );
+            drop(reader);
+
+            let mut reader = Reader::new(&replacement, &mut other_values, atoms);
+            reader.live_prefix(true);
+            assert!(
+                reader
+                    .label_prefix(atom, &other, control)
+                    .expect("new owner")
+                    .is_none()
+            );
+            assert_eq!(reader.atoms.prefix_bytes, 0);
+        });
     }
 
     #[test]

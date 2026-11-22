@@ -39,6 +39,19 @@ pub type NativeRead<'a> = dyn FnMut(
     ) -> Result<dive_eval::next::StateVals, AnalysisError>
     + 'a;
 
+/// Quiet native truths from an earlier check of the same append-only graph.
+/// For state atoms `sources` counts discovered vertices. For action atoms
+/// it counts fully expanded sources and `cells` includes their original
+/// parallel edges and final stutters, in physical order.
+pub struct LabelPrefix<'a> {
+    /// Number of immutable source rows already labeled.
+    pub sources: usize,
+    /// Exact bit count (padding in the last word has no meaning).
+    pub cells: usize,
+    /// Packed completed truths, least significant bit first.
+    pub words: &'a [u64],
+}
+
 /// Value rows and optional source-bound predicate evaluation from one producer.
 /// This supplies values/truth only, never completion or independent validation.
 ///
@@ -135,6 +148,36 @@ pub trait NativeReader {
     /// state or edge by the dive-eval evaluator, because no native truth was
     /// available. A counter only; it supplies no truth. Ignored by default.
     fn reference_predicate(&mut self, _atom: &crate::plan::PredicateAtom) {}
+
+    /// Returns an earlier fully native column only when this exact bound atom
+    /// and its physical graph prefix still have the same admitted values.
+    ///
+    /// # Errors
+    /// An owned interruption or invalid producer row.
+    fn label_prefix(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+        _graph: &capture::CsrCapture<'_>,
+        _control: &dive_runtime::budget::EvaluationControl,
+    ) -> Result<Option<LabelPrefix<'_>>, AnalysisError> {
+        Ok(None)
+    }
+
+    /// Offers a complete, quiet column to an append-only producer after all
+    /// native demands for the atom succeeded. A reader may ignore it.
+    ///
+    /// # Errors
+    /// An owned interruption while copying the column.
+    fn save_label_prefix(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+        _graph: &capture::CsrCapture<'_>,
+        _words: &mut dyn ExactSizeIterator<Item = u64>,
+        _byte_cap: usize,
+        _control: &dive_runtime::budget::EvaluationControl,
+    ) -> Result<(), AnalysisError> {
+        Ok(())
+    }
 
     /// Observes elapsed wall time in one contiguous atom-label, product-search
     /// or attribution phase. Periodic and final analyses share this callback.

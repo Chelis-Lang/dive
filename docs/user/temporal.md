@@ -559,6 +559,36 @@ the ordinary action check. The `unchanged_target_guards` counters report
 compiled plans, source probes, successful source proofs and individual action
 demands answered by those proofs.
 
+During a native check, many different states can give a fairness predicate the
+same inputs. In the default profile, Core can reuse a quiet result when the
+bound predicate and every stored value it reads agree. For a straight-line
+`ENABLED` query, variables merely copied by `UNCHANGED` can be omitted from
+that key. Core can also establish that an action is disabled by evaluating its
+original leading source conditions. This works even when a constraint removes
+a successor, because Core evaluates the action on the source state. A direct
+nonstuttering test is false on an admitted transition back to the very same
+physical row. These paths share an 8 MiB allowance for projected truth keys.
+The `projected_truth` counters distinguish state hits, enabledness hits,
+false generator prefixes, action guard hits and stutters.
+
+When a periodic check returns without finding a violation, later checks on the
+same growing native graph can reuse completed predicate columns. Core saves
+state labels through the previous vertex count and action labels through the
+last closed source row. Edges from a previously open frontier are evaluated
+when the row closes. Each column belongs to one bound predicate and one graph.
+The `periodic_prefix` counters report reused cells and retained bytes. A new
+check after a source edit starts with fresh columns.
+
+On the matched one-worker Elevator comparison, the combined label and
+component-search changes reduced four-floor time to a validated violation
+from 19.08 s to 9.62 s. Native atom evaluations fell from 14,337,308 to
+3,674,172. The second periodic check reused 11,375,942 cells from the first.
+Manyan took 7.46 s. On the complete three-floor graph the corresponding
+medians were 4.21 s, 3.55 s and 1.33 s. The two-floor holding medians were
+0.285 s, 0.26 s and 0.11 s. Four-floor median peak RSS was 172 MiB before
+the changes, 192 MiB with both, and 264 MiB for Manyan.
+[Matched runs, intermediate builds and witness checks](../../conformance/reports/perf/2026-11-22-projected-fairness.json)
+
 From a source checkout, a strong-fairness model with three toggles
 (`crates/dive-liveness/tests/fixtures/solutions/Solutions.tla`, 8 states, 25
 generated) exercises holding and failing properties, including

@@ -354,3 +354,36 @@ fn native_truth_pages_preserve_every_physical_bit_and_borrow_offsets() {
         .validate_dimensions(&graph)
         .expect("checked CSR shape");
 }
+
+#[test]
+fn periodic_prefix_ignores_word_padding_when_frontier_edges_and_states_are_appended() {
+    // Sixty-five immutable source rows, then a formerly open source with edges.
+    // The large final row makes action truth use sparse pages.
+    let prefix_cells = 65;
+    let vertices = 70;
+    let mut offsets: Vec<usize> = (0..=prefix_cells).collect();
+    offsets.resize(vertices + 1, prefix_cells + PAGE * 64 + 3);
+    let targets = vec![0; offsets[vertices]];
+    let graph = crate::product::CsrTopology::new(&offsets, &targets, &[0]).expect("grown graph");
+    let mut packed =
+        PackedTruth::new(&graph, &[AtomKind::State, AtomKind::Action]).expect("labels");
+    let old_words = [1 | (1 << 63), u64::MAX];
+    for (index, kind) in [AtomKind::State, AtomKind::Action].into_iter().enumerate() {
+        packed
+            .restore_prefix(index, kind, prefix_cells, &old_words)
+            .expect("restore");
+    }
+
+    packed.set_state(0, 67, true).expect("new vertex");
+    packed
+        .set_action(1, prefix_cells, PAGE * 64, true)
+        .expect("new edge");
+    for v in 0..vertices {
+        assert_eq!(packed.state(0, v), matches!(v, 0 | 63 | 64 | 67));
+        for edge in 0..offsets[v + 1] - offsets[v] {
+            let inherited = matches!(v, 0 | 63 | 64) && edge == 0;
+            let appended = v == prefix_cells && edge == PAGE * 64;
+            assert_eq!(packed.action(1, v, edge), inherited || appended);
+        }
+    }
+}

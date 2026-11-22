@@ -82,6 +82,20 @@ pub(super) trait StateSource {
     /// Records one label demand answered by the dive-eval evaluator.
     fn reference_predicate(&mut self, _atom: &crate::plan::PredicateAtom) {}
 
+    fn label_prefix(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+    ) -> Result<Option<super::periodic::external::LabelPrefix<'_>>, AnalysisError> {
+        Ok(None)
+    }
+    fn save_label_prefix(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+        _words: &mut dyn ExactSizeIterator<Item = u64>,
+    ) -> Result<(), AnalysisError> {
+        Ok(())
+    }
+
     fn analysis_time(&mut self, _stage: super::Stage, _elapsed: std::time::Duration) {}
 
     fn predicate_reuse_storage(
@@ -238,6 +252,26 @@ impl StateSource for NativeStates<'_, '_> {
 
     fn reference_predicate(&mut self, atom: &crate::plan::PredicateAtom) {
         self.read.reference_predicate(atom);
+    }
+
+    fn label_prefix(
+        &mut self,
+        atom: &crate::plan::PredicateAtom,
+    ) -> Result<Option<super::periodic::external::LabelPrefix<'_>>, AnalysisError> {
+        self.read.label_prefix(atom, self.graph, self.control)
+    }
+    fn save_label_prefix(
+        &mut self,
+        atom: &crate::plan::PredicateAtom,
+        words: &mut dyn ExactSizeIterator<Item = u64>,
+    ) -> Result<(), AnalysisError> {
+        self.read.save_label_prefix(
+            atom,
+            self.graph,
+            words,
+            crate::budget::optional_buffer_limit(),
+            self.control,
+        )
     }
 
     fn analysis_time(&mut self, stage: super::Stage, elapsed: std::time::Duration) {

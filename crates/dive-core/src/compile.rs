@@ -51,6 +51,9 @@ use crate::store::Store;
 #[path = "compile_gen.rs"]
 mod generator;
 
+#[path = "compile_atom_reads.rs"]
+mod atom_reads;
+
 #[path = "compile_split.rs"]
 mod split;
 
@@ -625,6 +628,17 @@ pub fn compile_bound_test_with_guard(
 /// Exact necessary action prefixes retained by optional native atom checks.
 #[derive(Default)]
 pub struct BoundGuards {
+    /// An ENABLED query over the original generator's leading source-only
+    /// items, and their read mask. Only a quiet false proves the full query false.
+    pub enabled_prefix: Option<(P, u64)>,
+    /// The nonstuttering subscript is a direct tuple of materialized
+    /// variables in a fresh frame under canonical comparison.
+    pub direct_stutter: bool,
+    /// Sufficient source variables for a quiet state truth on materialized
+    /// inputs in this exact bound plan. Independent of the retained graph.
+    pub state_reads: Option<u64>,
+    /// Sufficient source variables for a quiet source-prefix truth.
+    pub guard_reads: Option<u64>,
     /// Prefix using only the source.
     pub source: Option<P>,
     /// Necessary prefix and the index of its only primed variable. A quiet
@@ -2701,17 +2715,19 @@ impl Compiler<'_> {
         {
             return Ok(None);
         }
-        let fits = |info: &Info| {
-            info.primed & !mask == 0 && !info.effect && !info.calls && !info.nested_query
+        let fits = |p: P| {
+            let info = &self.info[p as usize];
+            (info.primed & !mask == 0 && !info.effect && !info.calls && !info.nested_query)
+                || (info.nested_query && self.atom_source_reads(p).is_some())
         };
-        if fits(&self.info[p as usize]) {
+        if fits(p) {
             return Ok(Some(p));
         }
         let projected = match self.code.nodes[p as usize].clone() {
             Node::And(operands) => {
                 let mut prefix = Vec::new();
                 for &operand in &operands {
-                    if fits(&self.info[operand as usize]) {
+                    if fits(operand) {
                         prefix.push(operand);
                     } else {
                         prefix.extend(self.necessary_guard(operand, depth + 1, mask)?);
@@ -2742,10 +2758,7 @@ impl Compiler<'_> {
                 kind: Quant::Exists,
                 binds,
                 body,
-            } if binds
-                .iter()
-                .all(|bind| fits(&self.info[bind.domain as usize])) =>
-            {
+            } if binds.iter().all(|bind| fits(bind.domain)) => {
                 let Some(body) = self.necessary_guard(body, depth + 1, mask)? else {
                     return Ok(None);
                 };
@@ -2803,7 +2816,11 @@ impl Compiler<'_> {
 
     fn bound_test(&mut self, r: &Role, test: BoundTest) -> Result<Check, Error> {
         if matches!(test, BoundTest::Predicate) {
-            return self.step_check(r);
+            let check = self.step_check(r)?;
+            self.bound_guards.state_reads = check.conjuncts.iter().try_fold(0, |reads, part| {
+                self.atom_source_reads(part.p).map(|part| reads | part)
+            });
+            return Ok(check);
         }
         self.init_mode = false;
         let (env, preset) = self.role_env(r)?;
@@ -2815,7 +2832,12 @@ impl Compiler<'_> {
             ));
         }
         let p = match test {
-            BoundTest::Enabled(sub) => self.enabled(Some(r.expr), sub, env, Mode::Plain)?,
+            BoundTest::Enabled(sub) => {
+                let p = self.enabled(Some(r.expr), sub, env, Mode::Plain)?;
+                self.bound_guards.state_reads = self.enabled_atom_reads(p);
+                self.bound_guards.enabled_prefix = self.enabled_prefix(p)?;
+                p
+            }
             BoundTest::Nonstuttering(sub) => {
                 // Unlike ENABLED, the reference Nonstuttering wrapper evaluates
                 // two ordinary scoped state values and then the action. It
@@ -2838,7 +2860,12 @@ impl Compiler<'_> {
                 {
                     // Bound-test compilation disables folding, so the
                     // projected wrappers retain their ordinary fuel charges.
+                    self.bound_guards.direct_stutter = true;
                     self.bound_guards.source = self.necessary_guard(action, 0, 0)?;
+                    self.bound_guards.guard_reads = self
+                        .bound_guards
+                        .source
+                        .and_then(|p| self.atom_source_reads(p));
                     if self.with_target_guard
                         && let Some(mask) = self.first_destination(action, 0)
                         && let Some(prefix) = self.necessary_guard(action, 0, mask)?
