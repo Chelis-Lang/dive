@@ -59,6 +59,14 @@ def main():
             genuine = check([*command(source), "--save", receipt], 0)
             if check([*command(other), "--verify", receipt], 0) != genuine:
                 raise ValueError("identical input moved to another directory")
+            modified = json.loads(receipt.read_bytes())
+            if modified["clauses"] != 1:
+                raise ValueError("unexpected number of synthetic clauses")
+            modified["clauses"] = True
+            mistyped = base / "boolean.json"
+            mistyped.write_text(json.dumps(modified))
+            if "differs from independently checked" not in check([*command(other), "--verify", mistyped], 2)["reason"]:
+                raise ValueError("boolean accepted in place of an integer")
             (other / "Bounds.cfg").write_text(CFG + "\n")
             if "different source or configuration" not in check([*command(other), "--verify", receipt], 2)["reason"]:
                 raise ValueError("changed CFG bytes escaped the binding")

@@ -13,13 +13,17 @@ from induction import write_atomic
 from property_proof import PropertyModel
 
 
+def canonical(document):
+    return json.dumps(document, separators=(",", ":"), sort_keys=True, allow_nan=False).encode()
+
+
 def digest(document):
     # Diagnostic display paths change when a client moves the checked input.
     # Retain file order, module identity, selected source bytes and every IR edge.
     files = [{key: value for key, value in file.items() if key != "display"}
              for file in document["ir"]["files"]]
     bound = {**document, "ir": {**document["ir"], "files": files}}
-    return hashlib.sha256(json.dumps(bound, separators=(",", ":"), sort_keys=True).encode()).hexdigest()
+    return hashlib.sha256(canonical(bound)).hexdigest()
 
 
 class InductionModel(PropertyModel):
@@ -149,7 +153,7 @@ def main():
         result = verify(document, args.layout, args.candidate, args.property)
         result["config_sha256"] = config_digest
         if args.verify:
-            require(old == result, "certificate differs from independently checked obligations")
+            require(canonical(old) == canonical(result), "certificate differs from independently checked obligations")
         if args.save:
             write_atomic(args.save, (json.dumps(result, sort_keys=True) + "\n").encode())
         print(json.dumps({"result": "proved", **result}))
