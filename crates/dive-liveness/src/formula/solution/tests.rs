@@ -297,3 +297,39 @@ fn an_expired_run_budget_cannot_produce_decomposition_results() {
         Err(FormulaError::Limit(crate::budget::EXHAUSTED))
     ));
 }
+
+#[test]
+fn shared_conjuncts_produce_one_streett_pair_under_a_small_work_budget() {
+    let mut nodes = vec![
+        Node::Atom(Atom {
+            kind: AtomKind::State,
+            index: 0,
+        }),
+        Node::Always(0),
+        Node::Eventually(1),
+        Node::Atom(Atom {
+            kind: AtomKind::Action,
+            index: 0,
+        }),
+        Node::Eventually(3),
+        Node::Always(4),
+        Node::Or(vec![2, 5]),
+    ];
+    let mut root = 6;
+    for _ in 0..20 {
+        nodes.push(Node::And(vec![root, root]));
+        root = nodes.len() - 1;
+    }
+    let formula = Formula::new(nodes, root).expect("shared conjunction");
+    let result = streett(
+        &formula,
+        Limits {
+            expansion_steps: 100,
+            ..Limits::default()
+        },
+    )
+    .expect("shared DAG");
+    assert_eq!(result.pairs.len(), 1);
+    assert_eq!(result.groups.len(), 1);
+    assert_eq!(result.groups[0].alternatives.len(), 1);
+}

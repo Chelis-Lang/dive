@@ -408,6 +408,13 @@ fn grouped_fairness_elimination_matches_ordinary_search_on_labelled_multigraphs(
     assert_eq!(group.alternatives.len(), 8);
     let tableau =
         formula::compile_residual(&group.core, formula::Limits::default()).expect("tableau");
+    let formula::FactoredSolutions {
+        groups: factored,
+        pairs,
+    } = formula::streett(&formula, formula::Limits::default()).expect("factored");
+    assert_eq!(factored.len(), 1);
+    assert_eq!(factored[0].alternatives.len(), 1);
+    assert_eq!(pairs.len(), 3);
     let mut rng = Rng(0x7771);
     let mut witnesses = 0;
     let mut eliminated = 0;
@@ -435,6 +442,21 @@ fn grouped_fairness_elimination_matches_ordinary_search_on_labelled_multigraphs(
         let reference = product
             .search_rows(&product, &labels, &group.alternatives, 0)
             .expect("ordinary search");
+        let lazy = product
+            .find_lasso_with_streett(&labels, &factored[0].alternatives, &pairs)
+            .expect("factored search");
+        assert_eq!(lazy.is_some(), reference.is_some());
+        if let Some(lasso) = lazy {
+            for index in 0..3 {
+                assert!(
+                    lasso.cycle.iter().all(|s| labels.states[index % 2][s.from])
+                        || lasso
+                            .cycle
+                            .iter()
+                            .any(|s| labels.actions[usize::from(index > 0)][s.from][s.edge])
+                );
+            }
+        }
         let mut bytes = usize::MAX;
         let words =
             super::ConditionWords::build(&offsets, &group.alternatives, &labels, &mut bytes)

@@ -1,0 +1,382 @@
+{
+  "question": "Can ordinary Core find a valid counterexample when independent strong fairness choices exhausted formula planning on the four-floor Elevator?",
+  "host": "Dedicated c7i.4xlarge Intel Xeon Platinum 8488C, Ubuntu 24.04 Linux x86_64, us-east-2",
+  "method": "Fresh serial processes on an isolated Linux node. Each final configuration measured once. Elapsed wall and peak KiB are GNU time, excluding the separately invoked pre-change trace validator. The baseline holdout CLI is a debug build, used only to identify its result. Timing from the dedicated benchmark host is not a hosted-CI result. Secondary source diagnostics and the short two-floor correctness controls overlapped briefly on separate cores. Use their verdicts as controls.",
+  "model": "https://github.com/tlaplus/Examples/tree/6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/MultiCarElevator",
+  "cfg_sha256": "707f56c9952ed53cee5dda44b20ed51224f0035039c73cd96a51ea02d34c0c49",
+  "manyan_revision": "a39816a873a2c2aabc00dbcef50908e996f3d44b",
+  "manyan_sha256": "89f6da894a58220f7607853ca3907122f692fe66e507c148e1898731b8b4fcf1",
+  "commands": [
+    "From the pinned Examples specifications/MultiCarElevator directory change only FloorCount = 3 to FloorCount = 4 in ElevatorLivenessLarge.cfg and save as four-floor.cfg.",
+    "dive check Elevator.tla --config four-floor.cfg --workers 1 --seed 0 --fp 0 --compat dive --time-limit 100s --max-memory 8g --output json > native.json",
+    "For the TLC profile use --compat tlc --time-limit 160s. Both are independently checked through their reported word.",
+    "jq '.counterexample.trace' native.json > word.json; dive validate-trace Elevator.tla --config four-floor.cfg --trace word.json --seed 0 --fp 0 --output json",
+    "Set ending.back_to to 0, retaining every state, action and claimed property, and rerun validate-trace. Trace hashes refer to Python json.dumps(trace,sort_keys=True,separators=(\",\",\":\")) followed by a newline.",
+    "manyan -workers 1 -seed 0 -fp 0 -config four-floor.cfg Elevator.tla; see 2026-11-22-fairness-components.json for original Manyan run and replay.",
+    "For each second-source check write its recorded cfg, run the same pinned source at --workers 1 --seed 0 --fp 0, and give Manyan the identical module and CFG."
+  ],
+  "default_startup_probe": {
+    "original_planner_limit": 1000000,
+    "residual_cores": 10,
+    "alternatives_per_core": 4096,
+    "explicit_alternatives": 40960,
+    "memoized_residual_planning_work": 1147077,
+    "diagnostic_peak_rss_kib": 283616,
+    "method": "Temporary counters on four-floor decomposition only. The raised-ceiling probe stopped as soon as it classified the formula; it produced no model verdict."
+  },
+  "time_to_witness": "The default intermediate search found a word at depth 20 with 12,168 queued states. The TLC profile and Manyan reached the complete depth-41 graph. Compare time to a validated violation, not exhaustive throughput or sizes of selected witnesses.",
+  "candidate_sha256": "2f2239bb20223e15abf4a2bb903e6d2b2b26c95965808612f24aa3b3ed4d4432",
+  "independent_validator_sha256": "c49c68bb072f132ff485abb7c1f26b470ab87c708128b900f09b213e8d5debcc",
+  "rows": [
+    {
+      "configuration": "four-floor.cfg",
+      "profile": "dive",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "statistics": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "analysis_ms": {
+        "atoms": 11944.181805999999,
+        "attribution": 22.739065999999998,
+        "product": 4628.812036
+      },
+      "wall_s": 18.74,
+      "peak_rss_kib": 175432,
+      "states": 114,
+      "ending": {
+        "back_to": 2,
+        "kind": "lasso"
+      },
+      "independent_replay": {
+        "sha256": "d10b9065ecf2f452dfdf2f59494ed3f1a9a658b30dab6f3b7513a6622e8c41fd",
+        "result": "valid",
+        "notes": [],
+        "exit": 0
+      },
+      "closing_target_zero_replay": {
+        "sha256": "808fa0daaef43472cd5667d8c7daccbeb763059fa625c24e0877594dd1256c4c",
+        "result": "invalid",
+        "notes": [],
+        "exit": 1
+      }
+    },
+    {
+      "configuration": "four-floor.cfg",
+      "profile": "tlc",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "statistics": {
+        "depth": 41,
+        "distinct": 281976,
+        "generated": 1583418,
+        "initial_generated": 4096,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "analysis_ms": {
+        "atoms": 83633.525384,
+        "attribution": 21.387306,
+        "product": 12944.130642999999
+      },
+      "wall_s": 100.63,
+      "peak_rss_kib": 173344,
+      "states": 114,
+      "ending": {
+        "back_to": 2,
+        "kind": "lasso"
+      },
+      "independent_replay": {
+        "sha256": "4189caa808511371368a0ed13611ac5d21dacc80ab3e41e213ad08293589deb2",
+        "result": "valid",
+        "notes": [],
+        "exit": 0
+      },
+      "closing_target_zero_replay": {
+        "sha256": "40ab39c711051633888c82b015e11e02995f745d64e19c24c84973e1ce936343",
+        "result": "invalid",
+        "notes": [],
+        "exit": 1
+      }
+    },
+    {
+      "configuration": "ElevatorLivenessLarge.cfg",
+      "profile": "dive",
+      "verdict": "success",
+      "property": null,
+      "statistics": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "analysis_ms": {
+        "atoms": 2527.720092,
+        "product": 873.228111
+      },
+      "wall_s": 4.11,
+      "peak_rss_kib": 100192
+    }
+  ],
+  "manyan_four_floor": {
+    "arm": "manyan",
+    "cfg": "four-floor.cfg",
+    "rep": 0,
+    "exit": 13,
+    "wall_s": 7.29616,
+    "peak_rss_kib": 270164,
+    "status": "liveness-violation",
+    "generated": 1583418,
+    "distinct": 281976,
+    "depth": 41,
+    "property": "TemporalInvariant"
+  },
+  "manyan_word": {
+    "cfg_sha256": "707f56c9952ed53cee5dda44b20ed51224f0035039c73cd96a51ea02d34c0c49",
+    "manyan_dump_sha256": "771ebd5990bcb116d3ab2ddf26bf9483a7d4e9b9451c1c32d134aae60dc5b6a4",
+    "typed_word_sha256": "8ee57af067d3c9d614c20ba101d7176ca45a545cbbd070ddda687c6eea1fa1f3",
+    "property": "TemporalInvariant",
+    "states": 202,
+    "back_to_zero_based": 8,
+    "independent_replay": "valid",
+    "tampered_back_to_zero_based": 0,
+    "tampered_replay": "invalid closing Next transition",
+    "issue": 1294
+  },
+  "two_floor_controls": [
+    {
+      "case": "small-fair",
+      "module_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "99b3a1c26fe43dbaaf00fe57228a836c2f7e3e59ad00404f184885716558a6e2",
+      "manyan": {
+        "wall_s": 0.00556,
+        "exit": 0,
+        "peak_rss_kib": 3936,
+        "status": "success",
+        "generated": 68,
+        "distinct": 36
+      },
+      "dive": {
+        "wall_s": 0.01724,
+        "exit": 0,
+        "peak_rss_kib": 26292,
+        "status": "success",
+        "property": null,
+        "distinct": 36,
+        "generated": 68,
+        "depth": 12
+      }
+    },
+    {
+      "case": "small-no-move-SF",
+      "module_sha256": "c6e3199e16ddf3f44bee6e2573bccc2826df09ae77725aca62a93ae8634176e6",
+      "cfg_sha256": "99b3a1c26fe43dbaaf00fe57228a836c2f7e3e59ad00404f184885716558a6e2",
+      "replay": {
+        "result": "valid",
+        "exit": 0
+      },
+      "initial_stutter_replay": {
+        "result": "invalid",
+        "exit": 1
+      },
+      "original_fairness_replay": {
+        "result": "invalid",
+        "exit": 1
+      },
+      "manyan": {
+        "wall_s": 0.00482,
+        "exit": 13,
+        "peak_rss_kib": 3932,
+        "status": "violation",
+        "generated": 68,
+        "distinct": 36
+      },
+      "dive": {
+        "wall_s": 0.02293,
+        "exit": 13,
+        "peak_rss_kib": 34932,
+        "status": "liveness-violation",
+        "property": "TemporalInvariant",
+        "distinct": 36,
+        "generated": 68,
+        "depth": 12,
+        "witness_states": 6,
+        "ending": {
+          "back_to": 5,
+          "kind": "lasso"
+        }
+      }
+    },
+    {
+      "case": "medium-fair",
+      "module_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "3e6d67656512a5d2e4795c7de9c13d510096608e506c56f31f0fa4eb618d9290",
+      "manyan": {
+        "wall_s": 0.10865,
+        "exit": 0,
+        "peak_rss_kib": 10396,
+        "status": "success",
+        "generated": 14296,
+        "distinct": 4122
+      },
+      "dive": {
+        "wall_s": 0.28181,
+        "exit": 0,
+        "peak_rss_kib": 38688,
+        "status": "success",
+        "property": null,
+        "distinct": 4122,
+        "generated": 14296,
+        "depth": 36
+      }
+    }
+  ],
+  "additional_sources": [
+    {
+      "model": "SimpleAllocator.tla",
+      "configuration": "Fourteen clients, empty resource set, original SimpleAllocator and InfOftenSatisfied. All allocation actions are disabled; this one-state control isolates fairness cardinality.",
+      "module_sha256": {
+        "SimpleAllocator.tla": "39180889fb44ea7cbba47e97c2fa727a54c43f8f7ff983caf61d67eb0a2db0e3"
+      },
+      "cfg_sha256": "6f0979132a2e3290c5006b7222fe6936624c340e78beaecc43eca1ccaaf7b15f",
+      "cfg": "CONSTANTS\n Clients = {c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14}\n Resources = {}\nSPECIFICATION SimpleAllocator\nINVARIANTS TypeInvariant ResourceMutex\nPROPERTY InfOftenSatisfied\nCHECK_DEADLOCK FALSE\n",
+      "runs": [
+        {
+          "arm": "baseline",
+          "wall_s": 1.75255,
+          "peak_rss_kib": 302348,
+          "verdict": "unsupported",
+          "message": "temporal formula resource limit: solution decomposition work",
+          "statistics": null
+        },
+        {
+          "arm": "candidate",
+          "wall_s": 0.2177,
+          "peak_rss_kib": 290700,
+          "verdict": "success",
+          "message": null,
+          "statistics": {
+            "depth": 1,
+            "distinct": 1,
+            "generated": 1,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": false
+          }
+        },
+        {
+          "arm": "manyan",
+          "wall_s": 0.00527,
+          "peak_rss_kib": 4444,
+          "verdict": "success",
+          "statistics": {
+            "distinct": 1,
+            "generated": 1,
+            "depth": 1
+          }
+        }
+      ]
+    },
+    {
+      "model": "MCCheckpointCoordination.tla",
+      "configuration": "Two nodes, Majority 2, MaxLog 1, MaxNat 2, original temporal property, both original safety invariants, StateConstraint, no symmetry.",
+      "module_sha256": {
+        "CheckpointCoordination.tla": "c69fbc8bd2b05373edf0bfb76fa00ab1cd980bf5fbd81c4fc1361e3c99199964",
+        "MCCheckpointCoordination.tla": "b8ec0a17e4a3558e11635b4958872d2d3d02847ffe79a0a592fbc61fb6b10d4c"
+      },
+      "cfg_sha256": "3e51074f3fa9acb6a8c4d1e450b97eb79bcd44e85b58bbdba2d9e8aa5876a411",
+      "cfg": "\\* Finishes in around one minute\n\nSPECIFICATION\n  Spec\n\nCONSTANTS\n  Node = {n1,n2}\n  Majority = 2\n\nCONSTANTS\n  MaxLog = 1\n  MaxNat = 2\n\nCONSTANTS\n  Nat <- MCNat\n  LogIndex <- MCLogIndex\n  NoNode = NoNode\n  NoCheckpointLease = NoCheckpointLease\n\nINVARIANTS\n  TypeInvariant\n  SafetyInvariant\n\nCONSTRAINT\n  StateConstraint\n\nPROPERTY TemporalInvariant\n",
+      "runs": [
+        {
+          "arm": "baseline",
+          "wall_s": 1.19,
+          "peak_rss_kib": 179624,
+          "verdict": "unsupported",
+          "message": "temporal formula resource limit: solution decomposition work",
+          "statistics": null
+        },
+        {
+          "arm": "candidate",
+          "wall_s": 0.14,
+          "peak_rss_kib": 167848,
+          "verdict": "unsupported",
+          "message": "a temporal failure (core): its report is not implemented on Core",
+          "statistics": null
+        },
+        {
+          "arm": "manyan",
+          "wall_s": 0.0,
+          "peak_rss_kib": 3820,
+          "verdict": "initial-state evaluation error: comparison of a record to a tuple",
+          "statistics": {
+            "distinct": 1,
+            "generated": 1,
+            "depth": 1
+          }
+        },
+        {
+          "arm": "pinned TLC 1.8.0, upstream 94d0c5070852b37b801bb8998c436383ab7ee37b",
+          "verdict": "initial-state evaluation error: comparison of a record to a tuple",
+          "exit": 255,
+          "wall_s": 0.88,
+          "peak_rss_kib": 394004,
+          "statistics": {
+            "distinct": 1,
+            "generated": 1,
+            "depth": 1,
+            "left_on_queue": 1
+          }
+        }
+      ],
+      "core_underlying_cause": "A diagnostic at the periodic-analysis boundary in both profiles recovered DIVE-L0033: TemporalInvariant at lines 223\u2013225, selecting field counter from the model value NoCheckpointLease (CheckpointCoordination.tla line 225 columns 10\u201332)."
+    }
+  ],
+  "focused_small_core_ratchet": {
+    "baseline": "small-core-dive-w1.json",
+    "filters": [
+      "ElevatorLivenessMedium.cfg",
+      "MCLiveWriteThroughCache.cfg",
+      "ConfiguredReplyFails.cfg",
+      "ConfiguredReplyHolds.cfg"
+    ],
+    "workers": 1,
+    "agree": 4,
+    "regressions": 0
+  },
+  "earlier_implementation_trials": [
+    {
+      "arm": "initial lazy branch refinement",
+      "profile": "dive",
+      "cfg": "four-floor.cfg",
+      "wall_s": 18.44,
+      "peak_rss_kib": 175612,
+      "distinct": 150372,
+      "generated": 717693,
+      "witness_states": 114,
+      "back_to": 2,
+      "independent_replay": "valid",
+      "tampered_replay": "invalid"
+    },
+    {
+      "arm": "hardened before shared-conjunct deduplication",
+      "profile": "tlc",
+      "cfg": "four-floor.cfg",
+      "wall_s": 100.01,
+      "peak_rss_kib": 173300,
+      "verdict": "stopped",
+      "time_cap_s": 100,
+      "distinct": 281976,
+      "generated": 1583418,
+      "atom_ms": 85018.156492,
+      "product_ms": 10897.576572,
+      "note": "The final candidate used a 160 s cap and returned the independently replayed violation."
+    }
+  ]
+}

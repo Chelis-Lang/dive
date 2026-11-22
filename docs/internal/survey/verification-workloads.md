@@ -501,3 +501,9 @@ Omit `--cgroup-parent` for time and outcomes alone. Each cell gets the same
 external wall deadline, including binding, checker startup and compilation.
 
 For the fairness run, use the Dive corpus pin of Examples. The script verifies the original module and CFG digests before creating its two smaller controls. The artifact importer reads immutable Scimitar and Recomp-Verify revisions and version 2 of the Recomp-Verify paper. For compiled explicit searches, add `--tla-mc` to the native panel invocation to run cold and warm compiled tla-mc as well as tlx on KVS and Lamport. Each compiler gets its own cache. [Native panel](../../../scripts/perf/scale/native-peer-panel.py) · [Historical explicit-search records with both peers](../../../conformance/reports/perf/2026-11-20-native-peer-panel.json)
+
+## Quantified fairness on larger models
+
+On the original Elevator Large, grouped fairness brought Core to 4.16 s for 50,653 distinct states, against 1.31 s with Manyan. Adding a fourth floor exposes a real violation. Core finds a 114-state word in 18.74 s and Manyan a 202-state word in 7.30 s. Independent replay accepts both and rejects both damaged closing edges. Core spent 11.94 s evaluating graph atoms and 4.63 s searching the temporal product at four floors. [Three-floor experiment](../../../conformance/reports/perf/2026-11-22-fairness-components.json) · [Four-floor comparison](../../../conformance/reports/perf/2026-11-22-factored-streett.json)
+
+The same planner completes the original SimpleAllocator with 14 clients, no resources and one state. This isolates the number of fairness conditions from graph size. A two-node CheckpointCoordination variant moves past the formula limit but Core still refuses and Manyan fails evaluating its initial state. The changed CFGs and both outcomes are in the four-floor data.

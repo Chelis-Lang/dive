@@ -19,6 +19,7 @@ use std::collections::{BTreeSet, HashSet};
 mod condition_words;
 use condition_words::ConditionWords;
 mod repeated_rows;
+mod streett;
 use repeated_rows::RepeatedRows;
 
 /// Discovery uses a dense bitset while it costs at most this many tableau
