@@ -64,7 +64,12 @@ def value(node, rename):
 
 
 def check_constants(config, carrier, observers, *, exhaustive_graph=False):
-    require(exhaustive_graph or not observers["refusals"], "; ".join(observers["refusals"][:5]))
+    # Dynamic calls and choices can be checked on every successful original
+    # edge. Known effects and opaque standard operations must still be rejected
+    # before the first ordinary or reduced check starts.
+    refusals = [reason for reason in observers["refusals"] if not exhaustive_graph or
+                not reason.startswith(("CHOOSE without a direct fixed constant ", "dynamic operator at "))]
+    require(not refusals, "; ".join(refusals[:5]))
     for option in ("symmetry", "view", "alias", "periodic", "postconditions", "rl_reward", "possible"):
         require(not config.get(option), f"unsupported configured {option}")
     constants = {}

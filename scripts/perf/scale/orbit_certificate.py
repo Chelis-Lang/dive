@@ -14,6 +14,9 @@ import tempfile
 import time
 
 
+FINITE_SOURCES = ("engine.py", "orbit_proof.py", "finite_relation.py", "worker_process.py", "induction.py")
+
+
 def pack(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("ascii")
 
@@ -85,7 +88,12 @@ def establish(args, folder, original, identity, reduced, ordinary):
                      layout=args.type_invariant if finite else None, workers=args.workers, platform=platform.machine(),
                      profile="tlc-exact-seed0-fp0")
     if finite:
-        proof = Path(__file__).resolve().parents[2] / "symbolic" / "orbit_proof.py"
+        source = Path(__file__).resolve().parents[2] / "symbolic"
+        verifier = folder / ".finite-proof"
+        verifier.mkdir()
+        for name in FINITE_SOURCES:
+            shutil.copyfile(source / name, verifier / name)
+        proof = verifier / "orbit_proof.py"
         namespace["finite_implementation"] = json.loads(run([sys.executable, proof, "--identity"]))
     context = hashlib.sha256(pack(namespace)).hexdigest()
     cache = args.certificate_cache
@@ -104,7 +112,7 @@ def establish(args, folder, original, identity, reduced, ordinary):
                         and hmac.compare_digest(mac, hmac.digest(secret, pack(prior), "sha256").hex())
                         and tuple(prior["ordinary_counts"]) == census(reduced)):
                     return dict(**prior, reuse="authenticated", seconds=round(time.monotonic() - started, 6))
-        except (OSError, ValueError, KeyError, TypeError):
+        except (OSError, ValueError, KeyError, TypeError, RecursionError):
             pass  # A cache miss or damaged receipt always requires a new proof.
 
     # Both verifiers require a successful ordinary no-sink run on the complete
