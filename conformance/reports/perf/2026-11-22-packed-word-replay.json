@@ -1,0 +1,852 @@
+{
+  "question": "Independently verify larger concrete periodic counterexamples with exact temporal semantics and bounded evaluator work.",
+  "host": "Dedicated AWS c7i.4xlarge, Intel Sapphire Rapids, Linux x86_64. Single validation process per sample. /usr/bin/time wall seconds and process peak RSS KiB. Timings are individual engineering samples. Stock ran after donor regeneration; builds also shared the host during portions of the preliminary campaign.",
+  "baseline": "ac6fa6ea7e9b7d2766d1cfc0c8b3031e553e9cb7",
+  "checksums_sha256": {
+    "stock": "c4c2c67b6d675df92866df8b023282755ac49764b904ea86200e9fc4dc095a41",
+    "packed": "f9fd849a616672ad51dea93348f0bc1006873ce86ff2727c4c9fc1b82e988441",
+    "memo": "4adfc5d4efb13ee0a8c36d3f03c6a59d99330096eb366f822625e8860da1ad2e",
+    "Elevator.tla": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+    "four-floor.cfg": "707f56c9952ed53cee5dda44b20ed51224f0035039c73cd96a51ea02d34c0c49",
+    "seven-floor.cfg": "a75424aeb60b0e1ed5d4c06a35b23d9e4c00678da6ffd81879e1cebc89811e62",
+    "four-donor.json": "218c526dde86e962c8fabb4711cbb1c660d95d8edf035ef3f28243019874f314",
+    "seven-donor.json": "8f00421aa3a105de8822ab17f510d0e1b1e79a8da829e64a4525c4979ca35ed0",
+    "candidate": "ff357b57abca39861add45803ce33183aca0ee9a904caa95115e58dab647ea0b"
+  },
+  "input_pin": "tlaplus/Examples 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f; specifications/MultiCarElevator. Keep both people, both cars, original Init, Next, fairness, two invariants and TemporalInvariant. Only FloorCount varies.",
+  "regeneration": [
+    "Run dive check Elevator.tla --config donor.cfg --workers 1 --seed 0 --fp 0 --time-limit 270s --max-memory 8g --output json on the original source at four or seven floors. Save .counterexample.trace.",
+    "For source carrier f and target n choose the mapping [1 + floor(i*(n-1)/(f-1)) for i in 0..f-1], in order. Run scripts/perf/scale/elevator-lift-word.py --help for the donor, floor mapping and output arguments. Changing ending.back_to to zero supplies the damaged control.",
+    "Run dive validate-trace Elevator.tla --config target.cfg --trace word.json --output json. Word SHA-256 is over JSON encoded by Python json.dumps(word, sort_keys=True). Construction time is independent of validation and donor discovery.",
+    "For closed graph 7 use the pinned source, closed inputs and original 45-position TLC stuttering word in 2026-11-20-closed-graph-inputs.json and the associated source recipe. For the stretched controls repeat the final complete state with null action and update length, preserving the stuttering ending."
+  ],
+  "limits": {
+    "per_formula_units": 1000000,
+    "max_input_positions": 1000000,
+    "max_recursion_depth": 256,
+    "max_equality_cache_payload_bytes": 125000,
+    "word_size_bits": 64,
+    "interpretation": "Each syntax visit, concrete leaf predicate or action position, demanded fairness enabledness position, and logical operation over up to 64 positions is charged. Independent step checking, scoped source walks and evaluator-internal work have separate costs. One unit is not a wall-clock or total-process memory guarantee."
+  },
+  "arms": {
+    "stock": "Prior dense truth vectors with one full position column charged on every recursive formula visit.",
+    "memo": "Packed truth and one completed subscript equality column. Pre-final control.",
+    "candidate": "Includes bounded polling of enabledness and folds cycle disabledness without retaining a second vector."
+  },
+  "elevator": {
+    "stock": [
+      {
+        "donor": "four",
+        "floors": 121,
+        "positions": 882,
+        "kind": "genuine",
+        "construction_ms": 24.982407,
+        "result": "valid",
+        "detail": null,
+        "sha256": "e89b6e16ad7d497b1fe7f4838db11be5f22a19a0c4e9c19d0071cd0b5abe658b",
+        "wall_s": 2.6,
+        "max_rss_kib": 81080
+      },
+      {
+        "donor": "four",
+        "floors": 121,
+        "positions": 882,
+        "kind": "damaged",
+        "construction_ms": 24.982407,
+        "result": "invalid",
+        "detail": {
+          "check": "next",
+          "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+          "state": 881
+        },
+        "sha256": "03ada652464b5c6a47eb113802ee39084d2f155ae6bb363fa99a668d1577fdfc",
+        "wall_s": 0.2,
+        "max_rss_kib": 81040
+      },
+      {
+        "donor": "four",
+        "floors": 151,
+        "positions": 1082,
+        "kind": "genuine",
+        "construction_ms": 32.355883,
+        "result": "unsupported",
+        "detail": "temporal validation resource bound",
+        "sha256": "6794d191fab5fc3a5f506fd5e946cccfde59b60a42a9eeb2dedb806e7129519e",
+        "wall_s": 3.97,
+        "max_rss_kib": 103688
+      },
+      {
+        "donor": "four",
+        "floors": 181,
+        "positions": 1282,
+        "kind": "genuine",
+        "construction_ms": 44.834149,
+        "result": "unsupported",
+        "detail": "temporal validation resource bound",
+        "sha256": "b440c01415082585ef0a586e4e3561ed916e2cc414e1bea9e854cb85355233dc",
+        "wall_s": 5.66,
+        "max_rss_kib": 121976
+      },
+      {
+        "donor": "seven",
+        "floors": 121,
+        "positions": 1712,
+        "kind": "genuine",
+        "construction_ms": 50.977285,
+        "result": "unsupported",
+        "detail": "temporal validation resource bound",
+        "sha256": "e2b3cdd96518d81230ba7f6c6245c738c8eb2840de9c331dba1b9dd7931feac4",
+        "wall_s": 4.58,
+        "max_rss_kib": 120124
+      },
+      {
+        "donor": "four",
+        "floors": 241,
+        "positions": 1682,
+        "kind": "genuine",
+        "construction_ms": 61.599117,
+        "result": "unsupported",
+        "detail": "temporal validation resource bound",
+        "sha256": "aab1d75ae7f54046b0c524742e6924a2a44ea8b65ea71fc4869ca7593324abfd",
+        "wall_s": 10.95,
+        "max_rss_kib": 170600
+      }
+    ],
+    "memo": [
+      {
+        "donor": "four",
+        "floors": 121,
+        "positions": 882,
+        "kind": "genuine",
+        "construction_ms": 25.292938,
+        "result": "valid",
+        "detail": null,
+        "sha256": "e89b6e16ad7d497b1fe7f4838db11be5f22a19a0c4e9c19d0071cd0b5abe658b",
+        "wall_s": 2.39,
+        "max_rss_kib": 81192
+      },
+      {
+        "donor": "four",
+        "floors": 121,
+        "positions": 882,
+        "kind": "damaged",
+        "construction_ms": 25.292938,
+        "result": "invalid",
+        "detail": {
+          "check": "next",
+          "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+          "state": 881
+        },
+        "sha256": "03ada652464b5c6a47eb113802ee39084d2f155ae6bb363fa99a668d1577fdfc",
+        "wall_s": 0.2,
+        "max_rss_kib": 81204
+      },
+      {
+        "donor": "four",
+        "floors": 151,
+        "positions": 1082,
+        "kind": "genuine",
+        "construction_ms": 32.081703,
+        "result": "valid",
+        "detail": null,
+        "sha256": "6794d191fab5fc3a5f506fd5e946cccfde59b60a42a9eeb2dedb806e7129519e",
+        "wall_s": 3.95,
+        "max_rss_kib": 101552
+      },
+      {
+        "donor": "four",
+        "floors": 151,
+        "positions": 1082,
+        "kind": "damaged",
+        "construction_ms": 32.081703,
+        "result": "invalid",
+        "detail": {
+          "check": "next",
+          "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+          "state": 1081
+        },
+        "sha256": "e6a349af28ee589bc4bd2d8d23349258f906bf03f5383f1ff66244e7331977ed",
+        "wall_s": 0.3,
+        "max_rss_kib": 101536
+      },
+      {
+        "donor": "four",
+        "floors": 181,
+        "positions": 1282,
+        "kind": "genuine",
+        "construction_ms": 46.198953,
+        "result": "valid",
+        "detail": null,
+        "sha256": "b440c01415082585ef0a586e4e3561ed916e2cc414e1bea9e854cb85355233dc",
+        "wall_s": 6.0,
+        "max_rss_kib": 122012
+      },
+      {
+        "donor": "four",
+        "floors": 181,
+        "positions": 1282,
+        "kind": "damaged",
+        "construction_ms": 46.198953,
+        "result": "invalid",
+        "detail": {
+          "check": "next",
+          "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+          "state": 1281
+        },
+        "sha256": "ca6babbc107fec6df2a3171b294e8ad86b1a1ef03038bdaf43a95c2719b6c1e4",
+        "wall_s": 0.41,
+        "max_rss_kib": 122100
+      },
+      {
+        "donor": "seven",
+        "floors": 121,
+        "positions": 1712,
+        "kind": "genuine",
+        "construction_ms": 50.292491,
+        "result": "valid",
+        "detail": null,
+        "sha256": "e2b3cdd96518d81230ba7f6c6245c738c8eb2840de9c331dba1b9dd7931feac4",
+        "wall_s": 4.55,
+        "max_rss_kib": 119296
+      },
+      {
+        "donor": "seven",
+        "floors": 121,
+        "positions": 1712,
+        "kind": "damaged",
+        "construction_ms": 50.292491,
+        "result": "invalid",
+        "detail": {
+          "check": "next",
+          "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+          "state": 1711
+        },
+        "sha256": "7d11f4f3f6c66f4ed3388588fbb3d956a76daf784eda09bac30e3dbcfd73e750",
+        "wall_s": 0.33,
+        "max_rss_kib": 120016
+      },
+      {
+        "donor": "four",
+        "floors": 241,
+        "positions": 1682,
+        "kind": "genuine",
+        "construction_ms": 59.075104,
+        "result": "unsupported",
+        "detail": "temporal validation resource bound: 1000111 work units exceed 1000000 on 1682 positions",
+        "sha256": "aab1d75ae7f54046b0c524742e6924a2a44ea8b65ea71fc4869ca7593324abfd",
+        "wall_s": 5.87,
+        "max_rss_kib": 170676
+      }
+    ],
+    "candidate": [
+      {
+        "donor": "four",
+        "floors": 121,
+        "positions": 882,
+        "kind": "genuine",
+        "construction_ms": 24.854216,
+        "result": "valid",
+        "detail": null,
+        "sha256": "e89b6e16ad7d497b1fe7f4838db11be5f22a19a0c4e9c19d0071cd0b5abe658b",
+        "wall_s": 2.43,
+        "max_rss_kib": 81048
+      },
+      {
+        "donor": "four",
+        "floors": 121,
+        "positions": 882,
+        "kind": "damaged",
+        "construction_ms": 24.854216,
+        "result": "invalid",
+        "detail": {
+          "check": "next",
+          "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+          "state": 881
+        },
+        "sha256": "03ada652464b5c6a47eb113802ee39084d2f155ae6bb363fa99a668d1577fdfc",
+        "wall_s": 0.2,
+        "max_rss_kib": 81112
+      },
+      {
+        "donor": "four",
+        "floors": 151,
+        "positions": 1082,
+        "kind": "genuine",
+        "construction_ms": 32.370005,
+        "result": "valid",
+        "detail": null,
+        "sha256": "6794d191fab5fc3a5f506fd5e946cccfde59b60a42a9eeb2dedb806e7129519e",
+        "wall_s": 3.91,
+        "max_rss_kib": 101576
+      },
+      {
+        "donor": "four",
+        "floors": 151,
+        "positions": 1082,
+        "kind": "damaged",
+        "construction_ms": 32.370005,
+        "result": "invalid",
+        "detail": {
+          "check": "next",
+          "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+          "state": 1081
+        },
+        "sha256": "e6a349af28ee589bc4bd2d8d23349258f906bf03f5383f1ff66244e7331977ed",
+        "wall_s": 0.29,
+        "max_rss_kib": 103508
+      },
+      {
+        "donor": "four",
+        "floors": 181,
+        "positions": 1282,
+        "kind": "genuine",
+        "construction_ms": 43.231338,
+        "result": "valid",
+        "detail": null,
+        "sha256": "b440c01415082585ef0a586e4e3561ed916e2cc414e1bea9e854cb85355233dc",
+        "wall_s": 5.94,
+        "max_rss_kib": 122168
+      },
+      {
+        "donor": "four",
+        "floors": 181,
+        "positions": 1282,
+        "kind": "damaged",
+        "construction_ms": 43.231338,
+        "result": "invalid",
+        "detail": {
+          "check": "next",
+          "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+          "state": 1281
+        },
+        "sha256": "ca6babbc107fec6df2a3171b294e8ad86b1a1ef03038bdaf43a95c2719b6c1e4",
+        "wall_s": 0.4,
+        "max_rss_kib": 122164
+      },
+      {
+        "donor": "seven",
+        "floors": 121,
+        "positions": 1712,
+        "kind": "genuine",
+        "construction_ms": 50.098963,
+        "result": "valid",
+        "detail": null,
+        "sha256": "e2b3cdd96518d81230ba7f6c6245c738c8eb2840de9c331dba1b9dd7931feac4",
+        "wall_s": 4.58,
+        "max_rss_kib": 119860
+      },
+      {
+        "donor": "seven",
+        "floors": 121,
+        "positions": 1712,
+        "kind": "damaged",
+        "construction_ms": 50.098963,
+        "result": "invalid",
+        "detail": {
+          "check": "next",
+          "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+          "state": 1711
+        },
+        "sha256": "7d11f4f3f6c66f4ed3388588fbb3d956a76daf784eda09bac30e3dbcfd73e750",
+        "wall_s": 0.33,
+        "max_rss_kib": 119872
+      },
+      {
+        "donor": "four",
+        "floors": 241,
+        "positions": 1682,
+        "kind": "genuine",
+        "construction_ms": 59.937031,
+        "result": "unsupported",
+        "detail": "temporal validation resource bound: 1000111 work units exceed 1000000 on 1682 positions",
+        "sha256": "aab1d75ae7f54046b0c524742e6924a2a44ea8b65ea71fc4869ca7593324abfd",
+        "wall_s": 5.81,
+        "max_rss_kib": 170832
+      }
+    ]
+  },
+  "closed_graph_7": {
+    "runs": [
+      {
+        "arm_word": "memo-graph7-corrupt",
+        "result": "invalid",
+        "wall_s": 0.03,
+        "max_rss_kib": 30140
+      },
+      {
+        "arm_word": "memo-graph7",
+        "result": "valid",
+        "wall_s": 0.04,
+        "max_rss_kib": 30048
+      },
+      {
+        "arm_word": "memo-stutter-1025",
+        "result": "valid",
+        "wall_s": 0.1,
+        "max_rss_kib": 118220
+      },
+      {
+        "arm_word": "memo-stutter-257",
+        "result": "valid",
+        "wall_s": 0.05,
+        "max_rss_kib": 44648
+      },
+      {
+        "arm_word": "stock-graph7-corrupt",
+        "result": "invalid",
+        "wall_s": 0.03,
+        "max_rss_kib": 29300
+      },
+      {
+        "arm_word": "stock-graph7",
+        "result": "valid",
+        "wall_s": 0.04,
+        "max_rss_kib": 30168
+      },
+      {
+        "arm_word": "stock-stutter-1025",
+        "result": "valid",
+        "wall_s": 0.1,
+        "max_rss_kib": 117536
+      },
+      {
+        "arm_word": "stock-stutter-257",
+        "result": "valid",
+        "wall_s": 0.05,
+        "max_rss_kib": 44504
+      },
+      {
+        "arm_word": "candidate-graph7-corrupt",
+        "result": "invalid",
+        "wall_s": 0.03,
+        "max_rss_kib": 30168
+      },
+      {
+        "arm_word": "candidate-graph7",
+        "result": "valid",
+        "wall_s": 0.04,
+        "max_rss_kib": 30128
+      },
+      {
+        "arm_word": "candidate-stutter-1025",
+        "result": "valid",
+        "wall_s": 0.1,
+        "max_rss_kib": 118412
+      },
+      {
+        "arm_word": "candidate-stutter-257",
+        "result": "valid",
+        "wall_s": 0.05,
+        "max_rss_kib": 44632
+      }
+    ],
+    "inputs": {
+      "StateGraphs.tla": "8c40c70674ac54c3a7a7430d5d54c3ae91d7b7493c45614c3a068544c0eb2c7f",
+      "graph7.json": "071067f5f008029ebb7a2cfb2c829b64c7cdbf37bd238e038f5aaf10faa2f4e3",
+      "MCReachability.tla": "b2fa7632b3b92cc29fb60760ea1a3078d7a9dabd2a4eaf3baca2641096e05bf2",
+      "stutter-257.json": "a9eefdc2019fcff33fc53b20d0924c847d8d77e60b055d6ff146c4cecc66b186",
+      "TestMCReachability.tla": "cf5d2ec158de5f0c3253ff62f22b569ffa867612aa6c1d473d04bab4ca32b81e",
+      "stutter-1025.json": "4db76c2953d7d5188e3ed26af2698c415bc00461dd387e9f531425ef2870dae4",
+      "graph7-corrupt.json": "afbd63c82bf9753185717428125d35bba8679e9dc4d92bfc74e75c7cc042f085",
+      "TestMCReachability.cfg": "09dc41a1d6208c3161b61e57b3c07ad49df2a319b6a5c92f0a3b034037ea4e16"
+    }
+  },
+  "meter_columns": [
+    "word_positions",
+    "charged_work",
+    "completed_atom_positions",
+    "admitted_fairness_occurrence_positions",
+    "admitted_fairness_enabledness_positions",
+    "reused_subscript_equality_positions"
+  ],
+  "per_formula_demand": [
+    {
+      "donor": "four",
+      "floors": 121,
+      "result": "valid",
+      "forms": [
+        [
+          882,
+          2689,
+          0,
+          1764,
+          880,
+          882
+        ],
+        [
+          882,
+          1809,
+          0,
+          1764,
+          0,
+          882
+        ],
+        [
+          882,
+          1809,
+          0,
+          1764,
+          0,
+          882
+        ],
+        [
+          882,
+          1809,
+          0,
+          1764,
+          0,
+          882
+        ],
+        [
+          882,
+          1809,
+          0,
+          1764,
+          0,
+          882
+        ],
+        [
+          882,
+          1809,
+          0,
+          1764,
+          0,
+          882
+        ],
+        [
+          882,
+          1809,
+          0,
+          1764,
+          0,
+          882
+        ],
+        [
+          882,
+          425649,
+          0,
+          213444,
+          208560,
+          212562
+        ],
+        [
+          882,
+          451961,
+          430416,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "donor": "four",
+      "floors": 151,
+      "result": "valid",
+      "forms": [
+        [
+          1082,
+          3298,
+          0,
+          2164,
+          1080,
+          1082
+        ],
+        [
+          1082,
+          2218,
+          0,
+          2164,
+          0,
+          1082
+        ],
+        [
+          1082,
+          2218,
+          0,
+          2164,
+          0,
+          1082
+        ],
+        [
+          1082,
+          2218,
+          0,
+          2164,
+          0,
+          1082
+        ],
+        [
+          1082,
+          2218,
+          0,
+          2164,
+          0,
+          1082
+        ],
+        [
+          1082,
+          2218,
+          0,
+          2164,
+          0,
+          1082
+        ],
+        [
+          1082,
+          2218,
+          0,
+          2164,
+          0,
+          1082
+        ],
+        [
+          1082,
+          652978,
+          0,
+          326764,
+          320760,
+          325682
+        ],
+        [
+          1082,
+          690168,
+          657856,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "donor": "four",
+      "floors": 181,
+      "result": "valid",
+      "forms": [
+        [
+          1282,
+          3910,
+          0,
+          2564,
+          1280,
+          1282
+        ],
+        [
+          1282,
+          2630,
+          0,
+          2564,
+          0,
+          1282
+        ],
+        [
+          1282,
+          2630,
+          0,
+          2564,
+          0,
+          1282
+        ],
+        [
+          1282,
+          2630,
+          0,
+          2564,
+          0,
+          1282
+        ],
+        [
+          1282,
+          2630,
+          0,
+          2564,
+          0,
+          1282
+        ],
+        [
+          1282,
+          2630,
+          0,
+          2564,
+          0,
+          1282
+        ],
+        [
+          1282,
+          2630,
+          0,
+          2564,
+          0,
+          1282
+        ],
+        [
+          1282,
+          929030,
+          0,
+          464084,
+          456960,
+          462802
+        ],
+        [
+          1282,
+          980724,
+          933296,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "donor": "seven",
+      "floors": 121,
+      "result": "valid",
+      "forms": [
+        [
+          1712,
+          5218,
+          0,
+          3424,
+          1710,
+          1712
+        ],
+        [
+          1712,
+          3508,
+          0,
+          3424,
+          0,
+          1712
+        ],
+        [
+          1712,
+          3508,
+          0,
+          3424,
+          0,
+          1712
+        ],
+        [
+          1712,
+          3508,
+          0,
+          3424,
+          0,
+          1712
+        ],
+        [
+          1712,
+          3508,
+          0,
+          3424,
+          0,
+          1712
+        ],
+        [
+          1712,
+          3508,
+          0,
+          3424,
+          0,
+          1712
+        ],
+        [
+          1712,
+          3508,
+          0,
+          3424,
+          0,
+          1712
+        ],
+        [
+          1712,
+          816118,
+          0,
+          414304,
+          395010,
+          412592
+        ],
+        [
+          1712,
+          876098,
+          835456,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "donor": "four",
+      "floors": 241,
+      "result": "unsupported",
+      "forms": [
+        [
+          1682,
+          5128,
+          0,
+          3364,
+          1680,
+          1682
+        ],
+        [
+          1682,
+          3448,
+          0,
+          3364,
+          0,
+          1682
+        ],
+        [
+          1682,
+          3448,
+          0,
+          3364,
+          0,
+          1682
+        ],
+        [
+          1682,
+          3448,
+          0,
+          3364,
+          0,
+          1682
+        ],
+        [
+          1682,
+          3448,
+          0,
+          3364,
+          0,
+          1682
+        ],
+        [
+          1682,
+          3448,
+          0,
+          3364,
+          0,
+          1682
+        ],
+        [
+          1682,
+          3448,
+          0,
+          3364,
+          0,
+          1682
+        ],
+        [
+          1682,
+          1000111,
+          0,
+          499554,
+          490560,
+          497872
+        ]
+      ]
+    }
+  ],
+  "meter_method": "Separate diagnostic build increments counters around the unchanged charge, leaf, fairness and equality-column paths and emits one row at the end of each evaluate_lasso invocation. The failing invocation reports its first refused charge. Diagnostics are excluded from candidate timings."
+}

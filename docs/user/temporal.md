@@ -642,8 +642,25 @@ constructing the 121-floor word took 26 ms and independent replay took
 2.57 s. These timings exclude the initial four-floor search. Two people each have an initial location and destination, and two
 cars each have an initial floor, giving this configuration 121⁶ =
 3,138,428,376,721 initial assignments. Replay verifies one concrete
-counterexample. At 151 floors this donor reached the validator’s work limit.
+counterexample.
 [All floor maps, word hashes and independent controls](../../conformance/reports/perf/2026-11-22-elevator-seven.json)
+
+Standalone replay now accepts the 1,082-position word at 151 floors, the
+1,282-position word at 181 floors, and a different 1,712-position word at 121
+floors. The validator evaluates state and action predicates at the original
+positions and combines their results in 64-position blocks. A repeated
+subscript over the same root variables can reuse equality results from the
+same concrete word, including its closing edge. Quantified bindings and
+source expressions that can affect the result keep their scoped evaluation.
+
+Each temporal formula has a one-million-unit limit. A scoped expression visit,
+a concrete position evaluated for a predicate, and one block of a Boolean
+operation each use a unit. The separate one-million-position limit bounds the
+size of a column, and the validator retains at most one extra equality column
+(125,000 bytes of bits). Parsing and storing the supplied states takes
+additional memory. A 241-floor control exceeded the formula limit. A work-limit
+refusal reports the positions, required charge and limit.
+[Word sizes, memory, timings and controls](../../conformance/reports/perf/2026-11-22-packed-word-replay.json)
 
 A default Core file check can also use component search when ordinary formula
 decomposition succeeds. If one temporal core has at least eight alternatives
