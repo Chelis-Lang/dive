@@ -10,6 +10,7 @@ import sys
 import tempfile
 import tomllib
 
+from check_property_proof import check_named_fragment
 from test_fragment import check_fragment, check_pair_truth
 
 SCRIPT = Path(__file__).resolve().with_name("check.py")
@@ -98,6 +99,7 @@ def main():
     goldens = ROOT / "conformance/golden/tlc-2026.10.06.014338/examples/specifications/KeyValueStore"
     with tempfile.TemporaryDirectory() as temp:
         folder = Path(temp)
+        check_named_fragment(folder, runner)
         check_fragment(folder, run, explicit, compare)
         check_pair_truth(folder, args.exporter)
         edited = folder / "MCKVS.tla"

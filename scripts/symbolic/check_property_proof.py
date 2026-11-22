@@ -28,6 +28,30 @@ def replace(source, dest, old, new):
     dest.write_text(text.replace(old, new))
 
 
+def check_named_fragment(work, check):
+    module = work / "CounterTrace.tla"
+    module.write_text(r"""---- MODULE CounterTrace ----
+EXTENDS Integers
+VARIABLES x, n
+TypeOK == x \in {0,1,2}
+Init == /\ x = 0 /\ n = 7
+Next == \/ /\ x = 0 /\ x' = 1 /\ n' = n + 3
+        \/ /\ x = 1 /\ x' = 2 /\ n' = 4
+Safe == x # 2
+WithinLayout == x \in {0,1,2}
+====
+""")
+    conf = module.with_suffix(".cfg")
+    conf.write_text("INIT Init\nNEXT Next\nINVARIANTS Safe WithinLayout\n")
+    bad, = run(check, module, conf, "Safe", status=1)
+    assert bad["trace_validated"] and [s["values"]["n"] for s in bad["trace"]["states"]] == [7, 10, 4]
+    predicate = work / "counter-predicate.json"
+    proved, = run(check, module, conf, "WithinLayout", "--write-predicate", str(predicate))
+    assert proved["projected_integers"] == ["n"] and proved["proof"] == "inductive-safety"
+    failed, = run(check, module, conf, "Safe", "--verify-predicate", str(predicate), status=2)
+    assert failed["proof"] == "inconclusive" and failed["failed_obligation"] == "Safe"
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("lock", type=Path)
@@ -62,21 +86,7 @@ def main():
         assert checked["proof"] == "inductive-safety" and checked["closure_sweeps"] == 0
         failed, = run(check, fault, cfg, "Mutex", "--verify-predicate", str(certificate), status=2)
         assert failed["failed_obligation"] == "Next closure"
-        module = work / "CounterTrace.tla"
-        module.write_text(r"""---- MODULE CounterTrace ----
-EXTENDS Integers
-VARIABLES x, n
-TypeOK == x \in {0,1,2}
-Init == /\ x = 0 /\ n = 7
-Next == \/ /\ x = 0 /\ x' = 1 /\ n' = n + 3
-        \/ /\ x = 1 /\ x' = 2 /\ n' = 4
-Safe == x # 2
-====
-""")
-        conf = module.with_suffix(".cfg")
-        conf.write_text("INIT Init\nNEXT Next\nINVARIANT Safe\n")
-        bad, = run(check, module, conf, "Safe", status=1)
-        assert bad["trace_validated"] and [s["values"]["n"] for s in bad["trace"]["states"]] == [7, 10, 4]
+        check_named_fragment(work, check)
         observed = work / "observed" / counter.name
         replace(counter, observed, "Consistent == ", "Consistent == dummy = 0 /\\ ")
         refused, = run(check, observed, counter.with_suffix(".cfg"), "Consistent", status=2)
