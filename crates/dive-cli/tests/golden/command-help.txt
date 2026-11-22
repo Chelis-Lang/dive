@@ -20,7 +20,7 @@ COMMANDS:
 
     dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]
     dive translate <FILE.tla> [--compat=tlc] [--rewrite|--write] [--checksums tla|full] [--replace-modified] [--ast|-writeAST] [--output human|json] [--library-path DIR]... [--module-path DIR]...
-    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...
+    dive analyze <FILE.tla> [--output human|json] [--orbit-observers] [--library-path DIR]... [--module-path DIR]...
     dive debug <FILE.tla> [--stdio|--listen 127.0.0.1:PORT] [--compat=tlc]
     dive explain <CODE> [--output human|json]
     dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)
@@ -190,10 +190,11 @@ USAGE: dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]
 Parse a specification or configuration without checking a model.
 
 === dive analyze --help ===
-USAGE: dive analyze FILE.tla [--output human|json]
+USAGE: dive analyze FILE.tla [--output human|json] [--orbit-observers]
                          [--library-path DIR]... [--module-path DIR]...
 
 Resolve modules and analyze the specification without checking a model.
+With --output json, --orbit-observers lists choice domains and symmetry refusals.
 
 === dive translate --help ===
 dive translate [OPTIONS] MODULE.tla
