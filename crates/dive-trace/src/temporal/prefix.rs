@@ -164,6 +164,7 @@ pub fn refutes_prefix(
         back_to: states.len() - 1,
         cells: 0,
         stutters: None,
+        membership: super::membership::Membership::default(),
         levels: super::WalkMemo::default(),
         contexts: super::WalkMemo::default(),
     };

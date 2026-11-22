@@ -17,6 +17,7 @@ use dive_value::Value;
 use crate::State;
 use crate::enabled::enabled;
 
+mod membership;
 mod prefix;
 mod truth;
 pub use prefix::refutes_prefix;
@@ -142,6 +143,7 @@ pub fn evaluate_lasso(
         back_to,
         cells: 0,
         stutters: None,
+        membership: membership::Membership::default(),
         levels: WalkMemo::default(),
         contexts: WalkMemo::default(),
     };
@@ -193,6 +195,7 @@ pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), T
         back_to: 0,
         cells: 0,
         stutters: None,
+        membership: membership::Membership::default(),
         levels: WalkMemo::default(),
         contexts: WalkMemo::default(),
     }
@@ -282,6 +285,7 @@ struct Word<'a> {
     back_to: usize,
     cells: usize,
     stutters: Option<(ExprId, Truth)>,
+    membership: membership::Membership,
     levels: WalkMemo<Level>,
     contexts: WalkMemo<()>,
 }
@@ -304,6 +308,20 @@ impl Word<'_> {
     }
 
     fn leaf(&mut self, expr: ExprId, scope: &Scope) -> Result<Truth, TemporalError> {
+        if let Some((var, key)) = self.first_membership(expr, scope, false)
+            && let Some(positions) = self.members(var, &key)?
+        {
+            self.check_atom_context(expr, scope)?;
+            self.charge(self.states.len().div_ceil(64) + positions.len())?;
+            let mut values = Truth::constant(self.states.len(), false);
+            for (j, &i) in positions.iter().enumerate() {
+                if j % 256 == 0 {
+                    self.model.evaluator.poll_host_control()?;
+                }
+                values.set(i);
+            }
+            return Ok(values);
+        }
         self.charge(self.states.len())?;
         Ok(Truth::pack(&self.atom(expr, scope)?))
     }
@@ -520,6 +538,61 @@ impl Word<'_> {
         scope: &Scope,
         strong: bool,
     ) -> Result<Truth, TemporalError> {
+        if let Some(key) = self.subscript_key(sub, scope)
+            && self
+                .stutters
+                .as_ref()
+                .is_some_and(|(stored, _)| *stored == key)
+            && !self
+                .model
+                .ir
+                .node(action)
+                .effects
+                .intersects(Effects::IMPURE)
+            && let Some((var, binding)) = self.first_membership(action, scope, true)
+            && let Some(positions) = self.members(var, &binding)?
+        {
+            self.check_atom_context(action, scope)?;
+            self.check_scoped_context_mode(sub, scope, 0, &mut 0, false)?;
+            self.charge(positions.len() + self.states.len().div_ceil(64))?;
+            let mut recurrent = false;
+            for (j, &i) in positions.iter().enumerate() {
+                if j % 256 == 0 {
+                    self.model.evaluator.poll_host_control()?;
+                }
+                if self.stutters.as_ref().is_some_and(|(_, col)| col.at(i)) {
+                    continue;
+                }
+                let next = if i + 1 == self.states.len() {
+                    self.back_to
+                } else {
+                    i + 1
+                };
+                recurrent |= self.action_at(i, next, action, scope)? && i >= self.back_to;
+            }
+            if recurrent {
+                return Ok(Truth::constant(self.states.len(), true));
+            }
+            let cycle = &positions[positions.partition_point(|i| *i < self.back_to)..];
+            self.charge(cycle.len())?;
+            // Inactive positions contribute a known disabled step. Still visit
+            // every reached source in order, including those after the fold decides.
+            let mut holds = strong || cycle.len() < self.states.len() - self.back_to;
+            let pred = Pred::new(action, scope.clone());
+            for (j, &i) in cycle.iter().enumerate() {
+                if j % 256 == 0 {
+                    self.model.evaluator.poll_host_control()?;
+                }
+                let disabled = !enabled(self.model, &pred, Some(sub), &self.states[i])
+                    .map_err(|e| enabled_refusal(&e, "fairness "))?;
+                holds = if strong {
+                    holds && disabled
+                } else {
+                    holds || disabled
+                };
+            }
+            return Ok(Truth::constant(self.states.len(), holds));
+        }
         self.charge(self.states.len())?;
         let occurrences = self.temporal_action(action, sub, scope, false, true)?;
         let recurrent = occurrences[self.back_to..].iter().any(|occurs| *occurs);
@@ -605,7 +678,7 @@ impl Word<'_> {
             .filter(|_| saved.is_none())
             .map(|_| Truth::constant(self.states.len(), false));
         let mut out = Vec::with_capacity(self.states.len());
-        for (i, state) in self.states.iter().enumerate() {
+        for i in 0..self.states.len() {
             if i % 256 == 0 {
                 self.model.evaluator.poll_host_control()?;
             }
@@ -635,27 +708,33 @@ impl Word<'_> {
                 out.push(boxed);
                 continue;
             }
-            let st = St::action(state.clone(), self.states[next].clone());
-            match ev.eval_scoped(scope, action, &st) {
-                Ok(Value::Bool(b)) => out.push(b),
-                Ok(v) => {
-                    return Err(TemporalError::Invalid(format!(
-                        "temporal action at position {i} is {}, not boolean",
-                        v.kind_name()
-                    )));
-                }
-                Err(e) => {
-                    return Err(TemporalError::evaluation(
-                        e,
-                        &format!("temporal action at position {i}: "),
-                    ));
-                }
-            }
+            out.push(self.action_at(i, next, action, scope)?);
         }
         if let Some(pair) = key.zip(recording) {
             self.stutters = Some(pair);
         }
         Ok(out)
+    }
+
+    fn action_at(
+        &self,
+        i: usize,
+        next: usize,
+        action: ExprId,
+        scope: &Scope,
+    ) -> Result<bool, TemporalError> {
+        let st = St::action(self.states[i].clone(), self.states[next].clone());
+        match self.model.evaluator.eval_scoped(scope, action, &st) {
+            Ok(Value::Bool(b)) => Ok(b),
+            Ok(v) => Err(TemporalError::Invalid(format!(
+                "temporal action at position {i} is {}, not boolean",
+                v.kind_name()
+            ))),
+            Err(e) => Err(TemporalError::evaluation(
+                e,
+                &format!("temporal action at position {i}: "),
+            )),
+        }
     }
 
     fn atom(&self, expr: ExprId, scope: &Scope) -> Result<Vec<bool>, TemporalError> {

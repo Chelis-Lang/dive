@@ -558,3 +558,57 @@ fn supplied_lasso_propagates_an_installed_control() {
         Err(TemporalError::Interrupted(_))
     ));
 }
+
+#[test]
+fn indexed_fairness_matches_ordinary_action_demand_at_each_loop_entry() {
+    let model = bound(
+        r"---- MODULE Dispatch ----
+EXTENDS Naturals
+VARIABLE x, active
+Init == x = FALSE /\ active = {}
+Next == UNCHANGED <<x,active>>
+Vars == x
+Act(k) == LET on == ~x IN /\ k \in active /\ x' = on /\ UNCHANGED active
+Plain(k) == /\ TRUE /\ Act(k)
+Warm == WF_Vars(x' = ~x)
+SF1 == (Warm \/ ~Warm) /\ \A k \in {1,2} : SF_Vars(Act(k))
+SF2 == (Warm \/ ~Warm) /\ \A k \in {1,2} : SF_Vars(Plain(k))
+WF1 == (Warm \/ ~Warm) /\ \A k \in {1,2} : WF_Vars(Act(k))
+WF2 == (Warm \/ ~Warm) /\ \A k \in {1,2} : WF_Vars(Plain(k))
+Member == \A k \in {1,2} : (k \in active) ~> x
+Other == \A k \in {1,2} : (~(k \notin active)) ~> x
+Bad(k) == /\ k \in active /\ x' = (1 \div 0) /\ UNCHANGED active
+Fault == (Warm \/ ~Warm) /\ \A k \in {1,2} : SF_Vars(Bad(k))
+Before(k) == /\ (1 \div 0) = 4 /\ k \in active /\ x' = ~x /\ UNCHANGED active
+Order == (Warm \/ ~Warm) /\ \A k \in {1,2} : SF_Vars(Before(k))
+====",
+        "INIT Init\nNEXT Next\n",
+    );
+    let make = |x, keys: &[i64]| -> State {
+        let values = keys.iter().map(|n| Value::Int(*n)).collect();
+        let set = Value::set_canonical(values, dive_value::Ctx::tlc()).expect("finite set");
+        Arc::from([Some(Value::Bool(x)), Some(set)])
+    };
+    // Duplicate source members, overlapping memberships, absent and dense
+    // bindings, changing first and last states, and a nonzero closing edge.
+    for flags in 0..8 {
+        let word = [
+            make(flags & 1 != 0, &[1, 1]),
+            make(flags & 2 != 0, &[1, 2]),
+            make(flags & 4 != 0, &[2]),
+        ];
+        for back in 0..word.len() {
+            for (fast, slow) in [("WF1", "WF2"), ("SF1", "SF2"), ("Member", "Other")] {
+                let run = |name| {
+                    evaluate_lasso(&model, &predicate(&model, name), &word, back).expect(name)
+                };
+                assert_eq!(run(fast), run(slow), "{fast}, flags {flags}, loop {back}");
+            }
+        }
+    }
+    let empty = [make(false, &[]), make(false, &[])];
+    assert!(evaluate_lasso(&model, &predicate(&model, "Fault"), &empty, 0).is_ok());
+    assert!(evaluate_lasso(&model, &predicate(&model, "Order"), &empty, 0).is_err());
+    let active = [make(false, &[]), make(true, &[2]), make(false, &[])];
+    assert!(evaluate_lasso(&model, &predicate(&model, "Fault"), &active, 0).is_err());
+}
