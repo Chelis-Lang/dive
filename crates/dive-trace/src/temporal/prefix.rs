@@ -163,6 +163,7 @@ pub fn refutes_prefix(
         states,
         back_to: states.len() - 1,
         cells: 0,
+        stutters: None,
         levels: super::WalkMemo::default(),
         contexts: super::WalkMemo::default(),
     };
@@ -263,6 +264,7 @@ impl Word<'_> {
                 *sub,
                 scope,
                 matches!(node.expr, Expr::StepBox { .. }),
+                false,
             )?));
         }
         let level = self.scoped_level(expr, scope, depth, &mut 0)?;
