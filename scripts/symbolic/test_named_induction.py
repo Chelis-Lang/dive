@@ -45,7 +45,7 @@ def main():
         (source / "Bounds.cfg").write_text(CFG)
         other = base / "two"
         shutil.copytree(source, other)
-        for optimize in ([], ["-O"]):
+        for optimize in (["-E"], ["-E", "-O"]):
             def command(directory, candidate="All"):
                 return [sys.executable, *optimize, CHECK, directory / "Bounds.tla", directory / "Bounds.cfg",
                         "--exporter", exporter, "--layout", "Layout", "--property", "Safety",
