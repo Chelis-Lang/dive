@@ -140,7 +140,20 @@ impl Word<'_> {
                     sc = ev.scope_apply(&sc, *d, args).ok()?;
                     expr = def.body;
                 }
-                Expr::Let { body, .. } if action => {
+                Expr::Let { body, defs } if action => {
+                    // Ordinary evaluation forces strict LET values even when the
+                    // leading guard is false. Only walk non-evaluating wrappers.
+                    if defs.iter().any(|d| {
+                        matches!(
+                            self.model.ir.def(*d).scope,
+                            DefScope::LetValue {
+                                pass: Pass::Strict,
+                                ..
+                            }
+                        )
+                    }) {
+                        return None;
+                    }
                     sc = ev.scope_let(&sc, expr).ok()?;
                     expr = *body;
                 }
