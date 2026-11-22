@@ -16,6 +16,8 @@ use crate::search::{
 };
 use std::collections::{BTreeSet, HashSet};
 
+mod condition_words;
+use condition_words::ConditionWords;
 mod repeated_rows;
 use repeated_rows::RepeatedRows;
 
@@ -350,12 +352,18 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
         labels: &impl TruthAccess,
         alternatives: &[CycleConditions],
     ) -> Result<Option<Lasso>, ProductError> {
+        let bytes = crate::budget::optional_buffer_limit();
         if alternatives.len() > 1
-            && let Some(rows) = RepeatedRows::build(self, crate::budget::optional_buffer_limit())?
+            && let Some(rows) = RepeatedRows::build(self, bytes)?
         {
-            return self.search_rows(&rows, labels, alternatives);
+            return self.search_rows(
+                &rows,
+                labels,
+                alternatives,
+                bytes.saturating_sub(rows.buffer_bytes()),
+            );
         }
-        self.search_rows(self, labels, alternatives)
+        self.search_rows(self, labels, alternatives, bytes)
     }
 
     fn search_rows(
@@ -363,13 +371,26 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
         graph: &impl Adjacency,
         labels: &impl TruthAccess,
         alternatives: &[CycleConditions],
+        mut bytes: usize,
     ) -> Result<Option<Lasso>, ProductError> {
+        let mut empty = false;
+        if let Some(offsets) = self.graph.csr_offsets()
+            && let Some(words) = ConditionWords::build(offsets, alternatives, labels, &mut bytes)?
+        {
+            empty = match words.rules_out(graph, self, bytes) {
+                Ok(empty) => empty,
+                Err(SearchError::Allocation) => false,
+                Err(error) => return Err(ProductError::search(error)),
+            };
+        }
         let mut search = LassoSearch::new(graph);
         for conditions in alternatives {
-            if let Some(lasso) = self.search_alternative(labels, conditions, &mut search)? {
+            csr::poll()?;
+            if let Some(lasso) = self.search_alternative(labels, conditions, &mut search, empty)? {
                 return Ok(Some(lasso));
             }
         }
+        csr::poll()?;
         Ok(None)
     }
 
@@ -390,8 +411,12 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
         labels: &impl TruthAccess,
         conditions: &CycleConditions,
         search: &mut LassoSearch<'_, impl Adjacency>,
+        empty: bool,
     ) -> Result<Option<Lasso>, ProductError> {
         let lasso = if conditions.always.is_empty() && conditions.recurring.is_empty() {
+            if empty {
+                return Ok(None);
+            }
             search.find(self).map_err(ProductError::search)?
         } else {
             let scratch = super::solution_scratch(
@@ -402,6 +427,10 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
                 || self.admit_cells(conditions),
                 &self.solution_setup_work,
             )?;
+            if empty {
+                // Charge each alternative's ordinary acceptance admission before concluding.
+                return Ok(None);
+            }
             let conditioned = super::Conditioned {
                 product: self,
                 labels,

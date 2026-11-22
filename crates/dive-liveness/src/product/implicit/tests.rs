@@ -370,15 +370,90 @@ fn repeated_product_rows_keep_parallel_edges_and_honor_the_byte_cap() {
         );
     };
     let original = product
-        .search_rows(&product, &labels, &group.alternatives)
+        .search_rows(&product, &labels, &group.alternatives, 0)
         .expect("implicit")
         .expect("lasso");
     compare(&original);
     assert_eq!(
         product
-            .search_rows(&rows, &labels, &group.alternatives)
+            .search_rows(&rows, &labels, &group.alternatives, 0)
             .expect("stored")
             .as_ref(),
         Some(&original)
     );
+}
+
+#[test]
+fn grouped_fairness_elimination_matches_ordinary_search_on_labelled_multigraphs() {
+    // Three independent choices of FG or GF, including cases with
+    // parallel edges whose truth differs even though their targets agree.
+    let mut nodes = Vec::new();
+    for index in 0..3 {
+        let n = nodes.len();
+        nodes.extend([
+            atom(AtomKind::State, index % 2),
+            Node::Always(n),
+            Node::Eventually(n + 1),
+            atom(AtomKind::Action, usize::from(index > 0)),
+            Node::Eventually(n + 3),
+            Node::Always(n + 4),
+            Node::Or(vec![n + 2, n + 5]),
+        ]);
+    }
+    nodes.push(Node::And(vec![6, 13, 20]));
+    let formula = Formula::new(nodes, 21).expect("formula");
+    let groups = formula::decompose(&formula, formula::Limits::default()).expect("groups");
+    assert_eq!(groups.len(), 1);
+    let group = &groups[0];
+    assert_eq!(group.alternatives.len(), 8);
+    let tableau =
+        formula::compile_residual(&group.core, formula::Limits::default()).expect("tableau");
+    let mut rng = Rng(0x7771);
+    let mut witnesses = 0;
+    let mut eliminated = 0;
+    for _ in 0..100 {
+        let (graph, labels) = random_case(&mut rng);
+        let mut targets = Vec::new();
+        let mut offsets = vec![0];
+        for row in &graph.edges {
+            targets.extend(
+                row.iter()
+                    .map(|&target| u32::try_from(target).expect("small graph")),
+            );
+            offsets.push(targets.len());
+        }
+        let topology =
+            crate::product::CsrTopology::new(&offsets, &targets, &graph.roots).expect("csr");
+        let product = ImplicitProduct::new(
+            &topology,
+            &tableau,
+            &labels,
+            Limits::default(),
+            AcceptancePolicy::Cells,
+        )
+        .expect("product");
+        let reference = product
+            .search_rows(&product, &labels, &group.alternatives, 0)
+            .expect("ordinary search");
+        let mut bytes = usize::MAX;
+        let words =
+            super::ConditionWords::build(&offsets, &group.alternatives, &labels, &mut bytes)
+                .expect("index")
+                .expect("eligible");
+        if words
+            .rules_out(&product, &product, bytes)
+            .expect("elimination")
+        {
+            assert!(reference.is_none());
+            eliminated += 1;
+        }
+        witnesses += usize::from(reference.is_some());
+        assert_eq!(
+            product
+                .find_lasso_in_alternatives(&labels, &group.alternatives)
+                .expect("grouped search"),
+            reference
+        );
+    }
+    assert!(witnesses > 0 && eliminated > 0);
 }

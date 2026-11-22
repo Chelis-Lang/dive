@@ -11,6 +11,10 @@ pub(super) struct RepeatedRows<'a> {
 }
 
 impl<'a> RepeatedRows<'a> {
+    pub(super) fn buffer_bytes(&self) -> usize {
+        self.offsets.capacity() * size_of::<u32>() + self.edges.capacity() * size_of::<(u32, u32)>()
+    }
+
     pub(super) fn build<T: TruthAccess>(
         product: &'a ImplicitProduct<'_, T>,
         byte_limit: usize,
