@@ -102,9 +102,9 @@ def bad_indices(values):
     ]
 
 
-def election():
+def election(peers=("n2", "n3")):
     steps = [("RequestVoteAction", "RequestVote(n1)")]
-    for peer in ("n2", "n3"):
+    for peer in peers:
         steps.extend(
             [
                 ("UpdateTermAction", f"UpdateTerm(1,{peer})"),
@@ -127,29 +127,7 @@ def message(action, carrier, source, dest, guard="TRUE"):
     )
 
 
-def path(dive, module, cfg, root):
-    steps = election() + [("ClientRequestAction", "ClientRequest(n1)")] * 2
-    for index in (1, 2):
-        steps.extend(
-            [
-                ("AppendEntriesAction", "AppendEntries(n1,n2)"),
-                message(
-                    "AcceptAppendEntriesRequestAppend",
-                    "appendEntriesRequestMsgs",
-                    "n1",
-                    "n2",
-                    f"m.mprevLogIndex={index - 1}",
-                ),
-                message(
-                    "HandleAppendEntriesResponse",
-                    "appendEntriesResponseMsgs",
-                    "n2",
-                    "n1",
-                    f"m.mmatchIndex={index}",
-                ),
-            ]
-        )
-    steps.append(("RequestVoteAction", "RequestVote(n2)"))
+def scheduled_word(dive, cfg, root, steps):
     trial = root / "OriginalWord.tla"
     trial.write_text(
         "---- MODULE OriginalWord ----\nEXTENDS AsyncRaft\nCONSTANTS n1,n2,n3\nVARIABLE stage\n"
@@ -178,6 +156,33 @@ def path(dive, module, cfg, root):
         require(st["values"].pop("stage") == i, "wrong stage")
         st["action"] = None if i == 0 else {"name": steps[i - 1][0]}
         require(not bad_indices(st["values"]), "unexpected failure on original path")
+    return trace
+
+
+def path(dive, module, cfg, root):
+    steps = election() + [("ClientRequestAction", "ClientRequest(n1)")] * 2
+    for index in (1, 2):
+        steps.extend(
+            [
+                ("AppendEntriesAction", "AppendEntries(n1,n2)"),
+                message(
+                    "AcceptAppendEntriesRequestAppend",
+                    "appendEntriesRequestMsgs",
+                    "n1",
+                    "n2",
+                    f"m.mprevLogIndex={index - 1}",
+                ),
+                message(
+                    "HandleAppendEntriesResponse",
+                    "appendEntriesResponseMsgs",
+                    "n2",
+                    "n1",
+                    f"m.mmatchIndex={index}",
+                ),
+            ]
+        )
+    steps.append(("RequestVoteAction", "RequestVote(n2)"))
+    trace = scheduled_word(dive, cfg, root, steps)
     last = trace["states"][-1]["values"]
     require(
         field(last, "log")["n1"] == field(last, "log")["n2"] == {"seq": [1, 1]}
@@ -195,7 +200,7 @@ def path(dive, module, cfg, root):
     )
 
 
-def altered(dive, src, cfg, root):
+def altered(dive, src, cfg, root, three_pending=False):
     place = root / "mutant"
     place.mkdir()
     for name in PINS:
@@ -206,11 +211,10 @@ def altered(dive, src, cfg, root):
     text = original.read_text()
     old = "ClientRequest(i) ==\n    /\\ state[i] = Leader"
     require(text.count(old) == 1, "mutation site changed")
-    mutant.write_text(
-        text.replace(
-            old, "ClientRequest(i) ==\n    /\\ state[i] \\in {Leader, Follower}"
-        )
-    )
+    new_guard = r"state[i] \in {Leader, Follower}"
+    if three_pending:
+        new_guard = r"(state[i] = Leader \/ (state[i] = Follower /\ Cardinality(requestVoteRequestMsgs) = 3))"
+    mutant.write_text(text.replace(old, old.replace("state[i] = Leader", new_guard)))
     record, usage = core(dive, mutant, cfg, place, 10)
     trace = record["counterexample"]["trace"]
     indices = [bad_indices(s["values"]) for s in trace["states"]]
@@ -218,6 +222,13 @@ def altered(dive, src, cfg, root):
         record["property"] == TARGET and not any(indices[:-1]) and indices[-1],
         "wrong first failure",
     )
+    pending = trace["states"][-2]["values"]["requestVoteRequestMsgs"]["set"]
+    if three_pending:
+        require(
+            len(pending) == 3
+            and len({json.dumps(record, sort_keys=True) for record in pending}) == 3,
+            "mutant was not reached with three distinct pending messages",
+        )
     require(
         replay(dive, original, cfg, trace, root) == "invalid",
         "original accepted a mutant execution",
@@ -225,10 +236,43 @@ def altered(dive, src, cfg, root):
     return place, dict(
         **validated(dive, mutant, cfg, trace, place),
         first_bad_step=len(indices) - 1,
+        distinct_pending_before_failure=len(pending),
         first_bad_entries=indices[-1],
         steps=[s["action"]["name"] for s in trace["states"][1:]],
         original_rejected=True,
         core=usage,
+    )
+
+
+def third_message_path(dive, module, cfg, root):
+    # The partial election leaves n1's request for n3 pending. Repeating
+    # a leader send creates the exact same record; voting at n3 adds two
+    # distinct requests, and a real original step then consumes one.
+    steps = election(("n2",)) + [("AppendEntriesAction", "AppendEntries(n1,n2)")] * 2
+    steps += [
+        ("RequestVoteAction", "RequestVote(n3)"),
+        message("HandleRequestVoteRequest", "requestVoteRequestMsgs", "n3", "n2"),
+    ]
+    word = scheduled_word(dive, cfg, root, steps)
+    states = [st["values"] for st in word["states"]]
+    a, b = states[-4], states[-3]
+    require(
+        a == b and len(a["appendEntriesRequestMsgs"]["set"]) == 1,
+        "duplicate original send changed the extensional message set",
+    )
+    requests = states[-2]["requestVoteRequestMsgs"]["set"]
+    require(
+        len(requests) == 3
+        and len({json.dumps(r, sort_keys=True) for r in requests}) == 3
+        and len(states[-1]["requestVoteRequestMsgs"]["set"]) == 2,
+        "third live request was not expanded",
+    )
+    return dict(
+        **validated(dive, module, cfg, word, root),
+        steps=[k for k, _ in steps],
+        duplicate_send_cardinality=1,
+        distinct_requests_before_delivery=3,
+        after_delivery=2,
     )
 
 
@@ -241,17 +285,17 @@ def run(args, root):
         digest(graph_path(args.source).read_bytes()) == GRAPH_SHA,
         "changed pinned graph",
     )
-    for size in (2, 3):
-        work = root / str(size)
+    for size, capacity in ((2, 2), (3, 2), (3, 3)):
+        work = root / f"{size}-{capacity}"
         work.mkdir()
         for name in PINS:
             shutil.copy(args.source / name, work / name)
         shutil.copy(graph_path(args.source), work / graph_path(args.source).name)
         module = work / "AsyncRaft.tla"
         cfg = work / "Study.cfg"
-        cfg.write_text(config(work / "AsyncRaft.cfg", size))
+        cfg.write_text(config(work / "AsyncRaft.cfg", size, capacity))
 
-        def check(directory, *opts, expected=0):
+        def check(directory, *opts, expected=0, max_messages=capacity):
             return invoke(
                 [
                     sys.executable,
@@ -261,17 +305,20 @@ def run(args, root):
                     args.exporter,
                     "--servers",
                     str(size),
+                    "--max-messages",
+                    str(max_messages),
                     *opts,
                 ],
                 work,
                 expected,
             )
 
-        exhaustive, usage = core(args.dive, module, cfg, work, 0)
-        ordinary = dict(counts=exhaustive["statistics"], usage=usage)
+        if capacity == 2:
+            exhaustive, usage = core(args.dive, module, cfg, work, 0)
+            ordinary = dict(counts=exhaustive["statistics"], usage=usage)
         cert = work / "cert.json"
         proof, usage = check(work, "--save", cert)
-        relocated = root / f"receiver-{size}"
+        relocated = root / f"receiver-{size}-{capacity}"
         shutil.copytree(work, relocated)
         receiver, receiving = check(relocated, "--verify", cert)
         require(
@@ -280,13 +327,15 @@ def run(args, root):
         )
         row = dict(
             servers=size,
+            max_messages=capacity,
             proof=proof,
             checking=usage,
             receiving=receiving,
             certificate_bytes=cert.stat().st_size,
             certificate_sha256=digest(cert.read_bytes()),
         )
-        row["core"] = ordinary
+        if capacity == 2:
+            row["core"] = ordinary
         if size == 2:
             mistyped = deepcopy(proof)
             mistyped["initial"] = True
@@ -314,7 +363,7 @@ def run(args, root):
                     "boolean initial count accepted",
                 )
             row["boolean_count_rejected"] = True
-        else:
+        elif capacity == 2:
             row["original_path"] = path(args.dive, module, cfg, work)
             place, row["mutant"] = altered(args.dive, work, cfg, work)
             refused, _ = check(place, "--verify", cert, expected=2)
@@ -344,6 +393,34 @@ def run(args, root):
                 changed_formula_rejected=True,
                 omitted_action_rejected=True,
                 mutant_induction_failure=failure["reason"],
+            )
+        else:
+            mismatch, _ = check(work, "--verify", root / "3-2/cert.json", expected=2)
+            require(
+                "different source" in mismatch["reason"],
+                "two-slot certificate accepted at three",
+            )
+            row["original_path"] = third_message_path(args.dive, module, cfg, work)
+            place, row["three_message_mutant"] = altered(
+                args.dive, work, cfg, work, three_pending=True
+            )
+            failure, _ = check(place, "--save", work / "refused.json", expected=2)
+            require(
+                "ClientRequestAction" in failure["reason"],
+                "gated mutant was not rejected",
+            )
+            safe, small_usage = check(
+                place, "--save", work / "two-only.json", max_messages=2
+            )
+            require(
+                safe["result"] == "proved",
+                "gated mutant should be safe at capacity two",
+            )
+            row["controls"] = dict(
+                smaller_receipt_rejected=True,
+                three_message_induction_failure=failure["reason"],
+                two_message_mutant="proved",
+                two_message_mutant_usage=small_usage,
             )
         print(json.dumps(row), flush=True)
 

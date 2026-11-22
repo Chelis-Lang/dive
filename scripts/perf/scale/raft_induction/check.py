@@ -19,6 +19,9 @@ from values import con, dis, neg, require
 TARGET = "H_PrimaryHasEntriesItCreated"
 ORIGINAL_SOURCE = "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322"
 FOLLOWER_MUTANT = "5dc0736072b5e660a3b3a01dafa5f4052d37f5618397677cfe8e45ea15c56767"
+THREE_PENDING_MUTANT = (
+    "190bc83fc3060c06bb94176e1b7e7ae2c80fda9d8c1cd7d557b8914324b9a775"
+)
 GRAPH_SHA = "c71a7d7e4f036d97025c0c6091c9fe0f6bfec146b9eceeca7c0511870d7d5d16"
 UPSTREAM_CFG = "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284"
 GRAPH = "AsyncRaft_ind-proof-tree-sd4.proofgraph.json"
@@ -56,7 +59,7 @@ def graph_path(root):
     )
 
 
-def config(path, servers):
+def config(path, servers, max_messages=2):
     # Preserve all bindings from the pinned configuration except the explicit study bounds.
     text = path.read_text().split("CONSTANTS\n", 1)[1].split("\nCONSTRAINT", 1)[0]
     lines = list(
@@ -69,7 +72,7 @@ def config(path, servers):
     for source, new in (
         ("MaxTerm = 3", "MaxTerm = 2"),
         ("MaxLogLen = 3", "MaxLogLen = 2"),
-        ("MaxMsgCount = 1000", "MaxMsgCount = 2"),
+        ("MaxMsgCount = 1000", f"MaxMsgCount = {max_messages}"),
         (
             "Server = {n1, n2, n3}",
             "Server = {n1, n2}" if servers == 2 else "Server = {n1, n2, n3}",
@@ -84,7 +87,7 @@ def config(path, servers):
     )
 
 
-def bind(source, exporter, size, stage):
+def bind(source, exporter, size, stage, max_messages):
     graph = graph_path(source)
     pairs = json.loads(graph.read_bytes())["strengthening_conjuncts"]
     names = [name for name, _, _ in pairs]
@@ -106,7 +109,7 @@ def bind(source, exporter, size, stage):
         + "====\n"
     )
     cfg = trial.with_suffix(".cfg")
-    cfg.write_text(config(source / "AsyncRaft.cfg", size))
+    cfg.write_text(config(source / "AsyncRaft.cfg", size, max_messages))
     run = subprocess.run([exporter, trial, cfg], capture_output=True, timeout=30)
     require(run.returncode == 0, run.stderr.decode()[-1200:])
     doc = json.loads(run.stdout)
@@ -133,6 +136,7 @@ def bind(source, exporter, size, stage):
         config=digest(cfg.read_bytes()),
         source=digest((stage / "AsyncRaft.tla").read_bytes()),
         servers=size,
+        max_messages=max_messages,
     )
     return doc, [TARGET, *names], identity
 
@@ -274,6 +278,7 @@ def main():
     p.add_argument("source", type=Path)
     p.add_argument("--exporter", required=True, type=Path)
     p.add_argument("--servers", required=True, type=int, choices=(2, 3))
+    p.add_argument("--max-messages", type=int, choices=(2, 3), default=2)
     mode = p.add_mutually_exclusive_group(required=True)
     mode.add_argument("--save", type=Path)
     mode.add_argument("--verify", type=Path)
@@ -281,7 +286,11 @@ def main():
     try:
         with tempfile.TemporaryDirectory() as tmp:
             doc, names, identity = bind(
-                args.source, args.exporter.resolve(), args.servers, Path(tmp)
+                args.source,
+                args.exporter.resolve(),
+                args.servers,
+                Path(tmp),
+                args.max_messages,
             )
             if args.verify:
                 require(args.verify.stat().st_size <= 1 << 20, "oversize certificate")
@@ -295,7 +304,8 @@ def main():
             # Model atoms use negative integer tags. Only the reviewed, source-typed
             # expressions may use this translation. New input needs a type audit.
             require(
-                identity["source"] in (ORIGINAL_SOURCE, FOLLOWER_MUTANT)
+                identity["source"]
+                in (ORIGINAL_SOURCE, FOLLOWER_MUTANT, THREE_PENDING_MUTANT)
                 and identity["graph"] == GRAPH_SHA
                 and identity["upstream_cfg"] == UPSTREAM_CFG,
                 "unsupported source, configuration or proof graph for this finite representation",

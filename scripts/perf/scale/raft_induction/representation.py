@@ -3,7 +3,6 @@
 import z3 as z
 from values import Seq, Rec, Tab, Set, require, neg, con, dis, concrete, card
 
-LIMIT = 2
 sets = (
     "requestVoteRequestMsgs",
     "requestVoteResponseMsgs",
@@ -48,7 +47,20 @@ schemas = [
 
 
 def representation(model):
-    servers = concrete(model.constants[0])
+    constants = {
+        d["name"]: model.constants[d["constant"]]
+        for d in model.ir["decls"]
+        if d["constant"] is not None
+    }
+    limit = constants["MaxMsgCount"]
+    require(
+        type(limit) is int and limit in (2, 3), "unsupported bound message capacity"
+    )
+    require(
+        constants["MaxTerm"] == 2 and constants["MaxLogLen"] == 2,
+        "unsupported bound term or log limit",
+    )
+    servers = concrete(constants["Server"])
     symbols = model.symbols
 
     def field(shape, name):
@@ -90,7 +102,7 @@ def representation(model):
                     z.Bool(f"{n}.{q}.used"),
                     Rec({k: field(sh, f"{n}.{q}.{k}") for k, sh in fields.items()}),
                 )
-                for q in range(LIMIT)
+                for q in range(limit)
             ]
         )
 
@@ -136,7 +148,7 @@ def representation(model):
                             bounded, d["mprevLogIndex"] + d["mentries"].length <= 2
                         )
                     predicates.append(dis(neg(h), bounded))
-                predicates.append(card(v) <= LIMIT)
+                predicates.append(card(v) <= limit)
             else:
                 require(v.keys == servers, "outer server function domain")
                 for x in v.cells:
