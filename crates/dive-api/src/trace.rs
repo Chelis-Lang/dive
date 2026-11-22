@@ -46,6 +46,9 @@
 //! # Ok::<(), dive_api::ApiError>(())
 //! ```
 
+mod repair;
+pub use repair::WordRepair;
+
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 

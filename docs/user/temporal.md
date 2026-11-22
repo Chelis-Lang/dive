@@ -645,6 +645,49 @@ cars each have an initial floor, giving this configuration 121⁶ =
 counterexample. At 151 floors this donor reached the validator’s work limit.
 [All floor maps, word hashes and independent controls](../../conformance/reports/perf/2026-11-22-elevator-seven.json)
 
+### Repair a saved counterexample after an edit
+
+Use the original native word and the current module and configuration.
+
+```sh
+dive validate-trace Clock.tla --config Clock.cfg --trace saved.json --repair --output json
+```
+
+A still-valid named lasso or stuttering word returns `repair.status = unchanged`.
+For a broken Next transition, Dive can insert a short path of current-source successors.
+`repaired` includes the complete replacement in `repair.trace`. Its exit status is
+zero only after independent replay checked the whole replacement, including Init,
+the loop closure, all configured fairness assumptions and the named false properties.
+An unsuccessful attempt retains the supplied word's validation. A client can then
+run its ordinary check on the current inputs. `candidate_validation` records a
+rejected replacement. Rust callers can use `SpecModel::repair_word`.
+
+Search accepts unlabeled native words with complete states and explicit property names.
+It declines recorded draws, existential witnesses and sampled run settings. Each gap
+can span four transitions. A search retains at most 4,096 frontier and predecessor
+states per gap and allows at most 128 gaps and 32,768 generated successor occurrences
+in total. The repair input and output have at most 4,096 states. The CLI also limits
+the supplied JSON file to 8 MiB. Generation uses a 30 s watchdog and a sampled
+512 MiB whole-process memory ceiling. Initial and final replay use the independent
+validator's own limits. A worker requiring a hard whole-job deadline or memory limit
+must supervise the entire process, including parsing and replay.
+
+When a parameter edit changes coordinates, supply an explicit mapping before repair.
+On MultiCarElevator the family-specific helper can map just the saved states.
+
+```sh
+python3 scripts/perf/scale/elevator-lift-word.py --anchors-only seven.json 1,3,4,5,6,7,8 anchors.json
+dive validate-trace Elevator.tla --config eight.cfg --trace anchors.json --repair --output json
+```
+
+For the published seven-floor word, the mapping took 7.6 ms. On eight floors Dive
+repaired 13 gaps after generating 189 successor occurrences in 16.1 ms.
+The complete process took 118 ms and 34,840 KiB peak RSS. Standalone replay
+accepted the 262-state word and rejected its damaged closing edge. The same
+search repaired a changed transition in the published real-time clock and
+independently rejected candidates after a fairness edit and a property fix.
+[Source hashes, commands, timings and negative controls](../../conformance/reports/perf/2026-11-22-temporal-repair.json)
+
 A default Core file check can also use component search when ordinary formula
 decomposition succeeds. If one temporal core has at least eight alternatives
 and the formula contains at least three independent positive fairness pairs,

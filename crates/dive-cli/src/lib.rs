@@ -1097,6 +1097,7 @@ fn validate_trace_command(
     let mut claim: Option<&str> = None;
     let mut json = false;
     let mut sample = false;
+    let mut repair = false;
     let mut seed: Option<i64> = None;
     let mut fp: Option<usize> = None;
     let mut opts = dive_api::trace::TraceOptions {
@@ -1111,6 +1112,7 @@ fn validate_trace_command(
     while let Some(a) = it.next() {
         match a.as_str() {
             "--sample" => sample = true,
+            "--repair" => repair = true,
             "--output" => match it.next().map(String::as_str) {
                 Some("json") => json = true,
                 Some("human") => json = false,
@@ -1207,6 +1209,12 @@ fn validate_trace_command(
             ),
         );
     };
+    if repair && (!json || sample) {
+        return usage_error(
+            err,
+            "--repair requires --output json and counterexample validation",
+        );
+    }
     let input_document = if let Some(path) = input_report {
         let report = match read_external_input_report(path) {
             Ok(report) => report,
@@ -1239,7 +1247,12 @@ fn validate_trace_command(
     let spec = std::path::Path::new(file);
     // TLC's default: the configuration next to the specification.
     let cfg = cfg.map_or_else(|| spec.with_extension("cfg"), std::path::PathBuf::from);
-    let document = if let Some(trace) = trace {
+    let document = if let (true, Some(path)) = (repair, trace) {
+        match read_bounded_json(path, "repair trace") {
+            Ok(doc) => doc,
+            Err(message) => return usage_error(err, &message),
+        }
+    } else if let Some(trace) = trace {
         let text = match std::fs::read_to_string(trace) {
             Ok(text) => text,
             Err(error) => return usage_error(err, &format!("cannot read {trace}: {error}")),
@@ -1287,7 +1300,29 @@ fn validate_trace_command(
         }
         Err(e) => return usage_error(err, &e.to_string()),
     };
-    let report = match if sample {
+    let mut repair_details = None;
+    let report = match if repair {
+        match model.repair_word(&doc) {
+            Ok(attempt) => {
+                repair_details = Some(serde_json::json!({
+                    "status": if attempt.replacement.is_some() { "repaired" } else if attempt.validation.validation == dive_api::trace::Validation::Valid { "unchanged" } else { "unrepaired" },
+                    "candidate_validation": attempt.rejected.as_ref().map(dive_api::trace::report_json),
+                    "gaps": attempt.gaps, "generated": attempt.generated,
+                    "search_ms": attempt.search_ms, "validation_ms": attempt.validation_ms,
+                    "reason": attempt.reason, "trace": attempt.replacement.map(|word| word.to_json())
+                }));
+                Ok(attempt.validation)
+            }
+            Err(message) => {
+                let _ = writeln!(
+                    out,
+                    "{}",
+                    serde_json::json!({"result":"unsupported", "unsupported":message, "validation_goal":"repair"})
+                );
+                return ExitCode::from(EXIT_UNSUPPORTED);
+            }
+        }
+    } else if sample {
         model.try_validate_sample(&doc)
     } else {
         model.try_validate(&doc)
@@ -1297,6 +1332,9 @@ fn validate_trace_command(
     };
     if json {
         let mut document = dive_api::trace::report_json(&report);
+        if let Some(details) = repair_details {
+            document["repair"] = details;
+        }
         if sample {
             document["validation_goal"] = serde_json::json!("sample");
         }
@@ -1313,6 +1351,10 @@ fn validate_trace_command(
 }
 
 fn read_external_input_report(path: &str) -> Result<serde_json::Value, String> {
+    read_bounded_json(path, "external input report")
+}
+
+fn read_bounded_json(path: &str, kind: &str) -> Result<serde_json::Value, String> {
     const LIMIT: usize = 8 << 20;
     let file = std::fs::File::open(path).map_err(|error| format!("cannot read {path}: {error}"))?;
     let mut reader = std::io::Read::take(file, u64::try_from(LIMIT + 1).unwrap_or(u64::MAX));
@@ -1320,7 +1362,7 @@ fn read_external_input_report(path: &str) -> Result<serde_json::Value, String> {
     std::io::Read::read_to_end(&mut reader, &mut bytes)
         .map_err(|error| format!("cannot read {path}: {error}"))?;
     if bytes.len() > LIMIT {
-        return Err("external input report exceeds 8 MiB".into());
+        return Err(format!("{kind} exceeds 8 MiB"));
     }
     serde_json::from_slice(&bytes).map_err(|error| format!("{path}: {error}"))
 }

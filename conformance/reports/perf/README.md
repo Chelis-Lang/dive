@@ -575,3 +575,5 @@ field before quoting a number.
 [Whole-process-family time and memory for both named proof checkers](2026-11-22-recomp-process-memory.json) records all 68 matched runs, including deadlines, refusals and a Sharded KV mutation.
 
 [All 34 original Recomp-Verify configurations](2026-11-22-recomp-originals.json) compare named safety results and 30-second whole-process timings with the upstream portfolio.
+
+[Saved temporal counterexample repair](2026-11-22-temporal-repair.json) records source-driven gap searches on the published Elevator and real-time clock, fresh replay, stale properties, changed fairness and ordinary fallback.
