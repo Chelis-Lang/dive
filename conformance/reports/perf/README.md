@@ -16,6 +16,8 @@ and the R2 procedure is in
 The scripts that produced the records are in
 [`scripts/perf/release/`](../../../scripts/perf/release/README.md).
 
+[The 46 bounded peer configurations](2026-11-22-bounded-peers.json), [Core's explicit prefix on the same inputs](2026-11-22-explicit-prefix.json), [Elevator fairness controls](2026-11-22-elevator-fairness.json) and [the published Recomp-Verify and Scimitar artifacts](2026-11-22-published-peer-artifacts.json) have a shared [reproduction guide and interpretation](../../../docs/internal/survey/verification-workloads.md#bounded-checking-fairness-and-proofs).
+
 [Temporal worker-width repeat](2026-11-21-temporal-d4-recheck.json) records 153 checks, requested and used workers, the reason for each fallback, golden counts, elapsed time, peak RSS and within-host timings.
 
 The [peer comparison panel and source pins](../../../docs/internal/survey/verification-workloads.md)

@@ -1,0 +1,111 @@
+{
+  "model": "MultiCarElevator",
+  "examples": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "property": "TemporalInvariant",
+  "safety": [
+    "TypeInvariant",
+    "SafetyInvariant"
+  ],
+  "workers": 1,
+  "wall_limit_seconds": 30,
+  "removed_fairness_conjunct": "/\\ \\A e \\in Elevator : SF_Vars(MoveElevator(e))",
+  "dive_sha256": "0dfa60576ab178ad5819bd630d2ae68a633ac0a14baa8edb5b32e17d3a8b40a7",
+  "manyan_sha256": "89f6da894a58220f7607853ca3907122f692fe66e507c148e1898731b8b4fcf1",
+  "rows": [
+    {
+      "case": "small-fair",
+      "module_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "99b3a1c26fe43dbaaf00fe57228a836c2f7e3e59ad00404f184885716558a6e2",
+      "manyan": {
+        "wall_s": 0.00534,
+        "exit": 0,
+        "peak_rss_kib": 3896,
+        "status": "success",
+        "generated": 68,
+        "distinct": 36
+      },
+      "dive": {
+        "wall_s": 0.01893,
+        "exit": 0,
+        "peak_rss_kib": 25984,
+        "status": "success",
+        "property": null,
+        "distinct": 36,
+        "generated": 68,
+        "depth": 12
+      }
+    },
+    {
+      "case": "small-no-move-SF",
+      "module_sha256": "c6e3199e16ddf3f44bee6e2573bccc2826df09ae77725aca62a93ae8634176e6",
+      "cfg_sha256": "99b3a1c26fe43dbaaf00fe57228a836c2f7e3e59ad00404f184885716558a6e2",
+      "replay": {
+        "result": "valid",
+        "exit": 0
+      },
+      "initial_stutter_replay": {
+        "result": "invalid",
+        "exit": 1
+      },
+      "original_fairness_replay": {
+        "result": "invalid",
+        "exit": 1
+      },
+      "manyan": {
+        "wall_s": 0.00516,
+        "exit": 13,
+        "peak_rss_kib": 3960,
+        "status": "violation",
+        "generated": 68,
+        "distinct": 36
+      },
+      "dive": {
+        "wall_s": 0.02322,
+        "exit": 13,
+        "peak_rss_kib": 34568,
+        "status": "liveness-violation",
+        "property": "TemporalInvariant",
+        "distinct": 36,
+        "generated": 68,
+        "depth": 12,
+        "witness_states": 6,
+        "ending": {
+          "back_to": 5,
+          "kind": "lasso"
+        }
+      }
+    },
+    {
+      "case": "medium-fair",
+      "module_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "3e6d67656512a5d2e4795c7de9c13d510096608e506c56f31f0fa4eb618d9290",
+      "manyan": {
+        "wall_s": 0.10878,
+        "exit": 0,
+        "peak_rss_kib": 10488,
+        "status": "success",
+        "generated": 14296,
+        "distinct": 4122
+      },
+      "dive": {
+        "wall_s": 1.49566,
+        "exit": 0,
+        "peak_rss_kib": 38392,
+        "status": "success",
+        "property": null,
+        "distinct": 4122,
+        "generated": 14296,
+        "depth": 36
+      }
+    }
+  ],
+  "host": {
+    "instance": "c7i.4xlarge",
+    "region": "us-east-2",
+    "OS": "Ubuntu 24.04",
+    "repetitions": 1,
+    "cold_process": true
+  },
+  "dive_source": "c3f6a8a494444d632e02dfdff1e645b2564352f1",
+  "manyan_revision": "a39816a873a2c2aabc00dbcef50908e996f3d44b"
+}

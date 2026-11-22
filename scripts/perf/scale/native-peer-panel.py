@@ -81,9 +81,10 @@ def measure(args, model, workers, rep, arm):
     for key in tuple(env):
         if key.startswith(("DIVE_", "TLX_", "TLAMC_", "MANYAN_")):
             env.pop(key)
-    cache = args.output / "cache" / f"{model}-{workers}-{rep}-tlx-{args.profile}"
-    env["TLX_CACHE"] = str(cache)
-    arm_binary = args.stage / "bin" / ("tlx" if arm in ("tlx-cold", "tlx-warm") else arm)
+    binary = arm.removesuffix("-cold").removesuffix("-warm")
+    cache = args.output / "cache" / f"{model}-{workers}-{rep}-{binary}-{args.profile}"
+    env.update(TLX_CACHE=str(cache), TLAMC_CACHE=str(cache))
+    arm_binary = args.stage / "bin" / binary
     if arm in ("base", "candidate"):
         command = [
             str(arm_binary), "check", module, "--config", config, "--workers", str(workers),
@@ -94,6 +95,8 @@ def measure(args, model, workers, rep, arm):
             command.append("--compat=tlc")
         if arm == "candidate":
             env.update(args.candidate_env)
+    elif binary == "tla-mc":
+        command = [str(arm_binary), "-compile", "-config", config, "-workers", str(workers), module]
     elif arm.startswith("tlx-"):
         command = [str(arm_binary), "check", module, "-tlc", "-compile",
                    "-config", config, "-workers", str(workers)]
@@ -120,13 +123,15 @@ def measure(args, model, workers, rep, arm):
     }
 
 
-def blocks_for(model, with_candidate, with_peers):
+def blocks_for(model, with_candidate, with_peers, with_tla_mc):
     blocks = [("base",)]
     if with_candidate:
         blocks.append(("candidate",))
     peer = MODELS[model][2]
     if with_peers and peer:
         blocks.append(("tlx-cold", "tlx-warm") if peer == "tlx" else (peer,))
+        if with_tla_mc and peer == "tlx":
+            blocks.append(("tla-mc-cold", "tla-mc-warm"))
     return blocks
 
 
@@ -137,9 +142,9 @@ def digests(args):
         if path.suffix in (".tla", ".cfg")
     ]
     binaries = {
-        arm.split("-")[0]
+        arm.removesuffix("-cold").removesuffix("-warm")
         for model in args.models
-        for block in blocks_for(model, args.candidate, not args.no_peers)
+        for block in blocks_for(model, args.candidate, not args.no_peers, args.tla_mc)
         for arm in block
     }
     inputs.extend(args.stage / "bin" / binary for binary in sorted(binaries))
@@ -155,7 +160,7 @@ def campaign(args):
     stopped = set()
     with (args.output / "cells.jsonl").open("w", buffering=1) as output:
         for model in args.models:
-            blocks = blocks_for(model, args.candidate, not args.no_peers)
+            blocks = blocks_for(model, args.candidate, not args.no_peers, args.tla_mc)
             for rep in range(args.repetitions):
                 order = slice(None, None, -1 if rep % 2 else 1)
                 for workers in args.workers[order]:
@@ -186,7 +191,9 @@ def main():
     parser.add_argument("--seconds", type=int, default=600)
     parser.add_argument("--candidate", action="store_true")
     parser.add_argument("--candidate-env", action="append", default=[], metavar="NAME=VALUE")
-    parser.add_argument("--no-peers", action="store_true")
+    peer_flags = parser.add_mutually_exclusive_group()
+    peer_flags.add_argument("--no-peers", action="store_true")
+    peer_flags.add_argument("--tla-mc", action="store_true", help="also measure compiled tla-mc on KVS and Lamport")
     parser.add_argument("--stop-after-cap", action="store_true")
     args = parser.parse_args()
     if args.seconds < 6 or args.repetitions < 1:
