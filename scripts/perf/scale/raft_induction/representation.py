@@ -46,7 +46,7 @@ schemas = [
 ]
 
 
-def representation(model):
+def representation(model, channel=None):
     constants = {
         d["name"]: model.constants[d["constant"]]
         for d in model.ir["decls"]
@@ -54,12 +54,16 @@ def representation(model):
     }
     limit = constants["MaxMsgCount"]
     require(
-        type(limit) is int and limit in (2, 3), "unsupported bound message capacity"
+        type(limit) is int and (limit in (2, 3) or channel and limit >= 0),
+        "unsupported bound message capacity",
     )
     require(
-        constants["MaxTerm"] == 2 and constants["MaxLogLen"] == 2,
+        constants["MaxTerm"] in ((2, 3) if channel else (2,))
+        and constants["MaxLogLen"] in ((2, 3) if channel else (2,)),
         "unsupported bound term or log limit",
     )
+    max_term = constants["MaxTerm"]
+    max_log = constants["MaxLogLen"]
     servers = concrete(constants["Server"])
     symbols = model.symbols
 
@@ -71,7 +75,7 @@ def representation(model):
         if shape in ("log", "entries"):
             return Seq(
                 z.Int(name + ".len"),
-                [z.Int(f"{name}.{k}") for k in range(2 if shape == "log" else 1)],
+                [z.Int(f"{name}.{k}") for k in range(max_log if shape == "log" else 1)],
             )
         return z.Int(name)
 
@@ -95,16 +99,6 @@ def representation(model):
             for n in ("nextIndex", "matchIndex")
         },
     }
-    for n, fields in zip(sets, schemas, strict=True):
-        before[n] = Set(
-            [
-                (
-                    z.Bool(f"{n}.{q}.used"),
-                    Rec({k: field(sh, f"{n}.{q}.{k}") for k, sh in fields.items()}),
-                )
-                for q in range(limit)
-            ]
-        )
 
     def span(x, lo, hi):
         return con(x >= lo, x <= hi)
@@ -125,30 +119,57 @@ def representation(model):
             return among(x, [*servers, symbols["Nil"]])
         if shape in ("log", "entries"):
             return con(
-                span(x.length, 0, 2 if shape == "log" else 1),
-                *(dis(x.length <= i, span(v, 0, 2)) for i, v in enumerate(x.cells)),
+                span(x.length, 0, max_log if shape == "log" else 1),
+                *(
+                    dis(x.length <= i, span(v, 0, max_term))
+                    for i, v in enumerate(x.cells)
+                ),
             )
-        return span(x, 1, 3) if shape == "nextIndex" else span(x, 0, 2)
+        return (
+            span(x, 1, max_log + 1)
+            if shape == "nextIndex"
+            else span(x, 0, max_term if shape == "term" else max_log)
+        )
+
+    def valid_record(n, rec):
+        fields = schemas[sets.index(n)]
+        d = rec.fields
+        require(d.keys() == fields.keys(), "unexpected message fields")
+        bounded = con(
+            *(allowed(d[k], sh) for k, sh in fields.items()), d["msource"] != d["mdest"]
+        )
+        if n == "appendEntriesRequestMsgs":
+            bounded = con(bounded, d["mprevLogIndex"] + d["mentries"].length <= max_log)
+        return bounded
+
+    for n, fields in zip(sets, schemas, strict=True):
+        if channel is not None:
+            before[n] = channel(n, fields, field, valid_record)
+            continue
+        before[n] = Set(
+            [
+                (
+                    z.Bool(f"{n}.{q}.used"),
+                    Rec({k: field(sh, f"{n}.{q}.{k}") for k, sh in fields.items()}),
+                )
+                for q in range(limit)
+            ]
+        )
 
     def domain(state):
         predicates = []
         for name in model.names:
             v = state[name]
             if name in sets:
-                fields = schemas[sets.index(name)]
-                for h, rec in v.cells:
-                    d = rec.fields
-                    require(d.keys() == fields.keys(), "unexpected message fields")
-                    bounded = con(
-                        *(allowed(d[k], sh) for k, sh in fields.items()),
-                        d["msource"] != d["mdest"],
-                    )
-                    if name == "appendEntriesRequestMsgs":
-                        bounded = con(
-                            bounded, d["mprevLogIndex"] + d["mentries"].length <= 2
-                        )
-                    predicates.append(dis(neg(h), bounded))
-                predicates.append(card(v) <= limit)
+                if channel is not None and hasattr(v, "new_records"):
+                    cells = v.new_records
+                else:
+                    cells = v.cells
+                predicates.extend(
+                    dis(neg(h), valid_record(name, rec)) for h, rec in cells
+                )
+                if channel is None:
+                    predicates.append(card(v) <= limit)
             else:
                 require(v.keys == servers, "outer server function domain")
                 for x in v.cells:

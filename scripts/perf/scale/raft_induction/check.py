@@ -59,7 +59,7 @@ def graph_path(root):
     )
 
 
-def config(path, servers, max_messages=2):
+def config(path, servers, max_messages=2, max_term=2, max_log=2):
     # Preserve all bindings from the pinned configuration except the explicit study bounds.
     text = path.read_text().split("CONSTANTS\n", 1)[1].split("\nCONSTRAINT", 1)[0]
     lines = list(
@@ -70,8 +70,8 @@ def config(path, servers, max_messages=2):
         )
     )
     for source, new in (
-        ("MaxTerm = 3", "MaxTerm = 2"),
-        ("MaxLogLen = 3", "MaxLogLen = 2"),
+        ("MaxTerm = 3", f"MaxTerm = {max_term}"),
+        ("MaxLogLen = 3", f"MaxLogLen = {max_log}"),
         ("MaxMsgCount = 1000", f"MaxMsgCount = {max_messages}"),
         (
             "Server = {n1, n2, n3}",
@@ -87,7 +87,16 @@ def config(path, servers, max_messages=2):
     )
 
 
-def bind(source, exporter, size, stage, max_messages):
+def bind(
+    source,
+    exporter,
+    size,
+    stage,
+    max_messages,
+    max_term=2,
+    max_log=2,
+    supplied_cfg=None,
+):
     graph = graph_path(source)
     pairs = json.loads(graph.read_bytes())["strengthening_conjuncts"]
     names = [name for name, _, _ in pairs]
@@ -109,7 +118,12 @@ def bind(source, exporter, size, stage, max_messages):
         + "====\n"
     )
     cfg = trial.with_suffix(".cfg")
-    cfg.write_text(config(source / "AsyncRaft.cfg", size, max_messages))
+    if supplied_cfg is None:
+        cfg.write_text(
+            config(source / "AsyncRaft.cfg", size, max_messages, max_term, max_log)
+        )
+    else:
+        cfg.write_bytes(supplied_cfg.read_bytes())
     run = subprocess.run([exporter, trial, cfg], capture_output=True, timeout=30)
     require(run.returncode == 0, run.stderr.decode()[-1200:])
     doc = json.loads(run.stdout)
@@ -129,6 +143,23 @@ def bind(source, exporter, size, stage, max_messages):
         {k: v for k, v in f.items() if k != "display"} for f in doc["ir"]["files"]
     ]
     bound = {**doc, "ir": {**doc["ir"], "files": source_files}}
+    constants = {
+        d["name"]: doc["constants"][d["constant"]]
+        for d in doc["ir"]["decls"]
+        if d["constant"] is not None
+    }
+    servers = constants["Server"]["set"]
+    size = len(servers)
+    require(
+        size in (2, 3) and servers == [{"model": f"n{i}"} for i in range(1, size + 1)],
+        "unsupported labeled server carrier",
+    )
+    for name, value in constants.items():
+        if name in ("MaxTerm", "MaxLogLen", "MaxMsgCount"):
+            require(type(value) is int and value >= 0, "expected a nonnegative bound")
+        elif name != "Server":
+            require(value == {"model": name}, "unsupported symbolic constant binding")
+    max_messages = constants["MaxMsgCount"]
     identity = dict(
         bound_ir=digest(canonical(bound)),
         graph=digest(graph.read_bytes()),
@@ -277,20 +308,60 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("source", type=Path)
     p.add_argument("--exporter", required=True, type=Path)
-    p.add_argument("--servers", required=True, type=int, choices=(2, 3))
-    p.add_argument("--max-messages", type=int, choices=(2, 3), default=2)
+    p.add_argument("--servers", type=int, choices=(2, 3))
+    p.add_argument("--max-messages", type=int)
+    p.add_argument("--max-term", type=int, choices=(2, 3))
+    p.add_argument("--max-log-length", type=int, choices=(2, 3))
+    p.add_argument(
+        "--config",
+        type=Path,
+        help="bind these exact CFG bytes instead of generating study bounds",
+    )
+    p.add_argument(
+        "--message-sets",
+        action="store_true",
+        help="prove over arbitrary finite sets of typed messages",
+    )
+    p.add_argument(
+        "--jobs",
+        type=int,
+        default=1,
+        help="concurrent action groups for --message-sets",
+    )
     mode = p.add_mutually_exclusive_group(required=True)
     mode.add_argument("--save", type=Path)
     mode.add_argument("--verify", type=Path)
     args = p.parse_args()
     try:
+        bounds = (args.servers, args.max_messages, args.max_term, args.max_log_length)
+        require(
+            args.config is None
+            or (args.message_sets and all(v is None for v in bounds)),
+            "an explicit CFG takes the place of generated bounds and requires --message-sets",
+        )
+        require(
+            args.config is not None or args.servers is not None,
+            "provide --servers or --config",
+        )
+        require(
+            1 <= args.jobs <= len(ACTIONS) and (args.message_sets or args.jobs == 1),
+            "unsupported action worker count",
+        )
+        capacity = 2 if args.max_messages is None else args.max_messages
+        require(
+            capacity >= 0 and (args.message_sets or capacity in (2, 3)),
+            "unsupported message capacity",
+        )
         with tempfile.TemporaryDirectory() as tmp:
             doc, names, identity = bind(
                 args.source,
                 args.exporter.resolve(),
                 args.servers,
                 Path(tmp),
-                args.max_messages,
+                capacity,
+                args.max_term or 2,
+                args.max_log_length or 2,
+                args.config,
             )
             if args.verify:
                 require(args.verify.stat().st_size <= 1 << 20, "oversize certificate")
@@ -310,12 +381,22 @@ def main():
                 and identity["upstream_cfg"] == UPSTREAM_CFG,
                 "unsupported source, configuration or proof graph for this finite representation",
             )
-            result = dict(
-                format="asyncraft-source-induction-v1",
-                input=identity,
-                **prove(doc, names),
-                result="proved",
-            )
+            if args.message_sets:
+                from channel_proof import prove_channels
+
+                result = dict(
+                    format="asyncraft-membership-induction-v1",
+                    input=identity,
+                    **prove_channels(doc, names, args.jobs),
+                    result="proved",
+                )
+            else:
+                result = dict(
+                    format="asyncraft-source-induction-v1",
+                    input=identity,
+                    **prove(doc, names),
+                    result="proved",
+                )
             if args.verify:
                 require(
                     canonical(prior) == canonical(result),
