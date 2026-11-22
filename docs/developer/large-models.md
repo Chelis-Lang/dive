@@ -895,6 +895,8 @@ The original four-node ring runs Safra’s termination detector, published by Di
 
 Ordinary Core's four-hour run on 32 physical cores generated 1,974,269,083 occurrences and still had 4,709,363 states queued at depth 29. It reached the time limit at 37.33 GiB peak RSS with a 420 GiB memory allowance. Capturing the partial graph required 3,135,386,172 action-predicate evaluations. The complete four-node symbolic check gives an independent target for ordinary search. [Timing, graph size and evaluation counts](../../conformance/reports/perf/2026-11-21-ewd998-fair-ring.json).
 
+The longer ordinary run returned success after 38,506.43 s at 65.93 GiB peak RSS. It recorded 248,006,200 distinct fingerprints, 2,696,907,118 generated occurrences, depth 104 and 0 still queued. [Terminal result and input pins](../../conformance/reports/perf/2026-11-21-ewd998-fair-ring.json).
+
 | Nodes | Distinct | Generated | Depth | Generated outside constraint | Wall time, one dedicated CPU |
 |---:|---:|---:|---:|---:|---:|
 | 2 | 6,876 | 33,664 | 28 | 2,240 | 0.16 s |

@@ -646,5 +646,38 @@
     "state_atom_evaluations": 930517635,
     "action_atom_evaluations": 3135386172,
     "interpretation": "The sampled memory ceiling was 420 GiB. The time limit interrupted capture before exhaustive temporal analysis. The independent source-pinned symbolic graph closes at 248006200 states and depth 104."
+  },
+  "ordinary_long_run": {
+    "host": "Dedicated EC2 r7i.16xlarge, us-east-2b. 32 physical cores, cgroup 460 GiB, no swap. CLI built from the merge of #1237 on main.",
+    "command": "Use the unchanged four-hour configuration with --time-limit 66000s and --max-memory 420g. All five configured properties remain enabled.",
+    "sha256": {
+      "dive": "234487f6d95524196692ad07cd77f2934f9fed03d4ea6d43456000ee91bf37b1",
+      "specifications/ewd998/EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8",
+      "specifications/ewd998/EWD998.cfg": "4e47f078297118a6e31953eddf6a8a6d469d32464ec1d22b902c041c587e5d59"
+    },
+    "exit": 0,
+    "wall_s": 38506.43,
+    "peak_rss_kib": 69132416,
+    "verdict": "success",
+    "statistics": {
+      "depth": 104,
+      "distinct": 248006200,
+      "generated": 2696907118,
+      "initial_generated": 1024,
+      "left_on_queue": 0,
+      "reported_by_tlc": false
+    },
+    "stop": null,
+    "property": null,
+    "temporal_workers": {
+      "serial_phases": [
+        "initial-states",
+        "ordered-commit",
+        "temporal-analysis",
+        "trace-validation"
+      ],
+      "width_applies_to": "source-expansion"
+    },
+    "agrees_with_exact_symbolic_counts": true
   }
 }
