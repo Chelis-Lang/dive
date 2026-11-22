@@ -7,6 +7,7 @@ use crate::{Error, Handle, Machine};
 /// A source-bound nonstuttering action evaluated on a group of materialized edges.
 pub struct ActionBatch {
     changed: u64,
+    complete_image: bool,
     terms: Vec<Term>,
 }
 
@@ -27,7 +28,12 @@ impl Compiler<'_> {
         })?;
         let mut terms = Vec::new();
         self.batch_terms(action, &mut terms, 0)?;
-        Some(ActionBatch { changed, terms })
+        let complete_image = function_image(&terms, self.ir.vars().len());
+        Some(ActionBatch {
+            changed,
+            complete_image,
+            terms,
+        })
     }
 
     // ENABLED constructs its own primed row. A closed capture list binds
@@ -100,7 +106,41 @@ impl Compiler<'_> {
     }
 }
 
+// Only a leading source guard followed by disjoint, complete writes can
+// use assignments from a concrete generated destination.
+fn function_image(terms: &[Term], width: usize) -> bool {
+    let mut writes: u64 = 0;
+    for term in terms {
+        let mask = match term {
+            Term::Reset(_) => continue,
+            Term::Guard(_) if writes == 0 => continue,
+            Term::Guard(_) => return false,
+            Term::Match(variable, _) => {
+                let Some(bit) = u32::try_from(*variable)
+                    .ok()
+                    .and_then(|v| 1u64.checked_shl(v))
+                else {
+                    return false;
+                };
+                bit
+            }
+            Term::CopyTuple(mask) => *mask,
+        };
+        if mask & writes != 0 {
+            return false;
+        }
+        writes |= mask;
+    }
+    writes.count_ones() as usize == width
+}
+
 impl ActionBatch {
+    /// Whether each state variable has one source-defined write after the guard prefix.
+    #[must_use]
+    pub fn accepts_generated_image(&self) -> bool {
+        self.complete_image
+    }
+
     /// Evaluates this plan on the original source and target rows, in its owning machine.
     /// All handles must already have been proved materialized in the same store.
     /// Any error or visible event leaves ordinary per-edge evaluation in charge.
@@ -113,7 +153,28 @@ impl ActionBatch {
         targets: &[&[Handle]],
         fuel: u64,
     ) -> Option<u64> {
+        self.evaluate_image(plan, machine, before, targets, fuel, None)
+            .map(|(bits, _)| bits)
+    }
+
+    /// Uses the normalized destination writes of the same deterministic bound
+    /// action on the same closed original source. The caller must certify every
+    /// write, unchanged variable, store, warning and producer binding. A true
+    /// flag also certifies the identical ordered Boolean guard prefix. Returns
+    /// original edge bits and whether a demanded term consumed that evidence.
+    #[must_use]
+    pub fn evaluate_image(
+        &self,
+        plan: &Plan,
+        machine: &mut Machine,
+        before: &[Handle],
+        targets: &[&[Handle]],
+        fuel: u64,
+        emitted: Option<(&[Handle], bool)>,
+    ) -> Option<(u64, bool)> {
+        let emitted = emitted.filter(|_| self.complete_image);
         if targets.len() > 64
+            || emitted.is_some_and(|(row, _)| row.len() != before.len())
             || before.len() != machine.s0.len()
             || targets.iter().any(|r| r.len() != before.len())
         {
@@ -129,7 +190,7 @@ impl ActionBatch {
         }
         machine.warnings.clear();
         machine.printed.clear();
-        let result = self.match_edges(&plan.code, machine, before, targets);
+        let result = self.match_edges(&plan.code, machine, before, targets, emitted);
         machine.leave(frame);
         machine.heap.reset();
         result.ok().filter(|_| {
@@ -143,7 +204,9 @@ impl ActionBatch {
         m: &mut Machine,
         before: &[Handle],
         targets: &[&[Handle]],
-    ) -> Result<u64, Error> {
+        emitted: Option<(&[Handle], bool)>,
+    ) -> Result<(u64, bool), Error> {
+        let mut used = false;
         let mut live = 0;
         for (i, row) in targets.iter().enumerate() {
             if !same(m, before, row, self.changed) {
@@ -161,12 +224,20 @@ impl ActionBatch {
                     }
                 }
                 Term::Guard(p) => {
-                    if !m.eval_bool(code, *p)? {
-                        return Ok(0);
+                    if emitted.is_some_and(|(_, guard_prefix)| guard_prefix) {
+                        used = true;
+                    } else if !m.eval_bool(code, *p)? {
+                        return Ok((0, used));
                     }
                 }
                 Term::Match(var, rhs) => {
-                    let value = m.eval_norm(code, *rhs)?;
+                    let value = match emitted {
+                        Some((row, _)) => {
+                            used = true;
+                            row[*var]
+                        }
+                        None => m.eval_norm(code, *rhs)?,
+                    };
                     let mut pending = live;
                     while pending != 0 {
                         let i = pending.trailing_zeros() as usize;
@@ -189,7 +260,7 @@ impl ActionBatch {
                 }
             }
         }
-        Ok(live)
+        Ok((live, used))
     }
 }
 
@@ -202,4 +273,21 @@ fn same(m: &Machine, before: &[Handle], after: &[Handle], mut mask: u64) -> bool
         mask &= mask - 1;
     }
     true
+}
+
+#[cfg(test)]
+mod image_tests {
+    use super::{Term, function_image};
+
+    #[test]
+    fn only_complete_disjoint_writes_can_borrow_the_produced_image() {
+        assert!(function_image(
+            &[Term::Guard(0), Term::Match(0, 1), Term::CopyTuple(6)],
+            3
+        ));
+        assert!(!function_image(&[Term::Match(0, 0), Term::Guard(1)], 1));
+        assert!(!function_image(&[Term::Match(0, 0), Term::CopyTuple(1)], 1));
+        assert!(!function_image(&[Term::CopyTuple(1)], 2));
+        assert!(!function_image(&[Term::Match(64, 0)], 65));
+    }
 }

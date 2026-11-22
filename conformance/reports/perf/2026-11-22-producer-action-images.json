@@ -1,0 +1,1124 @@
+{
+  "scope": "Original pin of tla-examples at 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f. Elevator four floors changes only FloorCount in ElevatorLivenessLarge.cfg. See 2026-11-22-batched-fairness-actions.json for SHA-256 of inputs and pinned Manyan executable. Core release builds with rustc 1.99.0, --locked. Both arms use closed enabledness and original-edge batching. The control includes the closed-row window; neither timed graph reaches its activation threshold.",
+  "machine": "Dedicated AWS c7i.4xlarge Linux, one worker, fresh processes in alternating order. GNU time %e and %M. Wall includes startup. All four-floor words accepted by the unmodified validator. Changing only back_to to zero rejected in each repeat.",
+  "command": "dive check Elevator.tla --config CFG --workers 1 --seed 0 --fp 0 --max-memory 8g --time-limit 100s --output json",
+  "sha256": {
+    "production-window": "94fc9833001b2e003956aedfdc1a1bda2c8492458637000ca5aa3be097a99537",
+    "checked-image": "15ada7e5d83cbe2fcfc5ec04200527a17c3a68a4170702961dc1a4d79424b8a5",
+    "independent_validator": "034f317ba103e883bbf499dd200940b54b83fe70eac4854c924589e09bb3cc17"
+  },
+  "trials": [
+    {
+      "model": "ElevatorLivenessLarge",
+      "arm": "production-window",
+      "wall_s": 1.72,
+      "rss_kib": 75816,
+      "labels_ms": 669.83,
+      "product_ms": 311.53,
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "verdict": "success",
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "trace_checks": []
+    },
+    {
+      "model": "ElevatorLivenessLarge",
+      "arm": "checked-image",
+      "wall_s": 1.54,
+      "rss_kib": 76012,
+      "labels_ms": 519.41,
+      "product_ms": 295.55,
+      "batch": {
+        "plans": 20,
+        "producer_images": 136798,
+        "rows": 217370
+      },
+      "verdict": "success",
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "trace_checks": []
+    },
+    {
+      "model": "ElevatorLivenessLarge",
+      "arm": "checked-image",
+      "wall_s": 1.53,
+      "rss_kib": 76016,
+      "labels_ms": 518.36,
+      "product_ms": 293.96,
+      "batch": {
+        "plans": 20,
+        "producer_images": 136798,
+        "rows": 217370
+      },
+      "verdict": "success",
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "trace_checks": []
+    },
+    {
+      "model": "ElevatorLivenessLarge",
+      "arm": "production-window",
+      "wall_s": 1.66,
+      "rss_kib": 75940,
+      "labels_ms": 633.19,
+      "product_ms": 291.88,
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "verdict": "success",
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "trace_checks": []
+    },
+    {
+      "model": "ElevatorLivenessLarge",
+      "arm": "production-window",
+      "wall_s": 1.65,
+      "rss_kib": 76012,
+      "labels_ms": 635.18,
+      "product_ms": 294.48,
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "verdict": "success",
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "trace_checks": []
+    },
+    {
+      "model": "ElevatorLivenessLarge",
+      "arm": "checked-image",
+      "wall_s": 1.59,
+      "rss_kib": 76012,
+      "labels_ms": 535.11,
+      "product_ms": 301.99,
+      "batch": {
+        "plans": 20,
+        "producer_images": 136798,
+        "rows": 217370
+      },
+      "verdict": "success",
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "trace_checks": []
+    },
+    {
+      "model": "ElevatorLivenessLarge",
+      "arm": "checked-image",
+      "wall_s": 1.53,
+      "rss_kib": 76156,
+      "labels_ms": 518.24,
+      "product_ms": 295.03,
+      "batch": {
+        "plans": 20,
+        "producer_images": 136798,
+        "rows": 217370
+      },
+      "verdict": "success",
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "trace_checks": []
+    },
+    {
+      "model": "ElevatorLivenessLarge",
+      "arm": "production-window",
+      "wall_s": 1.69,
+      "rss_kib": 76012,
+      "labels_ms": 659.18,
+      "product_ms": 297.1,
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "verdict": "success",
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "trace_checks": []
+    },
+    {
+      "model": "ElevatorLivenessLarge",
+      "arm": "production-window",
+      "wall_s": 1.66,
+      "rss_kib": 76072,
+      "labels_ms": 633.51,
+      "product_ms": 290.95,
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "verdict": "success",
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "trace_checks": []
+    },
+    {
+      "model": "ElevatorLivenessLarge",
+      "arm": "checked-image",
+      "wall_s": 1.54,
+      "rss_kib": 76060,
+      "labels_ms": 524.39,
+      "product_ms": 294.65,
+      "batch": {
+        "plans": 20,
+        "producer_images": 136798,
+        "rows": 217370
+      },
+      "verdict": "success",
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "trace_checks": []
+    },
+    {
+      "model": "four-floor",
+      "arm": "production-window",
+      "wall_s": 5.74,
+      "rss_kib": 196472,
+      "labels_ms": 2103.1,
+      "product_ms": 1416.36,
+      "batch": {
+        "plans": 22,
+        "rows": 593260
+      },
+      "verdict": "liveness-violation",
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "trace_checks": [
+        "valid",
+        "invalid"
+      ]
+    },
+    {
+      "model": "four-floor",
+      "arm": "checked-image",
+      "wall_s": 5.35,
+      "rss_kib": 196604,
+      "labels_ms": 1754.47,
+      "product_ms": 1422.23,
+      "batch": {
+        "plans": 22,
+        "producer_images": 364393,
+        "rows": 593260
+      },
+      "verdict": "liveness-violation",
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "trace_checks": [
+        "valid",
+        "invalid"
+      ]
+    },
+    {
+      "model": "four-floor",
+      "arm": "checked-image",
+      "wall_s": 5.41,
+      "rss_kib": 196656,
+      "labels_ms": 1754.4,
+      "product_ms": 1461.54,
+      "batch": {
+        "plans": 22,
+        "producer_images": 364393,
+        "rows": 593260
+      },
+      "verdict": "liveness-violation",
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "trace_checks": [
+        "valid",
+        "invalid"
+      ]
+    },
+    {
+      "model": "four-floor",
+      "arm": "production-window",
+      "wall_s": 5.8,
+      "rss_kib": 196408,
+      "labels_ms": 2109.7,
+      "product_ms": 1453.44,
+      "batch": {
+        "plans": 22,
+        "rows": 593260
+      },
+      "verdict": "liveness-violation",
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "trace_checks": [
+        "valid",
+        "invalid"
+      ]
+    },
+    {
+      "model": "four-floor",
+      "arm": "production-window",
+      "wall_s": 5.78,
+      "rss_kib": 196104,
+      "labels_ms": 2106.08,
+      "product_ms": 1460.33,
+      "batch": {
+        "plans": 22,
+        "rows": 593260
+      },
+      "verdict": "liveness-violation",
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "trace_checks": [
+        "valid",
+        "invalid"
+      ]
+    },
+    {
+      "model": "four-floor",
+      "arm": "checked-image",
+      "wall_s": 5.56,
+      "rss_kib": 196564,
+      "labels_ms": 1811.07,
+      "product_ms": 1470.73,
+      "batch": {
+        "plans": 22,
+        "producer_images": 364393,
+        "rows": 593260
+      },
+      "verdict": "liveness-violation",
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "trace_checks": [
+        "valid",
+        "invalid"
+      ]
+    },
+    {
+      "model": "four-floor",
+      "arm": "checked-image",
+      "wall_s": 5.5,
+      "rss_kib": 176092,
+      "labels_ms": 1757.98,
+      "product_ms": 1493.03,
+      "batch": {
+        "plans": 22,
+        "producer_images": 364393,
+        "rows": 593260
+      },
+      "verdict": "liveness-violation",
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "trace_checks": [
+        "valid",
+        "invalid"
+      ]
+    },
+    {
+      "model": "four-floor",
+      "arm": "production-window",
+      "wall_s": 5.96,
+      "rss_kib": 196600,
+      "labels_ms": 2168.65,
+      "product_ms": 1514.24,
+      "batch": {
+        "plans": 22,
+        "rows": 593260
+      },
+      "verdict": "liveness-violation",
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "trace_checks": [
+        "valid",
+        "invalid"
+      ]
+    },
+    {
+      "model": "four-floor",
+      "arm": "production-window",
+      "wall_s": 5.81,
+      "rss_kib": 196244,
+      "labels_ms": 2108.31,
+      "product_ms": 1460.7,
+      "batch": {
+        "plans": 22,
+        "rows": 593260
+      },
+      "verdict": "liveness-violation",
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "trace_checks": [
+        "valid",
+        "invalid"
+      ]
+    },
+    {
+      "model": "four-floor",
+      "arm": "checked-image",
+      "wall_s": 5.44,
+      "rss_kib": 206788,
+      "labels_ms": 1753.98,
+      "product_ms": 1465.95,
+      "batch": {
+        "plans": 22,
+        "producer_images": 364393,
+        "rows": 593260
+      },
+      "verdict": "liveness-violation",
+      "distinct": 150372,
+      "generated": 717693,
+      "depth": 20,
+      "trace_checks": [
+        "valid",
+        "invalid"
+      ]
+    }
+  ],
+  "public_transfer": {
+    "ElevatorLivenessMedium.cfg production-window": {
+      "verdict": "success",
+      "stats": {
+        "depth": 36,
+        "distinct": 4122,
+        "generated": 14296,
+        "initial_generated": 64,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "batch": {
+        "plans": 18,
+        "rows": 74196
+      },
+      "audit": true,
+      "audit_mismatch": null
+    },
+    "ElevatorLivenessMedium.cfg checked-image": {
+      "verdict": "success",
+      "stats": {
+        "depth": 36,
+        "distinct": 4122,
+        "generated": 14296,
+        "initial_generated": 64,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "batch": {
+        "plans": 18,
+        "producer_images": 10456,
+        "rows": 74196
+      },
+      "audit": true,
+      "audit_mismatch": null
+    },
+    "CoffeeCan100Beans.cfg production-window": {
+      "verdict": "success",
+      "stats": {
+        "depth": 1,
+        "distinct": 5150,
+        "generated": 20002,
+        "initial_generated": 5150,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "batch": {
+        "plans": 0,
+        "rows": 0
+      },
+      "audit": true,
+      "audit_mismatch": null
+    },
+    "CoffeeCan100Beans.cfg checked-image": {
+      "verdict": "success",
+      "stats": {
+        "depth": 1,
+        "distinct": 5150,
+        "generated": 20002,
+        "initial_generated": 5150,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "batch": {
+        "plans": 0,
+        "producer_images": 0,
+        "rows": 0
+      },
+      "audit": true,
+      "audit_mismatch": null
+    }
+  },
+  "source_differential": {
+    "fixtures": 24,
+    "settings": 4,
+    "mismatches": 0,
+    "audited_w1_images": 61,
+    "parallel_or_tlc_images": 0,
+    "independent_validated_witnesses": 3,
+    "periodic_controls": 5,
+    "all_stutter_demanded_images": 0
+  },
+  "design_experiments": {
+    "absent_emissions": [
+      {
+        "model": "ElevatorLivenessLarge",
+        "arm": "combined",
+        "wall_s": 1.65,
+        "rss_kib": 76064,
+        "labels_ms": 650.15,
+        "product_ms": 289.72,
+        "batch": {
+          "plans": 20,
+          "rows": 217370
+        },
+        "verdict": "success",
+        "distinct": 50653,
+        "generated": 230899,
+        "depth": 39,
+        "trace_checks": []
+      },
+      {
+        "model": "ElevatorLivenessLarge",
+        "arm": "producer",
+        "wall_s": 1.66,
+        "rss_kib": 76000,
+        "labels_ms": 660.26,
+        "product_ms": 290.09,
+        "batch": {
+          "plans": 20,
+          "producer_absent": 70214,
+          "rows": 217370
+        },
+        "verdict": "success",
+        "distinct": 50653,
+        "generated": 230899,
+        "depth": 39,
+        "trace_checks": []
+      },
+      {
+        "model": "ElevatorLivenessLarge",
+        "arm": "producer",
+        "wall_s": 1.67,
+        "rss_kib": 75984,
+        "labels_ms": 659.23,
+        "product_ms": 292.73,
+        "batch": {
+          "plans": 20,
+          "producer_absent": 70214,
+          "rows": 217370
+        },
+        "verdict": "success",
+        "distinct": 50653,
+        "generated": 230899,
+        "depth": 39,
+        "trace_checks": []
+      },
+      {
+        "model": "ElevatorLivenessLarge",
+        "arm": "combined",
+        "wall_s": 1.65,
+        "rss_kib": 76048,
+        "labels_ms": 649.24,
+        "product_ms": 288.62,
+        "batch": {
+          "plans": 20,
+          "rows": 217370
+        },
+        "verdict": "success",
+        "distinct": 50653,
+        "generated": 230899,
+        "depth": 39,
+        "trace_checks": []
+      },
+      {
+        "model": "ElevatorLivenessLarge",
+        "arm": "combined",
+        "wall_s": 1.65,
+        "rss_kib": 75996,
+        "labels_ms": 648.28,
+        "product_ms": 290.95,
+        "batch": {
+          "plans": 20,
+          "rows": 217370
+        },
+        "verdict": "success",
+        "distinct": 50653,
+        "generated": 230899,
+        "depth": 39,
+        "trace_checks": []
+      },
+      {
+        "model": "ElevatorLivenessLarge",
+        "arm": "producer",
+        "wall_s": 1.67,
+        "rss_kib": 76016,
+        "labels_ms": 663.6,
+        "product_ms": 291.1,
+        "batch": {
+          "plans": 20,
+          "producer_absent": 70214,
+          "rows": 217370
+        },
+        "verdict": "success",
+        "distinct": 50653,
+        "generated": 230899,
+        "depth": 39,
+        "trace_checks": []
+      },
+      {
+        "model": "four-floor",
+        "arm": "combined",
+        "wall_s": 5.91,
+        "rss_kib": 196548,
+        "labels_ms": 2222.04,
+        "product_ms": 1420.69,
+        "batch": {
+          "plans": 22,
+          "rows": 593260
+        },
+        "verdict": "liveness-violation",
+        "distinct": 150372,
+        "generated": 717693,
+        "depth": 20,
+        "trace_checks": [
+          "valid",
+          "invalid"
+        ]
+      },
+      {
+        "model": "four-floor",
+        "arm": "producer",
+        "wall_s": 5.81,
+        "rss_kib": 176020,
+        "labels_ms": 2177.57,
+        "product_ms": 1438.43,
+        "batch": {
+          "plans": 22,
+          "producer_absent": 191268,
+          "rows": 593260
+        },
+        "verdict": "liveness-violation",
+        "distinct": 150372,
+        "generated": 717693,
+        "depth": 20,
+        "trace_checks": [
+          "valid",
+          "invalid"
+        ]
+      },
+      {
+        "model": "four-floor",
+        "arm": "producer",
+        "wall_s": 5.79,
+        "rss_kib": 194540,
+        "labels_ms": 2210.16,
+        "product_ms": 1414.45,
+        "batch": {
+          "plans": 22,
+          "producer_absent": 191268,
+          "rows": 593260
+        },
+        "verdict": "liveness-violation",
+        "distinct": 150372,
+        "generated": 717693,
+        "depth": 20,
+        "trace_checks": [
+          "valid",
+          "invalid"
+        ]
+      },
+      {
+        "model": "four-floor",
+        "arm": "combined",
+        "wall_s": 5.73,
+        "rss_kib": 176028,
+        "labels_ms": 2146.17,
+        "product_ms": 1418.03,
+        "batch": {
+          "plans": 22,
+          "rows": 593260
+        },
+        "verdict": "liveness-violation",
+        "distinct": 150372,
+        "generated": 717693,
+        "depth": 20,
+        "trace_checks": [
+          "valid",
+          "invalid"
+        ]
+      },
+      {
+        "model": "four-floor",
+        "arm": "combined",
+        "wall_s": 5.73,
+        "rss_kib": 196600,
+        "labels_ms": 2145.0,
+        "product_ms": 1416.33,
+        "batch": {
+          "plans": 22,
+          "rows": 593260
+        },
+        "verdict": "liveness-violation",
+        "distinct": 150372,
+        "generated": 717693,
+        "depth": 20,
+        "trace_checks": [
+          "valid",
+          "invalid"
+        ]
+      },
+      {
+        "model": "four-floor",
+        "arm": "producer",
+        "wall_s": 5.76,
+        "rss_kib": 176168,
+        "labels_ms": 2171.01,
+        "product_ms": 1415.24,
+        "batch": {
+          "plans": 22,
+          "producer_absent": 191268,
+          "rows": 593260
+        },
+        "verdict": "liveness-violation",
+        "distinct": 150372,
+        "generated": 717693,
+        "depth": 20,
+        "trace_checks": [
+          "valid",
+          "invalid"
+        ]
+      }
+    ],
+    "early_positive_prototype": [
+      {
+        "model": "ElevatorLivenessLarge",
+        "arm": "window",
+        "wall_s": 1.73,
+        "rss_kib": 73392,
+        "labels_ms": 687.16,
+        "product_ms": 297.91,
+        "batch": {
+          "plans": 20,
+          "producer_absent": 70214,
+          "rows": 217370
+        },
+        "verdict": "success",
+        "distinct": 50653,
+        "generated": 230899,
+        "depth": 39,
+        "trace_checks": []
+      },
+      {
+        "model": "ElevatorLivenessLarge",
+        "arm": "positive-image",
+        "wall_s": 1.54,
+        "rss_kib": 76156,
+        "labels_ms": 545.1,
+        "product_ms": 287.9,
+        "batch": {
+          "plans": 20,
+          "producer_absent": 70214,
+          "producer_positive": 136798,
+          "rows": 217370
+        },
+        "verdict": "success",
+        "distinct": 50653,
+        "generated": 230899,
+        "depth": 39,
+        "trace_checks": []
+      },
+      {
+        "model": "ElevatorLivenessLarge",
+        "arm": "positive-image",
+        "wall_s": 1.59,
+        "rss_kib": 73912,
+        "labels_ms": 558.89,
+        "product_ms": 297.04,
+        "batch": {
+          "plans": 20,
+          "producer_absent": 70214,
+          "producer_positive": 136798,
+          "rows": 217370
+        },
+        "verdict": "success",
+        "distinct": 50653,
+        "generated": 230899,
+        "depth": 39,
+        "trace_checks": []
+      },
+      {
+        "model": "ElevatorLivenessLarge",
+        "arm": "window",
+        "wall_s": 1.67,
+        "rss_kib": 73844,
+        "labels_ms": 668.79,
+        "product_ms": 287.22,
+        "batch": {
+          "plans": 20,
+          "producer_absent": 70214,
+          "rows": 217370
+        },
+        "verdict": "success",
+        "distinct": 50653,
+        "generated": 230899,
+        "depth": 39,
+        "trace_checks": []
+      },
+      {
+        "model": "ElevatorLivenessLarge",
+        "arm": "window",
+        "wall_s": 1.73,
+        "rss_kib": 73892,
+        "labels_ms": 688.56,
+        "product_ms": 298.94,
+        "batch": {
+          "plans": 20,
+          "producer_absent": 70214,
+          "rows": 217370
+        },
+        "verdict": "success",
+        "distinct": 50653,
+        "generated": 230899,
+        "depth": 39,
+        "trace_checks": []
+      },
+      {
+        "model": "ElevatorLivenessLarge",
+        "arm": "positive-image",
+        "wall_s": 1.55,
+        "rss_kib": 74052,
+        "labels_ms": 545.59,
+        "product_ms": 288.31,
+        "batch": {
+          "plans": 20,
+          "producer_absent": 70214,
+          "producer_positive": 136798,
+          "rows": 217370
+        },
+        "verdict": "success",
+        "distinct": 50653,
+        "generated": 230899,
+        "depth": 39,
+        "trace_checks": []
+      },
+      {
+        "model": "four-floor",
+        "arm": "window",
+        "wall_s": 5.79,
+        "rss_kib": 175848,
+        "labels_ms": 2202.66,
+        "product_ms": 1403.93,
+        "batch": {
+          "plans": 22,
+          "producer_absent": 191268,
+          "rows": 593260
+        },
+        "verdict": "liveness-violation",
+        "distinct": 150372,
+        "generated": 717693,
+        "depth": 20,
+        "trace_checks": [
+          "valid",
+          "invalid"
+        ]
+      },
+      {
+        "model": "four-floor",
+        "arm": "positive-image",
+        "wall_s": 5.41,
+        "rss_kib": 193960,
+        "labels_ms": 1836.15,
+        "product_ms": 1403.41,
+        "batch": {
+          "plans": 22,
+          "producer_absent": 191268,
+          "producer_positive": 364393,
+          "rows": 593260
+        },
+        "verdict": "liveness-violation",
+        "distinct": 150372,
+        "generated": 717693,
+        "depth": 20,
+        "trace_checks": [
+          "valid",
+          "invalid"
+        ]
+      },
+      {
+        "model": "four-floor",
+        "arm": "positive-image",
+        "wall_s": 5.39,
+        "rss_kib": 192120,
+        "labels_ms": 1828.73,
+        "product_ms": 1396.97,
+        "batch": {
+          "plans": 22,
+          "producer_absent": 191268,
+          "producer_positive": 364393,
+          "rows": 593260
+        },
+        "verdict": "liveness-violation",
+        "distinct": 150372,
+        "generated": 717693,
+        "depth": 20,
+        "trace_checks": [
+          "valid",
+          "invalid"
+        ]
+      },
+      {
+        "model": "four-floor",
+        "arm": "window",
+        "wall_s": 6.0,
+        "rss_kib": 192388,
+        "labels_ms": 2271.07,
+        "product_ms": 1458.8,
+        "batch": {
+          "plans": 22,
+          "producer_absent": 191268,
+          "rows": 593260
+        },
+        "verdict": "liveness-violation",
+        "distinct": 150372,
+        "generated": 717693,
+        "depth": 20,
+        "trace_checks": [
+          "valid",
+          "invalid"
+        ]
+      },
+      {
+        "model": "four-floor",
+        "arm": "window",
+        "wall_s": 5.81,
+        "rss_kib": 192460,
+        "labels_ms": 2208.6,
+        "product_ms": 1407.74,
+        "batch": {
+          "plans": 22,
+          "producer_absent": 191268,
+          "rows": 593260
+        },
+        "verdict": "liveness-violation",
+        "distinct": 150372,
+        "generated": 717693,
+        "depth": 20,
+        "trace_checks": [
+          "valid",
+          "invalid"
+        ]
+      },
+      {
+        "model": "four-floor",
+        "arm": "positive-image",
+        "wall_s": 5.41,
+        "rss_kib": 175964,
+        "labels_ms": 1826.41,
+        "product_ms": 1394.13,
+        "batch": {
+          "plans": 22,
+          "producer_absent": 191268,
+          "producer_positive": 364393,
+          "rows": 593260
+        },
+        "verdict": "liveness-violation",
+        "distinct": 150372,
+        "generated": 717693,
+        "depth": 20,
+        "trace_checks": [
+          "valid",
+          "invalid"
+        ]
+      }
+    ]
+  },
+  "token_ring": {
+    "source": "Pinned Manyan bench/liveness.tla split after the ==== line per upstream. N=5, K=3, both Visits and Served, original WF(Pass) and WF(Work). Same node as Elevator, fresh processes, seed/fp 0, one worker. order-base is unmodified main after #1350, sha256 580c1eb6cb69f313be103d72b69d9a45143044bfaf8cf976fd29837caa73b718.",
+    "runs": [
+      {
+        "arm": "order-base",
+        "status": 0,
+        "wall_rss": "0.43 36828",
+        "verdict": "success",
+        "stats": {
+          "depth": 41,
+          "distinct": 38880,
+          "generated": 116641,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "batch": {
+          "plans": 2,
+          "rows": 38880
+        },
+        "phases": {
+          "atoms": 93.17333099999999,
+          "product": 239.539088
+        }
+      },
+      {
+        "arm": "checked-image",
+        "status": 0,
+        "wall_rss": "0.42 37084",
+        "verdict": "success",
+        "stats": {
+          "depth": 41,
+          "distinct": 38880,
+          "generated": 116641,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "batch": {
+          "plans": 2,
+          "producer_images": 38880,
+          "rows": 38880
+        },
+        "phases": {
+          "atoms": 88.941969,
+          "product": 237.108583
+        }
+      },
+      {
+        "arm": "published-manyan",
+        "status": 0,
+        "wall_rss": "0.26 34164",
+        "counts": [
+          [
+            "116641",
+            "38880",
+            "0"
+          ]
+        ]
+      },
+      {
+        "arm": "published-manyan",
+        "status": 0,
+        "wall_rss": "0.27 34176",
+        "counts": [
+          [
+            "116641",
+            "38880",
+            "0"
+          ]
+        ]
+      },
+      {
+        "arm": "checked-image",
+        "status": 0,
+        "wall_rss": "0.42 37008",
+        "verdict": "success",
+        "stats": {
+          "depth": 41,
+          "distinct": 38880,
+          "generated": 116641,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "batch": {
+          "plans": 2,
+          "producer_images": 38880,
+          "rows": 38880
+        },
+        "phases": {
+          "atoms": 89.571703,
+          "product": 238.20071499999997
+        }
+      },
+      {
+        "arm": "order-base",
+        "status": 0,
+        "wall_rss": "0.43 37000",
+        "verdict": "success",
+        "stats": {
+          "depth": 41,
+          "distinct": 38880,
+          "generated": 116641,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "batch": {
+          "plans": 2,
+          "rows": 38880
+        },
+        "phases": {
+          "atoms": 92.97041200000001,
+          "product": 239.52679
+        }
+      },
+      {
+        "arm": "order-base",
+        "status": 0,
+        "wall_rss": "0.43 36956",
+        "verdict": "success",
+        "stats": {
+          "depth": 41,
+          "distinct": 38880,
+          "generated": 116641,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "batch": {
+          "plans": 2,
+          "rows": 38880
+        },
+        "phases": {
+          "atoms": 92.834498,
+          "product": 239.048213
+        }
+      },
+      {
+        "arm": "checked-image",
+        "status": 0,
+        "wall_rss": "0.42 36836",
+        "verdict": "success",
+        "stats": {
+          "depth": 41,
+          "distinct": 38880,
+          "generated": 116641,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "batch": {
+          "plans": 2,
+          "producer_images": 38880,
+          "rows": 38880
+        },
+        "phases": {
+          "atoms": 89.85539499999999,
+          "product": 238.78858
+        }
+      },
+      {
+        "arm": "published-manyan",
+        "status": 0,
+        "wall_rss": "0.27 34236",
+        "counts": [
+          [
+            "116641",
+            "38880",
+            "0"
+          ]
+        ]
+      }
+    ]
+  }
+}

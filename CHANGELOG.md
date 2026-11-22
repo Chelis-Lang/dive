@@ -11,6 +11,8 @@ are in git history.
 
 - Core keeps the component search available on larger fairness graphs. On six-floor Elevator, Core found a validated counterexample in 73.33 s at 541 MiB peak RSS. [Fairness](docs/user/temporal.md#fairness)
 
+- Core reuses values written by a deterministic successor when checking [fairness on original transitions](docs/user/temporal.md#fairness).
+
 - Single-worker Core checks can reuse original successors to answer [fairness enabledness queries](docs/user/temporal.md#fairness) while preserving warnings, action bindings and stuttering semantics.
 
 - Core keeps using closed-source [fairness enabledness](docs/user/temporal.md#fairness) above one million expanded states by reading the original actions for one window of source states at a time.

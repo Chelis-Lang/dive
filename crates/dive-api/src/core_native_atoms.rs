@@ -29,6 +29,7 @@ struct Compiled {
     batch: Option<dive_core::compile::ActionBatch>,
     column: Option<prefix::Column>,
     emission: Option<(usize, dive_core::compile::ClosedEnabled)>,
+    producer: Option<usize>,
     identity: *const PredicateAtom,
     plan: dive_core::plan::Plan,
     false_guard: Option<dive_core::plan::P>,
@@ -130,6 +131,8 @@ pub(crate) struct NativeAtoms {
     prefix_bytes: usize,
     prefix_cells_reused: u64,
     live_emissions: bool,
+    producer_images: [Option<dive_core::compile::ClosedEnabled>; 64],
+    image_hits: u64,
     emission_hits: [u64; 2],
     emission_peak_bytes: usize,
     projected: dive_core::memo::Memo,
@@ -314,6 +317,15 @@ impl NativeAtoms {
                 continue;
             }
             result.compiled.push(Compiled {
+                producer: if false_guard
+                    .batch
+                    .as_ref()
+                    .is_some_and(dive_core::compile::ActionBatch::accepts_generated_image)
+                {
+                    bound_next::action_index(model, atom.pred.expr, &atom.pred.scope)
+                } else {
+                    None
+                },
                 batch: false_guard.batch,
                 column: None,
                 emission: false_guard.closed_enabled.and_then(|cert| {
@@ -353,6 +365,7 @@ impl NativeAtoms {
                 dive_liveness::formula::AtomKind::Action => result.eligible_action += 1,
             }
         }
+        result.bind_generated_images();
         result.projected = dive_core::memo::Memo::new(&key_lengths);
         result.projected.set_cap(8 << 20);
         control.check().map_err(|cause| {
@@ -363,6 +376,16 @@ impl NativeAtoms {
                 })
         })?;
         Ok(result)
+    }
+
+    fn bind_generated_images(&mut self) {
+        for compiled in &self.compiled {
+            if let Some((id, cert)) = compiled.emission
+                && let Some(item) = self.producer_images.get_mut(id)
+            {
+                *item = Some(cert);
+            }
+        }
     }
 
     fn empty(
@@ -376,6 +399,8 @@ impl NativeAtoms {
             prefix_bytes: 0,
             prefix_cells_reused: 0,
             live_emissions: false,
+            producer_images: [None; 64],
+            image_hits: 0,
             emission_hits: [0; 2],
             emission_peak_bytes: 0,
             projected: dive_core::memo::Memo::default(),
@@ -440,7 +465,7 @@ impl NativeAtoms {
 
     pub(crate) fn metrics(&self) -> serde_json::Value {
         serde_json::json!({"total_atoms": self.total, "eligible_atoms": self.eligible,
-            "action_batches":{"plans":self.compiled.iter().filter(|p|p.batch.is_some()).count(),"rows":self.batch_rows},
+            "action_batches":{"plans":self.compiled.iter().filter(|p|p.batch.is_some()).count(),"rows":self.batch_rows, "producer_images": self.image_hits},
             "unchanged_target_guards":{"plans":self.compiled.iter().filter(|p|p.unchanged_guard.is_some()).count(),"probes":self.unchanged_probes,"rows":self.unchanged_rows,"edges":self.unchanged_edges},
             "action_source_guards": {"plans": self.compiled.iter().filter(|p| p.false_guard.is_some()).count(),
                 "probes": self.guard_probes, "false_rows": self.guard_rows},
@@ -1332,6 +1357,21 @@ impl NativeReader for Reader<'_, '_> {
             .representative_row(source)
             .ok_or(AnalysisError::Inconsistent("native action batch source"))?;
         let source_row = retained.row(before)?;
+        let producer = compiled.producer.and_then(|id| {
+            let cert = self.atoms.producer_images.get(id).copied().flatten()?;
+            (self.atoms.live_emissions
+                && self.prefix.is_some()
+                && self
+                    .emission_capture
+                    .as_ref()
+                    .is_some_and(|original| original.same_validation(graph))
+                && source < graph.closed_rows()
+                && compiled.exhausted_in_a_row == 0
+                && ((cert.quiet_suffix && cert.quiet_guards)
+                    || !self.atoms.machine.heap.store().saw_missing_update()))
+            .then_some((id, cert.boolean_guard_prefix))
+        });
+        let mut emission = None;
         let mut rows = [source_row; 16];
         let mut ids = [before; 16];
         for pos in 0..len - 1 {
@@ -1345,26 +1385,34 @@ impl NativeReader for Reader<'_, '_> {
                 return Ok(None);
             }
             rows[pos] = retained.row(original)?;
+            if let Some((id, quiet)) = producer
+                && emission.is_none()
+                && graph.original_action(source, pos) == u32::try_from(id).ok()
+            {
+                emission = Some((rows[pos], quiet));
+            }
             ids[pos] = original;
         }
         check(&self.atoms.control, control)?;
-        let bits = batch.evaluate(
+        let bits = batch.evaluate_image(
             &compiled.plan,
             &mut self.atoms.machine,
             source_row,
             &rows[..len],
             self.atoms.fuel,
+            emission,
         );
         check(&self.atoms.control, control)?;
-        if let Some(bits) = bits {
+        if let Some((bits, consumed)) = bits {
             self.atoms.batch_rows += 1;
+            self.atoms.image_hits += u64::from(consumed);
             if self.atoms.audit {
                 for (pos, &after) in ids[..len].iter().enumerate() {
                     self.audit(atom, before, Some(after), bits & (1 << pos) != 0, control)?;
                 }
             }
         }
-        Ok(bits)
+        Ok(bits.map(|(truth, _)| truth))
     }
 
     fn closed_state_predicate(
@@ -1973,10 +2021,7 @@ P == <>(gate=1)
         .expect("committed frontier")
     }
 
-    #[test]
-    fn closed_emissions_bind_arguments_and_skip_only_quiet_complete_originals() {
-        use dive_runtime::capture::CsrCapture;
-        let src = r"---- MODULE Atoms ----
+    const OVERLAPPING_ACTIONS: &str = r"---- MODULE Atoms ----
 EXTENDS Naturals
 VARIABLES x, r
 vars == <<x,r>>
@@ -1990,6 +2035,74 @@ Next == (\E i \in 0..1: A(i)) \/ Other \/ Stut
 Spec == Init /\ [][Next]_vars /\ (\A i \in 0..1: WF_vars(A(i))) /\ WF_vars(Stut)
 P == <>(x=1)
 ====";
+
+    #[test]
+    fn producer_images_require_the_original_capture_on_overlapping_bound_actions() {
+        use dive_runtime::capture::CsrCapture;
+        let src = OVERLAPPING_ACTIONS;
+        with_wrappers(src, false, |prepared, driver, atoms, control| {
+            let options = dive_runtime::CheckOptions::dive(0);
+            atoms.enable_live_emissions(&prepared.model, &options);
+            let (graph, mut values) = capture(prepared, &options);
+            let csr =
+                CsrCapture::checked_targets(graph.input(), graph.limits(), control).expect("csr");
+            // A caller can construct another checked view over the same
+            // offsets with every generated action tag missing. Only the
+            // original producer view may supply semantic evidence.
+            let unknown_actions = vec![None; *csr.offsets().last().expect("edge count")];
+            let replaced = CsrCapture::checked_targets(
+                dive_runtime::capture::CsrTargetStorage {
+                    actions: dive_runtime::capture::CsrActions::Expanded(&unknown_actions),
+                    ..graph.input()
+                },
+                graph.limits(),
+                control,
+            )
+            .expect("another shape-valid view");
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            reader.live_prefix(true);
+            reader.live_emission_capture(&csr);
+            reader.live_emission_capture(&replaced);
+            reader.atoms.audit = true;
+            // Certify every physical input. Original producer tags may shortcut
+            // writes, including transitions shared with Other. Replacing the
+            // capture token must give the same truth without consuming an image.
+            for row in 0..graph.input().retained_rows {
+                assert!(
+                    reader
+                        .proofs
+                        .closed(&reader.atoms.machine.heap, row)
+                        .expect("closed")
+                );
+            }
+            for action in driver
+                .native_predicates()
+                .filter(|a| matches!(a.test, AtomTest::Nonstuttering { .. }))
+            {
+                for source in 0..csr.closed_rows() {
+                    let bits = reader
+                        .action_row(action, &csr, source, control)
+                        .expect("original");
+                    let hits = reader.atoms.image_hits;
+                    assert_eq!(
+                        reader
+                            .action_row(action, &replaced, source, control)
+                            .expect("replacement"),
+                        bits
+                    );
+                    assert_eq!(reader.atoms.image_hits, hits);
+                }
+            }
+            assert!(reader.atoms.image_hits > 0);
+            assert!(reader.atoms.audit_mismatch().is_none());
+        });
+    }
+
+    #[test]
+    fn closed_emissions_bind_arguments_and_skip_only_quiet_complete_originals() {
+        use dive_runtime::capture::CsrCapture;
+
+        let src = OVERLAPPING_ACTIONS;
         with_wrappers(src, false, |prepared, driver, atoms, control| {
             let options = dive_runtime::CheckOptions::dive(0);
             atoms.enable_live_emissions(&prepared.model, &options);
@@ -2122,6 +2235,35 @@ P == <>(x=1)
                 );
             }
             assert_eq!(reader.atoms.emission_hits, [0, 0]);
+        });
+    }
+
+    #[test]
+    fn only_sequential_value_guards_certify_boolean_action_demand() {
+        let src = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLES x,y
+vars == <<x,y>>
+Init == x=0 /\ y=0
+Plain == /\ x=0 /\ y/=1 /\ x'=1 /\ UNCHANGED y
+Quantified == /\ (\E k \in {x}: k=0) /\ x'=1 /\ UNCHANGED y
+Next == Plain \/ Quantified
+Spec == Init /\ [][Next]_vars /\ WF_vars(Plain) /\ WF_vars(Quantified)
+P == <> (x=1)
+====";
+        with_wrappers(src, false, |prepared, driver, atoms, _| {
+            let mut found = Vec::new();
+            for atom in driver
+                .native_predicates()
+                .filter(|a| matches!(a.test, AtomTest::Enabled { .. }))
+            {
+                let compiled = &atoms.compiled[atoms.position(atom).expect("prepared")];
+                let (index, cert) = compiled.emission.expect("both enabled generators admitted");
+                let label = prepared.model.actions[index].label();
+                found.push((label.starts_with("<Plain "), cert.boolean_guard_prefix));
+            }
+            found.sort_unstable();
+            assert_eq!(found, [(false, false), (true, true)]);
         });
     }
 
