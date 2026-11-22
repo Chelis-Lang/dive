@@ -1,0 +1,711 @@
+{
+  "title": "String guards on process tables in ordinary Core",
+  "issue": 1302,
+  "basis": "175ae82a0d9ceced015edf5297d8821801be4bef",
+  "machine": "One dedicated EC2 c7i.4xlarge with Intel Xeon Platinum 8488C, Ubuntu 24.04, eight physical cores and 16 vCPUs. CPU affinity 0-7 selects one logical CPU per physical core. Fresh sequential CLI processes. Times are GNU time wall seconds and peak process RSS in KiB.",
+  "build": "rustc 1.99.0; CARGO_PROFILE_RELEASE_LTO=off CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16 cargo build --release --locked -p dive-cli --bin dive",
+  "inputs": {
+    "flint_source": "https://github.com/ddalton/flint/blob/a466e4634a483fd8da57c97e41b8aa3d78bd5f45/lean/formal/LeanP1.tla",
+    "flint_configs": "Original authors\u2019 one-barrier three-writer control, changing only MaxBarriers to 2 for the two-barrier control. See 2026-11-21-flint-leanp1.json. Eight invariants; Prop_NoSilentRevert and Prop_DeleteSettles.",
+    "bakery": "https://github.com/tlaplus/Examples/tree/6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/Bakery-Boulangerie",
+    "bakery_config": "Original MCBakery.cfg: ISpec, N=2, MaxNat=2, MutualExclusion, TypeOK, Inv, CHECK_DEADLOCK FALSE.",
+    "grid": "Grid.tla is a no-label control: EXTENDS Naturals; CONSTANT N; VARIABLES x,y; Init == x = 0 /\\ y = 0; Next == (x' = (x+1) % N /\\ UNCHANGED y) \\/ (y' = (y+1) % N /\\ UNCHANGED x); InRange == x \\in 0..(N-1) /\\ y \\in 0..(N-1). INIT Init NEXT Next CONSTANT N=512 INVARIANT InRange."
+  },
+  "sha256": {
+    "base": "12ca87d61299ab309bdcb047fb27b11941160d51a3c4397010c1cd2ae2514da6",
+    "label": "28eedbac304203246dde3841790e369d75e0b722cdce8ddcdb28b4ab71cab0d5",
+    "arm": "997fdda6ee05f66baac6751b927a497413574dacfec2c6d5d124211d90548529",
+    "product": "d181742a8c9f79d6cf1b450384c0c5be731b76f9d04d611cb93ce3caa42d1116",
+    "shipped": "fef0ce2c8b69bb9950270f1a98aaa4ae6665c6bd3f020dc024d61cd2c1438d59",
+    "meter": "9f4a3e01eb36f1869c7b74a8d7d5314e31200c21dd0c2c80fe3ef6f45c8dd187",
+    "LeanP1.tla": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+    "LeanP1Size3L1W3.cfg": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+    "TwoBarriers.cfg": "57e6078dd07297b19887f87d5b08bddebd455a249d1b725eb7b5a5bf59746775",
+    "Bakery.tla": "3b2a3f370e5f0fde8660b3ef09932d579c9bd2ccd249a5ce2304007bf24da8d5",
+    "MCBakery.tla": "e30e4fc5558357406b890b3249eda6ec0ec7d5e191b1469adc3774990c1fbe25",
+    "MCBakery.cfg": "27204f5e0a0a6dc62748f1148d7aa65ed0a8d7e1cb0bf9daf59beee57246c8f5"
+  },
+  "variants": {
+    "base": "Ordinary Core before label lowering.",
+    "label": "Share a string selection across guarded sites. Retain normal action-frame entry.",
+    "arm": "Also skip provably disabled split frames and conjunctive disjunction arms.",
+    "product": "Integrated arm variant with common bound-frame execution, graph scheduling recognition and eight-entry heap-local selector layout.",
+    "shipped": "Integrated code plus an explicit fallback for low-level callers that attach an instruction observer to an ordinarily compiled plan. Public mapped debug builds disable lowering at compile time. The final confirmation uses this binary.",
+    "meter": "Untimed operation-counting build of the shipped variant."
+  },
+  "command": "taskset -c 0-7 ARM check MODULE --config CFG --store fp --compat=tlc --workers 8 --seed 0 --fp 0 --max-memory 24g --time-limit LIMIT --output json. LIMIT=120s for one barrier and final Bakery/grid, 80s for initial Bakery measurements, 220s for two barriers. Diagnostics/replay are separate runs.",
+  "profile": "An eight-core small Flint CPU sample attributed 13.55% of self CPU to Memo::get. Isolated last-slot and hash changes had neutral and 1.4% effects. See https://github.com/Chelis-Lang/dive/issues/1291#issuecomment-7078680977 and https://github.com/Chelis-Lang/dive/issues/1302 for the source-factor control.",
+  "fields": [
+    "wall_s",
+    "peak_rss_kib",
+    "expand_ms",
+    "commit_ms",
+    "reported_worker_memo_lookups"
+  ],
+  "timed": {
+    "flint_one": {
+      "verdict": "success",
+      "statistics": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "stages": {
+        "label_instruction": {
+          "base": [
+            [
+              5.82,
+              310308,
+              5485,
+              292,
+              11253550
+            ],
+            [
+              5.78,
+              314356,
+              5464,
+              281,
+              11207501
+            ],
+            [
+              5.82,
+              320484,
+              5496,
+              287,
+              11155043
+            ]
+          ],
+          "label": [
+            [
+              4.87,
+              140232,
+              4560,
+              273,
+              4019471
+            ],
+            [
+              4.88,
+              134744,
+              4571,
+              273,
+              4037490
+            ],
+            [
+              4.86,
+              137620,
+              4541,
+              279,
+              3954459
+            ]
+          ]
+        },
+        "early_arm": {
+          "arm": [
+            [
+              4.85,
+              136508,
+              4534,
+              279,
+              3904596
+            ],
+            [
+              4.84,
+              137268,
+              4522,
+              277,
+              4004612
+            ],
+            [
+              4.83,
+              140080,
+              4516,
+              277,
+              3957206
+            ]
+          ],
+          "base": [
+            [
+              5.79,
+              311464,
+              5462,
+              287,
+              10904604
+            ],
+            [
+              5.77,
+              312296,
+              5454,
+              281,
+              11133920
+            ],
+            [
+              5.86,
+              312452,
+              5525,
+              295,
+              11299679
+            ]
+          ]
+        },
+        "integrated": {
+          "base": [
+            [
+              5.81,
+              316544,
+              5483,
+              289,
+              11189448
+            ],
+            [
+              5.86,
+              304888,
+              5523,
+              293,
+              11040570
+            ],
+            [
+              5.81,
+              318588,
+              5487,
+              286,
+              11312722
+            ]
+          ],
+          "product": [
+            [
+              4.9,
+              137620,
+              4587,
+              278,
+              3929256
+            ],
+            [
+              4.81,
+              134352,
+              4494,
+              273,
+              3985897
+            ],
+            [
+              4.86,
+              132272,
+              4550,
+              273,
+              3937542
+            ]
+          ]
+        },
+        "observer_fallback_confirmation": {
+          "base": [
+            [
+              5.79,
+              316324,
+              5464,
+              286,
+              11643238
+            ]
+          ],
+          "shipped": [
+            [
+              4.8,
+              138448,
+              4484,
+              274,
+              3859127
+            ]
+          ]
+        }
+      }
+    },
+    "bakery": {
+      "verdict": "success",
+      "statistics": {
+        "depth": 1,
+        "distinct": 655200,
+        "generated": 3403584,
+        "initial_generated": 655200,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "stages": {
+        "label_instruction": {
+          "base": [
+            [
+              4.68,
+              64460,
+              824,
+              98,
+              10431572
+            ],
+            [
+              4.59,
+              64660,
+              694,
+              103,
+              10413322
+            ],
+            [
+              4.65,
+              64692,
+              787,
+              98,
+              9977075
+            ]
+          ],
+          "label": [
+            [
+              4.67,
+              66464,
+              750,
+              100,
+              8534595
+            ],
+            [
+              4.59,
+              64532,
+              662,
+              104,
+              8538207
+            ],
+            [
+              4.66,
+              64712,
+              719,
+              102,
+              8536920
+            ]
+          ]
+        },
+        "early_arm": {
+          "arm": [
+            [
+              4.59,
+              64508,
+              687,
+              101,
+              8541714
+            ],
+            [
+              4.52,
+              64568,
+              613,
+              102,
+              8542766
+            ],
+            [
+              4.51,
+              64392,
+              592,
+              103,
+              8538551
+            ]
+          ],
+          "base": [
+            [
+              4.7,
+              64364,
+              829,
+              104,
+              10387714
+            ],
+            [
+              4.65,
+              64716,
+              791,
+              98,
+              10267314
+            ],
+            [
+              4.57,
+              64612,
+              707,
+              101,
+              10304493
+            ]
+          ]
+        },
+        "integrated": {
+          "base": [
+            [
+              4.57,
+              64852,
+              692,
+              106,
+              10351838
+            ],
+            [
+              4.59,
+              64728,
+              721,
+              100,
+              10323974
+            ],
+            [
+              4.57,
+              64308,
+              707,
+              100,
+              10315347
+            ]
+          ],
+          "product": [
+            [
+              4.47,
+              66344,
+              609,
+              104,
+              8537032
+            ],
+            [
+              4.56,
+              64608,
+              701,
+              102,
+              8539913
+            ],
+            [
+              4.56,
+              64440,
+              712,
+              102,
+              8539006
+            ]
+          ]
+        },
+        "observer_fallback_confirmation": {
+          "base": [
+            [
+              4.58,
+              64484,
+              709,
+              101,
+              10198124
+            ]
+          ],
+          "shipped": [
+            [
+              4.56,
+              64516,
+              694,
+              101,
+              8537590
+            ]
+          ]
+        }
+      }
+    },
+    "flint_two": {
+      "verdict": "success",
+      "statistics": {
+        "depth": 40,
+        "distinct": 7924117,
+        "generated": 33356883,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "stages": {
+        "label_instruction": {
+          "base": [
+            [
+              102.22,
+              567140,
+              96540,
+              5636,
+              200136292
+            ]
+          ],
+          "label": [
+            [
+              84.55,
+              379704,
+              79154,
+              5351,
+              72197235
+            ]
+          ]
+        },
+        "early_arm": {
+          "arm": [
+            [
+              83.17,
+              378828,
+              77781,
+              5348,
+              71666694
+            ]
+          ]
+        },
+        "integrated": {
+          "product": [
+            [
+              83.49,
+              378496,
+              78151,
+              5294,
+              71620101
+            ]
+          ],
+          "base": [
+            [
+              102.16,
+              551376,
+              96447,
+              5671,
+              197927668
+            ]
+          ]
+        },
+        "observer_fallback_confirmation": {
+          "shipped": [
+            [
+              84.03,
+              378604,
+              78712,
+              5273,
+              70616496
+            ]
+          ]
+        }
+      }
+    },
+    "integer_grid": {
+      "verdict": "success",
+      "statistics": {
+        "depth": 1023,
+        "distinct": 262144,
+        "generated": 524289,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "stages": {
+        "integrated": {
+          "base": [
+            [
+              0.39,
+              56196,
+              281,
+              88,
+              108939
+            ],
+            [
+              0.38,
+              58092,
+              273,
+              88,
+              110554
+            ],
+            [
+              0.35,
+              58188,
+              237,
+              89,
+              106362
+            ]
+          ],
+          "product": [
+            [
+              0.36,
+              60320,
+              254,
+              87,
+              128655
+            ],
+            [
+              0.36,
+              54176,
+              252,
+              88,
+              125948
+            ],
+            [
+              0.4,
+              60360,
+              290,
+              89,
+              126174
+            ]
+          ]
+        },
+        "observer_fallback_confirmation": {
+          "base": [
+            [
+              0.36,
+              60164,
+              256,
+              87,
+              102365
+            ]
+          ],
+          "shipped": [
+            [
+              0.37,
+              61936,
+              260,
+              87,
+              119078
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "init_prefix": {
+    "base": {
+      "command_extra": "--max-states 655199",
+      "row": [
+        3.8,
+        39908,
+        0,
+        0,
+        8521683
+      ],
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 1,
+        "distinct": 655199,
+        "exhaustive": false,
+        "generated": 655200,
+        "initial_generated": 655200,
+        "left_on_queue": 655199,
+        "reported_by_tlc": false
+      }
+    },
+    "product": {
+      "command_extra": "--max-states 655199",
+      "row": [
+        3.76,
+        39668,
+        0,
+        0,
+        8521683
+      ],
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 1,
+        "distinct": 655199,
+        "exhaustive": false,
+        "generated": 655200,
+        "initial_generated": 655200,
+        "left_on_queue": 655199,
+        "reported_by_tlc": false
+      }
+    }
+  },
+  "one_worker_exact": {
+    "LeanP1Size3L1W3": {
+      "command_overrides": "--store exact --workers 1 --time-limit 1200s",
+      "row": [
+        31.68,
+        78328,
+        0,
+        0,
+        29766630
+      ],
+      "exact_states": 449595,
+      "statistics": {
+        "depth": 33,
+        "distinct": 449595,
+        "generated": 1954072,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success"
+    },
+    "TwoBarriers": {
+      "command_overrides": "--store exact --workers 1 --time-limit 1200s",
+      "row": [
+        546.37,
+        694584,
+        0,
+        0,
+        537593925
+      ],
+      "exact_states": 7924117,
+      "statistics": {
+        "depth": 40,
+        "distinct": 7924117,
+        "generated": 33356883,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success"
+    }
+  },
+  "independent_replay": {
+    "recipe": "BarrierFault renames LeanP1, inserts BarrierBound == barriers = 0 before END MODULE and appends INVARIANT BarrierBound to TwoBarriers.cfg. BakeryFault renames MCBakery, adds StableLabels == [][pc' = pc]_vars and appends PROPERTY StableLabels to MCBakery.cfg. Check under --store exact and validate counterexample.trace using validate-trace with the same module, config, profile, seed and fp. Repeat after changing the final barriers or pc value to 9.",
+    "runs": [
+      {
+        "module": "BarrierFault",
+        "workers": 1,
+        "property": "BarrierBound",
+        "exit_code": 12,
+        "length": 4,
+        "valid": "valid",
+        "damaged": "invalid",
+        "failed_step": 3,
+        "wall_sec": 0.04,
+        "peak_rss_kib": 32104
+      },
+      {
+        "module": "BarrierFault",
+        "workers": 8,
+        "property": "BarrierBound",
+        "exit_code": 12,
+        "length": 4,
+        "valid": "valid",
+        "damaged": "invalid",
+        "failed_step": 3,
+        "wall_sec": 0.04,
+        "peak_rss_kib": 59164
+      },
+      {
+        "module": "BakeryFault",
+        "workers": 1,
+        "property": "StableLabels",
+        "exit_code": 13,
+        "length": 2,
+        "valid": "valid",
+        "damaged": "invalid",
+        "failed_step": 1,
+        "wall_sec": 3.87,
+        "peak_rss_kib": 77336
+      },
+      {
+        "module": "BakeryFault",
+        "workers": 8,
+        "property": "StableLabels",
+        "exit_code": 13,
+        "length": 2,
+        "valid": "valid",
+        "damaged": "invalid",
+        "failed_step": 1,
+        "wall_sec": 3.9,
+        "peak_rss_kib": 101888
+      }
+    ]
+  },
+  "dispatch_counts": {
+    "flint_one": {
+      "eligible_split_probes": 4046355,
+      "rejected_before_frame": 0,
+      "rejected_nested_arms": 889974,
+      "emitted_next_occurrences": 1954071
+    },
+    "bakery": {
+      "eligible_split_probes": 11793600,
+      "rejected_before_frame": 9414720,
+      "rejected_nested_arms": 0,
+      "emitted_next_occurrences": 2748384
+    }
+  },
+  "dispatch_method": "Untimed instrumented product binary with three integer counters summed at worker destruction. Count split probes reaching the preset lookup, split actions rejected before entering their frame, and nested conjunctive arms rejected before their continuations. Split and nested counts are actual rejected trials, including repeated labels. They exclude ordinary false guards after entry. Same configs, worker counts and affinity. No timings above use the instrumented build.",
+  "interpretation": "Flint executes many tests against the same compiled input table and binding. A worker can compare the full persistent table, scalar binding, and field before reusing its selected string. Redundant per-guard memo probes and table allocations disappear. Bakery starts with all reachable states under ISpec; its Init-only control never enters Next. Treat its small total differences as neutral. These controls do not predict a three-barrier wall time.",
+  "native_peer_followup": "https://github.com/Chelis-Lang/dive/issues/1302"
+}

@@ -351,6 +351,12 @@ and checks `Serializable'` on each. `Serializable` enumerates
 site, the run completes in 3.3 s with TLC's counts. TLC takes 417 s on the
 same host. Fixtures are in `core-primed-memo`, through `core_primed_memo.rs`.
 
+### 2.5 String guards on process tables
+
+After action splitting, Core recognizes `pc[p] = "label"` and `workers[p].field = "label"` in pure plans when memoization is enabled. Each worker heap has eight slots for the last successful string projections. A hit checks the complete persistent table handle, scalar binding and field. Each slot takes four handles including the resulting string. Arena values and lazy table identities are ineligible. Replacing the heap during Store reclamation also replaces these entries.
+
+A known false label can skip a nested disjunction arm or a bound action frame only when it is the first expression the original arm would demand. All matching arms execute at their original positions. Missing or differently typed values follow the normal evaluator's error and comparison rules. Finite-fuel, observed and nonexhaustive execution retains ordinary guard evaluation. [Measurements on Flint and Bakery](../../../conformance/reports/perf/2026-11-22-core-label-guards.json).
+
 ## 3. Read-set analysis
 
 The compiler computes read sets during the pass that records reads and purity

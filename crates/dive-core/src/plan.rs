@@ -372,6 +372,16 @@ pub enum Node {
     },
 }
 
+/// A compiled comparison of `table[slot]` or `table[slot].field` with a string.
+#[derive(Clone, Copy, Debug)]
+pub struct LabelTest {
+    pub(crate) table: u16,
+    pub(crate) slot: u32,
+    pub(crate) field: Handle,
+    pub(crate) selector: P,
+    pub(crate) label: Handle,
+}
+
 /// A generator node.
 #[derive(Clone, Debug)]
 pub enum GNode {
@@ -389,6 +399,8 @@ pub enum GNode {
     /// A conjunction: items processed left to right as continuations; each
     /// item has a boolean form for the all-assigned shortcut.
     Conj(Box<[(G, P)]>),
+    /// A disjunction arm whose first demanded guard tests a bound process label.
+    LabelArm(Box<[(G, P)]>, LabelTest),
     /// A disjunction.
     Disj(Box<[G]>),
     /// Bounded `\E`.
@@ -495,6 +507,8 @@ pub enum GNode {
     },
     /// Any other formula: a boolean guard.
     Guard(P),
+    /// A string label tested on a finite table entry of the source state.
+    LabelGuard(P, LabelTest),
 }
 
 /// One item of a decomposed `UNCHANGED` (TLC's `processUnchanged`).

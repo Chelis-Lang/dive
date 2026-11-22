@@ -891,6 +891,9 @@ fn compile_inner(
             );
         }
     }
+    if opts.memo && !mapped && !c.effects.any {
+        crate::label_guard::lower(&mut c.code, &next);
+    }
     let mut plan = Plan {
         code: c.code,
         vars,
@@ -2337,7 +2340,7 @@ impl Compiler<'_> {
                 inner |= self.g_free(*first, out, depth + 1, instance)?;
                 inner |= self.g_free(*then, out, depth + 1, instance)?;
             }
-            GNode::Conj(items) => {
+            GNode::Conj(items) | GNode::LabelArm(items, _) => {
                 for &(g, x) in items {
                     p(x, out);
                     inner |= self.g_free(g, out, depth + 1, instance)?;
@@ -2404,7 +2407,7 @@ impl Compiler<'_> {
                 union(out, reset);
                 inner |= self.g_free(*body, out, depth + 1, instance)?;
             }
-            GNode::Guard(x) => p(*x, out),
+            GNode::Guard(x) | GNode::LabelGuard(x, _) => p(*x, out),
         }
         if unproved {
             return Err(Error::unsupported(

@@ -591,14 +591,7 @@ fn expand_one(
         }
         sink.action = i;
         let start = sink.emitted;
-        let old = m.enter(a.frame);
-        for &(slot, v) in &a.preset {
-            if let Some(x) = m.frame.get_mut(m.base + slot as usize) {
-                *x = v;
-            }
-        }
-        let r = m.run_action(code, a.g, &mut sink);
-        m.leave(old);
+        let r = m.run_bound_action(code, a, &mut sink);
         match r {
             Ok(()) => {}
             // The last successor recorded ends the search.

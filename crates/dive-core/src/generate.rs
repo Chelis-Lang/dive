@@ -134,6 +134,32 @@ impl Machine {
         r
     }
 
+    /// Runs a compiled action with its bound arguments and restores the caller's frame.
+    /// Exhaustive search may skip a disabled frame after proving its leading string test false.
+    ///
+    /// # Errors
+    /// As [`Self::run_action`].
+    pub fn run_bound_action(
+        &mut self,
+        code: &Code,
+        action: &crate::plan::Action,
+        sink: &mut dyn Sink,
+    ) -> Result<(), Error> {
+        if sink.exhaustive() && self.inactive_split(code, action) {
+            self.clear_buffer();
+            return Ok(());
+        }
+        let old = self.enter(action.frame);
+        for &(slot, value) in &action.preset {
+            if let Some(to) = self.frame.get_mut(self.base + slot as usize) {
+                *to = value;
+            }
+        }
+        let result = self.run_action(code, action.g, sink);
+        self.leave(old);
+        result
+    }
+
     /// Runs actual Next traversal with bounded randomized disjunction and
     /// existential ordering. The sink stops after its first admitted complete
     /// row; continuing searches remaining alternatives. `choose(n)` must return
@@ -401,7 +427,17 @@ impl Machine {
                 }
                 self.composition(code, *first, *then, reset, sink)
             }
-            GNode::Conj(items) => {
+            GNode::LabelArm(_, test)
+                if self.fuel == u64::MAX
+                    && self.debugger.is_none()
+                    && sink.exhaustive()
+                    && self
+                        .known_label(*test, self.slot(test.slot))
+                        .is_some_and(|value| value != test.label) =>
+            {
+                Ok(())
+            }
+            GNode::Conj(items) | GNode::LabelArm(items, _) => {
                 let Some((&(first, _), rest)) = items.split_first() else {
                     return self.cont(code, acts, sink);
                 };
@@ -568,6 +604,19 @@ impl Machine {
                 let r = self.gen_node(code, *body, acts, sink);
                 self.restore(mark, reset.iter().copied());
                 r
+            }
+            GNode::LabelGuard(p, test) => {
+                let matched =
+                    if self.fuel == u64::MAX && self.debugger.is_none() && sink.exhaustive() {
+                        self.label_matches(code, *p, *test)?
+                    } else {
+                        self.eval_bool(code, *p)?
+                    };
+                if matched {
+                    self.cont(code, acts, sink)
+                } else {
+                    Ok(())
+                }
             }
             GNode::Guard(p) => {
                 if self.eval_bool(code, *p)? {
