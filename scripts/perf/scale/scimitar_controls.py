@@ -41,7 +41,7 @@ def leaf(text, token):
     return lines[0].split(". ", 1)[1]
 
 
-def finite(dive, root, hypothesis):
+def finite(dive, root, hypothesis, carrier=("rm1", "rm2")):
     hyp = r" /\ " + hypothesis if hypothesis else ""
     spec = root / "Receive.tla"
     cfg = spec.with_suffix(".cfg")
@@ -52,7 +52,8 @@ Start == /\ TypeOK /\ H_TCConsistent /\ stepped = FALSE""" + hyp + r"""
 Receive == /\ ~stepped /\ RMRcvAbortMsgAction /\ stepped' = TRUE
 ====
 """)
-    cfg.write_text("CONSTANT RM = {rm1, rm2}\nINIT Start\nNEXT Receive\nINVARIANT H_TCConsistent\nCHECK_DEADLOCK FALSE\n")
+    cfg.write_text("CONSTANT RM = {" + ", ".join(carrier) + "}\nINIT Start\nNEXT Receive\n"
+                   "INVARIANT H_TCConsistent\nCHECK_DEADLOCK FALSE\n")
     common = [spec, "--config", cfg, "--output", "json", "--seed", "0", "--fp", "0"]
     r = subprocess.run([dive, "check", *common, "--store", "exact", "--workers", "1",
                         "--time-limit", "15s", "--exit-codes", "native"], text=True, capture_output=True, timeout=20)

@@ -1,0 +1,742 @@
+{
+  "schema": 1,
+  "source": "https://github.com/will62794/scimitar/tree/f1b902dc0801cf435cb9dd6e6be495d5ed121787/benchmarks",
+  "guide": "scripts/perf/scale/certify_twophase.py",
+  "base_formula": "TypeOK",
+  "tlc": "tlc-2026.10.06.014338",
+  "measurement": "Cold local wall time and peak RSS per invocation, including startup. The pool scans the published receive-abort obligation only. The native installed symbolic and discovered conjunction cover original Next.",
+  "tool_sha256": "088f79e0cbfaccfc82c99e63900b9ccd70823c307db8a30123cc10c59b68c8d6",
+  "dive_sha256": "8d3e35534d9d7b63b3c9ce410e8071d9d098079c190f199495a3d4c828a0162d",
+  "rows": [
+    {
+      "cfg": "INIT Init\nNEXT Next\nCONSTANT RM = {rm1,rm2}\nINVARIANT H_TCConsistent",
+      "certificate": {
+        "manifest": {
+          "source": "787afe81e60270d4b1489527504a4fb42c471d26a516bc0562126b57f23f0b87",
+          "config": "24a8ebb265466c0d881e12cc4c4d40fe40d0df56d4103c698077eb58a7054943",
+          "actions": [
+            "TMCommitAction",
+            "TMAbortAction",
+            "TMRcvPreparedAction",
+            "RMPrepareAction",
+            "RMChooseToAbortAction",
+            "RMRcvCommitMsgAction",
+            "RMRcvAbortMsgAction"
+          ],
+          "variables": [
+            "rmState",
+            "tmState",
+            "tmPrepared",
+            "msgsPrepared",
+            "msgsCommit",
+            "msgsAbort"
+          ],
+          "target": "H_TCConsistent",
+          "boundary": "check-target-before-filter"
+        },
+        "conjunction": [
+          "<<tmState, [type |-> \"Commit\"] \\in msgsCommit, [type |-> \"Abort\"] \\in msgsAbort>> \\in {<<\"aborted\", FALSE, TRUE>>, <<\"committed\", TRUE, FALSE>>, <<\"init\", FALSE, FALSE>>}",
+          "<<tmState, [type |-> \"Commit\"] \\in msgsCommit, [type |-> \"Abort\"] \\in msgsAbort>> = <<\"aborted\", FALSE, TRUE>> => (\\A r \\in RM : <<rmState[r], r \\in tmPrepared, [type |-> \"Prepared\", rm |-> r] \\in msgsPrepared>> \\in {<<\"aborted\", FALSE, FALSE>>, <<\"aborted\", FALSE, TRUE>>, <<\"aborted\", TRUE, TRUE>>, <<\"prepared\", FALSE, TRUE>>, <<\"prepared\", TRUE, TRUE>>, <<\"working\", FALSE, FALSE>>})",
+          "<<tmState, [type |-> \"Commit\"] \\in msgsCommit, [type |-> \"Abort\"] \\in msgsAbort>> = <<\"committed\", TRUE, FALSE>> => (\\A r \\in RM : <<rmState[r], r \\in tmPrepared, [type |-> \"Prepared\", rm |-> r] \\in msgsPrepared>> \\in {<<\"committed\", TRUE, TRUE>>, <<\"prepared\", TRUE, TRUE>>})",
+          "<<tmState, [type |-> \"Commit\"] \\in msgsCommit, [type |-> \"Abort\"] \\in msgsAbort>> = <<\"init\", FALSE, FALSE>> => (\\A r \\in RM : <<rmState[r], r \\in tmPrepared, [type |-> \"Prepared\", rm |-> r] \\in msgsPrepared>> \\in {<<\"aborted\", FALSE, FALSE>>, <<\"prepared\", FALSE, TRUE>>, <<\"prepared\", TRUE, TRUE>>, <<\"working\", FALSE, FALSE>>})"
+        ],
+        "carrier": 2
+      },
+      "discovery": {
+        "seconds": 0.009,
+        "peak_rss_kib": 6508,
+        "synthesis_s": 0.0001229519839398563
+      },
+      "native": {
+        "actions": [
+          {
+            "bindings": [],
+            "generated": 1,
+            "label": "<TMCommitAction line 177, col 19 to line 177, col 34 of module TwoPhase>",
+            "name": "TMCommitAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 16,
+            "label": "<TMAbortAction line 176, col 18 to line 176, col 32 of module TwoPhase>",
+            "name": "TMAbortAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 16,
+            "label": "<TMRcvPreparedAction line 171, col 24 to line 171, col 63 of module TwoPhase>",
+            "name": "TMRcvPreparedAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 20,
+            "label": "<RMPrepareAction line 172, col 20 to line 172, col 55 of module TwoPhase>",
+            "name": "RMPrepareAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 20,
+            "label": "<RMChooseToAbortAction line 173, col 26 to line 173, col 67 of module TwoPhase>",
+            "name": "RMChooseToAbortAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 8,
+            "label": "<RMRcvCommitMsgAction line 174, col 25 to line 174, col 65 of module TwoPhase>",
+            "name": "RMRcvCommitMsgAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 72,
+            "label": "<RMRcvAbortMsgAction line 175, col 24 to line 175, col 63 of module TwoPhase>",
+            "name": "RMRcvAbortMsgAction",
+            "outside": 0
+          }
+        ],
+        "boundary": "check-target-before-filter",
+        "constraints": [],
+        "expanded": 56,
+        "generated": 154,
+        "initial_generated": 1,
+        "outside": 0,
+        "targets": [
+          "H_TCConsistent"
+        ],
+        "variables": [
+          "rmState",
+          "tmState",
+          "tmPrepared",
+          "msgsPrepared",
+          "msgsCommit",
+          "msgsAbort"
+        ]
+      },
+      "core": {
+        "seconds": 0.007791,
+        "peak_rss_kib": 21624
+      },
+      "symbolic": {
+        "seconds": 0.155664,
+        "peak_rss_kib": 58072,
+        "transition_obligations": 12,
+        "closure_sweeps": 4,
+        "proof": "inductive-safety"
+      },
+      "pinned_tlc": {
+        "Init": {
+          "seconds": 0.303665,
+          "peak_rss_kib": 160944,
+          "generated": 2,
+          "distinct": 1
+        },
+        "Target": {
+          "seconds": 0.315729,
+          "peak_rss_kib": 184780,
+          "generated": 112,
+          "distinct": 56
+        },
+        "Next": {
+          "seconds": 0.330076,
+          "peak_rss_kib": 218096,
+          "generated": 209,
+          "distinct": 111
+        },
+        "Deadlock": {
+          "seconds": 0.353644,
+          "peak_rss_kib": 210840,
+          "generated": 112,
+          "distinct": 56
+        },
+        "actions": [
+          {
+            "name": "TMCommitAction",
+            "binding": null,
+            "seconds": 0.323699,
+            "peak_rss_kib": 177820,
+            "generated": 57,
+            "distinct": 57
+          },
+          {
+            "name": "TMAbortAction",
+            "binding": null,
+            "seconds": 0.326978,
+            "peak_rss_kib": 204196,
+            "generated": 72,
+            "distinct": 72
+          },
+          {
+            "name": "TMRcvPreparedAction",
+            "binding": "rm1",
+            "seconds": 0.336476,
+            "peak_rss_kib": 184140,
+            "generated": 64,
+            "distinct": 60
+          },
+          {
+            "name": "TMRcvPreparedAction",
+            "binding": "rm2",
+            "seconds": 0.335474,
+            "peak_rss_kib": 190636,
+            "generated": 64,
+            "distinct": 60
+          },
+          {
+            "name": "RMPrepareAction",
+            "binding": "rm1",
+            "seconds": 0.323336,
+            "peak_rss_kib": 188548,
+            "generated": 66,
+            "distinct": 66
+          },
+          {
+            "name": "RMPrepareAction",
+            "binding": "rm2",
+            "seconds": 0.321345,
+            "peak_rss_kib": 195008,
+            "generated": 66,
+            "distinct": 66
+          },
+          {
+            "name": "RMChooseToAbortAction",
+            "binding": "rm1",
+            "seconds": 0.329149,
+            "peak_rss_kib": 184552,
+            "generated": 66,
+            "distinct": 66
+          },
+          {
+            "name": "RMChooseToAbortAction",
+            "binding": "rm2",
+            "seconds": 0.31867,
+            "peak_rss_kib": 190556,
+            "generated": 66,
+            "distinct": 66
+          },
+          {
+            "name": "RMRcvCommitMsgAction",
+            "binding": "rm1",
+            "seconds": 0.32731,
+            "peak_rss_kib": 204012,
+            "generated": 60,
+            "distinct": 58
+          },
+          {
+            "name": "RMRcvCommitMsgAction",
+            "binding": "rm2",
+            "seconds": 0.333717,
+            "peak_rss_kib": 191764,
+            "generated": 60,
+            "distinct": 58
+          },
+          {
+            "name": "RMRcvAbortMsgAction",
+            "binding": "rm1",
+            "seconds": 0.316459,
+            "peak_rss_kib": 206204,
+            "generated": 92,
+            "distinct": 74
+          },
+          {
+            "name": "RMRcvAbortMsgAction",
+            "binding": "rm2",
+            "seconds": 0.319532,
+            "peak_rss_kib": 182104,
+            "generated": 92,
+            "distinct": 74
+          }
+        ]
+      },
+      "ablation": {
+        "removed": "<<tmState, [type |-> \"Commit\"] \\in msgsCommit, [type |-> \"Abort\"] \\in msgsAbort>> = <<\"aborted\", FALSE, TRUE>> => (\\A r \\in RM : <<rmState[r], r \\in tmPrepared, [type |-> \"Prepared\", rm |-> r] \\in msgsPrepared>> \\in {<<\"aborted\", FALSE, FALSE>>, <<\"aborted\", FALSE, TRUE>>, <<\"aborted\", TRUE, TRUE>>, <<\"prepared\", FALSE, TRUE>>, <<\"prepared\", TRUE, TRUE>>, <<\"working\", FALSE, FALSE>>})",
+        "action": {
+          "location": "<ProofNext line 8, col 14 to line 8, col 55 of module FiniteTrial>",
+          "name": "ProofNext"
+        },
+        "hypothesis_replay": "valid",
+        "original_init_replay": "invalid",
+        "prestate_reachable": false,
+        "damaged_replay": "invalid",
+        "pinned_tlc": {
+          "seconds": 0.35316,
+          "peak_rss_kib": 221100,
+          "generated": 419,
+          "distinct": 328
+        }
+      },
+      "wrong_carrier": "rejected",
+      "missing_action": "rejected",
+      "published_receive_abort_pool": {
+        "seconds": 0.36699,
+        "peak_rss_kib": 23680,
+        "candidates": [
+          {
+            "candidate": "H_RMCommittedImpliesNoRMsWorking",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_RMCommittedImpliesNoAbortMsg",
+            "result": "finite-preservation",
+            "states": 2688
+          },
+          {
+            "candidate": "H_RMAbortedImpliesNoCommitMsg",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_CommitSentImpliesRMsNotWorking",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_RMCommittedImpliesTMCommitted",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_CommitMsgImpliesNoAbortMsg",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_RMWorkingImpliesNoCommitMsg",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_RMAbortedAndPreparedImpliesTMAborted",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_TMKnowsPrepareImpliesRMWorking",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_CommitMsgImpliesTMCommitted",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_InitNoCommitMsg",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_InitNoAbortMsg",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_RMWorkingImpliesNotPrepared",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_RMSentPrepareImpliesNotWorking",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_AbortMsgImpliesTMAborted",
+            "result": "validated-CTI",
+            "states": 2
+          }
+        ]
+      }
+    },
+    {
+      "cfg": "INIT Init\nNEXT Next\nCONSTANT RM = {rm1,rm2,rm3}\nINVARIANT H_TCConsistent",
+      "certificate": {
+        "manifest": {
+          "source": "787afe81e60270d4b1489527504a4fb42c471d26a516bc0562126b57f23f0b87",
+          "config": "e8ba979a5927599985026b7b0907616501c95f8a2e1a6efb1bb9f2b312f1a03b",
+          "actions": [
+            "TMCommitAction",
+            "TMAbortAction",
+            "TMRcvPreparedAction",
+            "RMPrepareAction",
+            "RMChooseToAbortAction",
+            "RMRcvCommitMsgAction",
+            "RMRcvAbortMsgAction"
+          ],
+          "variables": [
+            "rmState",
+            "tmState",
+            "tmPrepared",
+            "msgsPrepared",
+            "msgsCommit",
+            "msgsAbort"
+          ],
+          "target": "H_TCConsistent",
+          "boundary": "check-target-before-filter"
+        },
+        "conjunction": [
+          "<<tmState, [type |-> \"Commit\"] \\in msgsCommit, [type |-> \"Abort\"] \\in msgsAbort>> \\in {<<\"aborted\", FALSE, TRUE>>, <<\"committed\", TRUE, FALSE>>, <<\"init\", FALSE, FALSE>>}",
+          "<<tmState, [type |-> \"Commit\"] \\in msgsCommit, [type |-> \"Abort\"] \\in msgsAbort>> = <<\"aborted\", FALSE, TRUE>> => (\\A r \\in RM : <<rmState[r], r \\in tmPrepared, [type |-> \"Prepared\", rm |-> r] \\in msgsPrepared>> \\in {<<\"aborted\", FALSE, FALSE>>, <<\"aborted\", FALSE, TRUE>>, <<\"aborted\", TRUE, TRUE>>, <<\"prepared\", FALSE, TRUE>>, <<\"prepared\", TRUE, TRUE>>, <<\"working\", FALSE, FALSE>>})",
+          "<<tmState, [type |-> \"Commit\"] \\in msgsCommit, [type |-> \"Abort\"] \\in msgsAbort>> = <<\"committed\", TRUE, FALSE>> => (\\A r \\in RM : <<rmState[r], r \\in tmPrepared, [type |-> \"Prepared\", rm |-> r] \\in msgsPrepared>> \\in {<<\"committed\", TRUE, TRUE>>, <<\"prepared\", TRUE, TRUE>>})",
+          "<<tmState, [type |-> \"Commit\"] \\in msgsCommit, [type |-> \"Abort\"] \\in msgsAbort>> = <<\"init\", FALSE, FALSE>> => (\\A r \\in RM : <<rmState[r], r \\in tmPrepared, [type |-> \"Prepared\", rm |-> r] \\in msgsPrepared>> \\in {<<\"aborted\", FALSE, FALSE>>, <<\"prepared\", FALSE, TRUE>>, <<\"prepared\", TRUE, TRUE>>, <<\"working\", FALSE, FALSE>>})"
+        ],
+        "carrier": 3
+      },
+      "discovery": {
+        "seconds": 0.022594,
+        "peak_rss_kib": 12192,
+        "synthesis_s": 0.0005721200141124427
+      },
+      "native": {
+        "actions": [
+          {
+            "bindings": [],
+            "generated": 1,
+            "label": "<TMCommitAction line 177, col 19 to line 177, col 34 of module TwoPhase>",
+            "name": "TMCommitAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 64,
+            "label": "<TMAbortAction line 176, col 18 to line 176, col 32 of module TwoPhase>",
+            "name": "TMAbortAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 96,
+            "label": "<TMRcvPreparedAction line 171, col 24 to line 171, col 63 of module TwoPhase>",
+            "name": "TMRcvPreparedAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 156,
+            "label": "<RMPrepareAction line 172, col 20 to line 172, col 55 of module TwoPhase>",
+            "name": "RMPrepareAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 156,
+            "label": "<RMChooseToAbortAction line 173, col 26 to line 173, col 67 of module TwoPhase>",
+            "name": "RMChooseToAbortAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 24,
+            "label": "<RMRcvCommitMsgAction line 174, col 25 to line 174, col 65 of module TwoPhase>",
+            "name": "RMRcvCommitMsgAction",
+            "outside": 0
+          },
+          {
+            "bindings": [],
+            "generated": 648,
+            "label": "<RMRcvAbortMsgAction line 175, col 24 to line 175, col 63 of module TwoPhase>",
+            "name": "RMRcvAbortMsgAction",
+            "outside": 0
+          }
+        ],
+        "boundary": "check-target-before-filter",
+        "constraints": [],
+        "expanded": 288,
+        "generated": 1146,
+        "initial_generated": 1,
+        "outside": 0,
+        "targets": [
+          "H_TCConsistent"
+        ],
+        "variables": [
+          "rmState",
+          "tmState",
+          "tmPrepared",
+          "msgsPrepared",
+          "msgsCommit",
+          "msgsAbort"
+        ]
+      },
+      "core": {
+        "seconds": 0.007339,
+        "peak_rss_kib": 21636
+      },
+      "symbolic": {
+        "seconds": 0.147821,
+        "peak_rss_kib": 57628,
+        "transition_obligations": 17,
+        "closure_sweeps": 4,
+        "proof": "inductive-safety"
+      },
+      "pinned_tlc": {
+        "Init": {
+          "seconds": 0.291534,
+          "peak_rss_kib": 161092,
+          "generated": 2,
+          "distinct": 1
+        },
+        "Target": {
+          "seconds": 0.38884,
+          "peak_rss_kib": 217388,
+          "generated": 576,
+          "distinct": 288
+        },
+        "Next": {
+          "seconds": 0.420584,
+          "peak_rss_kib": 224748,
+          "generated": 1433,
+          "distinct": 575
+        },
+        "Deadlock": {
+          "seconds": 0.453551,
+          "peak_rss_kib": 255372,
+          "generated": 576,
+          "distinct": 288
+        },
+        "actions": [
+          {
+            "name": "TMCommitAction",
+            "binding": null,
+            "seconds": 0.419857,
+            "peak_rss_kib": 263056,
+            "generated": 289,
+            "distinct": 289
+          },
+          {
+            "name": "TMAbortAction",
+            "binding": null,
+            "seconds": 0.414191,
+            "peak_rss_kib": 265584,
+            "generated": 352,
+            "distinct": 352
+          },
+          {
+            "name": "TMRcvPreparedAction",
+            "binding": "rm1",
+            "seconds": 0.426488,
+            "peak_rss_kib": 258944,
+            "generated": 320,
+            "distinct": 304
+          },
+          {
+            "name": "TMRcvPreparedAction",
+            "binding": "rm2",
+            "seconds": 0.396818,
+            "peak_rss_kib": 213120,
+            "generated": 320,
+            "distinct": 304
+          },
+          {
+            "name": "TMRcvPreparedAction",
+            "binding": "rm3",
+            "seconds": 0.419376,
+            "peak_rss_kib": 262180,
+            "generated": 320,
+            "distinct": 304
+          },
+          {
+            "name": "RMPrepareAction",
+            "binding": "rm1",
+            "seconds": 0.41201,
+            "peak_rss_kib": 265472,
+            "generated": 340,
+            "distinct": 340
+          },
+          {
+            "name": "RMPrepareAction",
+            "binding": "rm2",
+            "seconds": 0.415924,
+            "peak_rss_kib": 257804,
+            "generated": 340,
+            "distinct": 340
+          },
+          {
+            "name": "RMPrepareAction",
+            "binding": "rm3",
+            "seconds": 0.440435,
+            "peak_rss_kib": 260844,
+            "generated": 340,
+            "distinct": 340
+          },
+          {
+            "name": "RMChooseToAbortAction",
+            "binding": "rm1",
+            "seconds": 0.403316,
+            "peak_rss_kib": 254184,
+            "generated": 340,
+            "distinct": 340
+          },
+          {
+            "name": "RMChooseToAbortAction",
+            "binding": "rm2",
+            "seconds": 0.403761,
+            "peak_rss_kib": 210856,
+            "generated": 340,
+            "distinct": 340
+          },
+          {
+            "name": "RMChooseToAbortAction",
+            "binding": "rm3",
+            "seconds": 0.409272,
+            "peak_rss_kib": 257776,
+            "generated": 340,
+            "distinct": 340
+          },
+          {
+            "name": "RMRcvCommitMsgAction",
+            "binding": "rm1",
+            "seconds": 0.386372,
+            "peak_rss_kib": 219676,
+            "generated": 296,
+            "distinct": 292
+          },
+          {
+            "name": "RMRcvCommitMsgAction",
+            "binding": "rm2",
+            "seconds": 0.42006,
+            "peak_rss_kib": 256084,
+            "generated": 296,
+            "distinct": 292
+          },
+          {
+            "name": "RMRcvCommitMsgAction",
+            "binding": "rm3",
+            "seconds": 0.413076,
+            "peak_rss_kib": 260208,
+            "generated": 296,
+            "distinct": 292
+          },
+          {
+            "name": "RMRcvAbortMsgAction",
+            "binding": "rm1",
+            "seconds": 0.42342,
+            "peak_rss_kib": 254960,
+            "generated": 504,
+            "distinct": 396
+          },
+          {
+            "name": "RMRcvAbortMsgAction",
+            "binding": "rm2",
+            "seconds": 0.426629,
+            "peak_rss_kib": 250008,
+            "generated": 504,
+            "distinct": 396
+          },
+          {
+            "name": "RMRcvAbortMsgAction",
+            "binding": "rm3",
+            "seconds": 0.41515,
+            "peak_rss_kib": 207368,
+            "generated": 504,
+            "distinct": 396
+          }
+        ]
+      },
+      "ablation": {
+        "removed": "<<tmState, [type |-> \"Commit\"] \\in msgsCommit, [type |-> \"Abort\"] \\in msgsAbort>> = <<\"aborted\", FALSE, TRUE>> => (\\A r \\in RM : <<rmState[r], r \\in tmPrepared, [type |-> \"Prepared\", rm |-> r] \\in msgsPrepared>> \\in {<<\"aborted\", FALSE, FALSE>>, <<\"aborted\", FALSE, TRUE>>, <<\"aborted\", TRUE, TRUE>>, <<\"prepared\", FALSE, TRUE>>, <<\"prepared\", TRUE, TRUE>>, <<\"working\", FALSE, FALSE>>})",
+        "action": {
+          "location": "<ProofNext line 8, col 14 to line 8, col 55 of module FiniteTrial>",
+          "name": "ProofNext"
+        },
+        "hypothesis_replay": "valid",
+        "original_init_replay": "invalid",
+        "prestate_reachable": false,
+        "damaged_replay": "invalid",
+        "pinned_tlc": {
+          "seconds": 0.539948,
+          "peak_rss_kib": 281196,
+          "generated": 4062,
+          "distinct": 3515
+        }
+      },
+      "wrong_carrier": "rejected",
+      "missing_action": "rejected",
+      "published_receive_abort_pool": {
+        "seconds": 1.717236,
+        "peak_rss_kib": 25988,
+        "candidates": [
+          {
+            "candidate": "H_RMCommittedImpliesNoRMsWorking",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_RMCommittedImpliesNoAbortMsg",
+            "result": "finite-preservation",
+            "states": 35328
+          },
+          {
+            "candidate": "H_RMAbortedImpliesNoCommitMsg",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_CommitSentImpliesRMsNotWorking",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_RMCommittedImpliesTMCommitted",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_CommitMsgImpliesNoAbortMsg",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_RMWorkingImpliesNoCommitMsg",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_RMAbortedAndPreparedImpliesTMAborted",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_TMKnowsPrepareImpliesRMWorking",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_CommitMsgImpliesTMCommitted",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_InitNoCommitMsg",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_InitNoAbortMsg",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_RMWorkingImpliesNotPrepared",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_RMSentPrepareImpliesNotWorking",
+            "result": "validated-CTI",
+            "states": 2
+          },
+          {
+            "candidate": "H_AbortMsgImpliesTMAborted",
+            "result": "validated-CTI",
+            "states": 2
+          }
+        ]
+      }
+    }
+  ]
+}

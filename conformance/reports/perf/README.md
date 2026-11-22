@@ -105,6 +105,8 @@ The [exact population searches](2026-11-21-source-occupancy.json) cover both lab
 
 The [population edit-session measurements](2026-11-21-occupancy-edits.json) pair fresh labeled searches, portable proofs and native replay after property and transition edits at 8,192 managers.
 
+[Complete finite TwoPhase induction](2026-11-22-twophase-induction.json) records the learned clauses, every checked action binding, and independent TLC certification on both manager counts.
+
 [Finite lemma discovery](2026-11-22-lemma-discovery.json) records predicates derived from counterexamples to induction on TwoPhase and AsyncRaft, checked against the pinned TLC and the published formulas.
 
 ## 0.1.0 release records
