@@ -551,6 +551,16 @@ fn check_command_mode(
                 Some(c) => req.config = Some(c.into()),
                 None => return usage_error(err, "--config expects a .cfg file"),
             },
+            "--periodic-min-states" => {
+                let Some(first) = value().and_then(|s| s.parse::<std::num::NonZeroU64>().ok())
+                else {
+                    return usage_error(
+                        err,
+                        "--periodic-min-states expects a positive state count",
+                    );
+                };
+                req.periodic.min_states = first.get();
+            }
             "--lncheck" => match value().as_deref() {
                 Some("final") => final_check = true,
                 Some("periodic-all") => req.temporal = dive_api::TemporalMode::PeriodicAll,

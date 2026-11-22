@@ -25,6 +25,8 @@ are in git history.
 
 ### Added
 
+- `dive check --periodic-min-states N` sets the first size threshold for [scheduled liveness checks](docs/user/temporal.md). Reports record the actual completed level, counts and validated word.
+
 - [Automatic strategy selection](docs/user/symbolic.md#choose-a-strategy-automatically) chooses exact population, packed, decision-diagram or Core search for an original TLA+ configuration.
 - [Match partial etcd Raft event logs](docs/user/traces.md#match-an-etcd-implementation-log) against the upstream trace and protocol specifications, with independently replayable complete states.
 - [Match CCF election and rollback histories](docs/user/traces.md#match-a-microsoft-ccf-consistency-history) with complete observation and protocol replay.
