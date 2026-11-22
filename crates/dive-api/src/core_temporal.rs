@@ -358,6 +358,7 @@ fn check_configured_inner(
         }
         let csr = CsrCapture::checked_targets(graph.input(), graph.limits(), &control)?;
         let mut read = crate::core_native_atoms::Reader::new(graph, values, &mut atoms);
+        read.live_prefix(true);
         Ok(graph_check.level_native_with_reader(level, &csr, stats, &mut read))
     };
     let mut sink = match NativeSink::new(
@@ -725,6 +726,7 @@ fn finish(
         return Ok(Err(*failure));
     }
     let mut read = crate::core_native_atoms::Reader::new(graph, values, atoms);
+    read.live_prefix(false);
     if let Some(level) = prefix {
         let mut read =
             |row, control: &EvaluationControl| read.values.read_retained(graph, row, control);

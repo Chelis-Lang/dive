@@ -73,8 +73,13 @@ impl Compiler<'_> {
             GNode::Conj(items) => {
                 let mut reads = 0;
                 let mut count = 0;
-                for &(_, predicate) in &items {
-                    let Some(mask) = self.atom_source_reads(predicate) else {
+                let mut work = 1024;
+                for &(generator, predicate) in &items {
+                    let Some(mask) = self
+                        .guard_generator_reads(generator, &mut work)
+                        .zip(self.atom_source_reads(predicate))
+                        .map(|(g, p)| g | p)
+                    else {
                         break;
                     };
                     reads |= mask;
@@ -85,6 +90,52 @@ impl Compiler<'_> {
                 }
                 Some((self.gpush(GNode::Conj(items[..count].into())), reads))
             }
+            _ => None,
+        }
+    }
+
+    /// A generator may have different instructions from its boolean form.
+    /// Include the actual source reads on both paths, and admit no generator
+    /// that can bind a destination or inspect a partial primed row.
+    fn guard_generator_reads(&self, g: G, work: &mut usize) -> Option<u64> {
+        *work = work.checked_sub(1)?;
+        match self.code.gnodes.get(g as usize)? {
+            GNode::Guard(p) | GNode::LabelGuard(p, _) => self.atom_reads_within(*p, work),
+            GNode::Scope { body, .. } => self.guard_generator_reads(*body, work),
+            GNode::Conj(items) | GNode::LabelArm(items, _) => {
+                items.iter().try_fold(0, |mask, &(g, p)| {
+                    Some(
+                        mask | self.guard_generator_reads(g, work)?
+                            | self.atom_reads_within(p, work)?,
+                    )
+                })
+            }
+            GNode::Disj(items) => items.iter().try_fold(0, |mask, &g| {
+                self.guard_generator_reads(g, work)
+                    .map(|other| mask | other)
+            }),
+            GNode::Exists {
+                binds,
+                body,
+                body_p,
+            }
+            | GNode::Forall {
+                binds,
+                body,
+                body_p,
+            } => {
+                let mask = self.guard_generator_reads(*body, work)?
+                    | self.atom_reads_within(*body_p, work)?;
+                binds.iter().try_fold(mask, |mask, b| {
+                    self.atom_reads_within(b.domain, work)
+                        .map(|domain| mask | domain)
+                })
+            }
+            GNode::If { cond, then, other } => Some(
+                self.atom_reads_within(*cond, work)?
+                    | self.guard_generator_reads(*then, work)?
+                    | self.guard_generator_reads(*other, work)?,
+            ),
             _ => None,
         }
     }

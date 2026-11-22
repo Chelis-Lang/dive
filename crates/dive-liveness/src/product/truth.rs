@@ -238,6 +238,35 @@ impl<'a> PackedTruth<'a> {
         Some((0..column.logical_words()).map(move |i| column.word(i)))
     }
 
+    pub(crate) fn restore_prefix(
+        &mut self,
+        atom: usize,
+        kind: AtomKind,
+        cells: usize,
+        words: &[u64],
+    ) -> Result<(), ProductError> {
+        let column = self
+            .columns
+            .get_mut(atom)
+            .filter(|c| c.kind == kind)
+            .ok_or_else(|| ProductError::Shape("periodic truth column".into()))?;
+        for (i, &word) in words.iter().enumerate() {
+            if i.is_multiple_of(1024) && crate::budget::exhausted() {
+                return Err(ProductError::Limit(crate::budget::EXHAUSTED));
+            }
+            let mut bits = word;
+            while bits != 0 {
+                let at = 64 * i + bits.trailing_zeros() as usize;
+                if at >= cells {
+                    break;
+                }
+                column.set_bit(at, true)?;
+                bits &= bits - 1;
+            }
+        }
+        Ok(())
+    }
+
     pub(crate) fn action_position(&self, source: usize, edge: usize) -> Option<usize> {
         let start = *self.offsets.get(source)?;
         let end = *self.offsets.get(source.checked_add(1)?)?;

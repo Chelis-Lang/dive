@@ -21,7 +21,10 @@ use dive_runtime::budget::EvaluationControl;
 use crate::core_native_graph::NativeGraph;
 use crate::core_native_values::NativeValues;
 
+mod prefix;
+
 struct Compiled {
+    column: Option<prefix::Column>,
     identity: *const PredicateAtom,
     plan: dive_core::plan::Plan,
     false_guard: Option<dive_core::plan::P>,
@@ -119,6 +122,8 @@ impl dive_core::eval::WorkControl for QueryControl {
 
 pub(crate) struct NativeAtoms {
     machine: Machine,
+    prefix_bytes: usize,
+    prefix_cells_reused: u64,
     projected: dive_core::memo::Memo,
     projected_state_hits: u64,
     projected_enabled_hits: u64,
@@ -300,6 +305,7 @@ impl NativeAtoms {
                 continue;
             }
             result.compiled.push(Compiled {
+                column: None,
                 enabled_prefix: false_guard.enabled_prefix.and_then(|(p, reads)| {
                     Projection::new(Some(reads), model.ir.vars().len(), &mut key_lengths)
                         .map(|site| (p, site))
@@ -347,6 +353,8 @@ impl NativeAtoms {
         opts: Opts,
     ) -> Self {
         let mut result = Self {
+            prefix_bytes: 0,
+            prefix_cells_reused: 0,
             projected: dive_core::memo::Memo::default(),
             projected_state_hits: 0,
             projected_enabled_hits: 0,
@@ -411,6 +419,7 @@ impl NativeAtoms {
             "unchanged_target_guards":{"plans":self.compiled.iter().filter(|p|p.unchanged_guard.is_some()).count(),"probes":self.unchanged_probes,"rows":self.unchanged_rows,"edges":self.unchanged_edges},
             "action_source_guards": {"plans": self.compiled.iter().filter(|p| p.false_guard.is_some()).count(),
                 "probes": self.guard_probes, "false_rows": self.guard_rows},
+            "periodic_prefix": {"cells_reused": self.prefix_cells_reused, "table_bytes":self.prefix_bytes},
             "projected_truth": {"state_hits": self.projected_state_hits, "enabled_hits": self.projected_enabled_hits,
                 "enabled_prefix_false": self.disabled_prefixes, "guard_hits": self.projected_guard_hits, "stutters": self.stutter_hits, "table_bytes": self.projected.bytes()},
             "evaluated": self.evaluated, "fallback": self.fallback,
@@ -550,39 +559,20 @@ impl NativeAtoms {
         if graph_owned
             && after.is_none()
             && self.fuel == NATIVE_FUEL
-            && let Some((prefix, site)) = compiled.enabled_prefix
-            && self.projected.active(site.site)
-            && let Some(prefix_key) = site.bind(before)
+            && Self::prefix_false(
+                compiled,
+                before,
+                &mut self.projected,
+                &mut self.machine,
+                (&self.control, control),
+            )?
         {
-            let prefix_value = if let Some(v) = prefix_key.get(&mut self.projected) {
-                Some(v)
-            } else {
-                let result = run_bound(
-                    &compiled.plan,
-                    &mut self.machine,
-                    before,
-                    None,
-                    self.fuel,
-                    Some(prefix),
-                );
-                check(&self.control, control)?;
-                result
-                    .ok()
-                    .filter(|_| {
-                        !self.machine.heap.poisoned()
-                            && self.machine.warnings.is_empty()
-                            && self.machine.printed.is_empty()
-                    })
-                    .inspect(|&v| prefix_key.put(&mut self.projected, v))
-            };
-            if prefix_value == Some(false) {
-                self.disabled_prefixes += 1;
-                self.compiled[index].exhausted_in_a_row = 0;
-                if let Some(key) = key {
-                    key.put(&mut self.projected, negate);
-                }
-                return Ok(Some(negate));
+            self.disabled_prefixes += 1;
+            self.compiled[index].exhausted_in_a_row = 0;
+            if let Some(key) = key {
+                key.put(&mut self.projected, negate);
             }
+            return Ok(Some(negate));
         }
         let result = run_bound(
             &compiled.plan,
@@ -607,17 +597,7 @@ impl NativeAtoms {
             && self.machine.warnings.is_empty()
             && self.machine.printed.is_empty()
         {
-            self.evaluated += 1;
-            match atom.test {
-                AtomTest::Enabled { .. } => self.evaluated_enabled += 1,
-                AtomTest::Nonstuttering { .. } => self.evaluated_nonstuttering += 1,
-                AtomTest::NegatedEnabled { .. } => self.evaluated_negated_enabled += 1,
-                AtomTest::Predicate => {}
-            }
-            match atom.kind {
-                dive_liveness::formula::AtomKind::State => self.evaluated_state += 1,
-                dive_liveness::formula::AtomKind::Action => self.evaluated_action += 1,
-            }
+            self.count_native(atom);
             let truth = value != negate;
             if let Some(key) = key
                 && !self.machine.heap.poisoned()
@@ -636,6 +616,57 @@ impl NativeAtoms {
             }
             Ok(None)
         }
+    }
+
+    fn count_native(&mut self, atom: &PredicateAtom) {
+        self.evaluated += 1;
+        match atom.test {
+            AtomTest::Enabled { .. } => self.evaluated_enabled += 1,
+            AtomTest::Nonstuttering { .. } => self.evaluated_nonstuttering += 1,
+            AtomTest::NegatedEnabled { .. } => self.evaluated_negated_enabled += 1,
+            AtomTest::Predicate => {}
+        }
+        match atom.kind {
+            dive_liveness::formula::AtomKind::State => self.evaluated_state += 1,
+            dive_liveness::formula::AtomKind::Action => self.evaluated_action += 1,
+        }
+    }
+
+    fn prefix_false(
+        compiled: &Compiled,
+        before: &[Handle],
+        memo: &mut dive_core::memo::Memo,
+        machine: &mut Machine,
+        control: (&EvaluationControl, &EvaluationControl),
+    ) -> Result<bool, AnalysisError> {
+        if let Some((prefix, site)) = compiled.enabled_prefix
+            && memo.active(site.site)
+            && let Some(prefix_key) = site.bind(before)
+        {
+            let prefix_value = if let Some(v) = prefix_key.get(memo) {
+                Some(v)
+            } else {
+                let result = run_bound(
+                    &compiled.plan,
+                    machine,
+                    before,
+                    None,
+                    NATIVE_FUEL,
+                    Some(prefix),
+                );
+                check(control.0, control.1)?;
+                result
+                    .ok()
+                    .filter(|_| {
+                        !machine.heap.poisoned()
+                            && machine.warnings.is_empty()
+                            && machine.printed.is_empty()
+                    })
+                    .inspect(|&v| prefix_key.put(memo, v))
+            };
+            return Ok(prefix_value == Some(false));
+        }
+        Ok(false)
     }
 
     /// All target rows in this checked graph have already been certified.
@@ -1072,6 +1103,8 @@ struct UnchangedTarget {
 }
 
 pub(crate) struct Reader<'a, 'model> {
+    prefix: Option<bool>,
+    prefix_validated: usize,
     proofs: RowProofs<'a>,
     pub(crate) values: &'a mut NativeValues<'model>,
     atoms: &'a mut NativeAtoms,
@@ -1085,6 +1118,8 @@ impl<'a, 'model> Reader<'a, 'model> {
         atoms: &'a mut NativeAtoms,
     ) -> Self {
         Self {
+            prefix: None,
+            prefix_validated: 0,
             proofs: RowProofs::new(graph),
             unchanged: None,
             values,
@@ -1267,6 +1302,27 @@ impl NativeReader for Reader<'_, '_> {
             }
             after.map_or(Ok(true), |row| self.proofs.closed(heap, row))
         })
+    }
+
+    fn label_prefix(
+        &mut self,
+        atom: &PredicateAtom,
+        graph: &dive_runtime::capture::CsrCapture<'_>,
+        control: &EvaluationControl,
+    ) -> Result<Option<dive_liveness::analyze::periodic::external::LabelPrefix<'_>>, AnalysisError>
+    {
+        self.previous_column(atom, graph, control)
+    }
+
+    fn save_label_prefix(
+        &mut self,
+        atom: &PredicateAtom,
+        graph: &dive_runtime::capture::CsrCapture<'_>,
+        words: &mut dyn ExactSizeIterator<Item = u64>,
+        cap: usize,
+        control: &EvaluationControl,
+    ) -> Result<(), AnalysisError> {
+        self.store_column(atom, graph, words, cap, control)
     }
 
     fn reference_predicate(&mut self, atom: &PredicateAtom) {
