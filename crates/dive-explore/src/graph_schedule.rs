@@ -66,7 +66,7 @@ fn simple_value(code: &Code, node: P, fuel: &mut usize) -> bool {
         }
         Some(Node::SameVars { eq, .. }) => simple_value(code, *eq, fuel),
         Some(Node::And(ps) | Node::Or(ps)) => ps.iter().all(|&p| simple_value(code, p, fuel)),
-        Some(Node::Except { base, updates }) => {
+        Some(Node::Except { base, updates, .. }) => {
             simple_value(code, *base, fuel) && updates.iter().all(|update| {
                 matches!(update.path.as_ref(), [p] if matches!(code.nodes.get(*p as usize), Some(Node::Const(_))))
                     && simple_value(code, update.value, fuel)

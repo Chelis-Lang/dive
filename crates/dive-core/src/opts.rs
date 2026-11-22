@@ -29,6 +29,8 @@ pub struct Opts {
     pub member_index: bool,
     /// Restrict finite function assignments to their proved writable coordinates.
     pub framed_function_choices: bool,
+    /// Ground read and disjoint record updates at a proved finite table entry.
+    pub actor_rows: bool,
     /// Keyed result caches. Off (`-memo`).
     pub memo: bool,
     /// Keyed result caches for the cached bodies of step predicates
@@ -68,6 +70,7 @@ impl Default for Opts {
             symbolic_member: true,
             member_index: true,
             framed_function_choices: true,
+            actor_rows: true,
             memo: true,
             step_memo: true,
             primed_memo: true,
@@ -89,6 +92,7 @@ pub const SWITCHES: &[&str] = &[
     "symbolic-member",
     "member-index",
     "framed-function-choices",
+    "actor-rows",
     "memo",
     "step-memo",
     "primed-memo",
@@ -127,6 +131,7 @@ impl Opts {
                 "symbolic-member" => &mut o.symbolic_member,
                 "member-index" => &mut o.member_index,
                 "framed-function-choices" => &mut o.framed_function_choices,
+                "actor-rows" => &mut o.actor_rows,
                 "memo" => &mut o.memo,
                 "step-memo" => &mut o.step_memo,
                 "primed-memo" => &mut o.primed_memo,
@@ -163,6 +168,7 @@ impl Opts {
             ("symbolic-member", self.symbolic_member),
             ("member-index", self.member_index),
             ("framed-function-choices", self.framed_function_choices),
+            ("actor-rows", self.actor_rows),
             ("memo", self.memo),
             ("step-memo", self.step_memo),
             ("primed-memo", self.primed_memo),
@@ -180,6 +186,7 @@ impl Opts {
             d.symbolic_member,
             d.member_index,
             d.framed_function_choices,
+            d.actor_rows,
             d.memo,
             d.step_memo,
             d.primed_memo,

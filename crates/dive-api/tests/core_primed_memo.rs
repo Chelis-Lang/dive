@@ -159,3 +159,26 @@ fn a_computed_component_ignores_unrelated_successor_choices() {
     assert!(stats["hits"].as_u64().unwrap_or(0) > 0);
     assert!(site(&off, "successor component 2").is_none());
 }
+
+#[test]
+fn a_row_replacement_depends_on_its_old_fields_and_external_inputs() {
+    let req = request("ActorRows");
+    let on = check_file_core_opts(&req, "")
+        .expect("ground actor rows")
+        .to_json();
+    let off = check_file_core_opts(&req, "-actor-rows")
+        .expect("ordinary paths")
+        .to_json();
+    assert_eq!(observed(&on), observed(&off));
+    assert_eq!(on["verdict"], "success");
+    assert_eq!(on["statistics"]["distinct"], 108);
+    let memo = on["core"]["metrics"]["memo"]
+        .as_array()
+        .expect("memo statistics");
+    assert!(memo.iter().any(|s| {
+        s["site"]
+            .as_str()
+            .is_some_and(|n| n.starts_with("actor row #"))
+            && s["hits"].as_u64().unwrap_or(0) > 0
+    }));
+}
