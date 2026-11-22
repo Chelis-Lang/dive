@@ -512,16 +512,9 @@ impl NativeAtoms {
         inputs_closed: impl FnOnce(&dive_core::Heap) -> Result<bool, AnalysisError>,
     ) -> Result<Option<bool>, AnalysisError> {
         check(&self.control, control)?;
-        let Some(index) = self.position(atom) else {
-            self.fallback += 1;
-            self.fallbacks.not_compiled += 1;
+        let Some(index) = self.active_atom(atom) else {
             return Ok(None);
         };
-        if self.compiled[index].exhausted_in_a_row >= FUEL_STRIKES {
-            self.fallback += 1;
-            self.fallbacks.fuel_retired += 1;
-            return Ok(None);
-        }
         let compiled = &self.compiled[index];
         let negate = compiled.negate;
         // The exact object came from this still-live driver's fixed plan Vec;
@@ -618,6 +611,20 @@ impl NativeAtoms {
             }
             Ok(None)
         }
+    }
+
+    fn active_atom(&mut self, atom: &PredicateAtom) -> Option<usize> {
+        let Some(index) = self.position(atom) else {
+            self.fallback += 1;
+            self.fallbacks.not_compiled += 1;
+            return None;
+        };
+        if self.compiled[index].exhausted_in_a_row >= FUEL_STRIKES {
+            self.fallback += 1;
+            self.fallbacks.fuel_retired += 1;
+            return None;
+        }
+        Some(index)
     }
 
     fn count_native(&mut self, atom: &PredicateAtom) {
