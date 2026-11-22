@@ -31,77 +31,21 @@ compact edges and evidence reuse for eligible property edits.
 [Large-model results](developer/large-models.md) ·
 [Symbolic strategy](user/symbolic.md)
 
-## Delivery order
+## Competitive milestones
 
-1. **Establish a shared comparison panel.** Use the
-   [pinned workload selection and measurement procedure](internal/survey/verification-workloads.md)
-   to compare v0.1.0, current Core, pinned and released TLC, and applicable native
-   peers. Publish per-model completion, named refusals, startup, exploration,
-   scaling and memory together. Record comparable whole-run results and use
-   bounded progress for stopped cases. Start with exact input controls before
-   running the large configurations. Extend the current performance evidence
-   and group open work by the measured bottlenecks.
-   [Performance backlog](https://github.com/Chelis-Lang/dive/issues/799)
-2. **Improve single-host scaling.** Rebaseline EmergencyCall f3 and the temporal
-   panel. Profile successor evaluation, allocation and sharing, duplicate
-   detection, ordered commit, graph capture and temporal analysis. Use
-   BPConProof and TLCSailfish2 to distinguish wide frontiers from retained
-   aggregate state and graph costs. The target is to match or beat same-host
-   TLC at eight workers on f3 and to complete one external fairness case that
-   currently stops in the fixed envelope. If current main already completes
-   that case, show a reproducible speedup instead. Check determinism and
-   replay witnesses at every tested width.
-   [Temporal scaling](https://github.com/Chelis-Lang/dive/issues/1028) ·
-   [Large holdouts](https://github.com/Chelis-Lang/dive/issues/1034)
-3. **Qualify a compiled finite safety tier.** Reuse the bound finite relation
-   to generate complete actions over packed states. KVS and transaction
-   commit give starting controls for an order-of-magnitude gain on eligible
-   models. Use aggregate consensus as the wider-layout holdout. Measure
-   source admission, fallback work, cold compile-and-check, warm search,
-   and exact membership capacity at one and eight workers. Preserve
-   generated multiplicity, diagnostics, resource stops and independently
-   replayable shortest witnesses. Keep work on Core's evaluator and
-   temporal checking for cases outside the finite fragment. Expand spill or
-   distributed execution when a pinned practical workload still exceeds the
-   tuned single-host envelope.
-   [Compiled safety measurements](internal/survey/verification-workloads.md#compiling-the-finite-relation)
-4. **Complete practitioner workflows.** Rank named blockers by workflow impact.
-   Start with the aggregate message bags in etcd Raft, the Kafka KIP-996
-   fairness planner and the VIEW/liveness refusal. Qualify PlusCal, fairness
-   and refinement using original external sources and the Foundation's
-   differential hardening cases where they expose an applicable gap.
-   Extend trace replay through the CLI or Rust API on one upstream CI fixture,
-   with both an accepted trace and a corrupted one. Give test generators the
-   minimum labelled graph export they can consume, with action parameters,
-   reductions and completeness. Keep instrumentation, test generation and
-   alternate event-order search with their callers until a concrete contract
-   shows what dive needs to support.
-   [Remaining Core coverage](https://github.com/Chelis-Lang/dive/issues/910) ·
-   [VIEW and liveness](https://github.com/Chelis-Lang/dive/issues/428) ·
-   [PlusCal scope](https://github.com/Chelis-Lang/dive/issues/798) ·
-   [Trace validator work](https://github.com/Chelis-Lang/dive/issues/490)
-5. **Qualify the finite symbolic strategy on varied models.** Use KVS Small
-   and Medium for count controls, Large for completion, and transaction commit
-   or another differently structured model to test generality. Test a changed
-   transition relation as well as property edits. Keep bounded search, exact
-   finite closure and finite induction distinct in reports. Cross-check a
-   constraint-heavy model with Apalache where the question and semantics match.
-   Keep exact population counts on anonymous finite state tables. Require
-   source-derived permutation invariance, concrete labeled counts and witness
-   multiplicity, exact BFS depth, and independent replay of a concrete trace.
-   Reject an index-sensitive mutation before applying the reduction.
-   [Population checker and qualification data](developer/large-models.md#checking-anonymous-processes-by-population)
-   Use production workloads to decide which symbolic refusals to address.
-   [Current symbolic contract](user/symbolic.md)
+Judge each milestone on the question a practitioner actually asks. Exhausting a finite graph, finding a path at a bound, proving one named invariant, checking quantified fairness and discharging an unbounded theorem have different success criteria. Record the original source, CFG, property, edits, resource limits, result and replay evidence per run. Compare cold end-to-end time, peak memory and repeat-edit time on matching tasks. Retain stopped runs as evidence about limits. Reuse the recorded long explicit runs when establishing a new method's baseline. [Pinned peers and measurement procedure](internal/survey/verification-workloads.md) · [Performance data index](../conformance/reports/perf/README.md)
 
-The proof handoff can start alongside the comparison panel. Use proof-bearing
-source as-is, screen candidate invariants in batches where the finite search
-supports it, and show a pinned external TLAPS proof on the same source.
-Start with TCommit and then the Raft induction artifact. Use that workflow
-to evaluate upstream improvements, a companion, and a full proof-system
-reimplementation. The full option has a separate scope and trust decision.
-[TLAPS options and acceptance tests](internal/survey/verification-workloads.md#tlaps-options-and-evidence) ·
-[Open decision](open-questions.md#deductive-proof-system-scope)
+| Priority and workload | What governs scale | Next acceptance result |
+|---|---|---|
+| 1. Exhaustive safety on original source. Compare compiled tla-mc and tlx on KVS, Flint and an aggregate holdout. | A dense, rankable state can use direct exact membership. Coupled writes and sparse reachability change the crossover with decision diagrams. Exchangeable processes permit population vectors only when every action and property respects renaming. Deep interpreted guard trees dominate some compiled workloads. | Select the eligible implementation from the request and the bound program. Preserve exact counts, depth and validated violations. Beat the fastest comparable peer on a second source family and publish total cold time as well as the cost of edits. [Compiled peer panel](internal/survey/verification-workloads.md#compiling-the-finite-relation) · [Flint exact frontier](https://github.com/Chelis-Lang/dive/issues/1291) |
+| 1. Fair temporal properties on Elevator and Kafka. Compare Manyan. | Graph capture grows with edges. Expanding independent fairness alternatives creates a second exponential cost, even on a small graph. | Preserve every original fairness conjunct. Match the fast peer on the passing Elevator sizes and find and replay an accepting word on the four-floor growth case through ordinary Dive. Reject a damaged word. Test the same planner on another source. [Fairness controls](https://github.com/Chelis-Lang/dive/issues/1281) · [Four-floor planner](https://github.com/Chelis-Lang/dive/issues/1294) |
+| 2. Maintaining a changing spec and proving a named invariant. Compare cold Dive, Sail-assisted rechecks and Recomp-Verify. | Reuse depends on which grounded actions changed, which property reads an edited value, and the cost of reconstructing a predicate. Sets of messages and finite tuple relations occur throughout the published protocols. | Run every original Recomp configuration with the same named property and wall budget. Repeat a property edit, an action restriction, an expansion and an undo in separate processes. Publish first-proof cost, steady-state cost and break-even, including neutral cases. Validate changed transitions and independently check every reported bug. [Edit histories and trust boundary](https://github.com/Chelis-Lang/sail/issues/793) · [Named proofs](user/symbolic.md) |
+| 2. Bounded bug finding and implementation histories. Compare Manyan and Apalache on the authors' 46 configurations. | Paths can revisit states. A partial log can admit several internal steps between observations. Both questions need a path witness. | Reproduce bounded safety, violations and too-short executions. Keep a resource cutoff inconclusive. For implementation histories, accept the original etcd log, reject a bad vote and accept the repaired log with a replayable full protocol witness. [Bounded-path implementation](https://github.com/Chelis-Lang/dive/issues/1299) · [etcd controls](../conformance/reports/perf/2026-11-22-etcd-event-histories.json) |
+| 3. Invariant discovery and authored proofs. Compare Scimitar and TLAPS. | A finite counterexample to induction can rule out a candidate lemma cheaply. A proof for arbitrary process sets needs quantified obligations with the correct assumptions. Replay, simplification and solver results each have a distinct trust boundary. | Transfer candidate selection to Raft and the four-writer SlateDB recovery path. Preserve a failing obligation after deleting a necessary premise. Independently discharge the full authored theorem and measure total proof time before proposing native replacement of an external backend. [Lemma selection and external controls](internal/survey/verification-workloads.md#selecting-a-supporting-lemma-on-a-published-proof) · [SlateDB preservation](https://github.com/Chelis-Lang/dive/issues/1284) · [Proof-system scope](open-questions.md#deductive-proof-system-scope) |
+
+Two results set the size targets. The installed symbolic checker exhausted an enlarged EmergencyCall configuration with **1,400,862,255,552 distinct states** in 1,262.70 seconds and 2.42 GiB. On the released SlateDB configuration exact Core counted **4,910,385,790 symmetry representatives** covering **58,777,049,012 labeled states**. Index published measurements by count definition, property and source availability. Raise the next parameter on a released protocol with a reproduced baseline or an independently proved bound. Prefer a short refuting witness or a complete proof when that answers the user's question. [Published scale survey, original sources and growth cases](developer/large-models.md)
+
+Product coverage runs alongside these milestones. Of 38 feature families, seven are implemented and 31 are partial. Those counts measure feature contracts, not 31 distinct bugs. Rechecking nine previously refusing configurations found eight still refusing and one independently validated animation result. Group work by the observed blocker and user workflow, starting with VIEW plus liveness and explicit host grants. Track PlusCal translation, replay and refinement alongside checker throughput. [Coverage scoreboard](scoreboard.md) · [Feature-family audit](https://github.com/Chelis-Lang/dive/issues/1280)
 
 ## Adoption evidence
 
