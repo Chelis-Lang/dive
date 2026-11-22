@@ -719,5 +719,8 @@ P == {}(\A k \in 1..16 : (k \in active) ~> (x = ((1 \div 0) = 0)))
     let row: State = Arc::from([Some(Value::FALSE), Some(set)]);
     let word = vec![row; 16_000];
     let err = evaluate_lasso(&model, &predicate(&model, "P"), &word, 0).expect_err("zero divisor");
-    assert!(err.to_string().contains("zero"), "{err}");
+    assert!(
+        err.to_string().contains("TLC_MODULE_DIVISION_BY_ZERO"),
+        "{err}"
+    );
 }
