@@ -220,6 +220,18 @@ def audit(args):
                 if args.assume_equivariance:
                     raise
                 reduced["original_trace_replay"] = str(error)
+        if args.certify_equivariance:
+            if reduced["verdict"] != "success":
+                if reduced.get("original_trace_replay") != "valid":
+                    raise Refused("uncertified reduced counterexample")
+                result["status"] = "validated-counterexample"
+                return result
+            from orbit_certificate import establish
+            result["certificate"] = establish(
+                args, folder, original, identity, reduced,
+                lambda: check(args, binary, folder, original, "input.cfg", False))
+            result["status"] = "certified-orbit"
+            return result
         if args.assume_equivariance:
             result["status"] = "conditional-orbit" if reduced["verdict"] == "success" else "validated-counterexample"
             return result
@@ -253,13 +265,24 @@ def main():
     mode.add_argument("--prepare-only", action="store_true", help="emit source pins and the adapter for another process")
     mode.add_argument("--assume-equivariance", action="store_true",
                         help="skip direct comparison; successful weighted counts are conditional")
+    mode.add_argument("--certify-equivariance", choices=("finite", "graph"),
+                      help="prove all generator swaps on finite roles or the original reachable graph")
+    parser.add_argument("--type-invariant", help="complete finite layout for the finite proof")
+    parser.add_argument("--exporter", type=Path, default=Path("target/release/examples/symbolic_input"))
+    parser.add_argument("--graph-auditor", type=Path, default=Path("target/release/examples/orbit_graph"))
+    parser.add_argument("--certificate-cache", type=Path, help="shared authenticated certificate directory")
+    parser.add_argument("--proof-memory-mib", type=int, default=4096)
     args = parser.parse_args()
+    if args.certify_equivariance == "finite" and not args.type_invariant:
+        parser.error("the finite proof requires --type-invariant")
+    if args.proof_memory_mib < 1 or (args.certificate_cache and not args.certify_equivariance):
+        parser.error("expected a positive proof budget and a proof mode for the cache")
     try:
         result = audit(args)
     except (OSError, ValueError, subprocess.TimeoutExpired) as error:
         result = {"status": "refused", "reason": str(error)}
     print(json.dumps(result, sort_keys=True))
-    return {"verified-observables": 0, "conditional-orbit": 3, "prepared": 3, "validated-counterexample": 1}.get(result["status"], 2)
+    return {"verified-observables": 0, "certified-orbit": 0, "conditional-orbit": 3, "prepared": 3, "validated-counterexample": 1}.get(result["status"], 2)
 
 
 if __name__ == "__main__":

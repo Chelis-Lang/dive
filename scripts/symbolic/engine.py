@@ -195,8 +195,11 @@ class SourceModel(FiniteRelation):
                 continue
             bits = self.encode(assignments)
             require(all(v in (self.b.true, self.b.false) for v in bits.values()), "nonground Init")
-            self.initial |= self.b.cube({name: value == self.b.true for name, value in bits.items()})
-            self.initial_generated += 1
+            self.record_initial(self.b.cube({name: value == self.b.true for name, value in bits.items()}))
+
+    def record_initial(self, cube):
+        self.initial |= cube
+        self.initial_generated += 1
 
     @cached_property
     def effect_parts(self):

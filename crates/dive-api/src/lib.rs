@@ -59,6 +59,7 @@ pub use translate::{
     translate_source,
 };
 
+pub mod orbit_graph;
 pub mod safety_projection;
 
 pub mod debug;
