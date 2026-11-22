@@ -7,6 +7,8 @@ are in git history.
 
 - Named symbolic proofs can [reuse authenticated transition obligations in a new process](docs/user/symbolic.md#reuse-certified-action-obligations-in-another-process).
 
+- Core names the [formula work limit](docs/user/temporal.md#storage-and-limits) when independent fairness assumptions exhaust temporal decomposition.
+
 ### Added
 
 - [Automatic strategy selection](docs/user/symbolic.md#choose-a-strategy-automatically) chooses exact population, packed, decision-diagram or Core search for an original TLA+ configuration.

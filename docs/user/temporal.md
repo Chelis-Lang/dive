@@ -592,6 +592,13 @@ probability not computed." Frontier, candidate or predecessor spill, disk seen
 sets and `--store-compact-bytes` refuse by name with temporal properties, and
 there is no disk-backed temporal capture.
 
+Before cycle search, Core groups the temporal formula into alternatives. Several
+independent strong-fairness assumptions can multiply the number of alternatives.
+If grouping reaches its work limit, both profiles return `unsupported` with
+`temporal formula resource limit: solution decomposition work` (exit 3). This
+can happen even when the state graph fits in memory. The four-floor, two-elevator
+model reaches this limit.
+
 The behavior graph keeps every captured state in memory and stops on the run's
 `--time-limit` and `--max-memory`, not on a fixed state, edge, product or
 counterexample count. Parallel capture expands at most eight states per wave.

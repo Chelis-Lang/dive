@@ -88,3 +88,38 @@ fn a_false_assume_without_a_startup_tautology_still_reports_2104() {
     }
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn independent_strong_fairness_clauses_name_the_decomposition_limit() -> std::io::Result<()> {
+    let dir = std::env::temp_dir().join(format!("dive-fair-choice-limit-{}", std::process::id()));
+    std::fs::create_dir_all(&dir)?;
+    let file = dir.join("FairChoices.tla");
+    std::fs::write(
+        &file,
+        r"---- MODULE FairChoices ----
+EXTENDS Naturals
+VARIABLE x
+Init == x = 0
+Act(i) == x = i /\ x' = (i + 1) % 16
+Next == \E i \in 0..15 : Act(i)
+Spec == Init /\ [][Next]_x /\ \A i \in 0..15 : SF_x(Act(i))
+Progress == []<>(x = 0)
+====
+",
+    )?;
+    std::fs::write(
+        file.with_extension("cfg"),
+        "SPECIFICATION Spec\nPROPERTY Progress\n",
+    )?;
+    let report = check(file, false, 1);
+    std::fs::remove_dir_all(dir)?;
+    let json = report.to_json();
+    assert_eq!(json["verdict"], "unsupported");
+    assert_eq!(
+        json["message"],
+        "temporal formula resource limit: solution decomposition work"
+    );
+    assert!(json["counterexample"].is_null());
+    assert_eq!(report.exit_code_for(ExitConvention::Native), 3);
+    Ok(())
+}
