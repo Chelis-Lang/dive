@@ -64,6 +64,7 @@ Tokens == {"red", "blue", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
 TypeInvariant == got \in [IDs -> SUBSET Tokens]
 OnlyRed == \A id \in IDs : got[id] \subseteq {"red"}
 OnlyBlue == \A id \in IDs : got[id] \subseteq {"blue"}
+OnlyColors == \A id \in IDs : got[id] \subseteq {"red", "blue"}
 SomeEmpty == \E id \in IDs : got[id] = {}
 Never == \E id \in IDs : got[id] = {"red"} /\ got[id] = {"blue"}
 Symmetric == Permutations(IDs)
@@ -76,6 +77,12 @@ Next == \/ Receive("red")
         \/ UNCHANGED got
 NextBad == \/ Next
            \/ Receive("blue")
+Mixed == \/ /\ \A id \in IDs : got[id] = {}
+            /\ Receive("red")
+         \/ /\ \A id \in IDs : got[id] = {}
+            /\ Receive("blue")
+         \/ /\ ~(\A id \in IDs : got[id] /= {"red"})
+            /\ Receive("a")
 ====
 ''')
     cfg = module.with_suffix(".cfg")
@@ -98,6 +105,7 @@ NextBad == \/ Next
         cfg.write_text(base + f'NEXT {next_op}\nINVARIANT {invariant}\n')
         row = check(compiled, 1)
         assert row["trace_validated"] and row["ending"]["name"] == invariant
+        assert row["witness_strategy"] == "compiled"
         assert row["depth"] == depth and row["membership_bits"] == ranks
 
     # Each lane of the final row has a rank, but the combination still
@@ -105,6 +113,21 @@ NextBad == \/ Next
     cfg.write_text(base + 'NEXT Next\nINVARIANT OnlyRed\nINVARIANT SomeEmpty\n')
     row = check(compiled, 1)
     assert row["trace_validated"] and row["ending"]["name"] == "SomeEmpty" and row["depth"] == 4
+    assert row["witness_strategy"] == "compiled"
+    parallel = check([*compiled, "--workers", "8"], 1)
+    assert row["trace"] == parallel["trace"]
+
+    # Two different property names occur on the same first failing layer.
+    cfg.write_text(base + 'NEXT NextBad\nINVARIANT OnlyRed\nINVARIANT OnlyBlue\n')
+    row = check(compiled, 1)
+    assert row["trace_validated"] and row["witness_strategy"] == "core" and row["depth"] == 2
+    assert row["ending"] == check([*core, "--exit-codes", "native"], 10)["counterexample"]["trace"]["ending"]
+
+    # The same expansion wave can expose a deadlock and a bad successor.
+    cfg.write_text(base + 'NEXT Mixed\nINVARIANT OnlyColors\n')
+    row = check(compiled, 1)
+    assert row["trace_validated"] and row["witness_strategy"] == "core"
+    assert (row["verdict"], row["depth"]) in (("deadlock", 2), ("invariant-violation", 3))
 
     cfg.write_text(base.replace('SYMMETRY Symmetric\n', '') + 'NEXT Next\nINVARIANT OnlyRed\n')
     row = check(compiled, 2)
@@ -145,6 +168,7 @@ Restricted == got = {}
     trace = root / "witness.json"
     row = check([*compiled, "--trace", trace], 1)
     assert row["trace_validated"] and row["depth"] == 2 and row["ending"]["name"] == "Empty"
+    assert row["witness_strategy"] == "compiled"
     validate = [dive, "validate-trace", module, "--compat=tlc", "--trace", trace, "--output", "json"]
     assert check(validate)["result"] == "valid"
     bad = json.loads(trace.read_text())
@@ -156,6 +180,7 @@ Restricted == got = {}
     cfg.write_text(base + 'NEXT DeadEnd\n')
     row = check([*compiled, "--workers", "8"], 1)
     assert row["trace_validated"] and row["verdict"] == "deadlock" and row["depth"] == 4
+    assert row["witness_strategy"] == "core"
     cfg.write_text(base + 'NEXT Next\nCONSTRAINT Restricted\n')
     row = check(compiled, 2)
     assert row["verdict"] == "unsupported" and "state constraints" in row["reason"]
@@ -171,18 +196,23 @@ Restricted == got = {}
     compiler_path = work / "rustc"
     env = {**os.environ, "PATH": str(work) + ":" + os.environ["PATH"], "TMPDIR": str(work)}
     name = shlex.quote(compiler)
-    for phase in ("compile", "search"):
+    for phase in ("compile", "search", "witness"):
         marker = work / phase
         wait = f'printf ready > {shlex.quote(str(marker))}\nexec sleep 600\n'
         tool = f'#!/bin/sh\nif [ "$1" = --version ]; then exec {name} "$@"; fi\n'
         if phase == "compile":
             tool += wait
         else:
+            dispatch = ""
+            if phase == "witness":
+                cfg.write_text(base + 'NEXT Next\nINVARIANT Empty\n')
+                dispatch = 'if [ "$1" != witness ]; then exec "$0.native" "$@"; fi\n'
             tool += f'''{name} "$@" || exit "$?"
 for output do :; done
+mv "$output" "$output.native"
 cat > "$output" <<'WORKER'
 #!/bin/sh
-{wait}WORKER
+{dispatch}{wait}WORKER
 chmod +x "$output"
 '''
         compiler_path.write_text(tool)

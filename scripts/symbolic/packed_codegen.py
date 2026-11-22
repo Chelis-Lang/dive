@@ -41,7 +41,7 @@ class Rust:
         lines.append(f"let {name} = {expression};")
         return name
 
-    def action(self, guard, updates):
+    def action(self, guard, updates, emit):
         # Adjacent destination bits that copy a contiguous source field can
         # move together, even when other bits in the row use general BDDs.
         nodes = {}
@@ -69,7 +69,7 @@ class Rust:
             terms.append(f"{set_bits:#x}")
         terms.extend(f"(row & {mask:#x}).rotate_left({shift})" for shift, mask in sorted(copies.items()))
         terms.extend(compute)
-        body = "\n                ".join([*after_guard, f"self.emit({' | '.join(terms)});"])
+        body = "\n                ".join([*after_guard, f"{emit}({' | '.join(terms)});"])
         guard = "\n            ".join(before_guard)
         return f"{{\n            {guard}\n            if {condition} {{\n                {body}\n            }}\n        }}"
 
@@ -110,7 +110,7 @@ class Rust:
             MEMBERSHIP_BITS=capacity,
         )
 
-    def emit(self, template):
+    def emit(self, template, *, witness=False):
         model = self.model
         require(model.constraint == model.b.true, "state constraints in compiled checking")
         require(0 < len(self.bits) < 64, "expected one to 63 state bits")
@@ -119,19 +119,26 @@ class Rust:
                 "unequal compiled symmetry lanes")
         root_words = [self.rank(point) for point in model.b.pick_iter(model.initial, self.bits)]
         require(model.effects.total() <= 512, "generated worker exceeds 512 action witnesses")
+        emit = "emit" if witness else "self.emit"
         expand = "\n        ".join(
-            self.action(guard, sorted(updates))
+            self.action(guard, sorted(updates), emit)
             for (guard, updates), count in model.effects.items()
             for _ in range(count)
         )
         properties = []
-        for _, root in model.properties:
+        for index, (_, root) in enumerate(model.properties):
             lines = []
             holds = self.edge(root, {}, lines)
             if holds == "true":
                 continue
-            properties.append("{ " + " ".join(lines) + f" {holds} }}")
-        condition = " && ".join(f"({part})" for part in properties) or "true"
+            block = "{ " + " ".join(lines) + f" {holds} }}"
+            properties.append((index, block))
+        if witness:
+            condition = "\n    ".join(
+                f"if !({block}) {{ return Some({index}); }}" for index, block in properties
+            )
+        else:
+            condition = " && ".join(f"({block})" for _, block in properties) or "true"
         ranked = self.word_size == 64
         ranks = self.orbit_ranks() if ranked else dict(
             FIXED_RANKS="", LANE_RANKS="", FIXED_SPACE=0, LANE_RANGE=0,

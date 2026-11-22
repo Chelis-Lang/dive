@@ -115,11 +115,20 @@ symmetry. `--workers` accepts 1 through 8 and defaults to 1. The JSON report
 gives the largest width used, `state_bits`, the membership bitset capacity in
 bits, `membership_bits`, compilation and search times, and complete counts
 on success. A successor outside the projected rank space still undergoes
-invariant checking. On a possible violation, exact Core searches for a shortest
-trace in the same breadth-first layer and independently validates it.
+invariant checking. When the first failing layer identifies a single
+invariant, the compiled worker repeats the search to that layer and retains
+concrete predecessors for a shortest trace. If the search finds a deadlock
+or competing invariant names, exact Core finds the trace. Dive independently
+validates either trace. The report gives the search used as
+`witness_strategy` and the time through replay as `witness_seconds`.
 `--trace FILE` saves the validated trace. The time limit covers binding,
 compilation, search, and replay. The memory limit applies to each process's
 address space. This strategy uses the finite checker exit codes above.
+
+With an injected depth-13 invariant failure in KVS Large, the eight-worker
+compiled command returned a validated trace in 2.75 s. The same command had
+taken 30.73 s with the Core rerun. One and eight workers returned identical
+traces. [Inputs, timings and holding controls](../../conformance/reports/perf/2026-11-21-compiled-witness.json).
 
 ## Checking interchangeable status tables
 

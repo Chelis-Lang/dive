@@ -1,0 +1,207 @@
+{
+  "schema": "dive-compiled-witness-1",
+  "methods": {
+    "host": "EC2 c7i.4xlarge; Intel Xeon Platinum 8488C; eight physical CPUs; SMT and swap disabled",
+    "kernel": "7.0.0-1018-aws",
+    "map_limit": 1048576,
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "build": "Shipped release profile (fat LTO, one codegen unit); package-worker.sh; mimalloc 3.7.0 in Dive; system allocator in generated Rust workers.",
+    "affinity": "CPU 0 at one worker, CPUs 0-7 at eight workers, one timed process group at a time.",
+    "memory": "GNU time peak per-process RSS in KiB; child processes included, RSS not summed.",
+    "input_source": "tlaplus/Examples pin 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f, specifications/KeyValueStore/"
+  },
+  "added_module": [
+    "---- MODULE MCKVSLate ----",
+    "EXTENDS MCKVS",
+    "FullyStale(t) ==",
+    "    /\\ written[t] = {}",
+    "    /\\ \\A k \\in Key :",
+    "        /\\ store[k] /= NoVal",
+    "        /\\ snapshotStore[t][k] /= NoVal",
+    "        /\\ store[k] /= snapshotStore[t][k]",
+    "NoTwoFullyStaleSnapshots ==",
+    "    ~(\\E a \\in tx : \\E b \\in tx : a /= b /\\ FullyStale(a) /\\ FullyStale(b))",
+    "===="
+  ],
+  "added_cfg_invariant": "Append NoTwoFullyStaleSnapshots to the INVARIANTS list of MCKVSSafetyLarge.cfg.",
+  "model_sha256": {
+    "KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+    "MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+    "MCKVSLate.cfg": "cb607e046bffe9c14695206fa3d8035c217848e1118b0f6595e6dcfe3ddf0874",
+    "MCKVSLate.tla": "70b16432c3397d969853d1b0ce838e536c31416d1596f9e9a9d904a91506e968",
+    "MCKVSSafetyLarge.cfg": "c1f414a1caf84df31089ecb569de0dd6b835fad640f7545b2b7b239b7aad7964",
+    "MCKVSSafetyMedium.cfg": "d3272277738dce3a0f0c16480e96870a1630c9ea1fb7e64fdca0f0763fc7a629"
+  },
+  "replay_scripts_sha256": {
+    "installed-witness-final/libexec/dive-symbolic/compiled.py": "6077134434c94cba600e1fc35ce8c3cd3e76dce595bd0aae3778175a6316539c",
+    "installed-witness-final/libexec/dive-symbolic/packed_codegen.py": "ee40d688b66ba2d9ac61f9c49546e80b13ce1977f32ccac946a55f5314273b22",
+    "installed-witness-final/libexec/dive-symbolic/packed_worker.rs.in": "af192c44b0fa6eb88bc57bb581e8c8147f030e452a142f887239670875e19390"
+  },
+  "baseline_report": "2026-11-21-compiled-wide-safety.json",
+  "invocation": {
+    "compiled": "dive check MCKVSLate.tla --config MCKVSLate.cfg --strategy compiled --workers N --max-memory 24g --time-limit 300s --output json",
+    "core": "dive check MCKVSLate.tla --config MCKVSLate.cfg --workers 1 --compat=tlc --seed 0 --fp 0 --store exact --exit-codes native --max-memory 24g --time-limit 300s --output json",
+    "symbolic": "dive check MCKVSLate.tla --config MCKVSLate.cfg --strategy symbolic --max-memory 24g --time-limit 240s --output json",
+    "healthy_control": "Run the same installed compiled candidate on the unchanged KVS Large configuration with eight workers and a 480-second limit."
+  },
+  "acceptance": {
+    "ending": {
+      "kind": "invariant",
+      "name": "NoTwoFullyStaleSnapshots"
+    },
+    "depth": 13,
+    "independently_validated": true,
+    "identical_workers_1_and_8_trace_sha256": "8baa0e113b918cadf8b8ea9ba198b25734c6b13a788b5d8bd67bb1b662d7d9d4"
+  },
+  "comparison": [
+    {
+      "name": "late-worker-search-8",
+      "workers_affinity": 8,
+      "exit": 5,
+      "wall_seconds": 1.2,
+      "cpu_seconds": 1.48,
+      "peak_rss_kib": 2858784,
+      "invariant_depth": 13,
+      "deadlock_depth": 0
+    },
+    {
+      "name": "late-symbolic-8-affinity",
+      "workers_affinity": 8,
+      "exit": 1,
+      "wall_seconds": 1.09,
+      "cpu_seconds": 1.06,
+      "peak_rss_kib": 119444,
+      "verdict": "invariant-violation",
+      "ending": {
+        "kind": "invariant",
+        "name": "NoTwoFullyStaleSnapshots"
+      },
+      "trace_validated": true,
+      "depth": 13
+    },
+    {
+      "name": "late-core-rerun-1",
+      "workers_affinity": 1,
+      "exit": 10,
+      "wall_seconds": 29.0,
+      "cpu_seconds": 28.99,
+      "peak_rss_kib": 127128,
+      "verdict": "invariant-violation",
+      "distinct": 1025230,
+      "generated": 7455982,
+      "depth": 13,
+      "left_on_queue": 651277,
+      "initial_generated": 1
+    },
+    {
+      "name": "late-compiled-core-replay",
+      "workers_affinity": 8,
+      "exit": 1,
+      "wall_seconds": 30.73,
+      "cpu_seconds": 31.01,
+      "peak_rss_kib": 2858692,
+      "verdict": "invariant-violation",
+      "ending": {
+        "kind": "invariant",
+        "name": "NoTwoFullyStaleSnapshots"
+      },
+      "trace_validated": true,
+      "state_bits": 45,
+      "membership_bits": 23299718715,
+      "compile_seconds": 0.475627,
+      "search_seconds": 1.194038,
+      "depth": 13
+    },
+    {
+      "name": "late-compiled-native-replay-final-8",
+      "workers_affinity": 8,
+      "exit": 1,
+      "wall_seconds": 2.75,
+      "cpu_seconds": 3.01,
+      "peak_rss_kib": 2858660,
+      "verdict": "invariant-violation",
+      "ending": {
+        "kind": "invariant",
+        "name": "NoTwoFullyStaleSnapshots"
+      },
+      "trace_validated": true,
+      "state_bits": 45,
+      "membership_bits": 23299718715,
+      "compile_seconds": 0.612104,
+      "search_seconds": 1.195859,
+      "witness_seconds": 0.667772,
+      "witness_strategy": "compiled",
+      "depth": 13
+    },
+    {
+      "name": "late-compiled-native-replay-final-1",
+      "workers_affinity": 1,
+      "exit": 1,
+      "wall_seconds": 3.0,
+      "cpu_seconds": 2.99,
+      "peak_rss_kib": 2854440,
+      "verdict": "invariant-violation",
+      "ending": {
+        "kind": "invariant",
+        "name": "NoTwoFullyStaleSnapshots"
+      },
+      "trace_validated": true,
+      "state_bits": 45,
+      "membership_bits": 23299718715,
+      "compile_seconds": 0.628528,
+      "search_seconds": 1.477048,
+      "witness_seconds": 0.653803,
+      "witness_strategy": "compiled",
+      "depth": 13
+    },
+    {
+      "name": "large-native-replay-build-final-cold-8",
+      "workers_affinity": 8,
+      "exit": 0,
+      "wall_seconds": 41.44,
+      "cpu_seconds": 284.19,
+      "peak_rss_kib": 5058852,
+      "verdict": "success",
+      "workers_used": 8,
+      "state_bits": 45,
+      "membership_bits": 23299718715,
+      "compile_seconds": 0.571725,
+      "search_seconds": 40.618968,
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "depth": 30,
+      "left_on_queue": 0,
+      "initial_generated": 1
+    },
+    {
+      "name": "medium-native-replay-build-final-cold-8",
+      "workers_affinity": 8,
+      "exit": 0,
+      "wall_seconds": 1.39,
+      "cpu_seconds": 4.15,
+      "peak_rss_kib": 572636,
+      "verdict": "success",
+      "workers_used": 8,
+      "state_bits": 32,
+      "membership_bits": 4294967296,
+      "compile_seconds": 0.502928,
+      "search_seconds": 0.681235,
+      "distinct": 17220672,
+      "generated": 365609473,
+      "depth": 22,
+      "left_on_queue": 0,
+      "initial_generated": 1
+    }
+  ],
+  "local_pinned_tlc_control": {
+    "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "invocation": "tlc2.TLC -workers 1 -fp 0 -seed 0 MCKVSLate.tla",
+    "exit": 12,
+    "verdict": "invariant-violation",
+    "property": "NoTwoFullyStaleSnapshots",
+    "depth": 13,
+    "distinct": 1025230,
+    "generated": 7455982,
+    "left_on_queue": 651277
+  }
+}
