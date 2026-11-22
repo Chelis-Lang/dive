@@ -1,0 +1,67 @@
+{
+  "scope": "One-barrier, three-writer Flint LeanP1, original Spec, eight invariants and two step properties, matched same host. All four peer invocations and Dive reported success, 449595 distinct / 1954072 generated / depth 33. Counts corroborated by the single-worker exact control. The peer uses its own state identity.",
+  "host": "Isolated Linux EC2 on eight dedicated physical cores. Times from GNU time, including model-specific compilation for the cold peer. Peak RSS includes compiler children for the cold run.",
+  "peer": {
+    "source": "ddalton/tla-mc@c8fce23493bb78fcd5405faf7b0653855db620ee",
+    "build": "rustc 1.99.0; CARGO_BUILD_JOBS=8 cargo build --release --locked",
+    "compiler_sha256": "2599ff4e5d5f5f63340e41ea45780ea564db7495f6e997835f4b8849c469e367",
+    "generated_checker_sha256": "e9896d6fb6c72caa8b757076b37f9bb3dab7a6e8236ce941bd2c2751c5751c28",
+    "dive_final_sha256": "fef0ce2c8b69bb9950270f1a98aaa4ae6665c6bd3f020dc024d61cd2c1438d59",
+    "module_revision": "ddalton/flint@a466e4634a483fd8da57c97e41b8aa3d78bd5f45",
+    "module_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+    "cfg": "LeanP1Size3L1W3.cfg",
+    "cfg_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+    "machine": "Same c7i.4xlarge, Ubuntu 24.04, Intel 8488C, 8 different physical cores. Sequential fresh processes.",
+    "peer_command": "env TLAMC_CACHE=CACHE /usr/bin/time -f '%e %M' timeout 180 taskset -c 0-7 tla-mc -compile -config LeanP1Size3L1W3.cfg -workers 8 LeanP1.tla",
+    "cache": "Empty CACHE for cold, same cache for the three warm runs.",
+    "input_obligations": "Unmodified Spec, eight invariants and two step properties. The peer reported generated engine (31 variables, 0 symmetry permutations). The CLI did not report per-instruction AOT coverage.",
+    "rows_fields": [
+      "run",
+      "wall_s",
+      "peak_rss_kib",
+      "checker_s",
+      "exit"
+    ],
+    "rows": [
+      [
+        "cold",
+        39.61,
+        516764,
+        1.499,
+        0
+      ],
+      [
+        "warm1",
+        1.51,
+        258676,
+        1.503,
+        0
+      ],
+      [
+        "warm2",
+        1.52,
+        273048,
+        1.507,
+        0
+      ],
+      [
+        "warm3",
+        1.54,
+        248452,
+        1.528,
+        0
+      ]
+    ]
+  },
+  "dive": {
+    "wall_s": 4.8,
+    "peak_rss_kib": 138448,
+    "paired_repeated_wall_s_range": [
+      4.81,
+      4.9
+    ],
+    "flags": "--workers 8 --store fp --compat=tlc --seed 0 --fp 0 --max-memory 24g --time-limit 120s",
+    "checker_record": "2026-11-22-core-label-guards.json"
+  },
+  "original_measurement": "https://github.com/Chelis-Lang/dive/issues/1302#issuecomment-7079260491"
+}

@@ -37,7 +37,11 @@ The [source-driven EmergencyCall measurements](2026-11-21-source-whole-values.js
 
 The [automatic strategy comparison](2026-11-22-auto-strategy.json) records the KVS Medium/Large crossover, same-host direct controls and independent model-family controls.
 
-The [lemma selection and proof controls](2026-11-22-lemma-selection.json) connect fourteen replayed counterexamples to induction, a finite surviving lemma, and external TLAPS checks on TwoPhase, Raft and TCommit.
+The [lemma selection and proof controls](2026-11-22-lemma-selection.json) connect fourteen replayed counterexamples to induction, a finite surviving lemma, and external TLAPS checks on TwoPhase, Raft and TCommit. The [complete authored TwoPhase proof and Raft controls](2026-11-22-proof-controls.json) record external obligations discharged, time limits and attribution for each backend.
+
+[Flint cold and warm native peer controls](2026-11-22-flint-native-peer.json) compare Dive with pinned compiled tla-mc on the same eight cores and unmodified one-barrier configuration. Both reported 449,595 distinct states and depth 33. Dive took 4.80 s. The peer took 39.61 s cold, including 38.1 s of compilation, then 1.51–1.54 s warm.
+
+[Guard and unchanged-table measurements](2026-11-22-transaction-guard-lowering.json) cover TCommit, TwoPhaseCounter and lockserv. The [merged Dive/Sail edit matrix](https://github.com/Chelis-Lang/sail/issues/793#issuecomment-7079211342) contains the 48 small-history and 41 larger post-merge rows. On five-transaction KVS, the cold run took 91.728 s. Across unchanged, restricted, expanded and restored actions, authenticated transfers took 405–407 ms and unsigned transfers took 557–607 ms. Small TCommit had no authentication advantage.
 
 The [compiled finite safety comparison](2026-11-21-compiled-finite-safety.json) records the exact Core and compiled KVS Medium runs, binding and compilation cost, same-host tlx, TCommit, and the named SlateDB holdout refusal.
 
