@@ -18,7 +18,7 @@ are in git history.
 
 - Symbolic transition lowering reuses common state predicates in named proofs and skips untouched table coordinates in functional updates.
 
-- Named symbolic proofs accept finite Cartesian products, tuple-pattern binders and bounded subset choices. [Supported models and limits](docs/user/symbolic.md#prove-one-configured-state-invariant)
+- Named symbolic proofs accept finite Cartesian products, tuple-pattern binders, bounded subset and function choices, and quantified state guards. [Supported models and limits](docs/user/symbolic.md#prove-one-configured-state-invariant)
 
 - [Prove one configured state invariant](docs/user/symbolic.md#prove-one-configured-state-invariant) on the original TLA+ source, including models with isolated unbounded counters. Compatible transition obligations can survive an edit.
 

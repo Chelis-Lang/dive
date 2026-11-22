@@ -462,7 +462,7 @@ Core's explicit breadth-first search on those same 46 inputs completed 15, hit t
 
 On Elevator Medium with the original quantified weak and strong fairness, both tools completed 4,122 distinct and 14,296 generated states. At one worker, Dive took 1.496 s and Manyan took 0.109 s. Reducing the configuration to one person and one elevator gave 36 states and a passing fair check on both. Removing just strong fairness for `MoveElevator` made both return a violation of `TemporalInvariant`. Dive independently validated its six-state lasso and rejected both a substituted initial stutter and the original lasso under restored fairness. These controls exercise the transition, fairness and liveness contracts for changes to the product search. [Runs and replay results](../../../conformance/reports/perf/2026-11-22-elevator-fairness.json) · [Phase timings for larger configurations](../../../conformance/reports/perf/2026-11-21-temporal-analysis-phases.json)
 
-For named safety proofs, the artifact importer joins all 33 rows in Recomp-Verify Figure 5 to their original module, CFG and named invariant. The artifact also ships ToyMutex, outside that table. Under a 30-second wall limit on one Linux host, Dive proves 21 of all 34 sources, previously seven. Recomp-Verify's parallel portfolio finishes 24. Both prove 14, Dive alone proves seven and Recomp-Verify alone proves ten. Dive takes 0.26–2.38 seconds on the shared successes and finishes ahead on each. The client-server case with a database takes 0.516 seconds against 19.027 seconds for Recomp-Verify. Another client-server size completes in 2.120 seconds with Dive while the peer reaches the deadline. Dive's remaining rows include finite function-space initialization, integer domains and one timed-out learning-switch proof. [Per-CFG commands, digests, timings, refusals and negative control](../../../conformance/reports/perf/2026-11-22-recomp-originals.json) Scimitar's saved graphs for TwoPhase and two AsyncRaft properties contain 14, 13 and 31 lemma nodes respectively. Their discharge flags record the producer's result. The importer checks the graph hashes and extracts the nodes, dependencies and CTI counts. Independent proof checking and timing fresh inference require separate runs. The Raft files record zero seconds of invariant checking. [Pinned inputs and published results](../../../conformance/reports/perf/2026-11-22-published-peer-artifacts.json) · [Direct named-proof comparisons](../../../conformance/reports/perf/2026-11-21-named-property-proofs.json) · [Scimitar proof controls](https://github.com/Chelis-Lang/dive/issues/1283)
+For named safety proofs, the artifact importer joins all 33 rows in Recomp-Verify Figure 5 to their original module, CFG and named invariant. The artifact also ships ToyMutex, outside that table. Under a 30-second wall limit on one Linux host, Dive proves 26 of the 34 named invariants. The previous worker proved seven, tuple and subset relations raised that to 21, and finite function choices, quantified guards and integer operations added five. Recomp-Verify's parallel portfolio finishes 24. Both prove 18 and Dive finishes ahead on all 18. Dive alone proves eight, Recomp-Verify alone proves six, and neither finishes two. Sharded KV's two original properties take 1.017 and 1.167 seconds with Dive against 3.327 and 2.423 seconds with the portfolio. The learning-switch transition case still times out on Dive while the portfolio succeeds. [Per-CFG commands, digests, timings, refusals and negative control](../../../conformance/reports/perf/2026-11-22-recomp-originals.json) Scimitar's saved graphs for TwoPhase and two AsyncRaft properties contain 14, 13 and 31 lemma nodes respectively. Their discharge flags record the producer's result. The importer checks the graph hashes and extracts the nodes, dependencies and CTI counts. Independent proof checking and timing fresh inference require separate runs. The Raft files record zero seconds of invariant checking. [Pinned inputs and published results](../../../conformance/reports/perf/2026-11-22-published-peer-artifacts.json) · [Direct named-proof comparisons](../../../conformance/reports/perf/2026-11-21-named-property-proofs.json) · [Scimitar proof controls](https://github.com/Chelis-Lang/dive/issues/1283)
 
 ### Reproduce the comparisons
 
@@ -479,5 +479,25 @@ python3 scripts/perf/scale/bounded-peer-panel.py "$MANYAN" prefix.json --dive-pr
 python3 scripts/perf/scale/elevator-fairness.py "$EXAMPLES/specifications/MultiCarElevator" "$DIVE" "$MANYAN/manyan" fairness.json
 python3 scripts/perf/scale/published-peer-artifacts.py published.json
 ```
+
+For the 34 named properties, use the pinned Recomp-Verify checkout, its bundled
+portfolio and an installed Dive worker. The driver makes a fresh directory
+and process group for each command and verifies the checkout and each requested
+property. To measure both process families' resident charges (including
+descendant JVMs and charged file pages), use a fresh systemd service with
+`Delegate=yes`, `MemoryMax=24G` and `MemorySwapMax=0`. Run this from the
+service's shell on Linux cgroup v2, using the repository as its working directory.
+
+```sh
+group="/sys/fs/cgroup$(cut -d: -f3 /proc/self/cgroup)"
+mkdir "$group/driver"
+echo $$ > "$group/driver/cgroup.procs"
+echo +memory > "$group/cgroup.subtree_control"
+python3 scripts/perf/scale/recomp_property_panel.py "$RECOMP" --dive "$DIVE" \
+  --seconds 30 --cgroup-parent "$group" > "$RESULTS"
+```
+
+Omit `--cgroup-parent` for time and outcomes alone. Each cell gets the same
+external wall deadline, including binding, checker startup and compilation.
 
 For the fairness run, use the Dive corpus pin of Examples. The script verifies the original module and CFG digests before creating its two smaller controls. The artifact importer reads immutable Scimitar and Recomp-Verify revisions and version 2 of the Recomp-Verify paper. For compiled explicit searches, add `--tla-mc` to the native panel invocation to run cold and warm compiled tla-mc as well as tlx on KVS and Lamport. Each compiler gets its own cache. [Native panel](../../../scripts/perf/scale/native-peer-panel.py) · [Historical explicit-search records with both peers](../../../conformance/reports/perf/2026-11-20-native-peer-panel.json)

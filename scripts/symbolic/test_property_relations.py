@@ -68,6 +68,47 @@ def run(dive, root):
     assert "4096" in check(named + ["Diagonal"], 2)["reason"]
 
 
+def check_function_init(dive, root):
+    module = root / "InitialTable.tla"
+    module.write_text(r"""---- MODULE InitialTable ----
+EXTENDS Integers
+CONSTANT IDs
+VARIABLE table, touched
+Layout == table \in [IDs -> SUBSET IDs] /\ touched \in BOOLEAN
+Init == /\ table \in [IDs -> SUBSET IDs]
+        /\ \A i \in IDs : i \in table[i]
+        /\ touched = FALSE
+Next == /\ \E i \in IDs : (i \in table[i]) \/ TRUE
+        /\ touched' = TRUE /\ UNCHANGED table
+Reflexive == \A i \in IDs : i \in table[i]
+Untouched == ~touched
+Arithmetic == ((0-1) % 3 = 2) /\ ((0-1) \notin Nat) /\ (0 \in Int) /\ touched=touched
+BadMod == (1 % 0 = 0) /\ touched=touched
+Single == \A i \in IDs : table[i] = {i}
+====
+""")
+    cfg = module.with_suffix(".cfg")
+    core = [dive, "check", module, "--config", cfg, "--output", "json", "--store", "exact",
+            "--workers", "1", "--seed", "0", "--fp", "0", "--exit-codes", "native"]
+    named = [dive, "check", module, "--config", cfg, "--output", "json", "--strategy",
+             "symbolic", "--type-invariant", "Layout", "--property-proof"]
+    for prop, depth in (("Reflexive", 0), ("Arithmetic", 0), ("Single", 1), ("Untouched", 2)):
+        cfg.write_text(f"CONSTANT IDs = {{a,b,c}}\nINIT Init NEXT Next INVARIANT {prop}\n")
+        row = check(named + [prop], int(bool(depth)))
+        explicit = check(core, 10 if depth else 0)
+        if depth:
+            assert row["trace_validated"] and row["depth"] == depth
+            assert row["ending"]["name"] == explicit["counterexample"]["trace"]["ending"]["name"] == prop
+        else:
+            assert row["proof"] == "inductive-safety" and explicit["verdict"] == "success"
+    cfg.write_text("CONSTANT IDs = {a,b}\nINIT Init NEXT Next INVARIANT BadMod\n")
+    row = check(named + ["BadMod"], 2)
+    assert row["verdict"] == "unsupported" and "positive" in row["reason"], row
+    cfg.write_text("CONSTANT IDs = {a,b,c,d,e}\nINIT Init NEXT Next INVARIANT Reflexive\n")
+    row = check(named + ["Reflexive"], 2)
+    assert row["verdict"] == "unsupported" and "enumeration budget" in row["reason"], row
+
+
 def check_client_server(dive, source, root):
     """Remove a real response-matching guard and replay the shortest violation."""
     data = source.read_bytes()
@@ -91,5 +132,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     with TemporaryDirectory() as folder:
         run(args.dive.resolve(), Path(folder))
+        check_function_init(args.dive.resolve(), Path(folder))
         if args.client_server:
             check_client_server(args.dive.resolve(), args.client_server, Path(folder))

@@ -9,7 +9,7 @@ from pathlib import Path
 import time
 
 from dd import cudd
-from engine import Atom, Enumeration, Function, Members, PowerSet, SourceModel, require
+from engine import Atom, Enumeration, Function, FunctionSpace, Members, PowerSet, SourceModel, require
 import induction
 import obligation_receipt
 from worker_process import run_helper
@@ -58,6 +58,18 @@ class PropertyModel(SourceModel):
 
     def eval(self, i, env, assigned):
         tag, x = self.node(i)
+        if tag == "Builtin" and x["op"] in ("In", "NotIn"):
+            left, right = x["args"]
+            kind, set_expr = self.node(right)
+            if kind == "Apply" and not set_expr["args"] and set_expr["callee"] in (
+                    {"Std": "NaturalsNat"}, {"Std": "IntegersNat"}, {"Std": "IntegersInt"}):
+                value = self.eval(left, env, assigned)
+                require(isinstance(value, Atom), "integer membership requires finite integer alternatives")
+                require(all(isinstance(key, tuple) and key[0] == "int" for key in value),
+                        "integer membership requires finite integer alternatives")
+                signed = set_expr["callee"] == {"Std": "IntegersInt"}
+                present = self.any(bit for key, bit in value.items() if signed or key[1] >= 0)
+                return ~present if x["op"] == "NotIn" else present
         if tag in ("Cartesian", "Tuple"):
             values = [self.eval(arg, env, assigned) for arg in x]
             if tag == "Tuple":
@@ -110,7 +122,9 @@ class PropertyModel(SourceModel):
         domain = self.eval(expr, env, assigned)
         if not isinstance(domain, PowerSet):
             return domain
-        members = domain.domain
+        return self.subset_choices(domain.domain)
+
+    def subset_choices(self, members):
         require(isinstance(members, Members), "expected a finite powerset alphabet")
         self.comparable(members)
         keys = sorted((key for key, guard in members.items() if guard != self.b.false), key=repr)
@@ -120,6 +134,25 @@ class PropertyModel(SourceModel):
         return Members(((("subset", subset), self.conjunction(members[k] for k in subset))
                         for size in range(len(keys) + 1) for subset in itertools.combinations(keys, size)),
                        enumeration=Enumeration.UNIQUE)
+
+    def initial_choices(self, domain):
+        if not isinstance(domain, FunctionSpace):
+            yield from super().initial_choices(domain)
+            return
+        keys = self.static_set(domain.domain)
+        if not keys:
+            yield self.b.true, Function()
+            return
+        codomain = domain.codomain
+        if isinstance(codomain, PowerSet):
+            codomain = self.subset_choices(codomain.domain)
+        require(isinstance(codomain, Members), "unsupported Init function codomain")
+        values = self.static_set(codomain)
+        # Bound before generating combinations, including singleton codomains.
+        require(len(keys) <= 1024 and (len(values) <= 1 or len(keys) <= 16)
+                and len(values) ** len(keys) <= 65536, "Init function exceeds finite enumeration budget")
+        for choices in itertools.product(values, repeat=len(keys)):
+            yield self.b.true, Function((key, self.bound_value(value)) for key, value in zip(keys, choices))
 
     def atom(self, key):
         if isinstance(key, tuple) and key[0] == "subset":
@@ -223,6 +256,13 @@ class PropertyModel(SourceModel):
                     update = IntegerUpdate(True, int(args[1][1]))
                 yield guard, {**assigned, name: update}
                 return
+        # These tests constrain an existing assignment. A named proof needs the
+        # union of possible states, so overlapping pure disjuncts can share it.
+        state_formula = self.ir["exprs"][i]["level"] in ("Constant", "State")
+        if state_formula and ((tag == "Quant" and (not init or x["kind"] == "Forall"))
+                              or (not init and tag == "Junction" and x["kind"] == "Or")):
+            yield guard & self.boolean(self.eval(i, env, assigned)), assigned
+            return
         if not init and tag in ("Var", "FcnApply"):
             yield guard & self.boolean(self.eval(i, env, assigned)), assigned
             return

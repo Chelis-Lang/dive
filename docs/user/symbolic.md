@@ -418,6 +418,14 @@ enumeration and 16,384 combinations per tuple expression. Exceeding a bound
 gives an explicit refusal. A subset used directly as a tuple component must
 be ground. [Original Recomp-Verify configurations and measured limits](../../conformance/reports/perf/2026-11-22-recomp-originals.json)
 
+For a finite function choice in Init, such as `table \in [Node -> SUBSET Key]`,
+the checker enumerates each ground function and applies the original Init
+guards. Each choice has a limit of 65,536 functions, 1,024 keys and, for
+multi-valued ranges, 16 keys. The worker checks state-level quantified guards
+and treats equivalent successors as one possibility in a named proof. A finite
+integer can be tested for membership in `Nat` or `Int`; modulo requires a
+positive divisor. Enumerating an unbounded integer set still refuses.
+
 The layout can be an unconfigured, parameterless source operator. Its bounds
 must admit Init and the encoded assignments. A variable without a finite
 declaration may be a private integer initialized to a literal. Each step must
