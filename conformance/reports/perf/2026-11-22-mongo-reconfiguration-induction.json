@@ -13,7 +13,8 @@
   "commands": [
     "python3 scripts/perf/scale/certify_reconfiguration.py I3DP/benchmarks/MongoLoglessDynamicRaft --dive target/release/dive --exporter target/release/examples/symbolic_input",
     "java -Xmx512m -cp tla2tools.jar tlc2.TLC -workers 1 -seed 0 -fp 0 -config Small.cfg MongoLoglessDynamicRaft.tla",
-    "tlapm --threads 2 --nofp MongoLoglessDynamicRaft_IndProofs.tla"
+    "tlapm --threads 2 --nofp MongoLoglessDynamicRaft_IndProofs.tla",
+    "python3 scripts/symbolic/test_named_induction.py --exporter target/release/examples/symbolic_input"
   ],
   "semantics": "Finite labeled carrier, InitTerm 0, MaxTerm and MaxConfigVersion 3. Each concrete Next alternative counts the candidate source valuations on which it is enabled. Safety is checked on every generated destination, including destinations outside StateConstraint. Each retained successor must satisfy the whole compact candidate. One Valuation may enable multiple alternatives. No reachability cardinality follows from this candidate size.",
   "discovery": "Seven strengthening conjuncts were supplied by the authored proof. The peer reports 8510.09 seconds and 38 completions for its discovery replay with randomized predicates. No fresh discovery time or Sail reuse time measured for this model.",
@@ -49,7 +50,7 @@
         "property": "Safety",
         "candidate": "IndAuto",
         "layout": "Layout",
-        "input_sha256": "7e80758b95842c57ad34a6caa7457248c2febf1ae8a673f030e6557503d80592",
+        "input_sha256": "8a2bc2e399d81314e6ec493d7c70c8de4e9a4ce07abb98c8f3260488d42fdbea",
         "clauses": 9,
         "state_bits": 24,
         "candidate_bdd_nodes": 1959,
@@ -80,18 +81,19 @@
             "occurrences": 8736,
             "outside_constraint": 0
           }
-        ]
+        ],
+        "config_sha256": "d436f0decbf007331f0984cccd6f9a5b54bb2a15a6bd4ec6c1c1872499402bd7"
       },
       "checking": {
-        "seconds": 0.267317,
-        "peak_rss_kib": 52540
+        "seconds": 0.898745,
+        "peak_rss_kib": 60684
       },
       "receiving": {
-        "seconds": 0.267956,
-        "peak_rss_kib": 52880
+        "seconds": 0.528463,
+        "peak_rss_kib": 55440
       },
-      "certificate_bytes": 714,
-      "certificate_sha256": "8cd380c88282caaee1f7ccb55732b975a805653c3e01f568125bf35a42832640",
+      "certificate_bytes": 799,
+      "certificate_sha256": "9d745e907723938b63f2c16a69cc76e59b789e378d3c2d933afd0b33271f58db",
       "core": {
         "statistics": {
           "depth": 9,
@@ -102,8 +104,8 @@
           "reported_by_tlc": true
         },
         "usage": {
-          "seconds": 0.019951,
-          "peak_rss_kib": 22872
+          "seconds": 0.019956,
+          "peak_rss_kib": 23040
         }
       }
     },
@@ -115,7 +117,7 @@
         "property": "Safety",
         "candidate": "IndAuto",
         "layout": "Layout",
-        "input_sha256": "ffb7945e70b99ec7d13175efd07064bcd0879659899256e59e63e3336a1ef2e6",
+        "input_sha256": "f5eb73661c3af366cd7d8cf01a0be0628cfd5aa8504ae038bf6b8350f70eaf4d",
         "clauses": 9,
         "state_bits": 39,
         "candidate_bdd_nodes": 404758,
@@ -146,18 +148,19 @@
             "occurrences": 26696334,
             "outside_constraint": 0
           }
-        ]
+        ],
+        "config_sha256": "e4f3a4f2ba5780643575beaaa397d334cf82c602c6ed050d1e060627c698a0d0"
       },
       "checking": {
-        "seconds": 62.454246,
-        "peak_rss_kib": 618928
+        "seconds": 57.555209,
+        "peak_rss_kib": 620308
       },
       "receiving": {
-        "seconds": 62.455149,
-        "peak_rss_kib": 619056
+        "seconds": 57.343712,
+        "peak_rss_kib": 620356
       },
-      "certificate_bytes": 741,
-      "certificate_sha256": "36c7fcdd8e0c12ce51afa3c19dbd553bb9a485658e5dca9826b77885dad8c54a",
+      "certificate_bytes": 826,
+      "certificate_sha256": "6befed94e460714b822182c7b6d8f1665acb564e084c529eda0acf83812431bc",
       "original_path": {
         "length": 8,
         "sha256": "39a43bf51ca95189fc02e0864f7a1b587566a28543c589ec136da68cd6a1e0be",
@@ -181,8 +184,8 @@
           1
         ],
         "usage": {
-          "seconds": 0.011213,
-          "peak_rss_kib": 23092
+          "seconds": 0.010949,
+          "peak_rss_kib": 22968
         },
         "length": 3,
         "sha256": "591fac6ab5c945c5275cf4dd73ae48523ec33e08700af44f4d060b3766187dd3",
@@ -192,5 +195,18 @@
       "stale_rejected": true,
       "omitted_action_rejected": true
     }
-  ]
+  ],
+  "three_server_initial_same_directory_controls": {
+    "checking": {
+      "seconds": 62.454246,
+      "peak_rss_kib": 618928
+    },
+    "receiving": {
+      "seconds": 62.455149,
+      "peak_rss_kib": 619056
+    },
+    "certificate_bytes": 741,
+    "certificate_sha256": "36c7fcdd8e0c12ce51afa3c19dbd553bb9a485658e5dca9826b77885dad8c54a"
+  },
+  "relocation": "Fresh process and copied source directory used for every receiving row. Entire panel ran under PYTHONOPTIMIZE=1. Synthetic original-Init failure, changed CFG and mandatory replay controls ran in normal and optimized Python."
 }

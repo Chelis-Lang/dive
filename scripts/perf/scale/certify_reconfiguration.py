@@ -24,6 +24,11 @@ PINS = {
 CHECKER = Path(__file__).resolve().parents[2] / "symbolic/check_named_induction.py"
 
 
+def ensure(condition, explanation):
+    if not condition:
+        raise ValueError(explanation)
+
+
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -37,7 +42,8 @@ def invoke(command, root, *, expected=0, seconds=240):
 
 def original_config(settings, size):
     constants = "\n".join(settings["constants"])
-    assert "Nat <- NatFinite" in constants and settings["constraint"] == "CONSTRAINT StateConstraint"
+    ensure("Nat <- NatFinite" in constants and settings["constraint"] == "CONSTRAINT StateConstraint",
+           "unexpected I3DP finite configuration")
     if size == 2:
         constants = constants.replace("{n1,n2,n3}", "{n1,n2}")
     return constants + "\nINIT Init\nNEXT Next\nCONSTRAINT StateConstraint\nINVARIANT Safety\nCHECK_DEADLOCK FALSE\n"
@@ -48,16 +54,16 @@ def write_input(source, settings, root, size):
     proof = (source / (MODEL + "_IndProofs.tla")).read_text()
     for name in [MODEL + ".tla", "Randomization.tla"]:
         shutil.copy(source / name, root / name)
-    assert re.search(r"^NatFinite == 0\.\.3$", base, re.M)
+    ensure(re.search(r"^NatFinite == 0\.\.3$", base, re.M), "changed finite integer carrier")
     # In this pinned source Nat occurs in TypeOK and other unused definitions.
     # The original Init/Next, Safety, constraint and seven strengthening clauses use
     # only finite named domains and integer operations. Specialize TypeOK's Nat
     # bounds explicitly because the finite exporter refuses operator redirection.
     original_type = base.split("TypeOK ==\n", 1)[1].split("\nTypeOKRandom ==", 1)[0]
     finite_type, count = re.subn(r"\bNat\b", "NatFinite", original_type)
-    assert count == 3
+    ensure(count == 3, "changed TypeOK integer bounds")
     clauses = proof[proof.index("StrConj_0 =="):proof.index("ActiveConfigSet ==")]
-    assert clauses.count(r"/\ TypeOK") == 1
+    ensure(clauses.count(r"/\ TypeOK") == 1, "unexpected source strengthening")
     header = f"---- MODULE ProofTrial ----\nEXTENDS {MODEL}\nCONSTANTS n1,n2,n3\n"
     (root / "ProofTrial.tla").write_text(
         header + "\nFiniteCandidateType ==\n" + finite_type
@@ -76,10 +82,10 @@ def check_core(dive, module, cfg, root, expected):
 
 
 def validate_pair(dive, module, cfg, trace, root):
-    assert replay(dive, module, cfg, trace, root) == "valid"
+    ensure(replay(dive, module, cfg, trace, root) == "valid", "independent validator refused genuine trace")
     damaged = deepcopy(trace)
     damaged["states"][1]["values"] = deepcopy(trace["states"][-1]["values"])
-    assert replay(dive, module, cfg, damaged, root) == "invalid"
+    ensure(replay(dive, module, cfg, damaged, root) == "invalid", "independent validator accepted damaged trace")
     return {"length": len(trace["states"]), "sha256": hashlib.sha256(json.dumps(trace, sort_keys=True).encode()).hexdigest(),
             "validated": True, "damaged_rejected": True}
 
@@ -105,11 +111,11 @@ def original_path(dive, root, module, cfg):
                         .replace("INVARIANT Safety", "INVARIANT Waiting"))
     row, _ = check_core(dive, path, modified, root, 10)
     word = row["counterexample"]["trace"]
-    assert len(word["states"]) == 1 + len(roles)
+    ensure(len(word["states"]) == 1 + len(roles), "unexpected number of scheduled steps")
     word["ending"] = {"kind": "behavior"}
     word["variables"] = [v for v in word["variables"] if v != "stage"]
     for i, state in enumerate(word["states"]):
-        assert state["values"].pop("stage") == i
+        ensure(state["values"].pop("stage") == i, "schedule annotation disagrees with step")
         state["action"] = None if i == 0 else {"name": roles[i - 1][0]}
     return {**validate_pair(dive, module, cfg, word, root), "steps": [name for name, _ in roles]}
 
@@ -120,9 +126,8 @@ def proof_command(args, root):
 
 
 def run(args, root):
-    assert all(sha(args.source / name) == pin for name, pin in PINS.items())
+    ensure(all(sha(args.source / name) == pin for name, pin in PINS.items()), "source pin mismatch")
     settings = json.loads((args.source / (MODEL + ".config.json")).read_text())
-    rows = []
     for size in (2, 3):
         directory = root / str(size)
         directory.mkdir()
@@ -130,13 +135,15 @@ def run(args, root):
         cmd = proof_command(args, directory)
         cert = directory / "proof.json"
         result, usage = invoke([*cmd, "--save", cert], directory)
-        checked, receiving = invoke([*cmd, "--verify", cert], directory)
-        assert result == checked and result["result"] == "proved"
+        relocated = root / f"receiving-{size}"
+        shutil.copytree(directory, relocated)
+        checked, receiving = invoke([*proof_command(args, relocated), "--verify", cert], relocated)
+        ensure(result == checked and result["result"] == "proved", "relocated verification disagreed")
         record = dict(servers=size, proof=result, checking=usage, receiving=receiving,
                       certificate_bytes=cert.stat().st_size, certificate_sha256=sha(cert))
         if size == 2:
             core, core_usage = check_core(args.dive, model, cfg, directory, 0)
-            assert core["verdict"] == "success" and core["statistics"]["left_on_queue"] == 0
+            ensure(core["verdict"] == "success" and core["statistics"]["left_on_queue"] == 0, "incomplete Core check")
             record["core"] = dict(statistics=core["statistics"], usage=core_usage)
         else:
             record["original_path"] = original_path(args.dive, directory, model, cfg)
@@ -145,26 +152,26 @@ def run(args, root):
             doc["actions"] = [x for x in doc["actions"] if x["action"] != "ReconfigAction"]
             wrong.write_text(json.dumps(doc))
             refused, _ = invoke([*cmd, "--verify", wrong], directory, expected=2)
-            assert "differs from independently checked" in refused["reason"]
+            ensure("differs from independently checked" in refused["reason"], "unexpected omitted-action verdict")
             text = model.read_text()
             guard = r"/\ currentTerm[i] < term"
-            assert text.count(guard) == 1
+            ensure(text.count(guard) == 1, "unexpected mutation site")
             model.write_text(text.replace(guard, r"/\ TRUE"))
             refused, _ = invoke([*cmd, "--verify", cert], directory, expected=2)
-            assert "different source" in refused["reason"]
+            ensure("different source" in refused["reason"], "unexpected stale-receipt verdict")
             unsafe, usage = check_core(args.dive, model, cfg, directory, 10)
             word = unsafe["counterexample"]["trace"]
-            assert unsafe["property"] == "Safety"
+            ensure(unsafe["property"] == "Safety", "wrong violated property")
             def primary_terms(state):
                 v = state["values"]
                 terms = {k["model"]: term for k, term in v["currentTerm"]["fcn"]}
                 return [terms[k["model"]] for k, r in v["state"]["fcn"] if r["model"] == "Primary"]
             terms = list(map(primary_terms, word["states"]))
-            assert all(len(set(t)) == len(t) for t in terms[:-1]) and len(set(terms[-1])) < len(terms[-1])
+            ensure(all(len(set(t)) == len(t) for t in terms[:-1]) and len(set(terms[-1])) < len(terms[-1]),
+                   "two-primary violation reported at the wrong state")
             record["mutant"] = dict(guard=guard, first_failure=len(terms)-1, terms=terms[-1], usage=usage,
                                     **validate_pair(args.dive, model, cfg, word, directory))
             record.update(stale_rejected=True, omitted_action_rejected=True)
-        rows.append(record)
         print(json.dumps(record), flush=True)
 
 

@@ -612,8 +612,9 @@ The command uses the symbolic checker's Python dependencies.
 
 On I3DP's three-server MongoLoglessDynamicRaft, the seven supplied strengthening
 conjuncts covered **12,240,225 candidate valuations**. The checker proved all
-four actions across **70,410,570 enabled occurrences** in **62.45 s** with
-about 605 MiB peak RSS. Independent replay accepted an eight-state path with
+four actions across **70,410,570 enabled occurrences** in **57.56 s** with
+606 MiB peak RSS. A fresh process re-exported a relocated source checkout
+and checked the certificate in 57.34 s. Independent replay accepted an eight-state path with
 two elections, a membership change and propagation to other servers. Removing
 one voting guard allowed two primaries in term 1 after two steps.
 [Source, reproduction, controls and timings](../../conformance/reports/perf/2026-11-22-mongo-reconfiguration-induction.json)

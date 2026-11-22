@@ -13,8 +13,13 @@ from induction import write_atomic
 from property_proof import PropertyModel
 
 
-def digest(value):
-    return hashlib.sha256(json.dumps(value, separators=(",", ":"), sort_keys=True).encode()).hexdigest()
+def digest(document):
+    # Diagnostic display paths change when a client moves the checked input.
+    # Retain file order, module identity, selected source bytes and every IR edge.
+    files = [{key: value for key, value in file.items() if key != "display"}
+             for file in document["ir"]["files"]]
+    bound = {**document, "ir": {**document["ir"], "files": files}}
+    return hashlib.sha256(json.dumps(bound, separators=(",", ":"), sort_keys=True).encode()).hexdigest()
 
 
 class InductionModel(PropertyModel):
@@ -80,7 +85,8 @@ def verify(document, layout, candidate, property_name):
     domain = model.conjunction(~model.encoding(fields, idx)
                                for fields, choices in model.layout.values() if choices
                                for idx, key in enumerate(choices) if model.padding(key))
-    admitted = predicate & domain & model.constraint
+    candidate_domain = predicate & domain
+    admitted = candidate_domain & model.constraint
     _, target = model.properties[0]
 
     def discharge(bad, obligation):
@@ -89,7 +95,7 @@ def verify(document, layout, candidate, property_name):
             raise Unsupported(f"undischarged {obligation}; symbolic source valuation {state}")
 
     discharge(model.initial & ~target, "initial safety")
-    discharge(model.initial & model.constraint & ~admitted, "initiation")
+    discharge(model.initial & ~candidate_domain, "initiation")
     discharge(admitted & ~target, "safety implication")
     discharge(admitted & model.invalid_sources, "complete finite destination layout")
     rows = []
@@ -133,12 +139,15 @@ def main():
                              capture_output=True, check=False)
         require(run.returncode == 0, run.stderr.decode(errors="replace") or "source export refused")
         document = json.loads(run.stdout)
+        config_digest = hashlib.sha256(args.config.read_bytes()).hexdigest()
         if args.verify:
             require(args.verify.stat().st_size <= 1 << 20, "oversize named induction certificate")
             old = json.loads(args.verify.read_text())
-            require(isinstance(old, dict) and old.get("input_sha256") == digest(document),
+            require(isinstance(old, dict) and old.get("input_sha256") == digest(document)
+                    and old.get("config_sha256") == config_digest,
                     "certificate belongs to a different source or configuration")
         result = verify(document, args.layout, args.candidate, args.property)
+        result["config_sha256"] = config_digest
         if args.verify:
             require(old == result, "certificate differs from independently checked obligations")
         if args.save:
