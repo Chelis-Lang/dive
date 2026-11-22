@@ -643,3 +643,39 @@ P == \A u \in {1} : (Warm \/ ~Warm) /\ \A k \in {1} :
         evaluate_lasso(&model, &inner, &states, 0).expect_err("strict value must be evaluated");
     assert!(err.to_string().contains("unbound slot"), "{err}");
 }
+
+#[test]
+fn supplied_foreign_atom_keeps_the_ordinary_membership_comparison() {
+    let model = bound(
+        r#"---- MODULE Foreign ----
+VARIABLE x, active
+Init == x = FALSE /\ active = {"hello"}
+Next == UNCHANGED <<x,active>>
+Member(key) == (key \in active) ~> x
+Plain(key) == (~(key \notin active)) ~> x
+===="#,
+        "INIT Init\nNEXT Next\n",
+    );
+    let local = model.names.intern("hello");
+    let foreign = dive_value::Interner::new();
+    let _padding = foreign.intern("padding");
+    let mut external = foreign.intern("hello");
+    // Distinguish text-based hashing from the encounter-order comparison.
+    if external.tok() == local.tok() {
+        let other = dive_value::Interner::new();
+        external = other.intern("hello");
+    }
+    assert_ne!(external.tok(), local.tok());
+    let set = Value::set(vec![Value::Str(local)], dive_value::Ctx::tlc()).expect("word set");
+    let states: Vec<State> = vec![Arc::from([Some(Value::FALSE), Some(set)])];
+    for name in ["Member", "Plain"] {
+        let root = predicate(&model, name);
+        let scope = model
+            .evaluator
+            .scope_bind(&root.scope, dive_ir::Slot(0), Value::Str(external.clone()))
+            .expect("supplied frame");
+        let got = evaluate_lasso(&model, &Pred::new(root.expr, scope), &states, 0)
+            .expect("ordinary query");
+        assert_eq!(got, [true], "{name}");
+    }
+}

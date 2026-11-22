@@ -179,7 +179,16 @@ impl Word<'_> {
                             return None;
                         };
                         match ev.scope_slot(&sc, *local) {
-                            SlotView::Value(v) if compatible(&v, &v) => return Some((*var, v)),
+                            SlotView::Value(v)
+                                if compatible(&v, &v)
+                                    && v.validate_names_in(
+                                        &self.model.names,
+                                        ev.options().ctx.order,
+                                    )
+                                    .is_ok() =>
+                            {
+                                return Some((*var, v));
+                            }
                             SlotView::Lazy(actual, caller) => {
                                 key = actual;
                                 sc = caller;
@@ -237,7 +246,11 @@ impl Word<'_> {
             if i % 128 == 0 {
                 self.model.evaluator.poll_host_control()?;
             }
-            let Some(set) = state[var.index()].as_ref().and_then(Value::as_set) else {
+            let Some(set) = state
+                .get(var.index())
+                .and_then(Option::as_ref)
+                .and_then(Value::as_set)
+            else {
                 return Ok(None);
             };
             if set.kind() != SetKind::Enum {
