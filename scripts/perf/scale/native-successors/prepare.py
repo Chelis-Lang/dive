@@ -63,7 +63,7 @@ def extract(tree, destination):
     replace_once(core / "generate.rs", "mod composition;", "mod composition;\npub(crate) mod native_study;")
     replace_once(core / "generate.rs", "        let result = self.run_action(code, action.g, sink);", """
         let result = if code.native_worker && self.debugger.is_none() && self.fuel == u64::MAX
-            && !self.heap.speculative && sink.exhaustive() && !sink.constructive() {
+            && self.unbounded.is_none() && !self.heap.speculative && sink.exhaustive() && !sink.constructive() {
             self.clear_buffer();
             native_study::run(self,code,action.g,sink)
         } else { self.run_action(code, action.g, sink) };""")
@@ -165,7 +165,7 @@ def prepare(args):
             planfile = folder / "generator.plan"
             env["DIVE_EXPORT_SUCCESSORS"] = str(planfile)
             flags = ["--compat=tlc"] if args.profile == "tlc" else []
-            status, report = cli(bootstrap, ["check", module.name, "--config", "native-study.cfg", *flags, "--workers", "1", "--seed", "0", "--fp", "0"], folder, env)
+            status, report = cli(bootstrap, ["check", module.name, "--config", "native-study.cfg", *flags, "--workers", "1", "--seed", "0", "--fp", "0", "--max-states", "1", "--time-limit", "15s"], folder, env)
             if status == 0 or report.get("verdict") != "unsupported" or EXPORT_MARKER not in json.dumps(report):
                 raise ValueError(f"plan unavailable: {report.get('verdict')} {report.get('message') or report.get('refusal')}")
             rust, shape, counts = lower(planfile.read_text())
