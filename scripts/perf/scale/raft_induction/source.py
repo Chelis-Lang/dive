@@ -354,7 +354,7 @@ class Model:
                 return Set([(True, index) for index in range(a, b + 1)])
             return {
                 "NaturalsPlus": operator.add,
-                "NaturalsMinus": operator.evaluate,
+                "NaturalsMinus": operator.sub,
                 "NaturalsTimes": operator.mul,
                 "NaturalsGeq": operator.ge,
                 "NaturalsGt": operator.gt,
