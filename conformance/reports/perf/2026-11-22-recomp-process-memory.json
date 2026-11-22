@@ -1,0 +1,583 @@
+{
+  "contract": "One original named invariant, cold CLI invocation, 30 seconds per process family, 24 GiB aggregate cap, swap disabled. All 68 invocations ran serially in fresh Linux cgroup v2 children. The time includes process creation and command completion. Linux memory.peak includes the process tree and charged kernel/file pages; it is distinct from single-process max RSS.",
+  "host": "EC2 c7i.4xlarge, 8 physical cores/16 vCPUs, Intel Xeon Platinum 8488C, Linux 7.0.0-1018-aws. Single dedicated host, Python 3.12 with dd.cudd 0.6.0 and Java 21.",
+  "pins": "2026-11-22-recomp-originals.json contains source and CFG SHA-256, implementation hashes and the earlier timing-only panel for each row.",
+  "reproduce": "Run scripts/perf/scale/recomp_property_panel.py RECOMP --dive DIVE --seconds 30 --cgroup-parent GROUP in the delegated systemd scope described in docs/internal/survey/verification-workloads.md.",
+  "negative_control": {
+    "config": "sharded_kv/3-3-3/sharded_kv.cfg",
+    "mutation": "Replace the sole owner' = [owner EXCEPT ![n_old] = owner[n_old] \\ {k}] assignment in Reshard with UNCHANGED owner.",
+    "original": "inductive-safety",
+    "edited": "Safety violation, 5 states, independently validated on the mutated source",
+    "original_replay": "invalid"
+  },
+  "summary": {
+    "dive": {
+      "inductive-safety": 26,
+      "unsupported": 6,
+      "deadline": 2,
+      "shared_success_median_wall_s": 0.324,
+      "shared_success_median_peak_MiB": 49.74
+    },
+    "recomp": {
+      "deadline": 10,
+      "property-satisfied": 24,
+      "shared_success_median_wall_s": 3.538,
+      "shared_success_median_peak_MiB": 1707.28
+    },
+    "shared_success": 18,
+    "dive_faster": 18,
+    "dive_lower_peak": 18
+  },
+  "rows": [
+    {
+      "config": "client_server_ae/2-4-2/client_server_ae.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.324,
+        "peak_cgroup_bytes": 52125696,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.018,
+        "peak_cgroup_bytes": 8305999872,
+        "result": "deadline"
+      }
+    },
+    {
+      "config": "client_server_ae/4-2-2/client_server_ae.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.28,
+        "peak_cgroup_bytes": 52383744,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.015,
+        "peak_cgroup_bytes": 7260405760,
+        "result": "deadline"
+      }
+    },
+    {
+      "config": "client_server_db_ae/2-3-2/client_server_db_ae.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.472,
+        "peak_cgroup_bytes": 58392576,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 18.103,
+        "peak_cgroup_bytes": 9360556032,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "client_server_db_ae/4-2-2/client_server_db_ae.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 0,
+        "wall_s": 1.871,
+        "peak_cgroup_bytes": 116072448,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.01,
+        "peak_cgroup_bytes": 7688163328,
+        "result": "deadline"
+      }
+    },
+    {
+      "config": "consensus/3/Consensus.cfg",
+      "property": "Inv",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.273,
+        "peak_cgroup_bytes": 51957760,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.377,
+        "peak_cgroup_bytes": 123895808,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "consensus_epr/4-4/consensus_epr.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 0,
+        "wall_s": 2.132,
+        "peak_cgroup_bytes": 110501888,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 6.654,
+        "peak_cgroup_bytes": 3628703744,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "consensus_forall/4-4/consensus_forall.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.272,
+        "peak_cgroup_bytes": 52703232,
+        "result": "unsupported",
+        "reason": "scalar assignment outside finite layout"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 10.666,
+        "peak_cgroup_bytes": 5349249024,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "consensus_wo_decide/4/consensus_wo_decide.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.277,
+        "peak_cgroup_bytes": 53731328,
+        "result": "unsupported",
+        "reason": "scalar assignment outside finite layout"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 11.468,
+        "peak_cgroup_bytes": 3713970176,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "firewall/5/firewall.cfg",
+      "property": "Inv",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.324,
+        "peak_cgroup_bytes": 53698560,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 3.739,
+        "peak_cgroup_bytes": 2726629376,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "learning_switch_i4/4-3/learning_switch_i4.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": null,
+        "wall_s": 30.008,
+        "peak_cgroup_bytes": 52088832,
+        "result": "deadline"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.01,
+        "peak_cgroup_bytes": 1050419200,
+        "result": "deadline"
+      }
+    },
+    {
+      "config": "learning_switch_sym/2/learning_switch.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.325,
+        "peak_cgroup_bytes": 51892224,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 2.13,
+        "peak_cgroup_bytes": 900280320,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "learning_switch_trans/3/learning_switch.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": null,
+        "wall_s": 30.012,
+        "peak_cgroup_bytes": 146051072,
+        "result": "deadline"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 7.249,
+        "peak_cgroup_bytes": 2872799232,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "lockserv/20/lockserv.cfg",
+      "property": "Mutex",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.324,
+        "peak_cgroup_bytes": 52150272,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 3.036,
+        "peak_cgroup_bytes": 1524514816,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "lockserv_automaton/20/lockserv_automaton.cfg",
+      "property": "Mutex",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.323,
+        "peak_cgroup_bytes": 53653504,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 3.946,
+        "peak_cgroup_bytes": 1659375616,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "lockserver/2-2/lockserver.cfg",
+      "property": "Inv",
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.271,
+        "peak_cgroup_bytes": 53534720,
+        "result": "unsupported",
+        "reason": "mixed-type equality"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.477,
+        "peak_cgroup_bytes": 127684608,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "majorityset_leader_election/5/majorityset_leader_election.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 0,
+        "wall_s": 1.627,
+        "peak_cgroup_bytes": 64876544,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 17.939,
+        "peak_cgroup_bytes": 5914173440,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "mldr/2/MongoLoglessDynamicRaft.cfg",
+      "property": "OnePrimaryPerTerm",
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.271,
+        "peak_cgroup_bytes": 53456896,
+        "result": "unsupported",
+        "reason": "IR standard operator NaturalsNat"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.01,
+        "peak_cgroup_bytes": 1446010880,
+        "result": "deadline"
+      }
+    },
+    {
+      "config": "naive_consensus/4-4/naive_consensus.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.274,
+        "peak_cgroup_bytes": 52129792,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 2.181,
+        "peak_cgroup_bytes": 844722176,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "quorum_leader_election/6/quorum_leader_election.cfg",
+      "property": "Inv",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.323,
+        "peak_cgroup_bytes": 52031488,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 6.552,
+        "peak_cgroup_bytes": 4635209728,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "sharded_kv/3-3-3/sharded_kv.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 0,
+        "wall_s": 1.076,
+        "peak_cgroup_bytes": 52154368,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 3.337,
+        "peak_cgroup_bytes": 1848549376,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "sharded_kv_no_lost_keys/3-3-3/sharded_kv_no_lost_keys.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 0,
+        "wall_s": 1.176,
+        "peak_cgroup_bytes": 52125696,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 2.587,
+        "peak_cgroup_bytes": 1731878912,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "simple/5/Simple.cfg",
+      "property": "PCorrect",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.273,
+        "peak_cgroup_bytes": 51879936,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.43,
+        "peak_cgroup_bytes": 132472832,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "simple_decentralized_lock/4/simple_decentralized_lock.cfg",
+      "property": "Inv",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.272,
+        "peak_cgroup_bytes": 52023296,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.679,
+        "peak_cgroup_bytes": 648597504,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "simple_election/6-7/simple_election.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 0,
+        "wall_s": 1.726,
+        "peak_cgroup_bytes": 80601088,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.008,
+        "peak_cgroup_bytes": 8154021888,
+        "result": "deadline"
+      }
+    },
+    {
+      "config": "simple_regular/5/SimpleRegular.cfg",
+      "property": "PCorrect",
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.277,
+        "peak_cgroup_bytes": 52125696,
+        "result": "unsupported",
+        "reason": "set of nonscalars"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.477,
+        "peak_cgroup_bytes": 160722944,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "tcommit/3/TCommit.cfg",
+      "property": "TCConsistent",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.266,
+        "peak_cgroup_bytes": 52031488,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.378,
+        "peak_cgroup_bytes": 126078976,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "toy_consensus/8-3/toy_consensus.cfg",
+      "property": "Inv",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.373,
+        "peak_cgroup_bytes": 53698560,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 8.164,
+        "peak_cgroup_bytes": 4848795648,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "toy_consensus_epr/8-3/toy_consensus_epr.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.522,
+        "peak_cgroup_bytes": 55037952,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 9.212,
+        "peak_cgroup_bytes": 5358948352,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "toy_consensus_forall/6-6/toy_consensus_forall.cfg",
+      "property": "Inv",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.324,
+        "peak_cgroup_bytes": 53321728,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 7.097,
+        "peak_cgroup_bytes": 4938158080,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "toy_mutex/2/ToyMutex.cfg",
+      "property": "Mutex",
+      "dive": {
+        "exit": 2,
+        "wall_s": 0.272,
+        "peak_cgroup_bytes": 52043776,
+        "result": "unsupported",
+        "reason": "expected one source layout operator named TypeOK"
+      },
+      "recomp": {
+        "exit": 0,
+        "wall_s": 1.779,
+        "peak_cgroup_bytes": 547397632,
+        "result": "property-satisfied"
+      }
+    },
+    {
+      "config": "two_phase/10/TwoPhase.cfg",
+      "property": "Consistent",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.273,
+        "peak_cgroup_bytes": 52154368,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.008,
+        "peak_cgroup_bytes": 9148243968,
+        "result": "deadline"
+      }
+    },
+    {
+      "config": "two_phase/9/TwoPhase.cfg",
+      "property": "Consistent",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.274,
+        "peak_cgroup_bytes": 52391936,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.01,
+        "peak_cgroup_bytes": 10227957760,
+        "result": "deadline"
+      }
+    },
+    {
+      "config": "two_phase_commit/7/two_phase_commit.cfg",
+      "property": "Safety",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.271,
+        "peak_cgroup_bytes": 53997568,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.008,
+        "peak_cgroup_bytes": 14740742144,
+        "result": "deadline"
+      }
+    },
+    {
+      "config": "two_phase_counter/9/TwoPhaseCounter.cfg",
+      "property": "Consistent",
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.273,
+        "peak_cgroup_bytes": 52383744,
+        "result": "inductive-safety"
+      },
+      "recomp": {
+        "exit": null,
+        "wall_s": 30.009,
+        "peak_cgroup_bytes": 10909229056,
+        "result": "deadline"
+      }
+    }
+  ]
+}
