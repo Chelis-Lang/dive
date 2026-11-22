@@ -15,6 +15,8 @@ are in git history.
 
 - Single-worker Core checks can reuse original successors to answer [fairness enabledness queries](docs/user/temporal.md#fairness) while preserving warnings, action bindings and stuttering semantics.
 
+- Core can batch fairness actions whose [subscript is a single state variable](docs/user/temporal.md#fairness), including the released LiveHourClock.
+
 - Core keeps using closed-source [fairness enabledness](docs/user/temporal.md#fairness) above one million expanded states by reading the original actions for one window of source states at a time.
 
 - Core evaluates finite predecessor function equations in the default profile, including the released LuPastry+ routing table.

@@ -1120,5 +1120,34 @@
         ]
       }
     ]
+  },
+  "bare_variable_subscript": {
+    "source": "specifications/SpecifyingSystems/Liveness/LiveHourClock.tla on the same Examples pin. Unmodified LiveHourClock.cfg selects AlwaysTick, AllTimes and TypeInvariance.",
+    "sha256": {
+      "LiveHourClock.tla": "44d1b10e8b617196589965b053720886a08cb2aeccc784e079dcc955b0c2313b",
+      "HourClock.tla": "985903176db4725f9cf25df84ad84dcd53ba94be80d26298b87ec86fbc9b08b3",
+      "LiveHourClock.cfg": "995eb191aa9f074854082b63c3c43a2c6376809ac7f1e18800f47a675178bce0",
+      "scalar-image": "5048cbe7ea9979b059574f346853a458fe5b7f3833f8603f42ca18032e759ef2"
+    },
+    "command": "DIVE_NATIVE_ATOM_AUDIT=1 dive check LiveHourClock.tla --config LiveHourClock.cfg --workers 1 --seed 0 --fp 0 --max-memory 1g --time-limit 10s --output json",
+    "both": {
+      "verdict": "success",
+      "distinct": 12,
+      "generated": 24,
+      "initial_generated": 12,
+      "depth": 1,
+      "left_on_queue": 0
+    },
+    "control": {
+      "plans": 0,
+      "rows": 0,
+      "producer_images": 0
+    },
+    "candidate": {
+      "plans": 3,
+      "rows": 36,
+      "producer_images": 36
+    },
+    "purpose": "Checks admission and per-cell agreement on a second published shape. No wall-time speedup claimed."
   }
 }
