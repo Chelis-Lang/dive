@@ -29,7 +29,8 @@ impl NativeAtoms {
 
 #[derive(Default)]
 pub(super) struct Rows {
-    attempted: bool,
+    first: usize,
+    allocation_failed: bool,
     /// Bit 63 marks a source with at least one missing original action ID.
     masks: Vec<u64>,
 }
@@ -46,34 +47,63 @@ impl Rows {
         owner: &EvaluationControl,
         control: &EvaluationControl,
     ) -> Result<Option<u64>, AnalysisError> {
-        if !self.attempted {
-            self.attempted = true;
-            let size = graph.closed_rows();
-            if size > (8 << 20) / size_of::<u64>() || self.masks.try_reserve_exact(size).is_err() {
-                return Ok(None);
+        self.get(graph.closed_rows(), source, |row| {
+            if row.is_multiple_of(512) {
+                check(owner, control)?;
             }
-            for row in 0..size {
-                if row.is_multiple_of(512) {
+            let Some(count) = graph.original_count(row) else {
+                return Ok(1 << 63);
+            };
+            let mut mask = 0;
+            for position in 0..count {
+                if position != 0 && position.is_multiple_of(1024) {
                     check(owner, control)?;
                 }
-                let Some(count) = graph.original_count(row) else {
-                    self.masks.push(1 << 63);
-                    continue;
-                };
-                let mut mask = 0;
-                for position in 0..count {
-                    if position != 0 && position.is_multiple_of(1024) {
-                        check(owner, control)?;
+                let action = graph.original_action(row, position).unwrap_or(63).min(63);
+                mask |= 1u64 << action;
+            }
+            Ok(mask)
+        })
+    }
+
+    fn get(
+        &mut self,
+        size: usize,
+        source: usize,
+        mut build: impl FnMut(usize) -> Result<u64, AnalysisError>,
+    ) -> Result<Option<u64>, AnalysisError> {
+        const FULL_ROWS: usize = (8 << 20) / size_of::<u64>();
+        const WINDOW_ROWS: usize = 16 * 1024;
+        if source >= size || self.allocation_failed {
+            return Ok(None);
+        }
+        if source
+            .checked_sub(self.first)
+            .is_none_or(|offset| offset >= self.masks.len())
+        {
+            // Small captures keep their full index. Larger ones are consumed a
+            // column at a time, with consecutive source IDs inside each column.
+            let width = if size <= FULL_ROWS { size } else { WINDOW_ROWS };
+            self.first = (source / width) * width;
+            let count = width.min(size - self.first);
+            self.masks.clear();
+            if self.masks.try_reserve_exact(count).is_err() {
+                self.allocation_failed = true;
+                return Ok(None);
+            }
+            for row in self.first..self.first + count {
+                match build(row) {
+                    Ok(mask) => self.masks.push(mask),
+                    Err(stop) => {
+                        self.masks.clear();
+                        return Err(stop);
                     }
-                    let action = graph.original_action(row, position).unwrap_or(63).min(63);
-                    mask |= 1u64 << action;
                 }
-                self.masks.push(mask);
             }
         }
         Ok(self
             .masks
-            .get(source)
+            .get(source - self.first)
             .copied()
             .filter(|mask| mask >> 63 == 0))
     }
@@ -182,5 +212,57 @@ impl Reader<'_, '_> {
             self.audit(atom, before, None, truth, control)?;
         }
         Ok(Some(truth))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Rows;
+
+    #[test]
+    fn an_interrupted_fill_cannot_publish_a_partial_window() {
+        let mut rows = Rows::default();
+        let result = rows.get((1 << 20) + 2, 0, |id| {
+            if id == 1 {
+                Err(super::AnalysisError::Limit("test budget"))
+            } else {
+                Ok(1)
+            }
+        });
+        assert!(result.is_err());
+        let mut rebuilt = 0;
+        let result = rows.get((1 << 20) + 2, 0, |_| {
+            rebuilt += 1;
+            Ok(2)
+        });
+        assert!(matches!(result, Ok(Some(2))));
+        assert_eq!(rebuilt, 16 * 1024);
+    }
+
+    #[test]
+    fn large_closed_captures_rebuild_only_the_requested_window() {
+        let mut rows = Rows::default();
+        let total = (1 << 20) + 3;
+        let mut demanded = Vec::new();
+        for source in [total - 1, total - 3, total - 2] {
+            let result = rows.get(total, source, |id| {
+                demanded.push(id);
+                Ok(if id == total - 2 { 1 << 63 } else { id as u64 })
+            });
+            assert!(
+                matches!(result, Ok(value) if value == (source != total - 2).then_some(source as u64))
+            );
+        }
+        assert_eq!(demanded, [total - 3, total - 2, total - 1]);
+        assert!(matches!(
+            rows.get(total, 21, |id| Ok(id as u64)),
+            Ok(Some(21))
+        ));
+        assert!(rows.bytes() <= 128 * 1024);
+        assert!(matches!(rows.get(total, total, |_| Ok(0)), Ok(None)));
+        assert!(matches!(
+            rows.get(total, total - 2, |_| Ok(1 << 63)),
+            Ok(None)
+        ));
     }
 }

@@ -1,0 +1,434 @@
+{
+  "question": "Can exact whole-action ENABLED reuse continue past the one-million-closed-row cutoff within the same 8 MiB mask budget?",
+  "issue": 1351,
+  "method": "At up to 1,048,576 closed rows the complete source-presence index remains unchanged. Above that limit an aligned window contains up to 16,384 consecutive source masks (128 KiB). A new source window is read from the same checked physical original occurrences. Unknown producer labels, open rows, warning and ownership checks keep their previous fallback. Smaller earlier prefix checks can set a higher run-wide peak than the final window.",
+  "hardware": "Dedicated AWS c7i.4xlarge, us-east-2, one logical worker; Intel Xeon Platinum 8488C; Ubuntu 24.04, Rust 1.99.0 release --locked. There were separate dedicated hosts for the production-only pair and the broader engineering comparisons.",
+  "input": {
+    "corpus": "tlaplus/Examples",
+    "revision": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "specification": "MultiCarElevator original Elevator.tla and ElevatorLivenessLarge.cfg with only FloorCount = 6 or 7 substituted",
+    "properties": [
+      "TemporalInvariant"
+    ],
+    "invariants": [
+      "TypeInvariant",
+      "SafetyInvariant"
+    ]
+  },
+  "sha256_inputs": {
+    "Elevator.tla": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+    "ElevatorLivenessLarge.cfg": "f41449494507bb7def26453fd0bfc46a3928b6436de0da8d6aa888a13aed410c",
+    "six-floor.cfg": "bcc7f67ccc914242386ac282a5a903f5a0b7c3c57db62b3fa938c5d0e4d3180e",
+    "seven-floor.cfg": "a75424aeb60b0e1ed5d4c06a35b23d9e4c00678da6ffd81879e1cebc89811e62"
+  },
+  "commands": [
+    "dive check Elevator.tla --config CFG --workers 1 --seed 0 --fp 0 --compat dive --max-memory 8g --time-limit LIMIT --output json",
+    "GNU time %e and %M measure fresh process wall seconds and peak resident KiB. Six-floor production limits are 180s, paired development limits 100s. Seven-floor engineering runs use 240s, with no result after a stop.",
+    "dive validate-trace Elevator.tla --config six-floor.cfg --trace WORD --seed 0 --fp 0 --output json; replace only ending.back_to with 0 and repeat. For the peer word run scripts/perf/scale/elevator-peer-word.py on Manyan -dumpTrace json output."
+  ],
+  "production_six": {
+    "comparison": "Original closed-row reuse from #1350 on the component-workspace main, followed by that same source with only the windowed mask change. One fresh process per arm on the same isolated host. Both binaries independently checked both the Core word and the pinned six-floor Manyan word, plus their corrupted endpoints.",
+    "samples": [
+      {
+        "binary": "candidate-with-1349",
+        "sha256": "e27a15b2a9efd1e5d8faa0869db4d159907ab2a85488f2051a83bd918f847b4f",
+        "wall_s": 77.4,
+        "rss_kib": 574616,
+        "verdict": "liveness-violation",
+        "property": "TemporalInvariant",
+        "statistics": {
+          "depth": 17,
+          "distinct": 1150990,
+          "generated": 7767089,
+          "initial_generated": 46656,
+          "left_on_queue": 64340,
+          "reported_by_tlc": false
+        },
+        "phase_ms": {
+          "atoms": 29462.572546,
+          "attribution": 63.40652300000001,
+          "product": 27341.366237000002
+        },
+        "enabled_direct": 9470358,
+        "enabled": {
+          "absent": 7841360,
+          "peak_mask_bytes": 3622160,
+          "plans": 26,
+          "present": 766720
+        },
+        "core_witness": [
+          {
+            "kind": "good",
+            "result": "valid",
+            "canonical_json_sha256": "bafd5a4f6e972341a00b75dd508329d3a56d39035c29ec9a9fd577fe22d7c189",
+            "length": 263
+          },
+          {
+            "kind": "damaged",
+            "result": "invalid",
+            "canonical_json_sha256": "3a9c3290045069cf3932353b63b349a5239172294486062db0a109f04bb8f205",
+            "length": 263
+          }
+        ],
+        "manyan_witness": [
+          {
+            "kind": "good",
+            "result": "valid",
+            "canonical_json_sha256": "a4d845a7da1b309980e8132e943932099a758c294171fa151dabbde1c6eb80e4",
+            "length": 329
+          },
+          {
+            "kind": "damaged",
+            "result": "invalid",
+            "canonical_json_sha256": "cb7a67e94dddc017db74a212bc28af3a97f2017bb9211f79296a099465dd0ac0",
+            "length": 329
+          }
+        ]
+      },
+      {
+        "binary": "only-window",
+        "sha256": "0cfbb4a0fc110236633662a9fe6e6439818dd5809d6412e938042b63c56ed882",
+        "wall_s": 72.4,
+        "rss_kib": 562688,
+        "verdict": "liveness-violation",
+        "property": "TemporalInvariant",
+        "statistics": {
+          "depth": 17,
+          "distinct": 1150990,
+          "generated": 7767089,
+          "initial_generated": 46656,
+          "left_on_queue": 64340,
+          "reported_by_tlc": false
+        },
+        "phase_ms": {
+          "atoms": 24057.642663,
+          "attribution": 62.420475,
+          "product": 27772.248809999997
+        },
+        "enabled_direct": 3305927,
+        "enabled": {
+          "absent": 19923108,
+          "peak_mask_bytes": 3622160,
+          "plans": 26,
+          "present": 2324312
+        },
+        "core_witness": [
+          {
+            "kind": "good",
+            "result": "valid",
+            "canonical_json_sha256": "bafd5a4f6e972341a00b75dd508329d3a56d39035c29ec9a9fd577fe22d7c189",
+            "length": 263
+          },
+          {
+            "kind": "damaged",
+            "result": "invalid",
+            "canonical_json_sha256": "3a9c3290045069cf3932353b63b349a5239172294486062db0a109f04bb8f205",
+            "length": 263
+          }
+        ],
+        "manyan_witness": [
+          {
+            "kind": "good",
+            "result": "valid",
+            "canonical_json_sha256": "a4d845a7da1b309980e8132e943932099a758c294171fa151dabbde1c6eb80e4",
+            "length": 329
+          },
+          {
+            "kind": "damaged",
+            "result": "invalid",
+            "canonical_json_sha256": "cb7a67e94dddc017db74a212bc28af3a97f2017bb9211f79296a099465dd0ac0",
+            "length": 329
+          }
+        ]
+      }
+    ],
+    "baseline_pr": 1350,
+    "production_sources": "Baseline is the closed-source enabledness change in #1350 on component-workspace main 3e778637e. The benchmark preceded the independent certified-orbit merge; the isolated post-merge acceptance runs use actual main."
+  },
+  "development_six": {
+    "comparison": "Two pairs in opposite orders with identical extra component-storage and action-receipt experiments in both executables. These rows measure the window delta in that composition.",
+    "sha256": {
+      "packedrows": "34117379e3567a23ea9adf91d7d4c33ee24d9d005d59605333697ed5287e3c35",
+      "window": "f0e3d4f71ff80df3adf4eb7be35a087190a840f23619c0a20f8398fb2b8b8d77",
+      "ordinary": "034f317ba103e883bbf499dd200940b54b83fe70eac4854c924589e09bb3cc17"
+    },
+    "samples": [
+      {
+        "arm": "packedrows",
+        "cfg": "six-floor",
+        "cap": "8g",
+        "verdict": "liveness-violation",
+        "property": "TemporalInvariant",
+        "stopped": null,
+        "wall_s": 69.8,
+        "rss_kib": 527180,
+        "stats": {
+          "depth": 17,
+          "distinct": 1150990,
+          "generated": 7767089,
+          "initial_generated": 46656,
+          "left_on_queue": 64340,
+          "reported_by_tlc": false
+        },
+        "phase_ms": {
+          "atoms": 28037.405723999997,
+          "attribution": 57.625337,
+          "product": 22895.491485
+        },
+        "batch": {
+          "plans": 26,
+          "producer_absent": 588740,
+          "rows": 4780028
+        },
+        "enabled": {
+          "absent": 7841360,
+          "peak_mask_bytes": 3622160,
+          "plans": 26,
+          "present": 766720
+        },
+        "good": "valid",
+        "damaged": "invalid"
+      },
+      {
+        "arm": "window",
+        "cfg": "six-floor",
+        "cap": "8g",
+        "verdict": "liveness-violation",
+        "property": "TemporalInvariant",
+        "stopped": null,
+        "wall_s": 64.12,
+        "rss_kib": 512552,
+        "stats": {
+          "depth": 17,
+          "distinct": 1150990,
+          "generated": 7767089,
+          "initial_generated": 46656,
+          "left_on_queue": 64340,
+          "reported_by_tlc": false
+        },
+        "phase_ms": {
+          "atoms": 22452.896288,
+          "attribution": 57.668551,
+          "product": 22839.605534
+        },
+        "batch": {
+          "plans": 26,
+          "producer_absent": 1372700,
+          "rows": 4780028
+        },
+        "enabled": {
+          "absent": 19923108,
+          "peak_mask_bytes": 3622160,
+          "plans": 26,
+          "present": 2324312
+        },
+        "good": "valid",
+        "damaged": "invalid"
+      },
+      {
+        "arm": "window",
+        "cfg": "six-floor",
+        "cap": "8g",
+        "verdict": "liveness-violation",
+        "property": "TemporalInvariant",
+        "stopped": null,
+        "wall_s": 64.34,
+        "rss_kib": 531004,
+        "stats": {
+          "depth": 17,
+          "distinct": 1150990,
+          "generated": 7767089,
+          "initial_generated": 46656,
+          "left_on_queue": 64340,
+          "reported_by_tlc": false
+        },
+        "phase_ms": {
+          "atoms": 22661.279434000004,
+          "attribution": 57.843271,
+          "product": 22839.614241
+        },
+        "batch": {
+          "plans": 26,
+          "producer_absent": 1372700,
+          "rows": 4780028
+        },
+        "enabled": {
+          "absent": 19923108,
+          "peak_mask_bytes": 3622160,
+          "plans": 26,
+          "present": 2324312
+        },
+        "good": "valid",
+        "damaged": "invalid"
+      },
+      {
+        "arm": "packedrows",
+        "cfg": "six-floor",
+        "cap": "8g",
+        "verdict": "liveness-violation",
+        "property": "TemporalInvariant",
+        "stopped": null,
+        "wall_s": 71.13,
+        "rss_kib": 533944,
+        "stats": {
+          "depth": 17,
+          "distinct": 1150990,
+          "generated": 7767089,
+          "initial_generated": 46656,
+          "left_on_queue": 64340,
+          "reported_by_tlc": false
+        },
+        "phase_ms": {
+          "atoms": 27990.470477,
+          "attribution": 57.067048,
+          "product": 23769.887853
+        },
+        "batch": {
+          "plans": 26,
+          "producer_absent": 588740,
+          "rows": 4780028
+        },
+        "enabled": {
+          "absent": 7841360,
+          "peak_mask_bytes": 3622160,
+          "plans": 26,
+          "present": 766720
+        },
+        "good": "valid",
+        "damaged": "invalid"
+      }
+    ]
+  },
+  "development_seven": {
+    "comparison": "These exploratory binaries also differ in product representation. They reached identical prefix sizes before both hit the 240 s deadline. The evaluation counts show the change in ENABLED coverage. Their wall or product times cannot isolate the window improvement.",
+    "sha256": {
+      "packed": "e73b01487e913399944277f6572e465150e9b26679915ed514f99d292c04c648",
+      "window": "f0e3d4f71ff80df3adf4eb7be35a087190a840f23619c0a20f8398fb2b8b8d77"
+    },
+    "samples": [
+      {
+        "arm": "packed",
+        "cfg": "seven-floor",
+        "verdict": "stopped",
+        "property": null,
+        "stats": {
+          "depth": 21,
+          "distinct": 3437051,
+          "exhaustive": false,
+          "generated": 25765017,
+          "initial_generated": 117649,
+          "left_on_queue": 281406,
+          "reported_by_tlc": false
+        },
+        "phases_ms": {
+          "atoms": 138131.21485,
+          "product": 44185.977870999996
+        },
+        "stopped": {
+          "elapsed_ms": 240046,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 240000,
+          "observed": 240045,
+          "phase": "temporal-analysis",
+          "resource": "time",
+          "unit": "ms"
+        },
+        "batches": {
+          "plans": 28,
+          "producer_absent": 646282,
+          "rows": 17494462
+        },
+        "time_rss": "240.05 1003796",
+        "audit": false,
+        "enabled_direct": 48673521,
+        "enabled": {
+          "absent": 9102932,
+          "present": 825840,
+          "plans": 28,
+          "peak_mask_bytes": 4450264
+        }
+      },
+      {
+        "arm": "window",
+        "cfg": "seven-floor",
+        "verdict": "stopped",
+        "property": null,
+        "stats": {
+          "depth": 21,
+          "distinct": 3437051,
+          "exhaustive": false,
+          "generated": 25765017,
+          "initial_generated": 117649,
+          "left_on_queue": 281406,
+          "reported_by_tlc": false
+        },
+        "phases_ms": {
+          "atoms": 112466.984163,
+          "product": 69400.19479400001
+        },
+        "stopped": {
+          "elapsed_ms": 240000,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 240000,
+          "observed": 240000,
+          "phase": "temporal-analysis",
+          "resource": "time",
+          "unit": "ms"
+        },
+        "batches": {
+          "plans": 28,
+          "producer_absent": 4794486,
+          "rows": 17494462
+        },
+        "time_rss": "240.01 991220",
+        "audit": false,
+        "enabled_direct": 9981775,
+        "enabled": {
+          "absent": 89807527,
+          "present": 9570213,
+          "plans": 28,
+          "peak_mask_bytes": 4450264
+        }
+      }
+    ]
+  },
+  "peer": {
+    "checker": "Manyan",
+    "revision": "a39816a873a2c2aabc00dbcef50908e996f3d44b",
+    "sha256": "89f6da894a58220f7607853ca3907122f692fe66e507c148e1898731b8b4fcf1",
+    "source": "2026-11-22-streett-workspace.json",
+    "comparison": "Same source/configuration and one worker. Earlier published six- and seven-floor trials used 180s and 240s external deadlines respectively. The two tools can report different valid words from different prefixes.",
+    "samples": [
+      {
+        "cfg": "six-floor",
+        "arm": "manyan",
+        "rep": 1,
+        "rc": 13,
+        "wall_s": 162.48,
+        "peak_kib": 3686380,
+        "word_length": 329,
+        "original_sha256": "0fa6cebcb103bfc9809b4abb56c45122b406177ca8f9be741ff31447e6aa358b",
+        "genuine": "valid",
+        "damaged": "invalid",
+        "verdict": "liveness-violation",
+        "property": "TemporalInvariant",
+        "stats": {
+          "generated": 23538984,
+          "distinct": 3065338,
+          "left_on_queue": 0,
+          "depth": 45
+        }
+      },
+      {
+        "cfg": "seven-floor",
+        "arm": "manyan",
+        "rc": 124,
+        "wall_s": 240.23,
+        "peak_kib": 5268040,
+        "counts": null,
+        "verdict": "external deadline without a verdict",
+        "source": "https://github.com/Chelis-Lang/dive/issues/1351"
+      }
+    ]
+  }
+}

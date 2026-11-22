@@ -18,6 +18,8 @@ The scripts that produced the records are in
 
 [The 46 bounded peer configurations](2026-11-22-bounded-peers.json), [Core's explicit prefix on the same inputs](2026-11-22-explicit-prefix.json), [Elevator fairness controls](2026-11-22-elevator-fairness.json) and [the published Recomp-Verify and Scimitar artifacts](2026-11-22-published-peer-artifacts.json) have a shared [reproduction guide and interpretation](../../../docs/internal/survey/verification-workloads.md#bounded-checking-fairness-and-proofs).
 
+[Windowed enabledness above one million closed states](2026-11-22-windowed-enabled.json) records the six-floor production comparison, two further matched engineering pairs and seven-floor limits. The production pair took 77.40 and 72.40 seconds with the same validated 263-state counterexample. The previous six-floor Manyan run took 162.48 seconds and found a different validated 329-state word.
+
 [Five- and six-floor Fairness workspace](2026-11-22-streett-workspace.json) records matched Manyan trials, replayed witnesses, peak RSS and a memory-stop control. The larger shared allowance cut five-floor product search from 124.56 s to about 12.4 s.
 
 [Certified carrier symmetry](2026-11-22-certified-orbits.json) records the original and edited Flint reachable-graph proofs, two transaction-commit finite proofs, two other released models, authenticated second-process repeats, matched compiled tla-mc, independent Sail checks, peak memory and damaged/genuine word replay.

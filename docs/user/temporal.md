@@ -632,7 +632,11 @@ warning. Startup diagnostics also select the ordinary evaluator. An unexpanded f
 or a possible diagnostic uses the ordinary evaluator. The
 `core.metrics.liveness.atoms.closed_enabled` counters report the number of
 matched plans, queries answered from absent and present branches, and peak
-bytes used for the source masks.
+bytes used for the source masks. Up to 1,048,576 fully expanded sources fit in
+the 8 MiB index. Larger captures read consecutive windows of at most 16,384
+sources (128 KiB) while evaluating a predicate column. A later predicate may
+read the same window again. The peak counter spans every periodic check, so a
+smaller prefix can account for its highest value.
 
 When a periodic check returns without finding a violation, later checks on the
 same growing native graph can reuse completed predicate columns. Core saves
