@@ -309,7 +309,7 @@ impl Word<'_> {
 
     fn leaf(&mut self, expr: ExprId, scope: &Scope) -> Result<Truth, TemporalError> {
         if let Some((var, key)) = self.first_membership(expr, scope, false)
-            && let Some(positions) = self.members(var, &key)?
+            && let Some(positions) = self.members(var, &key)
         {
             self.check_atom_context(expr, scope)?;
             self.charge(self.states.len().div_ceil(64) + positions.len())?;
@@ -477,6 +477,7 @@ impl Word<'_> {
             }
             Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
                 let scopes = self.finite_scopes(expr, scope, child, &mut 0)?;
+                self.prepare_memberships(*body, &scopes)?;
                 let and = *kind == QuantKind::Forall;
                 self.charge(words)?;
                 let mut values = Truth::constant(n, and);

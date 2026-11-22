@@ -571,16 +571,16 @@ Vars == x
 Act(k) == LET on == ~x IN /\ k \in active /\ x' = on /\ UNCHANGED active
 Plain(k) == /\ TRUE /\ Act(k)
 Warm == WF_Vars(x' = ~x)
-SF1 == (Warm \/ ~Warm) /\ \A k \in {1,2} : SF_Vars(Act(k))
-SF2 == (Warm \/ ~Warm) /\ \A k \in {1,2} : SF_Vars(Plain(k))
-WF1 == (Warm \/ ~Warm) /\ \A k \in {1,2} : WF_Vars(Act(k))
-WF2 == (Warm \/ ~Warm) /\ \A k \in {1,2} : WF_Vars(Plain(k))
-Member == \A k \in {1,2} : (k \in active) ~> x
-Other == \A k \in {1,2} : (~(k \notin active)) ~> x
+SF1 == (Warm \/ ~Warm) /\ \A k \in 1..32 : SF_Vars(Act(k))
+SF2 == (Warm \/ ~Warm) /\ \A k \in 1..32 : SF_Vars(Plain(k))
+WF1 == (Warm \/ ~Warm) /\ \A k \in 1..32 : WF_Vars(Act(k))
+WF2 == (Warm \/ ~Warm) /\ \A k \in 1..32 : WF_Vars(Plain(k))
+Member == \A k \in 1..32 : (k \in active) ~> x
+Other == \A k \in 1..32 : (~(k \notin active)) ~> x
 Bad(k) == /\ k \in active /\ x' = (1 \div 0) /\ UNCHANGED active
-Fault == (Warm \/ ~Warm) /\ \A k \in {1,2} : SF_Vars(Bad(k))
+Fault == (Warm \/ ~Warm) /\ \A k \in 1..32 : SF_Vars(Bad(k))
 Before(k) == /\ (1 \div 0) = 4 /\ k \in active /\ x' = ~x /\ UNCHANGED active
-Order == (Warm \/ ~Warm) /\ \A k \in {1,2} : SF_Vars(Before(k))
+Order == (Warm \/ ~Warm) /\ \A k \in 1..32 : SF_Vars(Before(k))
 ====",
         "INIT Init\nNEXT Next\n",
     );

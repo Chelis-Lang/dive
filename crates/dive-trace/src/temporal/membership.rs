@@ -1,7 +1,7 @@
 //! Inverted positions for an exact, already materialized state-set membership.
 //! The only cached information is word data. Resolve the actual binding and
 //! the first necessary source guard again for every use.
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use dive_eval::{Scope, SlotView};
@@ -18,7 +18,7 @@ pub(super) struct Membership {
 }
 
 struct Index {
-    sample: Option<Value>,
+    sample: Value,
     positions: HashMap<Value, Arc<Vec<usize>>>,
 }
 
@@ -71,7 +71,7 @@ impl Word<'_> {
                 .effects
                 .intersects(Effects::IMPURE)
             && let Some((var, binding)) = self.first_membership(action, scope, true)
-            && let Some(positions) = self.members(var, &binding)?
+            && let Some(positions) = self.members(var, &binding)
         {
             self.check_atom_context(action, scope)?;
             self.check_scoped_context_mode(sub, scope, 0, &mut 0, false)?;
@@ -204,30 +204,98 @@ impl Word<'_> {
         None
     }
 
-    pub(super) fn members(
+    // The old evaluator visits every bound body. Prepay index construction
+    // only from distinct queries that this quantifier necessarily demands.
+    // Reserve the first fairness binding for ordinary subscript evaluation.
+    pub(super) fn prepare_memberships(
         &mut self,
-        var: VarId,
-        key: &Value,
-    ) -> Result<Option<Arc<Vec<usize>>>, TemporalError> {
-        if self.membership.variable.is_none() {
-            self.membership.variable = Some(var);
-            self.membership.index = self.build_membership(var)?;
+        mut body: ExprId,
+        scopes: &[Scope],
+    ) -> Result<(), TemporalError> {
+        if self.membership.variable.is_some() || scopes.len() < 4 {
+            return Ok(());
         }
-        let Some(index) = self
+        while let Expr::Junction { items, .. } = self.model.ir.expr(body) {
+            let [only] = items.as_ref() else {
+                return Ok(());
+            };
+            body = *only;
+        }
+        let (guard, sub) = match self.model.ir.expr(body) {
+            Expr::LeadsTo(left, _) => (*left, None),
+            Expr::Wf { action, sub } | Expr::Sf { action, sub }
+                if !self
+                    .model
+                    .ir
+                    .node(*action)
+                    .effects
+                    .intersects(Effects::IMPURE) =>
+            {
+                (*action, Some(*sub))
+            }
+            _ => return Ok(()),
+        };
+        let Some((var, sample)) = self.first_membership(guard, &scopes[0], sub.is_some()) else {
+            return Ok(());
+        };
+        self.membership.variable = Some(var);
+        let sub_key = sub.and_then(|e| self.subscript_key(e, &scopes[0]));
+        if sub.is_some() && sub_key.is_none() {
+            return Ok(());
+        }
+        #[allow(
+            clippy::mutable_key_type,
+            reason = "all admitted keys are scalars or flat immutable scalar records"
+        )]
+        let mut distinct = HashSet::new();
+        for (i, scope) in scopes.iter().enumerate() {
+            if i % 128 == 0 {
+                self.model.evaluator.poll_host_control()?;
+            }
+            let Some((v, k)) = self.first_membership(guard, scope, sub.is_some()) else {
+                return Ok(());
+            };
+            if v != var
+                || !compatible(&sample, &k)
+                || !distinct.insert(k)
+                || sub.is_some_and(|e| self.subscript_key(e, scope) != sub_key)
+            {
+                return Ok(());
+            }
+        }
+        let n = self.states.len();
+        let baseline = n.saturating_mul(scopes.len() - 1);
+        let setup = n + scopes.len() * (1 + n.div_ceil(64));
+        // At most one posting per (key,position). Allow for indexing,
+        // occurrence and cycle-enabledness. Dense groups keep the old budget.
+        let max_entries = baseline.saturating_sub(setup) / 3;
+        if baseline < setup {
+            return Ok(());
+        }
+        self.membership.index = self.build_membership(var, &sample, max_entries, scopes.len())?;
+        Ok(())
+    }
+
+    pub(super) fn members(&self, var: VarId, key: &Value) -> Option<Arc<Vec<usize>>> {
+        let index = self
             .membership
             .index
             .as_ref()
-            .filter(|_| self.membership.variable == Some(var))
-        else {
-            return Ok(None);
-        };
-        if index.sample.as_ref().is_some_and(|v| !compatible(v, key)) {
-            return Ok(None);
+            .filter(|_| self.membership.variable == Some(var))?;
+        if !compatible(&index.sample, key) {
+            return None;
         }
-        Ok(Some(index.positions.get(key).cloned().unwrap_or_default()))
+        let positions = index.positions.get(key).cloned().unwrap_or_default();
+        (positions.len() + self.states.len().div_ceil(64) <= self.states.len()).then_some(positions)
     }
 
-    fn build_membership(&mut self, var: VarId) -> Result<Option<Index>, TemporalError> {
+    fn build_membership(
+        &mut self,
+        var: VarId,
+        sample: &Value,
+        max_entries: usize,
+        queries: usize,
+    ) -> Result<Option<Index>, TemporalError> {
         // Bound the number of retained word references and key clones. Every key
         // is a scalar or a shallow record backed by existing immutable word data.
         const MAX_ENTRIES: usize = 65_536;
@@ -240,7 +308,6 @@ impl Word<'_> {
             reason = "admission allows only immutable scalars and flat records of scalars; Value hash/equality does not depend on its internal caches"
         )]
         let mut positions: HashMap<Value, Arc<Vec<usize>>> = HashMap::new();
-        let mut sample: Option<Value> = None;
         let mut entries: usize = 0;
         for (i, state) in self.states.iter().enumerate() {
             if i % 128 == 0 {
@@ -260,17 +327,16 @@ impl Word<'_> {
                 return Ok(None);
             };
             entries = entries.saturating_add(items.len());
-            if entries > MAX_ENTRIES {
+            if entries > MAX_ENTRIES.min(max_entries) {
                 return Ok(None);
             }
             for (j, key) in items.iter().enumerate() {
                 if j > 0 && j % 128 == 0 {
                     self.model.evaluator.poll_host_control()?;
                 }
-                if !compatible(sample.as_ref().unwrap_or(key), key) {
+                if !compatible(sample, key) {
                     return Ok(None);
                 }
-                sample.get_or_insert_with(|| key.clone());
                 let rows = positions.entry(key.clone()).or_default();
                 Arc::make_mut(rows).push(i);
                 if positions.len() > MAX_KEYS {
@@ -278,7 +344,10 @@ impl Word<'_> {
                 }
             }
         }
-        self.charge(self.states.len() + entries)?;
-        Ok(Some(Index { sample, positions }))
+        self.charge(self.states.len() + entries + queries)?;
+        Ok(Some(Index {
+            sample: sample.clone(),
+            positions,
+        }))
     }
 }
