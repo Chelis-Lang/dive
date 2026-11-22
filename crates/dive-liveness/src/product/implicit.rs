@@ -53,6 +53,7 @@ impl Seen {
     /// bits directly. Sparse discovery retains the ordinary cancellable sort.
     fn order(self, pairs: &mut [(usize, usize)]) -> Result<Option<Vec<usize>>, ProductError> {
         let Self::Dense { words, width } = self else {
+            drop(self);
             return pair_order::cartesian(pairs).map(|(order, _)| Some(order));
         };
         if width == 0 || words.len() > pairs.len().saturating_mul(8).saturating_add(1024) {
