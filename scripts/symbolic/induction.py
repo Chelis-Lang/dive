@@ -9,7 +9,7 @@ MAX_BYTES = 16 << 20
 MAX_NODES = 100_000
 
 
-def store(path, model, states):
+def store(path, model, states, receipt=None):
     if states.dag_size - 1 > MAX_NODES:
         raise ValueError("predicate exceeds the node limit")
     ids = {model.b.true: 1}
@@ -27,12 +27,13 @@ def store(path, model, states):
         return ids[node]
 
     root = encode(states)
-    data = (
-        json.dumps(
-            {"format": "finite-state-predicate-v1", "nodes": nodes, "root": root}, separators=(",", ":")
-        ).encode("ascii")
-        + b"\n"
-    )
+    doc = {"format": "finite-state-predicate-v1", "nodes": nodes, "root": root}
+    if receipt is not None:
+        signed = json.dumps({**doc, "closure_receipt": receipt}, separators=(",", ":")).encode("ascii") + b"\n"
+        if len(signed) <= MAX_BYTES:
+            write_atomic(path, signed)
+            return
+    data = json.dumps(doc, separators=(",", ":")).encode("ascii") + b"\n"
     if len(data) > MAX_BYTES:
         raise ValueError("predicate exceeds the file limit")
     write_atomic(path, data)
@@ -51,7 +52,7 @@ def write_atomic(path, data):
             temporary.unlink(missing_ok=True)
 
 
-def load(path, model):
+def load(path, model, *, include_receipt=False):
     with path.open("rb") as stream:
         raw = stream.read(MAX_BYTES + 1)
     if len(raw) > MAX_BYTES:
@@ -70,7 +71,8 @@ def load(path, model):
         if type(bit) is not int or not 0 <= bit < len(model.variables):
             raise ValueError("unknown predicate bit")
         nodes.append(model.b.ite(model.b.var(model.variables[bit]), resolve(high), resolve(low)))
-    return resolve(doc["root"])
+    root = resolve(doc["root"])
+    return (root, doc.get("closure_receipt")) if include_receipt else root
 
 
 def verify(model, states):

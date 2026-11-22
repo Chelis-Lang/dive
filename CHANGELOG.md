@@ -5,6 +5,8 @@ are in git history.
 
 ## Unreleased
 
+- Named symbolic proofs can [reuse authenticated transition obligations in a new process](docs/user/symbolic.md#reuse-certified-action-obligations-in-another-process).
+
 ### Added
 
 - [Prove one configured state invariant](docs/user/symbolic.md#prove-one-configured-state-invariant) on the original TLA+ source, including models with isolated unbounded counters. Compatible transition obligations can survive an edit.

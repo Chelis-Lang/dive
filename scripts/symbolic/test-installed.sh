@@ -71,3 +71,45 @@ jq -e '.proof=="inconclusive" and .failed_obligation=="AllOff" and (has("trace")
 rc=0; occupancy --trace population-trace.json > population-bad || rc=$?
 test "$rc" = 1
 jq -e '.trace_validated and .depth==2 and .ending.name=="AllOff" and .trace_file=="population-trace.json"' population-bad >/dev/null
+
+# Imported action edits, damaged receipts and a different trust key all go
+# through the installed CLI. Every transferred candidate must still prove Init
+# and the selected invariant on the currently bound source.
+cat > Steps.tla <<'TLA'
+---- MODULE Steps ----
+VARIABLE x
+TypeInvariant == x \in {0,1,2}
+Init == x = 0
+Next == \/ /\ x = 0 /\ x' = 1
+        \/ /\ x = 1 /\ x' = 0
+Safe == x # 2
+====
+TLA
+cat > Imported.tla <<'TLA'
+---- MODULE Imported ----
+EXTENDS Steps
+====
+TLA
+printf '%s\n' 'INIT Init' 'NEXT Next' 'INVARIANT Safe' > Imported.cfg
+proof() {
+    "$dive" check Imported.tla --config Imported.cfg --strategy symbolic --property-proof Safe "$@"
+}
+(umask 077 && head -c 32 /dev/urandom > proof.key)
+export DIVE_SYMBOLIC_PROOF_KEY="$PWD/proof.key"
+proof --write-predicate proven.json > established
+jq -e '.closure_receipt.actions | length == 2' proven.json >/dev/null
+proof --verify-predicate proven.json | jq -e '.reused_obligations == 2' >/dev/null
+jq '.closure_receipt.mac="bad"' proven.json > damaged.json
+proof --verify-predicate damaged.json | jq -e '.proof=="inductive-safety" and .reused_obligations==0' >/dev/null
+(umask 077 && head -c 32 /dev/urandom > other.key)
+DIVE_SYMBOLIC_PROOF_KEY="$PWD/other.key" proof --verify-predicate proven.json |
+    jq -e '.proof=="inductive-safety" and .reused_obligations==0' >/dev/null
+# The changed step reaches x=2. Neither the authentic subset nor a tampered
+# predicate can certify it. A fresh run independently replays the new trace.
+sed -i "s/x' = 0/x' = 2/" Steps.tla
+rc=0; proof --verify-predicate proven.json > partial || rc=$?
+test "$rc" = 2
+jq -e '.proof=="inconclusive" and .failed_obligation=="Next closure"' partial >/dev/null
+rc=0; proof > broken || rc=$?
+test "$rc" = 1
+jq -e '.trace_validated and .depth==3 and .ending.name=="Safe"' broken >/dev/null

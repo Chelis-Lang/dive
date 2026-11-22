@@ -395,4 +395,34 @@ applies each action to everything reached so far. With `--recheck MODULE CFG`,
 the checker binds each revision. An unchanged guarded transition can retain
 its proof for the same predicate and compatible encoding. The report counts
 the retained obligations. In another process `--verify-predicate` checks every
-obligation again. [Measured comparisons and edit controls](../developer/large-models.md#prove-a-property-on-the-original-recomp-verify-models).
+obligation again by default. [Measured comparisons and edit controls](../developer/large-models.md#prove-a-property-on-the-original-recomp-verify-models).
+
+### Reuse certified action obligations in another process
+
+For a series of expensive named-property checks on a trusted Linux machine,
+initialize a private 32-byte key once, outside the source tree and the directory
+where peers exchange predicates. Use a new path for the first command.
+
+```sh
+(umask 077 && set -C && head -c 32 /dev/urandom > "$HOME/.dive-proof-key")
+export DIVE_SYMBOLIC_PROOF_KEY="$HOME/.dive-proof-key"
+```
+
+Run the write and verify commands above with this environment. Dive signs the
+identities of transition obligations that passed induction. A receiver always
+rebinds the original program, checks its assumptions, lowers every action,
+checks Init and proves that the candidate implies the requested property. It can
+skip an image only for the same candidate, finite encoding, admission,
+property, checker implementation, Boolean guard and simultaneous bit updates.
+Edits to imported operators take effect through these bound Boolean functions.
+An equivalent edit can preserve an obligation. The proof report counts skipped
+images in `reused_obligations`. A receiving process can verify an unsigned
+predicate normally.
+
+Anyone with the key can attest an obligation. Give it only to trusted checker
+processes with an immutable installation. The checker opens a mode-0600 or mode-0400
+regular file and ignores an unavailable key, a wrong key or an invalid tag.
+Removing the environment variable disables the optimization. Rotating the key
+causes old signatures to miss. On small models or cheap transition images,
+hashing the implementation and Boolean functions can take longer than proving
+the images again.
