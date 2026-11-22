@@ -59,6 +59,7 @@ def extract(tree, destination):
         if source.wait():
             raise ValueError("could not extract the committed Dive tree")
     core = destination / "crates/dive-core/src"
+    replace_once(core / "label_guard.rs", "    fn bucket(self)", "    pub(crate) fn bucket(self)")
     (core / "native_binders.rs").write_text((HERE / "binders.rs").read_text())
     (core / "native_history.rs").write_text((HERE / "history.rs").read_text())
     (core / "native_blocks.rs").write_text((HERE / "blocks.rs").read_text())

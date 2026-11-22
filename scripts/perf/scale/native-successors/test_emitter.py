@@ -35,7 +35,12 @@ class EmitterTest(unittest.TestCase):
         self.assertLess(masked.index("active & 1u32"), masked.index("active & 2u32"))
         self.assertLess(masked.index("active & 2u32"), masked.index("active & 4u32"))
         self.assertIn("if c.native_blocks.enabled && m.assigned==0", rust)
-        self.assertIn("m.label_matches", rust)
+        self.assertIn("m.label_matches(c,*p,*x)", rust)
+
+    def test_scalar_label_keeps_its_resolved_table_position(self):
+        scalar = self.choices().replace("field: Str#8", "field: Empty")
+        self.assertIn("r.scalar_label(m,c,*p,*x)", lower(scalar)[0])
+        self.assertNotIn("r.scalar_label(m,c,*p,*x)", lower(self.choices())[0])
 
     def test_different_actor_slots_use_original_alternatives(self):
         self.assertNotIn("let active=", lower(self.choices(last_slot=4))[0])

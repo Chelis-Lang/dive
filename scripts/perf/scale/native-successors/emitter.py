@@ -181,7 +181,10 @@ def lower(plan):
             p = natural(int(re.fullmatch(r"Guard\((\d+)\)", node).group(1)))
             return function(f"if m.eval_bool(c,{p})?{{{done}}}else{{Ok(())}}")
         if kind == "LabelGuard":
-            return function(f"let GNode::LabelGuard(p,x)=&c.gnodes[{g}]else{{return Err(Error::internal(\"native label shape\"))}};if m.label_matches(c,*p,*x)?{{{done}}}else{{Ok(())}}")
+            # The scalar case shares a carrier/key/position directly with an
+            # ensuing one-cell EXCEPT. Record fields are handled by routed().
+            guard = "r.scalar_label(m,c,*p,*x)" if "field: Empty," in node else "m.label_matches(c,*p,*x)"
+            return function(f"let GNode::LabelGuard(p,x)=&c.gnodes[{g}]else{{return Err(Error::internal(\"native label shape\"))}};if {guard}?{{{done}}}else{{Ok(())}}")
         if kind == "Assign":
             return function(f"assign(m,c,s,r,{g},{field('var')},{field('rhs')},{following})")
         if kind == "Scope":

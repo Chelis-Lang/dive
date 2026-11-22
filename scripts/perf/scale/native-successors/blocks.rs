@@ -45,7 +45,7 @@ struct Cell {
 /// nor an arena rollback can extend its lifetime. Only immutable persistent
 /// carriers may be retained across continuations.
 #[derive(Default)]
-pub(crate) struct Register(Option<Cell>);
+pub(crate) struct Register(Option<Cell>, Option<(Handle, Handle)>);
 impl Register {
     pub(crate) fn actor(&mut self, m: &Machine, var: u16, slot: u32) -> Option<Handle> {
         let table = *m.s0.get(usize::from(var))?;
@@ -57,6 +57,39 @@ impl Register {
         } else {
             m.native_entry(row, key, true).map(|e| e.1)
         }
+    }
+    /// Test an original label while retaining its checked carrier and position
+    /// for a following write. The Core label table stores only verified strings.
+    pub(crate) fn scalar_label(
+        &mut self,
+        m: &mut Machine,
+        code: &Code,
+        predicate: P,
+        test: crate::plan::LabelTest,
+    ) -> Result<bool, Error> {
+        let key = m.slot(test.slot);
+        if !code.native_blocks.enabled || m.known_label(test, key).is_some_and(|v| v != test.label)
+        {
+            return m.label_matches(code, predicate, test);
+        }
+        let Some(&table) = m.s0.get(usize::from(test.table)) else {
+            return m.label_matches(code, predicate, test);
+        };
+        if table.is_persistent()
+            && !table.is_lazy_persistent()
+            && let Some(cell) = self.resolve(m, table, key)
+            && test.field.is_empty()
+            && cell.row.as_str_id().is_some()
+        {
+            let label = cell.row;
+            m.heap.labels[test.bucket()] = [table, key, test.field, label];
+            if code.native_blocks.meter.is_some() {
+                code.native_blocks.record(Event::LabelRead);
+                self.1 = Some((table, key));
+            }
+            return Ok(label == test.label);
+        }
+        m.label_matches(code, predicate, test)
     }
     fn resolve(&mut self, m: &Machine, table: Handle, key: Handle) -> Option<Cell> {
         if let Some(cell) = self.0
@@ -198,6 +231,10 @@ impl Blocks {
         if !table.is_persistent() || table.is_lazy_persistent() {
             return Ok(None);
         }
+        let from_guard = self.meter.is_some()
+            && r.1 == Some((table, key))
+            && r.0
+                .is_some_and(|cell| cell.table == table && cell.key == key);
         let Some(cell) = r.resolve(m, table, key) else {
             return Ok(None);
         };
@@ -228,6 +265,9 @@ impl Blocks {
         m.set_slot(update.at, cell.row);
         let new = m.eval_component(c, update.value)?;
         self.record(Event::CellWrite);
+        if from_guard {
+            self.record(Event::GuardWrite);
+        }
         if new == cell.row {
             return Ok(Some(table));
         }
@@ -245,12 +285,14 @@ pub(crate) enum Event {
     HistoryChanged,
     Exists,
     Quant,
+    LabelRead,
+    GuardWrite,
 }
 impl Blocks {
     pub(crate) fn record(&self, event: Event) {
         use std::io::Write;
         use std::sync::atomic::{AtomicU64, Ordering};
-        static COUNTS: [AtomicU64; 7] = [const { AtomicU64::new(0) }; 7];
+        static COUNTS: [AtomicU64; 9] = [const { AtomicU64::new(0) }; 9];
         if let Some(path) = &self.meter {
             let n = COUNTS[event as usize].fetch_add(1, Ordering::Relaxed) + 1;
             if n.is_power_of_two()
