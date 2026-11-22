@@ -213,6 +213,32 @@ impl Symmetry {
         self
     }
 
+    /// Materialize one map's mathematical image for an exact graph audit.
+    /// The returned row contains persistent identities in the original variable order.
+    ///
+    /// # Errors
+    /// The map index is outside this group or a finite value cannot be closed.
+    pub fn image_row(
+        &self,
+        heap: &mut Heap,
+        index: usize,
+        state: &[Handle],
+        row: &mut Vec<Handle>,
+    ) -> Result<(), Error> {
+        let map = self
+            .maps
+            .get(index)
+            .ok_or_else(|| Error::internal("orbit map index"))?;
+        let index = u32::try_from(index).map_err(|_| Error::internal("orbit map index"))?;
+        self.prepare(heap);
+        row.clear();
+        for &value in state {
+            let image = permute(self, heap, map, index, value)?;
+            row.push(heap.intern(image)?);
+        }
+        Ok(())
+    }
+
     /// The number of nonidentity maps.
     #[must_use]
     pub fn len(&self) -> usize {

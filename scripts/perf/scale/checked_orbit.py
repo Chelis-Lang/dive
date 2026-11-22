@@ -63,8 +63,13 @@ def value(node, rename):
     return "set", frozenset(value(child, rename) for child in node["set"])
 
 
-def check_constants(config, carrier, observers):
-    require(not observers["refusals"], "; ".join(observers["refusals"][:5]))
+def check_constants(config, carrier, observers, *, exhaustive_graph=False):
+    # Dynamic calls and choices can be checked on every successful original
+    # edge. Known effects and opaque standard operations must still be rejected
+    # before the first ordinary or reduced check starts.
+    refusals = [reason for reason in observers["refusals"] if not exhaustive_graph or
+                not reason.startswith(("CHOOSE without a direct fixed constant ", "dynamic operator at "))]
+    require(not refusals, "; ".join(refusals[:5]))
     for option in ("symmetry", "view", "alias", "periodic", "postconditions", "rl_reward", "possible"):
         require(not config.get(option), f"unsupported configured {option}")
     constants = {}
@@ -83,7 +88,9 @@ def check_constants(config, carrier, observers):
         swap = {left: right, right: left}
         for name, val in constants.items():
             require(value(val, swap) == value(val, {}), f"{name} distinguishes {left} and {right}")
-        for name in observers["choice_domains"]:
+        # The graph proof witnesses every reached choice and hidden evaluation error.
+        # Conditional and symbolic checking still require the structural observer audit.
+        for name in (() if exhaustive_graph else observers["choice_domains"]):
             choices = constants.get(name, {}).get("set")
             require(choices is not None and all(value(x, swap) == value(x, {}) for x in choices),
                     f"CHOOSE requires a pointwise-fixed explicit domain: {name}")
@@ -116,7 +123,8 @@ def source_snapshot(args, binary, folder):
     parsed, _ = run_json(binary, ["parse", source.name, "--config", cfg.name], folder, args.seconds)
     require(parsed.get("accepted") and parsed["config"]["accepted"], "invalid original source or configuration")
     config = parsed["config"]["model"]
-    atoms = check_constants(config, args.carrier, report["orbit_observers"])
+    atoms = check_constants(config, args.carrier, report["orbit_observers"],
+                            exhaustive_graph=args.certify_equivariance == "graph")
     wrapper = "DiveDeclaredOrbit"
     operator = "DiveDeclaredOrbitGroup"
     # Pick scratch names outside the whole snapshot. Identifiers also found in
@@ -220,6 +228,24 @@ def audit(args):
                 if args.assume_equivariance:
                     raise
                 reduced["original_trace_replay"] = str(error)
+        if args.certify_equivariance:
+            if reduced["verdict"] != "success":
+                if reduced.get("original_trace_replay") != "valid":
+                    raise Refused("uncertified reduced counterexample")
+                result["status"] = "validated-counterexample"
+                return result
+            from orbit_certificate import OriginalCounterexample, establish
+            try:
+                result["certificate"] = establish(
+                    args, folder, original, identity, reduced,
+                    lambda: check(args, binary, folder, original, "input.cfg", False))
+            except OriginalCounterexample as failure:
+                verify_word(args, binary, folder, original, failure.result)
+                result.update(status="validated-counterexample", unreduced=failure.result,
+                              rejected_symmetry=True)
+                return result
+            result["status"] = "certified-orbit"
+            return result
         if args.assume_equivariance:
             result["status"] = "conditional-orbit" if reduced["verdict"] == "success" else "validated-counterexample"
             return result
@@ -253,13 +279,24 @@ def main():
     mode.add_argument("--prepare-only", action="store_true", help="emit source pins and the adapter for another process")
     mode.add_argument("--assume-equivariance", action="store_true",
                         help="skip direct comparison; successful weighted counts are conditional")
+    mode.add_argument("--certify-equivariance", choices=("finite", "graph"),
+                      help="prove all generator swaps on finite roles or the original reachable graph")
+    parser.add_argument("--type-invariant", help="complete finite layout for the finite proof")
+    parser.add_argument("--exporter", type=Path, default=Path("target/release/examples/symbolic_input"))
+    parser.add_argument("--graph-auditor", type=Path, default=Path("target/release/examples/orbit_graph"))
+    parser.add_argument("--certificate-cache", type=Path, help="shared authenticated certificate directory")
+    parser.add_argument("--proof-memory-mib", type=int, default=4096)
     args = parser.parse_args()
+    if args.certify_equivariance == "finite" and not args.type_invariant:
+        parser.error("the finite proof requires --type-invariant")
+    if args.proof_memory_mib < 1 or (args.certificate_cache and not args.certify_equivariance):
+        parser.error("expected a positive proof budget and a proof mode for the cache")
     try:
         result = audit(args)
-    except (OSError, ValueError, subprocess.TimeoutExpired) as error:
+    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
         result = {"status": "refused", "reason": str(error)}
     print(json.dumps(result, sort_keys=True))
-    return {"verified-observables": 0, "conditional-orbit": 3, "prepared": 3, "validated-counterexample": 1}.get(result["status"], 2)
+    return {"verified-observables": 0, "certified-orbit": 0, "conditional-orbit": 3, "prepared": 3, "validated-counterexample": 1}.get(result["status"], 2)
 
 
 if __name__ == "__main__":

@@ -26,8 +26,8 @@ fn role(m: &dive_model::Model, p: &dive_model::Pred) -> Result<dive_ir::ExprId, 
     Ok(p.expr)
 }
 
-fn check_config(cfg: &dive_config::ModelConfig) -> Result<(), String> {
-    if !cfg.properties.is_empty()
+fn check_config(cfg: &dive_config::ModelConfig, orbits: bool) -> Result<(), String> {
+    if (!orbits && !cfg.properties.is_empty())
         || !cfg.action_constraints.is_empty()
         || cfg.view.is_some()
         || cfg.alias.is_some()
@@ -47,7 +47,23 @@ fn check_config(cfg: &dive_config::ModelConfig) -> Result<(), String> {
     Ok(())
 }
 
-fn run(module: &Path, config: &Path) -> Result<Value, String> {
+fn constants(m: &dive_model::Model, orbits: bool) -> Result<Vec<Value>, String> {
+    let mut constants = Vec::new();
+    for &decl in m.ir.consts() {
+        let c = m.ir.decl(decl);
+        let binding = m.evaluator.constant_binding(c.constant.ok_or("constant")?);
+        constants.push(match binding {
+            Some(ConstBinding::Value(v)) => {
+                dive_trace::value_json::to_json(&v, m.evaluator.options().ctx)?
+            }
+            None if orbits => json!({"unbound": c.name}),
+            _ => return Err(format!("unsupported constant binding {}", c.name)),
+        });
+    }
+    Ok(constants)
+}
+
+fn run(module: &Path, config: &Path, orbits: bool) -> Result<Value, String> {
     let analysis = dive_sema::analyze_file(module, &dive_sema::Options::default())
         .map_err(|e| e.to_string())?;
     if !analysis.accepted() {
@@ -57,7 +73,7 @@ fn run(module: &Path, config: &Path) -> Result<Value, String> {
     let cfg = dive_config::parse(&fs::read_to_string(config).map_err(|e| e.to_string())?)
         .into_config()
         .ok_or("invalid configuration")?;
-    check_config(&cfg)?;
+    check_config(&cfg, orbits)?;
     let m = dive_model::bind_reachable(ir.clone(), &cfg, &dive_model::BindOptions::tlc())
         .map_err(|e| format!("{e:?}"))?;
     let symmetry = m
@@ -82,7 +98,7 @@ fn run(module: &Path, config: &Path) -> Result<Value, String> {
         return Err(format!("unsupported startup diagnostic {:?}", m.output));
     }
     if !m.temporals.is_empty()
-        || !m.implied_actions.is_empty()
+        || (!orbits && !m.implied_actions.is_empty())
         || !m.implied_inits.is_empty()
         || !m.implied_temporals.is_empty()
     {
@@ -116,16 +132,7 @@ fn run(module: &Path, config: &Path) -> Result<Value, String> {
         "atoms": r.universe().iter().map(dive_value::Atom::as_str).collect::<Vec<_>>(),
         "maps": r.maps().iter().map(dive_model::symmetry::Permutation::images).collect::<Vec<_>>()
     }));
-    let mut constants = Vec::new();
-    for &decl in ir.consts() {
-        let c = ir.decl(decl);
-        let Some(ConstBinding::Value(v)) =
-            m.evaluator.constant_binding(c.constant.ok_or("constant")?)
-        else {
-            return Err(format!("unsupported constant binding {}", c.name));
-        };
-        constants.push(dive_trace::value_json::to_json(&v, ctx)?);
-    }
+    let constants = constants(&m, orbits)?;
     let mut overrides = serde_json::Map::new();
     for (i, _) in ir.defs().iter().enumerate() {
         let id = DefId(u32::try_from(i).map_err(|e| e.to_string())?);
@@ -136,19 +143,29 @@ fn run(module: &Path, config: &Path) -> Result<Value, String> {
             overrides.insert(i.to_string(), dive_trace::value_json::to_json(&v, ctx)?);
         }
     }
-    Ok(
-        json!({"format": "dive-symbolic-input-v2", "ir": &*ir, "constants": constants, "overrides": overrides,
+    let mut document = json!({"format": "dive-symbolic-input-v2", "ir": &*ir, "constants": constants, "overrides": overrides,
         "assumptions": assumptions, "constraints": constraints, "init": init, "next": next, "invariants": invariants, "symmetry": permutations,
         "specification": cfg.specification.as_ref().map(|n| &n.text),
-        "check_deadlock": m.settings.check_deadlock}),
-    )
+        "check_deadlock": m.settings.check_deadlock});
+    if orbits {
+        document["format"] = json!("dive-orbit-proof-input-v1");
+        document["step_properties"] = json!(
+            m.implied_actions
+                .iter()
+                .map(|x| Ok::<_, String>(json!([x.name, role(&m, &x.pred)?])))
+                .collect::<Result<Vec<_>, _>>()?
+        );
+    }
+    Ok(document)
 }
 
 fn main() -> Result<(), String> {
     let args = env::args_os().skip(1).collect::<Vec<_>>();
-    let [module, cfg] = args.as_slice() else {
-        return Err("expected MODULE.tla MODEL.cfg".into());
+    let (module, cfg, orbits) = match args.as_slice() {
+        [module, cfg] => (module, cfg, false),
+        [flag, module, cfg] if flag == "--orbit-proof" => (module, cfg, true),
+        _ => return Err("expected [--orbit-proof] MODULE.tla MODEL.cfg".into()),
     };
-    println!("{}", run(Path::new(module), Path::new(cfg))?);
+    println!("{}", run(Path::new(module), Path::new(cfg), orbits)?);
     Ok(())
 }
