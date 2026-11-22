@@ -46,16 +46,15 @@ def main():
     )
     parser.add_argument("--refine-domains", action="store_true",
                         help="learn members of wide finite set fields during exact reachability")
-    certificate = parser.add_mutually_exclusive_group()
-    certificate.add_argument(
+    parser.add_argument(
         "--prove-inductive",
         action="store_true",
         help="try the conjunction of the configured invariants as an induction hypothesis",
     )
-    certificate.add_argument(
+    parser.add_argument(
         "--write-predicate", type=Path, help="export the exact closed set after a successful search"
     )
-    certificate.add_argument(
+    parser.add_argument(
         "--verify-predicate", type=Path, help="prove safety by checking a supplied predicate for induction"
     )
     strategy = parser.add_mutually_exclusive_group()
@@ -88,6 +87,10 @@ def main():
                      args.write_predicate, args.verify_predicate, args.max_orbits,
                      args.order_by_path, args.single_partition)):
         parser.error("auto selects an exhaustive check of a single original configuration")
+    if args.prove_inductive and (args.write_predicate or args.verify_predicate):
+        parser.error("direct induction and portable predicate checking require separate runs")
+    if args.write_predicate and args.verify_predicate and not args.property_proof:
+        parser.error("checking and repairing a portable predicate requires --property-proof")
     if args.property_proof == "":
         parser.error("--property-proof requires a nonempty invariant name")
     if args.property_proof and any((args.refine_domains, args.prove_inductive,

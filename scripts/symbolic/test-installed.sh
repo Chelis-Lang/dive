@@ -135,3 +135,16 @@ test "$rc" = 4 && jq -e '.verdict=="stopped"' auto-stop >/dev/null
 rc=0; auto Receipts.tla --strategy compiled >auto-duplicate 2>&1 || rc=$?
 test "$rc" = 2
 
+
+# A failed or malformed hypothesis and an ordinary fresh search share one bound
+# source. Each successful result stages its own proved replacement.
+printf '%s\n' '{"broken":true}' > malformed.json
+rc=0; proof --verify-predicate malformed.json --write-predicate repaired.json > broken-repair || rc=$?
+test "$rc" = 1 && test ! -e repaired.json
+jq -e '.trace_validated and .depth==3' broken-repair >/dev/null
+sed -i "s/x' = 2/x' = 0/" Steps.tla
+proof --verify-predicate malformed.json --write-predicate repaired.json |
+    jq -e '.proof=="inductive-safety" and .closure_sweeps>0' >/dev/null
+proof --verify-predicate repaired.json --write-predicate rechecked.json |
+    jq -e '.proof=="inductive-safety" and .closure_sweeps==0' >/dev/null
+proof --verify-predicate rechecked.json | jq -e '.proof=="inductive-safety"' >/dev/null

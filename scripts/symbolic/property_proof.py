@@ -250,18 +250,28 @@ def check_revisions(args, manager):
         compatible = previous is not None and model.same_encoding_and_admission(previous) and model.counters == previous.counters
         _, actions = certify(model, states, checked) if compatible else (None, None)
         reused = 0
+        publication_receipt = None
         if args.verify_predicate:
-            candidate, signed = induction.load(Path(args.verify_predicate), model, include_receipt=True)
-            receipt = obligation_receipt.for_candidate(model, candidate, args) if signed is not None else None
-            checked = receipt.checked(signed) if receipt is not None else set()
-            failed, actions = certify(model, candidate, checked)
-            row.update(proof="inductive-safety" if actions is not None else "inconclusive",
-                       failed_obligation=failed,
-                       closure_sweeps=0, reused_obligations=len(actions & checked) if actions is not None else 0,
-                       transition_obligations=len(actions) if actions is not None else None,
-                       seconds=round(time.monotonic() - start, 6))
-            print(json.dumps(row), flush=True)
-            return 0 if actions is not None else 2
+            try:
+                candidate, signed = induction.load(Path(args.verify_predicate), model, include_receipt=True)
+                receipt = obligation_receipt.for_candidate(model, candidate, args) if signed is not None else None
+                checked = receipt.checked(signed) if receipt is not None else set()
+                failed, actions = certify(model, candidate, checked)
+                if actions is not None:
+                    states = candidate
+                    publication_receipt = receipt
+            except (ValueError, KeyError, TypeError, OSError, RecursionError):
+                if not args.write_predicate:
+                    raise
+                actions = None
+            if not args.write_predicate:
+                row.update(proof="inductive-safety" if actions is not None else "inconclusive",
+                           failed_obligation=failed, closure_sweeps=0,
+                           reused_obligations=len(actions & checked) if actions is not None else 0,
+                           transition_obligations=len(actions) if actions is not None else None,
+                           seconds=round(time.monotonic() - start, 6))
+                print(json.dumps(row), flush=True)
+                return 0 if actions is not None else 2
         if actions is not None:
             reused = len(actions & checked)
             row["closure_sweeps"] = 0
@@ -286,7 +296,7 @@ def check_revisions(args, manager):
             failed, actions = certify(model, states, set())
             require(actions is not None, f"candidate failed induction: {failed}")
         if args.write_predicate:
-            receipt = obligation_receipt.for_candidate(model, states, args)
+            receipt = publication_receipt or obligation_receipt.for_candidate(model, states, args)
             signed = receipt.encode(actions) if receipt is not None else None
             induction.store(Path(args.write_predicate), model, states, signed)
         row.update(proof="inductive-safety", failed_obligation=None,

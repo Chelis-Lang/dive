@@ -472,3 +472,21 @@ parameterless Boolean definition once for the current revision when its
 lexical frame and pending assignment are empty. A new revision binds its own
 guard. Functional updates only encode changed Next coordinates when the other
 values already refer to the corresponding current state.
+
+### Repair a candidate on the currently bound source
+
+A named proof can verify an existing predicate and write the proof candidate
+for the current revision in the same invocation. Use different paths.
+
+```sh
+dive check edited/lockserv.tla --config lockserv.cfg --strategy symbolic \
+  --property-proof Mutex --type-invariant TypeOK \
+  --verify-predicate previous.json --write-predicate current.json
+```
+
+If the previous predicate passes, `closure_sweeps` is zero. If it is malformed
+or fails induction, the checker searches for a new candidate on the already
+bound model, with the time remaining in the original budget. Only a successful
+inductive proof writes the destination. A reachable violation still goes
+through independent replay. A successfully written authenticated candidate
+records the obligations for the current revision.
