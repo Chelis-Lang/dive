@@ -1168,10 +1168,10 @@ impl<'a, 'model> Reader<'a, 'model> {
 
 impl<'a> Reader<'a, '_> {
     /// Only the live explorer can pair this reader with its own checked capture.
-    /// Copy the borrowed view so subsequent callers cannot replace columns while
-    /// sharing the same offsets. Edit reuse and simulation do not opt in.
+    /// Bind the source masks for this reader's lifetime, including when another
+    /// view shares its offsets. Edit reuse and simulation do not opt in.
     pub(crate) fn live_emission_capture(&mut self, csr: &dive_runtime::capture::CsrCapture<'a>) {
-        self.emission_capture = Some(*csr);
+        self.emission_capture.get_or_insert(*csr);
     }
 }
 
@@ -2012,6 +2012,7 @@ P == <>(x=1)
             let mut reader = Reader::new(&graph, &mut values, atoms);
             reader.live_prefix(true);
             reader.live_emission_capture(&csr);
+            reader.live_emission_capture(&replaced);
             reader.atoms.audit = true;
             let mut answers = Vec::new();
             for atom in driver
@@ -2041,20 +2042,6 @@ P == <>(x=1)
                     None
                 );
             }
-            // A checked committed prefix retains a real representative with an
-            // empty frontier row. That empty row is no evidence of disabledness.
-            let partial = committed_frontier(graph.input().action_labels, graph.limits(), control);
-            reader.live_emission_capture(&partial);
-            let atom = driver
-                .native_predicates()
-                .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
-                .expect("fairness");
-            assert_eq!(
-                reader
-                    .closed_state_predicate(atom, &partial, 1, 1, control)
-                    .expect("frontier"),
-                None
-            );
             answers.sort();
             assert_eq!(
                 answers,
@@ -2066,6 +2053,23 @@ P == <>(x=1)
             );
             assert_eq!(reader.atoms.emission_hits, [2, 4]);
             drop(reader);
+            // A checked committed prefix retains a real representative with an
+            // empty frontier row. That empty row is no evidence of disabledness.
+            let partial = committed_frontier(graph.input().action_labels, graph.limits(), control);
+            let mut frontier = Reader::new(&graph, &mut values, atoms);
+            frontier.live_prefix(true);
+            frontier.live_emission_capture(&partial);
+            let atom = driver
+                .native_predicates()
+                .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
+                .expect("fairness");
+            assert_eq!(
+                frontier
+                    .closed_state_predicate(atom, &partial, 1, 1, control)
+                    .expect("frontier"),
+                None
+            );
+            drop(frontier);
             let mut read_missing = Reader::new(&graph, &mut values, atoms);
             read_missing.live_prefix(true);
             read_missing.live_emission_capture(&replaced);
