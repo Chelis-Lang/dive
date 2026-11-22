@@ -232,3 +232,191 @@ impl Compiler<'_> {
         Some(())
     }
 }
+
+#[derive(Default)]
+struct AssignmentProof {
+    written: u64,
+    guard_update: bool,
+    suffix_update: bool,
+}
+
+impl AssignmentProof {
+    fn claim(&mut self, var: u16) -> Option<()> {
+        let bit = 1u64.checked_shl(u32::from(var))?;
+        if self.written & bit != 0 {
+            return None;
+        }
+        self.written |= bit;
+        Some(())
+    }
+}
+
+impl Compiler<'_> {
+    pub(super) fn closed_enabled(&self, p: P) -> Option<super::ClosedEnabled> {
+        if self.m.heap.store().semantics().tlc_comparisons {
+            return None;
+        }
+        self.closed_query(p, 0, &mut 8192)
+    }
+
+    fn closed_query(&self, p: P, depth: usize, work: &mut usize) -> Option<super::ClosedEnabled> {
+        let Node::Enabled { g, .. } = self.code.nodes.get(p as usize)? else {
+            return None;
+        };
+        let (action, subscript) = match self.code.gnodes.get(*g as usize)? {
+            GNode::StepAngle { action, same } => {
+                let mask = match self.code.nodes.get(*same as usize)? {
+                    Node::SameVars { leaves, thunks, .. }
+                        if thunks.iter().all(|&s| !self.preset_slot(s)) =>
+                    {
+                        leaves.iter().fold(0, |mask, &(v, _)| mask | (1u64 << v))
+                    }
+                    Node::Eq(a, b) => {
+                        match (&self.code.nodes[*a as usize], &self.code.nodes[*b as usize]) {
+                            (Node::Var(v), Node::Primed(w)) if v == w => 1u64 << v,
+                            _ => return None,
+                        }
+                    }
+                    _ => return None,
+                };
+                (*action, Some(mask))
+            }
+            _ => (*g, None),
+        };
+        let mut proof = AssignmentProof::default();
+        self.closed_assignments(action, &mut proof, depth, work)?;
+        let width = u32::try_from(self.ir.vars().len()).ok()?;
+        let all = u64::MAX.checked_shr(64u32.checked_sub(width)?).unwrap_or(0);
+        (proof.written == all).then_some(super::ClosedEnabled {
+            subscript,
+            quiet_suffix: !proof.suffix_update,
+            quiet_guards: !proof.guard_update,
+        })
+    }
+
+    /// Inspect the bound value computation, including every retained operand
+    /// of wrappers, thunks and lazy set/function operations. A nested ENABLED
+    /// gets the same generator proof in its fresh frame. Refuse recursive and
+    /// library calls rather than inheriting a summary of their diagnostics.
+    fn contains_update(&self, p: P, depth: usize, work: &mut usize) -> Option<bool> {
+        *work = work.checked_sub(1)?;
+        if depth > super::MAX_GUARD_DEPTH {
+            return None;
+        }
+        let n = self.code.nodes.get(p as usize)?;
+        match n {
+            Node::Call { .. }
+            | Node::Composition { .. }
+            | Node::LibHo(..)
+            | Node::Lib { .. }
+            | Node::Primed(_) => return None,
+            Node::Enabled { .. } => {
+                let nested = self.closed_query(p, depth + 1, work)?;
+                return Some(!(nested.quiet_guards && nested.quiet_suffix));
+            }
+            _ => {}
+        }
+        let mut operands = Vec::new();
+        super::push_operands(n, &mut operands);
+        let mut update = matches!(n, Node::Except { .. });
+        for operand in operands {
+            update |= self.contains_update(operand, depth + 1, work)?;
+        }
+        Some(update)
+    }
+
+    /// A source guard cannot bind a destination or read a partial primed
+    /// state. Inspect its actual generator as well as its boolean form.
+    fn source_guard_update(&self, g: G, depth: usize, work: &mut usize) -> Option<bool> {
+        *work = work.checked_sub(1)?;
+        if depth > super::MAX_GUARD_DEPTH {
+            return None;
+        }
+        let depth = depth + 1;
+        match self.code.gnodes.get(g as usize)? {
+            GNode::Scope { body, .. } => self.source_guard_update(*body, depth, work),
+            GNode::Guard(p) | GNode::LabelGuard(p, _) => self.contains_update(*p, depth, work),
+            GNode::Conj(items) | GNode::LabelArm(items, _) => {
+                items.iter().try_fold(false, |seen, &(g, p)| {
+                    Some(
+                        seen | self.source_guard_update(g, depth, work)?
+                            | self.contains_update(p, depth, work)?,
+                    )
+                })
+            }
+            GNode::Disj(arms) => arms.iter().try_fold(false, |seen, &g| {
+                Some(seen | self.source_guard_update(g, depth, work)?)
+            }),
+            GNode::Exists {
+                binds,
+                body,
+                body_p,
+            }
+            | GNode::Forall {
+                binds,
+                body,
+                body_p,
+            } => {
+                let nested = self.source_guard_update(*body, depth, work)?
+                    | self.contains_update(*body_p, depth, work)?;
+                binds.iter().try_fold(nested, |seen, b| {
+                    Some(seen | self.contains_update(b.domain, depth, work)?)
+                })
+            }
+            GNode::Implies { lhs, rhs } => Some(
+                self.contains_update(*lhs, depth, work)?
+                    | self.source_guard_update(*rhs, depth, work)?,
+            ),
+            GNode::If { cond, then, other } => Some(
+                self.contains_update(*cond, depth, work)?
+                    | self.source_guard_update(*then, depth, work)?
+                    | self.source_guard_update(*other, depth, work)?,
+            ),
+            _ => None,
+        }
+    }
+
+    fn closed_assignments(
+        &self,
+        g: G,
+        proof: &mut AssignmentProof,
+        depth: usize,
+        work: &mut usize,
+    ) -> Option<()> {
+        *work = work.checked_sub(1)?;
+        if depth > super::MAX_GUARD_DEPTH {
+            return None;
+        }
+        match self.code.gnodes.get(g as usize)? {
+            GNode::Scope { body, .. } => self.closed_assignments(*body, proof, depth + 1, work)?,
+            GNode::Conj(items) => {
+                for &(item, predicate) in items {
+                    if proof.written == 0
+                        && let Some(update) = self.contains_update(predicate, depth + 1, work)
+                    {
+                        let generator = self.source_guard_update(item, depth + 1, work);
+                        if let Some(generator_update) = generator {
+                            proof.guard_update |= update | generator_update;
+                            continue;
+                        }
+                    }
+                    self.closed_assignments(item, proof, depth + 1, work)?;
+                }
+            }
+            GNode::Assign { var, rhs } => {
+                proof.suffix_update |= self.contains_update(*rhs, depth + 1, work)?;
+                proof.claim(*var)?;
+            }
+            GNode::Unchanged(items) => {
+                for item in items {
+                    let Unch::Var { var, .. } = item else {
+                        return None;
+                    };
+                    proof.claim(*var)?;
+                }
+            }
+            _ => return None,
+        }
+        Some(())
+    }
+}

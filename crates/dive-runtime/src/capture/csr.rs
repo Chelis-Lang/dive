@@ -860,6 +860,17 @@ impl<'a> CsrCapture<'a> {
             .map(|&row| row as usize)
     }
 
+    /// Zero-based producer action for a physical original in a closed source.
+    /// Unnamed originals, frontier positions and the implicit stutter have none.
+    #[must_use]
+    pub fn original_action(&self, source: usize, position: usize) -> Option<u32> {
+        let range = self.outgoing_range(source)?;
+        if position >= range.len().saturating_sub(1) {
+            return None;
+        }
+        self.input.actions.at(range.start + position)
+    }
+
     /// Generated original row at a source's physical generated-edge position.
     /// Positions exclude the final stutter and do not use generation ordinals.
     #[must_use]

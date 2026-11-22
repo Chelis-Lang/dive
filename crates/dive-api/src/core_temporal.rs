@@ -350,6 +350,7 @@ fn check_configured_inner(
     };
     // With every atom native, values are read only for an actual fallback,
     // source-row check or report; admission waits for that read.
+    atoms.enable_live_emissions(&model, options);
     let defer_admission = atoms.all_native();
     let mut on_level = |level: u64, graph: &NativeGraph, values: &mut NativeValues<'_>, stats| {
         // Final-only and not-yet-due levels do not scan any retained CSR.
