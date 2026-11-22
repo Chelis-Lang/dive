@@ -42,7 +42,9 @@ def digest(data):
 
 
 def canonical(obj):
-    return json.dumps(obj, sort_keys=True, separators=(",", ":")).encode()
+    return json.dumps(
+        obj, sort_keys=True, separators=(",", ":"), allow_nan=False
+    ).encode()
 
 
 def graph_path(root):
@@ -281,10 +283,13 @@ def main():
             doc, names, identity = bind(
                 args.source, args.exporter.resolve(), args.servers, Path(tmp)
             )
-            prior = json.loads(args.verify.read_bytes()) if args.verify else None
+            if args.verify:
+                require(args.verify.stat().st_size <= 1 << 20, "oversize certificate")
+                prior = json.loads(args.verify.read_bytes())
+                require(isinstance(prior, dict), "expected a certificate object")
             if args.verify:
                 require(
-                    prior.get("input") == identity,
+                    canonical(prior.get("input")) == canonical(identity),
                     "different source, configuration, or proof graph",
                 )
             # Model atoms use negative integer tags. Only the reviewed, source-typed
@@ -303,7 +308,8 @@ def main():
             )
             if args.verify:
                 require(
-                    prior == result, "receipt differs from independent action discharge"
+                    canonical(prior) == canonical(result),
+                    "receipt differs from independent action discharge",
                 )
             else:
                 args.save.write_bytes(canonical(result) + b"\n")

@@ -267,9 +267,8 @@ def run(args, root):
                 expected,
             )
 
-        if size == 2:
-            small, usage = core(args.dive, module, cfg, work, 0)
-            ordinary = dict(counts=small["statistics"], usage=usage)
+        exhaustive, usage = core(args.dive, module, cfg, work, 0)
+        ordinary = dict(counts=exhaustive["statistics"], usage=usage)
         cert = work / "cert.json"
         proof, usage = check(work, "--save", cert)
         relocated = root / f"receiver-{size}"
@@ -287,8 +286,34 @@ def run(args, root):
             certificate_bytes=cert.stat().st_size,
             certificate_sha256=digest(cert.read_bytes()),
         )
+        row["core"] = ordinary
         if size == 2:
-            row["core"] = ordinary
+            mistyped = deepcopy(proof)
+            mistyped["initial"] = True
+            wrong = work / "mistyped.json"
+            wrong.write_text(json.dumps(mistyped))
+            for flags in ([], ["-O"]):
+                refused, _ = invoke(
+                    [
+                        sys.executable,
+                        *flags,
+                        CHECKER,
+                        work,
+                        "--exporter",
+                        args.exporter,
+                        "--servers",
+                        str(size),
+                        "--verify",
+                        wrong,
+                    ],
+                    work,
+                    2,
+                )
+                require(
+                    "independent action discharge" in refused["reason"],
+                    "boolean initial count accepted",
+                )
+            row["boolean_count_rejected"] = True
         else:
             row["original_path"] = path(args.dive, module, cfg, work)
             place, row["mutant"] = altered(args.dive, work, cfg, work)
