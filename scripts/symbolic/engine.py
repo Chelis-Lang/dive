@@ -698,7 +698,8 @@ class SourceModel(FiniteRelation):
                         if possible != self.b.false)
         if op.startswith("Integers"):
             op = "Naturals" + op.removeprefix("Integers")
-        arithmetic = {"NaturalsPlus": operator.add, "NaturalsMinus": operator.sub, "NaturalsTimes": operator.mul}
+        arithmetic = {"NaturalsPlus": operator.add, "NaturalsMinus": operator.sub, "NaturalsTimes": operator.mul,
+                      "NaturalsMod": operator.mod}
         compares = {"NaturalsLeq": operator.le, "NaturalsGeq": operator.ge,
                     "NaturalsLt": operator.lt, "NaturalsGt": operator.gt}
         require(op in arithmetic or op in compares or op == "NaturalsDotDot", "IR standard operator " + op)
@@ -718,6 +719,8 @@ class SourceModel(FiniteRelation):
                 require(isinstance(left, tuple) and left[0] == "int"
                         and isinstance(right, tuple) and right[0] == "int", "integer operands for " + op)
                 x, y = left[1], right[1]
+                if op == "NaturalsMod":
+                    require(y > 0, "modulus must be a positive integer")
                 if op == "NaturalsDotDot":
                     require(guard == self.b.true and y - x < 16384, "nonconstant or oversized integer interval")
                     return Members(((self.integer(n), self.b.true) for n in range(x, y + 1)),
@@ -1025,12 +1028,8 @@ class SourceModel(FiniteRelation):
             and (name := self.names[self.node(x["args"][0])[1]["var"]]) not in assigned
         ):
             domain = self.member_domain(x["args"][1], env, assigned)
-            require(isinstance(domain, Members), "Init choice over a non-atomic set")
-            require(domain.enumeration != Enumeration.UNPROVED,
-                    "Init membership may enumerate duplicate witnesses in a lazy set")
-            self.comparable(domain)
-            for key, included in domain.items():
-                yield guard & included, {**assigned, name: self.atom(key)}
+            for included, value in self.initial_choices(domain):
+                yield guard & included, {**assigned, name: value}
         elif (
             tag == "Builtin"
             and x["op"] == "Eq"
@@ -1053,6 +1052,14 @@ class SourceModel(FiniteRelation):
                 "unsupported action guard: " + tag,
             )
             yield guard & self.boolean(self.eval(i, env, assigned)), assigned
+
+    def initial_choices(self, domain):
+        require(isinstance(domain, Members), "Init choice over a non-atomic set")
+        require(domain.enumeration != Enumeration.UNPROVED,
+                "Init membership may enumerate duplicate witnesses in a lazy set")
+        self.comparable(domain)
+        for key, included in domain.items():
+            yield included, self.atom(key)
 
     def action_alternatives(self, expr, env, init, guard, assigned):
         # Pure Boolean choices can be evaluated once or enumerated as multiple
