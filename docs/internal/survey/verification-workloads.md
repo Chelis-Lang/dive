@@ -480,4 +480,24 @@ python3 scripts/perf/scale/elevator-fairness.py "$EXAMPLES/specifications/MultiC
 python3 scripts/perf/scale/published-peer-artifacts.py published.json
 ```
 
+For the 34 named properties, use the pinned Recomp-Verify checkout, its bundled
+portfolio and an installed Dive worker. The driver makes a fresh directory
+and process group for each command and verifies the checkout and each requested
+property. To measure both process families' resident charges (including
+descendant JVMs and charged file pages), use a fresh systemd service with
+`Delegate=yes`, `MemoryMax=24G` and `MemorySwapMax=0`. Run this from the
+service's shell on Linux cgroup v2, using the repository as its working directory.
+
+```sh
+group="/sys/fs/cgroup$(cut -d: -f3 /proc/self/cgroup)"
+mkdir "$group/driver"
+echo $$ > "$group/driver/cgroup.procs"
+echo +memory > "$group/cgroup.subtree_control"
+python3 scripts/perf/scale/recomp_property_panel.py "$RECOMP" --dive "$DIVE" \
+  --seconds 30 --cgroup-parent "$group" > "$RESULTS"
+```
+
+Omit `--cgroup-parent` for time and outcomes alone. Each cell gets the same
+external wall deadline, including binding, checker startup and compilation.
+
 For the fairness run, use the Dive corpus pin of Examples. The script verifies the original module and CFG digests before creating its two smaller controls. The artifact importer reads immutable Scimitar and Recomp-Verify revisions and version 2 of the Recomp-Verify paper. For compiled explicit searches, add `--tla-mc` to the native panel invocation to run cold and warm compiled tla-mc as well as tlx on KVS and Lamport. Each compiler gets its own cache. [Native panel](../../../scripts/perf/scale/native-peer-panel.py) · [Historical explicit-search records with both peers](../../../conformance/reports/perf/2026-11-20-native-peer-panel.json)

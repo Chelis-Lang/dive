@@ -41,6 +41,7 @@ def measured(command, folder, seconds, cgroup_parent):
                     os.killpg(process.pid, signal.SIGKILL)
                 except ProcessLookupError:
                     pass
+                process.wait()
     finally:
         if group:
             (group / "cgroup.kill").write_text("1")
