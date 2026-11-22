@@ -351,6 +351,24 @@ and checks `Serializable'` on each. `Serializable` enumerates
 site, the run completes in 3.3 s with TLC's counts. TLC takes 417 s on the
 same host. Fixtures are in `core-primed-memo`, through `core_primed_memo.rs`.
 
+The same bounded tables serve assignments of the form `x' = expression` in
+a next-state action. A computed assignment can read the value of an already
+assigned component, as in `history' = [p \in Writers |-> Record(p, w, w')]`.
+If several candidates agree on the inputs, Core can reuse the exact table
+while their other columns differ. Core still evaluates the first assignment
+in source order. Unassigned reads, nested queries, effects and bound local
+inputs use the ordinary evaluator. A function constructor is eligible here
+because the assignment evaluates it as a component. With source mapping
+enabled, Core keeps the original assignment instruction.
+
+The released Flint LeanP1 one-barrier check reached 449,595 distinct states
+with all ten safety obligations active. Median ordinary default wall time
+fell from 3.97 to 3.48 seconds. Expanding its reachable guard yielded
+7,387,957 distinct states in 57.92 seconds, down from 64.49. The two
+reused values depend on the writer table before and after a step plus
+its history, and on document changes plus retirement state. The other state
+columns can change independently. [Input hashes, memory, timing and memo hits](../../../conformance/reports/perf/2026-11-22-projected-successor-values.json).
+
 ### 2.5 String guards on process tables
 
 After action splitting, Core recognizes `pc[p] = "label"` and `workers[p].field = "label"` in pure plans when memoization is enabled. Each worker heap has eight slots for the last successful string projections. A hit checks the complete persistent table handle, scalar binding and field. Each slot takes four handles including the resulting string. Arena values and lazy table identities are ineligible. Replacing the heap during Store reclamation also replaces these entries.
