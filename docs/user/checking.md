@@ -831,6 +831,25 @@ python3 scripts/perf/scale/checked_orbit.py models/TCommit.tla \
 
 Run the final command again to see `certificate.reuse: authenticated`. Every invocation rebinds the source and runs the reduced search. The HMAC covers the complete source and CFG identity, group, checker, proof implementation, worker count, and proof result. An edit requires a new proof. Undo can reuse the original. A damaged receipt or a different private key causes reproof. Possession of the key grants authority to sign a reusable proof. Give another checker the prepared input bytes and let it establish its own verdict and cache authority. [Complete edit cycle, memory and separate Sail measurements](../../conformance/reports/perf/2026-11-22-certified-orbits.json).
 
+### Build a source-bound native successor worker
+
+For repeated checks of a growing program, the Linux source checkout includes an experimental compiler for Core's successor control flow. It accepts an unmodified module and configuration. Each generated worker is an executable with the ordinary `dive check` interface. It handles guards, assignments, scopes and finite existential choices using the current Core evaluator. Unsupported generator nodes continue in the ordinary generator, including pending conjunctions. Exact and fingerprint storage retain their usual guarantees.
+
+Preparation needs Python 3.11+, the project's Rust toolchain, Git, tar and strip. Give it a private build cache outside the checkout. The first preparation copies the committed Dive tree and builds a bootstrap checker and a model-specific executable for the current Linux platform. On the measured Flint run, preparation took 38.39 s and peaked at 1.51 GiB of charged process-family memory. The normal installed checker starts without this build.
+
+```sh
+python3 scripts/perf/scale/native-successors/prepare.py Model.tla \
+  --config Model.cfg --cache "$HOME/.cache/dive/successor-builds" --jobs 4 > prepared.json
+worker=$(python3 -c 'import json; print(json.load(open("prepared.json"))["binary"])')
+"$worker" check Model.tla --config Model.cfg --workers 8 --seed 0 --fp 0 --output json
+```
+
+Rerun preparation after an edit. It resolves the current input, exports a fresh bound plan before exploration and checks whether the same generated instructions still apply. The receipt records the original module hashes, configuration hash, kernel identity, build time and executable checksum. Local builds and cache manifests are trusted. Colocated source modules and pure Core action plans are supported. Oversized, effectful or unavailable plans produce a named refusal from preparation.
+
+At check time, the executable compares the entire bound generator structure with its compiled shape. A different shape, debugging, unbounded simulation or a non-exhaustive sink uses ordinary traversal. Current predicates and values are evaluated anew even when the control shape still matches. A fresh search reconstructs the graph, checks the configured obligations and retains their diagnostics. For a matched control set `DIVE_DISABLE_NATIVE_SUCCESSORS=1`. For a separate coverage run, `DIVE_NATIVE_SUCCESSOR_METER` can name a fresh file recording power-of-two counts of calls to compiled actions. A separate Sail installation accepts the underlying TLA+ inputs and maintains its own cache.
+
+Flint's property edit completed in 3.30 s including preparation, against 23.10 s for compiled tla-mc. Unchanged warm search on the same labeled graph took 3.07–3.18 s against 1.49 s. [Original and edited measurements, fallback and trace controls](../../conformance/reports/perf/2026-11-22-source-native-successors.json).
+
 ## Embedding notes
 
 These apply to Rust callers below `check_file`:

@@ -5,6 +5,8 @@ are in git history.
 
 ## Unreleased
 
+- The source checkout can [build a native successor worker](docs/user/checking.md#build-a-source-bound-native-successor-worker) from unmodified TLA+ and reuse its compiled control flow after a property or guard edit.
+
 - Core reuses [pure computed successor components](docs/developer/core/06-memoization.md#24-definitions-a-next-state-action-reads-primed) across candidates. Ordinary Flint checking improved from 3.97 to 3.48 seconds on its published small configuration.
 
 - Core evaluates eligible [fairness actions](docs/user/temporal.md#fairness) across original transitions sharing a source. Three-floor Elevator took 2.04 seconds and the four-floor counterexample took 6.91 seconds on the benchmark host.
