@@ -345,7 +345,7 @@ pub(crate) fn reachable(plan: &crate::plan::Plan) -> Vec<Instruction> {
                         GNode::Composition { first, then, .. } => {
                             generators.extend([*first, *then]);
                         }
-                        GNode::Conj(items) => {
+                        GNode::Conj(items) | GNode::LabelArm(items, _) => {
                             for (g, p) in items {
                                 generators.push(*g);
                                 values.push(*p);
@@ -381,7 +381,9 @@ pub(crate) fn reachable(plan: &crate::plan::Plan) -> Vec<Instruction> {
                             values.push(*lhs);
                             generators.push(*rhs);
                         }
-                        GNode::Assign { rhs, .. } | GNode::Guard(rhs) => values.push(*rhs),
+                        GNode::Assign { rhs, .. }
+                        | GNode::Guard(rhs)
+                        | GNode::LabelGuard(rhs, _) => values.push(*rhs),
                         GNode::AssignIn { set, .. } => values.push(*set),
                         GNode::AssignInRaw { set, raw, .. } => {
                             values.push(*set);

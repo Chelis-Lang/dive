@@ -33,9 +33,13 @@ fn simple_action(code: &Code, node: G, fuel: &mut usize) -> bool {
     };
     *fuel = left;
     match code.gnodes.get(node as usize) {
-        Some(GNode::Conj(parts)) => parts.iter().all(|&(g, _)| simple_action(code, g, fuel)),
+        Some(GNode::Conj(parts) | GNode::LabelArm(parts, _)) => {
+            parts.iter().all(|&(g, _)| simple_action(code, g, fuel))
+        }
         Some(GNode::Scope { body, .. }) => simple_action(code, *body, fuel),
-        Some(GNode::Guard(p) | GNode::Assign { rhs: p, .. }) => simple_value(code, *p, fuel),
+        Some(GNode::Guard(p) | GNode::LabelGuard(p, _) | GNode::Assign { rhs: p, .. }) => {
+            simple_value(code, *p, fuel)
+        }
         Some(GNode::Unchanged(items)) => items.iter().all(|item| matches!(item, Unch::Var { .. })),
         _ => false,
     }

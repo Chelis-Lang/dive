@@ -159,7 +159,7 @@ fn shift_children(node: &mut GNode, offset: G) {
             *then += offset;
             *other += offset;
         }
-        GNode::Conj(parts) => {
+        GNode::Conj(parts) | GNode::LabelArm(parts, _) => {
             for (g, _) in parts {
                 *g += offset;
             }
@@ -185,6 +185,7 @@ fn shift_children(node: &mut GNode, offset: G) {
         | GNode::StepBox { action: body, .. }
         | GNode::StepAngle { action: body, .. } => *body += offset,
         GNode::Guard(_)
+        | GNode::LabelGuard(_, _)
         | GNode::Assign { .. }
         | GNode::AssignIn { .. }
         | GNode::AssignInRaw { .. }

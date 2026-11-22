@@ -304,6 +304,8 @@ are in git history.
 
 - Parallel resident [exact safety checks](docs/user/checking.md#time-and-memory-budgets) skip repeated invariant evaluations for states already committed by an earlier wave.
 
+- Core reuses [process-label guards](docs/user/checking.md#time-and-memory-budgets) across actions. On Flint’s complete two-barrier workload, elapsed time fell by 18% and peak process memory by 31% on eight cores.
+
 - Automatic [Store reclamation](docs/user/storage-recovery.md) charges new allocations above the live Store left by its previous collection. At 250 million Flint states this reduced peak RSS from 11.04 to 8.97 GiB.
 
 - Independent periodic [trace validation](docs/user/traces.md#deeply-nested-predicates-on-a-periodic-word) shares completed checks of pure scoped expressions. The KIP-996 fair election witness now validates in 0.67 seconds under the existing work limit.

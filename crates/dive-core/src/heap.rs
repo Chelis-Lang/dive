@@ -60,6 +60,9 @@ static EMPTY_DATA: [Handle; 0] = [];
 pub struct Heap {
     pub(crate) store: Arc<Store>,
     pub(crate) arena: Arena,
+    // Persistent source table, ground index, optional field and string result.
+    // This heap owns the store that gives the table handle its identity.
+    pub(crate) labels: [[Handle; 4]; 8],
     pub(crate) defer_reclamation: bool,
     /// Candidate expansion must not promote speculative results through caches.
     pub(crate) speculative: bool,
@@ -161,6 +164,7 @@ impl Heap {
         Self {
             store,
             arena: Arena::new(heap_arena),
+            labels: [[Handle::EMPTY; 4]; 8],
             defer_reclamation: false,
             speculative: false,
             strings: StringMode::Intern,

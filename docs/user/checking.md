@@ -546,6 +546,13 @@ the invariant tables first. This lets workers reuse a checked invariant across
 duplicate candidates even when the model contains thousands of action guards.
 [LuPastry+ measurements](../developer/large-models.md#lupastry-parallel-invariant-checking).
 
+Many process models select the next action with a string guard such as
+`pc[p] = "idle"` or `workers[p].stage = "idle"`. During exhaustive search,
+Core can reuse the selected string across alternatives that read the same
+table entry. A false leading guard can rule out an action before Core enters
+its frame. Enabled alternatives retain their order and multiplicity.
+[Flint and Bakery measurements](../developer/large-models.md#reproduce-the-flint-three-writer-model).
+
 With `--store exact`, Core grows the resident hash index one shard at a time.
 Each matching hash still requires equality of the full state. In parallel resident
 safety search, workers check step properties even on transitions to previously

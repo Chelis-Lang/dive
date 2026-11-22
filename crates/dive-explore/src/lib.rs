@@ -1458,15 +1458,7 @@ fn run_actions(
         ex.action = (!ex.initial).then_some(i);
         ex.init_action = ex.initial.then_some(i);
         ex.action_start = ex.emitted;
-        let old = m.enter(a.frame);
-        for &(slot, v) in &a.preset {
-            if let Some(x) = m.frame.get_mut(m.base + slot as usize) {
-                *x = v;
-            }
-        }
-        let r = m.run_action(code, a.g, ex);
-        m.leave(old);
-        r?;
+        m.run_bound_action(code, a, ex)?;
     }
     Ok(())
 }
