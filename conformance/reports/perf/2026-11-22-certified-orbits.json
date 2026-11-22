@@ -1,0 +1,1354 @@
+{
+  "title": "Source-bound finite and reachable-graph carrier permutation certificates",
+  "date": "2026-11-22",
+  "issues": [
+    1328,
+    1314,
+    799
+  ],
+  "host": "EC2 c7i.4xlarge, Ubuntu 24.04, Intel Xeon Platinum 8488C. Each panel command ran in a fresh process under taskset -c 0-7, one logical CPU per physical core. Linux cgroup v2 memory.peak covers the entire process family including compilation and charged file cache. Sail timings are end-to-end process wall time.",
+  "inputs": {
+    "Flint": "ddalton/flint@8feba0c78f22e3ecdee0648c6b2897eac95ab1b4, lean/formal/LeanP1.tla and LeanP1Size3L1W3.cfg. See the linked 2026-11-22-checked-orbits.json for original upstream file locations. Each record carries SHA-256.",
+    "Examples": "tlaplus/Examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f. specifications/transaction_commit/{TCommit,TwoPhase}, specifications/CigaretteSmokers/CigaretteSmokers, specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface. Use the original .tla and .cfg files.",
+    "peer": "ddalton/tla-mc@c8fce23493bb78fcd5405faf7b0653855db620ee. Compiler cache initially empty, shared across the edit sequence. The peer consumes the same pure transposition wrapper and CFG suffix and reports its own generated/representative counts. It does not issue a conjugacy proof or weighted census.",
+    "edits": "Start at the published small source and CFG, then three unchanged runs. Prepend TRUE /\\ to Inv_CitationsLive. For growth, also replace barriers < MaxBarriers by barriers <= MaxBarriers in the Consume guard after s \\notin Readers /\\ w[s].pc = \"idle\". Revert the guard, then the property. Each run is a new process."
+  },
+  "build": {
+    "Dive": "Rust 1.99.0, Linux x86_64, CARGO_PROFILE_RELEASE_LTO=off CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16 cargo build --release --locked -p dive-cli --bin dive and cargo build --release --locked -p dive-api --example orbit_graph --example symbolic_input; strip each executable. CPython 3.12.3, dd 0.6.0 for the finite proof.",
+    "Digests": {
+      "dive": "55a67c736d28fe3ec4c2eb8857221507f379747443f2a9a9f0f973e398c4fc3d",
+      "orbit_graph": "4edb6c11fcf23bc96e65612071e525b3a975ebf7006bfd9bc5defba753cba854",
+      "symbolic_input": "bb239bacda8db304efb710ec32de172f83fcdad7014a4903729d8e55501a0a01",
+      "tla-mc": "9a1fa4ebc43420c03dd61b9dbb620b46ed16b15ae05fc324757112c9e5930e81",
+      "sail": "9fe0a2b04378fa3533bc8e367cd96225cddb31433c94203f4a75a04ea57f7a6f",
+      "sail_worker": "d8b3a42a1d775e7b0abda0a8cb0e83e6edf29481ddf647f28532c94e0571184a",
+      "sail_worker_manifest": "6513d97099efd45991061fe5f41c1d3dad898a6ed3be614e4a4aaef6c5f7ae1b",
+      "timed_checked_orbit.py": "57e3794fa2b0a6ddd6ec95d28fcc50a5db7d5de2adeef3cf070aa527da9c4bbf",
+      "timed_orbit_certificate.py": "629797f40b7c447ba7c0bbb3613c7c6a8b3f65f33329fbe221b3ea632ecb087a",
+      "orbit_proof.py": "7fdc54786f9b3650b5ee1a7149aeac7ad4289b1fbb39ee6e859d6b785deb3ee7",
+      "symbolic_engine.py": "e5bd605d5b63b338a89f21c3ea06513a9e9cb32b47b0e17929cb5bec9e2cda53"
+    },
+    "timed_source_scope": "After this panel, the driver preflight also rejects observed effects before graph verification, handles deeply malformed receipts, and freezes finite proof scripts into the snapshot. The focused regression suite covers those integrated scripts; exact times here belong to the timed digests."
+  },
+  "commands": {
+    "graph": "DIVE_ORBIT_PROOF_KEY=KEY python3 scripts/perf/scale/checked_orbit.py MODEL.tla --dive DIVE --config MODEL.cfg --carrier CARRIER --workers 8 --max-memory 24g --seconds 660 --certify-equivariance graph --certificate-cache RECEIPTS --proof-memory-mib 24576 --graph-auditor ORBIT_GRAPH. Initially empty proof directory, private 32-byte key, mode 0600.",
+    "finite": "Use --certify-equivariance finite --type-invariant TCTypeOK --exporter SYMBOLIC_INPUT for TCommit; use TPTypeOK for TwoPhase. Both declare RM. Flint carrier Writers, CigaretteSmokers carrier Ingredients, AsynchInterface carrier Data.",
+    "peer": "TLAMC_CACHE=CACHE taskset -c 0-7 tla-mc -compile -config orbit.cfg -workers 8 DiveDeclaredOrbit.tla, using wrapper_source and original CFG + config_suffix from the input manifest. Build peer using cargo build --release --locked.",
+    "external": "In a new process read the authenticated-reuse result's inputs, validate each file and CFG against its SHA-256, construct the temporal check envelope with wrapper as root, max_states 150000, max_depth 1000 and wall_time_ms 90000; execute sail runtime execute --cache CACHE --file - twice. Sail runs its own worker on the prepared source. It receives no HMAC key, proof or prior result.",
+    "regression": "DIVE_ORBIT_BIN=DIVE DIVE_ORBIT_GRAPH=ORBIT_GRAPH DIVE_ORBIT_EXPORTER=SYMBOLIC_INPUT python3 -m unittest discover -s scripts/perf/scale -p 'test_*orbit.py' (Python environment with dd)."
+  },
+  "accounting": "certificate.seconds includes proof and ordinary check or receipt authentication. On authenticated reuse ordinary_seconds describes the originally established evidence. A fresh exact quotient search precedes every certificate result. Worker processes, source snapshot, subprocess startup, and allocations are included in total wall_s. tla-mc statistics in this record are [generated,distinct,depth].",
+  "controls": {
+    "distinct_scope": "Native graph checks two adjacent transpositions at every reachable exact identity, including stabilizers, exact initial and per-source target occurrence multisets. Captures no artificial stuttering edges. Finite method checks the bound finite layout and individual guarded witness relations. Both methods also compare a completed ordinary no-sink result with a fresh reduced exact search.",
+    "independent": "Independent enumerator over 78,732 finite multigraph/initial-multiset controls found 2,754 automorphisms preserving observables. 7,335 other cases had matching aggregates without automorphism. Implementation controls included duplicate initial/edge occurrences, state stabilizers, false StepBox, asymmetric constants, shadowed INSTANCE, and a faulty source with successful reduced search. Five partial whole-function comparisons originally lost ordinary diagnostics. All now refuse in the standalone finite proof and both calibrated methods. Replaying a signed receipt after source or config edits misses; damage to stored content forces fresh verification. Reverting both edits reuses their original contexts.",
+    "faults": "NotPrepared == \\A r \\in RM : rmState[r] # \"prepared\"; BarrierBound == barriers = 0; NoBarrierStep == [][barriers' = barriers]_vars. Append the named invariant/property to its CFG. Damage replaces the initial state with the final state. Each new process uses the original source for independent replay.",
+    "scale": "The one-barrier exact graph helper alone took 16.62 s / 427484 KiB maximum process RSS; the growth edit took 277.37 s / 3412936 KiB. These preliminary helper-only measurements exclude ordinary/reduced checks and Python startup. The paired qualified totals below include those costs."
+  },
+  "runs": [
+    {
+      "wall_s": 0.448365,
+      "family_peak_bytes": 68222976,
+      "exit": 0,
+      "model": "TCommit",
+      "arm": "finite",
+      "stage": "cold",
+      "source_sha256": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+      "config_sha256": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "cc884932e3764b89a8ba57dd3cba2b8cfe2f8a58b1c8367543cc89ed4d4bd51e",
+        "evidence": {
+          "generators": 2,
+          "initial_occurrences": 1,
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "method": "finite-role-conjugacy",
+          "occurrence_partitions": 9,
+          "state_bits": 6,
+          "step_properties": []
+        },
+        "ordinary_counts": [
+          34,
+          94,
+          7
+        ],
+        "ordinary_seconds": 0.008281,
+        "reuse": "fresh",
+        "seconds": 0.361288
+      },
+      "reduced_seconds": 0.008514,
+      "quotient": {
+        "depth": 7,
+        "distinct": 13,
+        "generated": 37,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent"
+      ],
+      "properties": []
+    },
+    {
+      "wall_s": 0.261096,
+      "family_peak_bytes": 55144448,
+      "exit": 0,
+      "model": "TCommit",
+      "arm": "finite",
+      "stage": "repeat",
+      "source_sha256": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+      "config_sha256": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "cc884932e3764b89a8ba57dd3cba2b8cfe2f8a58b1c8367543cc89ed4d4bd51e",
+        "evidence": {
+          "generators": 2,
+          "initial_occurrences": 1,
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "method": "finite-role-conjugacy",
+          "occurrence_partitions": 9,
+          "state_bits": 6,
+          "step_properties": []
+        },
+        "ordinary_counts": [
+          34,
+          94,
+          7
+        ],
+        "ordinary_seconds": 0.008281,
+        "reuse": "authenticated",
+        "seconds": 0.176701
+      },
+      "reduced_seconds": 0.00784,
+      "quotient": {
+        "depth": 7,
+        "distinct": 13,
+        "generated": 37,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent"
+      ],
+      "properties": []
+    },
+    {
+      "wall_s": 0.462971,
+      "family_peak_bytes": 69271552,
+      "exit": 0,
+      "model": "TwoPhase",
+      "arm": "finite",
+      "stage": "cold",
+      "source_sha256": "e6e72ed0097cca55e80b97af33c3bc54792a504bcbdf639d6d9c666f49c17817",
+      "config_sha256": "6f443b596657a26c817ee130a89c0ba84aa1cd06a60d07db449d06382de4fd87",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "6d8a23c6dadf0d3f0437dfa347b826f154048d8c5486336281a982c2ac39a96f",
+        "evidence": {
+          "generators": 2,
+          "initial_occurrences": 1,
+          "invariants": [
+            "TPTypeOK"
+          ],
+          "method": "finite-role-conjugacy",
+          "occurrence_partitions": 17,
+          "state_bits": 16,
+          "step_properties": []
+        },
+        "ordinary_counts": [
+          288,
+          1146,
+          11
+        ],
+        "ordinary_seconds": 0.011229,
+        "reuse": "fresh",
+        "seconds": 0.373218
+      },
+      "reduced_seconds": 0.010678,
+      "quotient": {
+        "depth": 11,
+        "distinct": 80,
+        "generated": 318,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TPTypeOK"
+      ],
+      "properties": []
+    },
+    {
+      "wall_s": 0.270573,
+      "family_peak_bytes": 55762944,
+      "exit": 0,
+      "model": "TwoPhase",
+      "arm": "finite",
+      "stage": "repeat",
+      "source_sha256": "e6e72ed0097cca55e80b97af33c3bc54792a504bcbdf639d6d9c666f49c17817",
+      "config_sha256": "6f443b596657a26c817ee130a89c0ba84aa1cd06a60d07db449d06382de4fd87",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "6d8a23c6dadf0d3f0437dfa347b826f154048d8c5486336281a982c2ac39a96f",
+        "evidence": {
+          "generators": 2,
+          "initial_occurrences": 1,
+          "invariants": [
+            "TPTypeOK"
+          ],
+          "method": "finite-role-conjugacy",
+          "occurrence_partitions": 17,
+          "state_bits": 16,
+          "step_properties": []
+        },
+        "ordinary_counts": [
+          288,
+          1146,
+          11
+        ],
+        "ordinary_seconds": 0.011229,
+        "reuse": "authenticated",
+        "seconds": 0.176887
+      },
+      "reduced_seconds": 0.011439,
+      "quotient": {
+        "depth": 11,
+        "distinct": 80,
+        "generated": 318,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TPTypeOK"
+      ],
+      "properties": []
+    },
+    {
+      "wall_s": 0.113045,
+      "family_peak_bytes": 65802240,
+      "exit": 0,
+      "model": "CigaretteSmokers",
+      "arm": "graph",
+      "stage": "cold",
+      "source_sha256": "c0dc0ebf3fef3e95be8f7173197f6798f4c2ada5e99aa34fcadc9f71bececa51",
+      "config_sha256": "1d3b7af9618a5ed95a4a27562827259196706c3ec5e2976f3a171938757ac3f8",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "f7eb6f6fa86c050332957ac0530d692cbabfc162011856b59e97622464f3c9e7",
+        "evidence": {
+          "depth": 2,
+          "distinct": 6,
+          "edges": 12,
+          "generated": 15,
+          "generators": 2,
+          "initial_generated": 3,
+          "method": "reachable-graph"
+        },
+        "ordinary_counts": [
+          6,
+          15,
+          2
+        ],
+        "ordinary_seconds": 0.008502,
+        "reuse": "fresh",
+        "seconds": 0.026506
+      },
+      "reduced_seconds": 0.009005,
+      "quotient": {
+        "depth": 2,
+        "distinct": 2,
+        "generated": 7,
+        "initial_generated": 3,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TypeOK",
+        "AtMostOne"
+      ],
+      "properties": []
+    },
+    {
+      "wall_s": 0.10125,
+      "family_peak_bytes": 45846528,
+      "exit": 0,
+      "model": "CigaretteSmokers",
+      "arm": "graph",
+      "stage": "repeat",
+      "source_sha256": "c0dc0ebf3fef3e95be8f7173197f6798f4c2ada5e99aa34fcadc9f71bececa51",
+      "config_sha256": "1d3b7af9618a5ed95a4a27562827259196706c3ec5e2976f3a171938757ac3f8",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "f7eb6f6fa86c050332957ac0530d692cbabfc162011856b59e97622464f3c9e7",
+        "evidence": {
+          "depth": 2,
+          "distinct": 6,
+          "edges": 12,
+          "generated": 15,
+          "generators": 2,
+          "initial_generated": 3,
+          "method": "reachable-graph"
+        },
+        "ordinary_counts": [
+          6,
+          15,
+          2
+        ],
+        "ordinary_seconds": 0.008502,
+        "reuse": "authenticated",
+        "seconds": 0.009186
+      },
+      "reduced_seconds": 0.009295,
+      "quotient": {
+        "depth": 2,
+        "distinct": 2,
+        "generated": 7,
+        "initial_generated": 3,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TypeOK",
+        "AtMostOne"
+      ],
+      "properties": []
+    },
+    {
+      "wall_s": 0.109658,
+      "family_peak_bytes": 61566976,
+      "exit": 0,
+      "model": "AsynchInterface",
+      "arm": "graph",
+      "stage": "cold",
+      "source_sha256": "86adf068c65219ebe140e047dece85a9d04b9492d508e4aa4d5f86685ada09d4",
+      "config_sha256": "1d5437ab52c06defaa83bd3b860310e94865e2e19b60524d56c4de08f13c068f",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "ee3c16bbcb0af7bce18be7ccb21d96cd7448b46c9d23a0a37173987b1befdb8f",
+        "evidence": {
+          "depth": 2,
+          "distinct": 12,
+          "edges": 24,
+          "generated": 30,
+          "generators": 2,
+          "initial_generated": 6,
+          "method": "reachable-graph"
+        },
+        "ordinary_counts": [
+          12,
+          30,
+          2
+        ],
+        "ordinary_seconds": 0.006506,
+        "reuse": "fresh",
+        "seconds": 0.022096
+      },
+      "reduced_seconds": 0.007665,
+      "quotient": {
+        "depth": 2,
+        "distinct": 4,
+        "generated": 14,
+        "initial_generated": 6,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TypeInvariant"
+      ],
+      "properties": []
+    },
+    {
+      "wall_s": 0.098872,
+      "family_peak_bytes": 44261376,
+      "exit": 0,
+      "model": "AsynchInterface",
+      "arm": "graph",
+      "stage": "repeat",
+      "source_sha256": "86adf068c65219ebe140e047dece85a9d04b9492d508e4aa4d5f86685ada09d4",
+      "config_sha256": "1d5437ab52c06defaa83bd3b860310e94865e2e19b60524d56c4de08f13c068f",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "ee3c16bbcb0af7bce18be7ccb21d96cd7448b46c9d23a0a37173987b1befdb8f",
+        "evidence": {
+          "depth": 2,
+          "distinct": 12,
+          "edges": 24,
+          "generated": 30,
+          "generators": 2,
+          "initial_generated": 6,
+          "method": "reachable-graph"
+        },
+        "ordinary_counts": [
+          12,
+          30,
+          2
+        ],
+        "ordinary_seconds": 0.006506,
+        "reuse": "authenticated",
+        "seconds": 0.009389
+      },
+      "reduced_seconds": 0.007337,
+      "quotient": {
+        "depth": 2,
+        "distinct": 4,
+        "generated": 14,
+        "initial_generated": 6,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TypeInvariant"
+      ],
+      "properties": []
+    },
+    {
+      "wall_s": 23.951984,
+      "family_peak_bytes": 460079104,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "graph",
+      "stage": "cold",
+      "source_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "d7f431fed5ef58f59d069a7b294774931a0c9eb273ca22c601f6762146b22073",
+        "evidence": {
+          "depth": 33,
+          "distinct": 449595,
+          "edges": 1954071,
+          "generated": 1954072,
+          "generators": 2,
+          "initial_generated": 1,
+          "method": "reachable-graph"
+        },
+        "ordinary_counts": [
+          449595,
+          1954072,
+          33
+        ],
+        "ordinary_seconds": 5.462791,
+        "reuse": "fresh",
+        "seconds": 22.359579
+      },
+      "reduced_seconds": 1.464708,
+      "quotient": {
+        "depth": 33,
+        "distinct": 78585,
+        "generated": 343661,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TypeOK",
+        "Inv_CitationsLive",
+        "Inv_OneName",
+        "Inv_AckedNamed",
+        "Inv_OneHolder",
+        "Inv_NoRegress",
+        "Inv_ShortcutSound",
+        "Inv_ReaderFetches"
+      ],
+      "properties": [
+        "Prop_NoSilentRevert",
+        "Prop_DeleteSettles"
+      ]
+    },
+    {
+      "wall_s": 1.56816,
+      "family_peak_bytes": 139833344,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "graph",
+      "stage": "warm1",
+      "source_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "d7f431fed5ef58f59d069a7b294774931a0c9eb273ca22c601f6762146b22073",
+        "evidence": {
+          "depth": 33,
+          "distinct": 449595,
+          "edges": 1954071,
+          "generated": 1954072,
+          "generators": 2,
+          "initial_generated": 1,
+          "method": "reachable-graph"
+        },
+        "ordinary_counts": [
+          449595,
+          1954072,
+          33
+        ],
+        "ordinary_seconds": 5.462791,
+        "reuse": "authenticated",
+        "seconds": 0.009242
+      },
+      "reduced_seconds": 1.43232,
+      "quotient": {
+        "depth": 33,
+        "distinct": 78585,
+        "generated": 343661,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TypeOK",
+        "Inv_CitationsLive",
+        "Inv_OneName",
+        "Inv_AckedNamed",
+        "Inv_OneHolder",
+        "Inv_NoRegress",
+        "Inv_ShortcutSound",
+        "Inv_ReaderFetches"
+      ],
+      "properties": [
+        "Prop_NoSilentRevert",
+        "Prop_DeleteSettles"
+      ]
+    },
+    {
+      "wall_s": 1.548369,
+      "family_peak_bytes": 141758464,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "graph",
+      "stage": "warm2",
+      "source_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "d7f431fed5ef58f59d069a7b294774931a0c9eb273ca22c601f6762146b22073",
+        "evidence": {
+          "depth": 33,
+          "distinct": 449595,
+          "edges": 1954071,
+          "generated": 1954072,
+          "generators": 2,
+          "initial_generated": 1,
+          "method": "reachable-graph"
+        },
+        "ordinary_counts": [
+          449595,
+          1954072,
+          33
+        ],
+        "ordinary_seconds": 5.462791,
+        "reuse": "authenticated",
+        "seconds": 0.009333
+      },
+      "reduced_seconds": 1.412527,
+      "quotient": {
+        "depth": 33,
+        "distinct": 78585,
+        "generated": 343661,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TypeOK",
+        "Inv_CitationsLive",
+        "Inv_OneName",
+        "Inv_AckedNamed",
+        "Inv_OneHolder",
+        "Inv_NoRegress",
+        "Inv_ShortcutSound",
+        "Inv_ReaderFetches"
+      ],
+      "properties": [
+        "Prop_NoSilentRevert",
+        "Prop_DeleteSettles"
+      ]
+    },
+    {
+      "wall_s": 1.552967,
+      "family_peak_bytes": 133369856,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "graph",
+      "stage": "warm3",
+      "source_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "d7f431fed5ef58f59d069a7b294774931a0c9eb273ca22c601f6762146b22073",
+        "evidence": {
+          "depth": 33,
+          "distinct": 449595,
+          "edges": 1954071,
+          "generated": 1954072,
+          "generators": 2,
+          "initial_generated": 1,
+          "method": "reachable-graph"
+        },
+        "ordinary_counts": [
+          449595,
+          1954072,
+          33
+        ],
+        "ordinary_seconds": 5.462791,
+        "reuse": "authenticated",
+        "seconds": 0.009322
+      },
+      "reduced_seconds": 1.413258,
+      "quotient": {
+        "depth": 33,
+        "distinct": 78585,
+        "generated": 343661,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TypeOK",
+        "Inv_CitationsLive",
+        "Inv_OneName",
+        "Inv_AckedNamed",
+        "Inv_OneHolder",
+        "Inv_NoRegress",
+        "Inv_ShortcutSound",
+        "Inv_ReaderFetches"
+      ],
+      "properties": [
+        "Prop_NoSilentRevert",
+        "Prop_DeleteSettles"
+      ]
+    },
+    {
+      "wall_s": 23.812967,
+      "family_peak_bytes": 459997184,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "graph",
+      "stage": "property",
+      "source_sha256": "1532acc1e8b12c5ac0fb237d64c57a951ac90e187d6516497f72cd37e422c3b7",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "cdf3f7d1627e32e106597ef5cc2f7f4e036470233ebf7c9e42166fb4f6fe4f7f",
+        "evidence": {
+          "depth": 33,
+          "distinct": 449595,
+          "edges": 1954071,
+          "generated": 1954072,
+          "generators": 2,
+          "initial_generated": 1,
+          "method": "reachable-graph"
+        },
+        "ordinary_counts": [
+          449595,
+          1954072,
+          33
+        ],
+        "ordinary_seconds": 5.394529,
+        "reuse": "fresh",
+        "seconds": 22.244952
+      },
+      "reduced_seconds": 1.438422,
+      "quotient": {
+        "depth": 33,
+        "distinct": 78585,
+        "generated": 343661,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TypeOK",
+        "Inv_CitationsLive",
+        "Inv_OneName",
+        "Inv_AckedNamed",
+        "Inv_OneHolder",
+        "Inv_NoRegress",
+        "Inv_ShortcutSound",
+        "Inv_ReaderFetches"
+      ],
+      "properties": [
+        "Prop_NoSilentRevert",
+        "Prop_DeleteSettles"
+      ]
+    },
+    {
+      "wall_s": 386.880278,
+      "family_peak_bytes": 3520417792,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "graph",
+      "stage": "growth",
+      "source_sha256": "e6cb769c8fb0e6a3bb03463d68c4c63e68ec584cb9029fee2adabae236ace785",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "3081b2a5ef389ffd73a5047b7cac14c49a70864a8fe0b0c008f9b2a00e873461",
+        "evidence": {
+          "depth": 40,
+          "distinct": 7387957,
+          "edges": 31281749,
+          "generated": 31281750,
+          "generators": 2,
+          "initial_generated": 1,
+          "method": "reachable-graph"
+        },
+        "ordinary_counts": [
+          7387957,
+          31281750,
+          40
+        ],
+        "ordinary_seconds": 87.924304,
+        "reuse": "fresh",
+        "seconds": 365.789832
+      },
+      "reduced_seconds": 20.963843,
+      "quotient": {
+        "depth": 40,
+        "distinct": 1259125,
+        "generated": 5332376,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TypeOK",
+        "Inv_CitationsLive",
+        "Inv_OneName",
+        "Inv_AckedNamed",
+        "Inv_OneHolder",
+        "Inv_NoRegress",
+        "Inv_ShortcutSound",
+        "Inv_ReaderFetches"
+      ],
+      "properties": [
+        "Prop_NoSilentRevert",
+        "Prop_DeleteSettles"
+      ]
+    },
+    {
+      "wall_s": 1.509243,
+      "family_peak_bytes": 135610368,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "graph",
+      "stage": "undoGrowth",
+      "source_sha256": "1532acc1e8b12c5ac0fb237d64c57a951ac90e187d6516497f72cd37e422c3b7",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "cdf3f7d1627e32e106597ef5cc2f7f4e036470233ebf7c9e42166fb4f6fe4f7f",
+        "evidence": {
+          "depth": 33,
+          "distinct": 449595,
+          "edges": 1954071,
+          "generated": 1954072,
+          "generators": 2,
+          "initial_generated": 1,
+          "method": "reachable-graph"
+        },
+        "ordinary_counts": [
+          449595,
+          1954072,
+          33
+        ],
+        "ordinary_seconds": 5.394529,
+        "reuse": "authenticated",
+        "seconds": 0.009111
+      },
+      "reduced_seconds": 1.373834,
+      "quotient": {
+        "depth": 33,
+        "distinct": 78585,
+        "generated": 343661,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TypeOK",
+        "Inv_CitationsLive",
+        "Inv_OneName",
+        "Inv_AckedNamed",
+        "Inv_OneHolder",
+        "Inv_NoRegress",
+        "Inv_ShortcutSound",
+        "Inv_ReaderFetches"
+      ],
+      "properties": [
+        "Prop_NoSilentRevert",
+        "Prop_DeleteSettles"
+      ]
+    },
+    {
+      "wall_s": 1.528627,
+      "family_peak_bytes": 141410304,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "graph",
+      "stage": "undoAll",
+      "source_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "status": "certified-orbit",
+      "certificate": {
+        "context": "d7f431fed5ef58f59d069a7b294774931a0c9eb273ca22c601f6762146b22073",
+        "evidence": {
+          "depth": 33,
+          "distinct": 449595,
+          "edges": 1954071,
+          "generated": 1954072,
+          "generators": 2,
+          "initial_generated": 1,
+          "method": "reachable-graph"
+        },
+        "ordinary_counts": [
+          449595,
+          1954072,
+          33
+        ],
+        "ordinary_seconds": 5.462791,
+        "reuse": "authenticated",
+        "seconds": 0.009089
+      },
+      "reduced_seconds": 1.396602,
+      "quotient": {
+        "depth": 33,
+        "distinct": 78585,
+        "generated": 343661,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "carrier_size": 3,
+      "invariants": [
+        "TypeOK",
+        "Inv_CitationsLive",
+        "Inv_OneName",
+        "Inv_AckedNamed",
+        "Inv_OneHolder",
+        "Inv_NoRegress",
+        "Inv_ShortcutSound",
+        "Inv_ReaderFetches"
+      ],
+      "properties": [
+        "Prop_NoSilentRevert",
+        "Prop_DeleteSettles"
+      ]
+    },
+    {
+      "wall_s": 36.542538,
+      "family_peak_bytes": 402984960,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "tla-mc",
+      "stage": "cold",
+      "source_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "statistics": [
+        343661,
+        78585,
+        33
+      ],
+      "detail": [
+        "tla-mc: DiveDeclaredOrbit (31 variables, 5 symmetry permutations), 8 workers, generated engine; loaded in 0.004s",
+        "Model checking completed. No error has been found.",
+        "tla-mc: building a checker for DiveDeclaredOrbit (cache: /home/ubuntu/cert1328-panel/tlacompiled)"
+      ]
+    },
+    {
+      "wall_s": 0.738432,
+      "family_peak_bytes": 141799424,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "tla-mc",
+      "stage": "warm1",
+      "source_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "statistics": [
+        343661,
+        78585,
+        33
+      ],
+      "detail": [
+        "tla-mc: DiveDeclaredOrbit (31 variables, 5 symmetry permutations), 8 workers, generated engine; loaded in 0.004s",
+        "Model checking completed. No error has been found."
+      ]
+    },
+    {
+      "wall_s": 0.741392,
+      "family_peak_bytes": 126844928,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "tla-mc",
+      "stage": "warm2",
+      "source_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "statistics": [
+        343661,
+        78585,
+        33
+      ],
+      "detail": [
+        "tla-mc: DiveDeclaredOrbit (31 variables, 5 symmetry permutations), 8 workers, generated engine; loaded in 0.004s",
+        "Model checking completed. No error has been found."
+      ]
+    },
+    {
+      "wall_s": 0.7391,
+      "family_peak_bytes": 148127744,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "tla-mc",
+      "stage": "warm3",
+      "source_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "statistics": [
+        343661,
+        78585,
+        33
+      ],
+      "detail": [
+        "tla-mc: DiveDeclaredOrbit (31 variables, 5 symmetry permutations), 8 workers, generated engine; loaded in 0.004s",
+        "Model checking completed. No error has been found."
+      ]
+    },
+    {
+      "wall_s": 22.346558,
+      "family_peak_bytes": 317243392,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "tla-mc",
+      "stage": "property",
+      "source_sha256": "1532acc1e8b12c5ac0fb237d64c57a951ac90e187d6516497f72cd37e422c3b7",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "statistics": [
+        343661,
+        78585,
+        33
+      ],
+      "detail": [
+        "tla-mc: DiveDeclaredOrbit (31 variables, 5 symmetry permutations), 8 workers, generated engine; loaded in 0.005s",
+        "Model checking completed. No error has been found.",
+        "tla-mc: building a checker for DiveDeclaredOrbit (cache: /home/ubuntu/cert1328-panel/tlacompiled)"
+      ]
+    },
+    {
+      "wall_s": 31.759199,
+      "family_peak_bytes": 442896384,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "tla-mc",
+      "stage": "growth",
+      "source_sha256": "e6cb769c8fb0e6a3bb03463d68c4c63e68ec584cb9029fee2adabae236ace785",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "statistics": [
+        5332376,
+        1259125,
+        40
+      ],
+      "detail": [
+        "tla-mc: DiveDeclaredOrbit (31 variables, 5 symmetry permutations), 8 workers, generated engine; loaded in 0.004s",
+        "Model checking completed. No error has been found.",
+        "tla-mc: building a checker for DiveDeclaredOrbit (cache: /home/ubuntu/cert1328-panel/tlacompiled)"
+      ]
+    },
+    {
+      "wall_s": 0.72985,
+      "family_peak_bytes": 126365696,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "tla-mc",
+      "stage": "undoGrowth",
+      "source_sha256": "1532acc1e8b12c5ac0fb237d64c57a951ac90e187d6516497f72cd37e422c3b7",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "statistics": [
+        343661,
+        78585,
+        33
+      ],
+      "detail": [
+        "tla-mc: DiveDeclaredOrbit (31 variables, 5 symmetry permutations), 8 workers, generated engine; loaded in 0.004s",
+        "Model checking completed. No error has been found."
+      ]
+    },
+    {
+      "wall_s": 0.743761,
+      "family_peak_bytes": 127516672,
+      "exit": 0,
+      "model": "LeanP1",
+      "arm": "tla-mc",
+      "stage": "undoAll",
+      "source_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+      "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "statistics": [
+        343661,
+        78585,
+        33
+      ],
+      "detail": [
+        "tla-mc: DiveDeclaredOrbit (31 variables, 5 symmetry permutations), 8 workers, generated engine; loaded in 0.004s",
+        "Model checking completed. No error has been found."
+      ]
+    }
+  ],
+  "sail": [
+    {
+      "family": "LeanP1",
+      "consumer": "Sail",
+      "status": 0,
+      "stage": "cold",
+      "cache_hit": false,
+      "request_sha256": "76d7539b3f51007f0ef1e2707697ce955d50165f192ee13b8f690d3f796261c9",
+      "certificate_context": "d7f431fed5ef58f59d069a7b294774931a0c9eb273ca22c601f6762146b22073",
+      "wall_s": 5.811308,
+      "outcome": "holds",
+      "complete": "safety",
+      "requested": {
+        "invariants": [
+          "TypeOK",
+          "Inv_CitationsLive",
+          "Inv_OneName",
+          "Inv_AckedNamed",
+          "Inv_OneHolder",
+          "Inv_NoRegress",
+          "Inv_ShortcutSound",
+          "Inv_ReaderFetches"
+        ],
+        "properties": [
+          "Prop_NoSilentRevert",
+          "Prop_DeleteSettles"
+        ],
+        "postconditions": [],
+        "possible": [],
+        "deadlock": false
+      },
+      "inner_request": "6b71a2e50ed22947601465da7c9cb0824c24a996ebf038e7b7c717b02fed07a7",
+      "statistics": {
+        "depth": 33,
+        "distinct": 78585,
+        "generated": 343661,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success"
+    },
+    {
+      "family": "LeanP1",
+      "consumer": "Sail",
+      "status": 0,
+      "stage": "repeat",
+      "cache_hit": true,
+      "request_sha256": "76d7539b3f51007f0ef1e2707697ce955d50165f192ee13b8f690d3f796261c9",
+      "certificate_context": "d7f431fed5ef58f59d069a7b294774931a0c9eb273ca22c601f6762146b22073",
+      "wall_s": 0.003654,
+      "outcome": "holds",
+      "complete": "safety",
+      "requested": {
+        "invariants": [
+          "TypeOK",
+          "Inv_CitationsLive",
+          "Inv_OneName",
+          "Inv_AckedNamed",
+          "Inv_OneHolder",
+          "Inv_NoRegress",
+          "Inv_ShortcutSound",
+          "Inv_ReaderFetches"
+        ],
+        "properties": [
+          "Prop_NoSilentRevert",
+          "Prop_DeleteSettles"
+        ],
+        "postconditions": [],
+        "possible": [],
+        "deadlock": false
+      },
+      "inner_request": "6b71a2e50ed22947601465da7c9cb0824c24a996ebf038e7b7c717b02fed07a7",
+      "statistics": {
+        "depth": 33,
+        "distinct": 78585,
+        "generated": 343661,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success"
+    },
+    {
+      "family": "TCommit",
+      "consumer": "Sail",
+      "status": 0,
+      "stage": "cold",
+      "cache_hit": false,
+      "request_sha256": "69353caf36a919e1a7b5bf3617caae39a3177cb205006b5469250e75092b967d",
+      "certificate_context": "cc884932e3764b89a8ba57dd3cba2b8cfe2f8a58b1c8367543cc89ed4d4bd51e",
+      "wall_s": 0.011478,
+      "outcome": "holds",
+      "complete": "safety",
+      "requested": {
+        "invariants": [
+          "TCTypeOK",
+          "TCConsistent"
+        ],
+        "properties": [],
+        "postconditions": [],
+        "possible": [],
+        "deadlock": false
+      },
+      "inner_request": "354b454efe151acbbd4c22b0651263113e632a635f9526df2584a4dc65c363c9",
+      "statistics": {
+        "depth": 7,
+        "distinct": 13,
+        "generated": 37,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success"
+    },
+    {
+      "family": "TCommit",
+      "consumer": "Sail",
+      "status": 0,
+      "stage": "repeat",
+      "cache_hit": true,
+      "request_sha256": "69353caf36a919e1a7b5bf3617caae39a3177cb205006b5469250e75092b967d",
+      "certificate_context": "cc884932e3764b89a8ba57dd3cba2b8cfe2f8a58b1c8367543cc89ed4d4bd51e",
+      "wall_s": 0.002405,
+      "outcome": "holds",
+      "complete": "safety",
+      "requested": {
+        "invariants": [
+          "TCTypeOK",
+          "TCConsistent"
+        ],
+        "properties": [],
+        "postconditions": [],
+        "possible": [],
+        "deadlock": false
+      },
+      "inner_request": "354b454efe151acbbd4c22b0651263113e632a635f9526df2584a4dc65c363c9",
+      "statistics": {
+        "depth": 7,
+        "distinct": 13,
+        "generated": 37,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success"
+    },
+    {
+      "family": "CigaretteSmokers",
+      "consumer": "Sail",
+      "status": 0,
+      "stage": "cold",
+      "cache_hit": false,
+      "request_sha256": "bca9a7b937d4f7899c1f1a25be968f27fea8d28f8003bf05ad1cdc360c6e2f88",
+      "certificate_context": "f7eb6f6fa86c050332957ac0530d692cbabfc162011856b59e97622464f3c9e7",
+      "wall_s": 0.013692,
+      "outcome": "holds",
+      "complete": "safety",
+      "requested": {
+        "invariants": [
+          "TypeOK",
+          "AtMostOne"
+        ],
+        "properties": [],
+        "postconditions": [],
+        "possible": [],
+        "deadlock": true
+      },
+      "inner_request": "377641c276afa25d56f57cc7565f44833097930a050e0e39a5c62ee1c0eac2f5",
+      "statistics": {
+        "depth": 2,
+        "distinct": 2,
+        "generated": 7,
+        "initial_generated": 3,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success"
+    },
+    {
+      "family": "CigaretteSmokers",
+      "consumer": "Sail",
+      "status": 0,
+      "stage": "repeat",
+      "cache_hit": true,
+      "request_sha256": "bca9a7b937d4f7899c1f1a25be968f27fea8d28f8003bf05ad1cdc360c6e2f88",
+      "certificate_context": "f7eb6f6fa86c050332957ac0530d692cbabfc162011856b59e97622464f3c9e7",
+      "wall_s": 0.002047,
+      "outcome": "holds",
+      "complete": "safety",
+      "requested": {
+        "invariants": [
+          "TypeOK",
+          "AtMostOne"
+        ],
+        "properties": [],
+        "postconditions": [],
+        "possible": [],
+        "deadlock": true
+      },
+      "inner_request": "377641c276afa25d56f57cc7565f44833097930a050e0e39a5c62ee1c0eac2f5",
+      "statistics": {
+        "depth": 2,
+        "distinct": 2,
+        "generated": 7,
+        "initial_generated": 3,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success"
+    },
+    {
+      "family": "AsynchInterface",
+      "consumer": "Sail",
+      "status": 0,
+      "stage": "cold",
+      "cache_hit": false,
+      "request_sha256": "866c924758bac171d3e198c7dd976995d1b011607a331013a53a9e25136f112b",
+      "certificate_context": "ee3c16bbcb0af7bce18be7ccb21d96cd7448b46c9d23a0a37173987b1befdb8f",
+      "wall_s": 0.009331,
+      "outcome": "holds",
+      "complete": "safety",
+      "requested": {
+        "invariants": [
+          "TypeInvariant"
+        ],
+        "properties": [],
+        "postconditions": [],
+        "possible": [],
+        "deadlock": true
+      },
+      "inner_request": "93f2432ecbd95eb1bcd6f26dd90a280beb3df276aacdb9e9b4e8a76f880ee133",
+      "statistics": {
+        "depth": 2,
+        "distinct": 4,
+        "generated": 14,
+        "initial_generated": 6,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success"
+    },
+    {
+      "family": "AsynchInterface",
+      "consumer": "Sail",
+      "status": 0,
+      "stage": "repeat",
+      "cache_hit": true,
+      "request_sha256": "866c924758bac171d3e198c7dd976995d1b011607a331013a53a9e25136f112b",
+      "certificate_context": "ee3c16bbcb0af7bce18be7ccb21d96cd7448b46c9d23a0a37173987b1befdb8f",
+      "wall_s": 0.00207,
+      "outcome": "holds",
+      "complete": "safety",
+      "requested": {
+        "invariants": [
+          "TypeInvariant"
+        ],
+        "properties": [],
+        "postconditions": [],
+        "possible": [],
+        "deadlock": true
+      },
+      "inner_request": "93f2432ecbd95eb1bcd6f26dd90a280beb3df276aacdb9e9b4e8a76f880ee133",
+      "statistics": {
+        "depth": 2,
+        "distinct": 4,
+        "generated": 14,
+        "initial_generated": 6,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success"
+    }
+  ],
+  "fault_replay": [
+    {
+      "family": "TCommit",
+      "mode": "finite",
+      "workers": 1,
+      "property": "NotPrepared",
+      "verdict": "invariant-violation",
+      "states": 2,
+      "genuine": "valid",
+      "damage": "invalid"
+    },
+    {
+      "family": "TCommit",
+      "mode": "finite",
+      "workers": 8,
+      "property": "NotPrepared",
+      "verdict": "invariant-violation",
+      "states": 2,
+      "genuine": "valid",
+      "damage": "invalid"
+    },
+    {
+      "family": "LeanP1",
+      "mode": "graph",
+      "workers": 1,
+      "property": "BarrierBound",
+      "verdict": "invariant-violation",
+      "states": 4,
+      "genuine": "valid",
+      "damage": "invalid"
+    },
+    {
+      "family": "LeanP1",
+      "mode": "graph",
+      "workers": 8,
+      "property": "BarrierBound",
+      "verdict": "invariant-violation",
+      "states": 4,
+      "genuine": "valid",
+      "damage": "invalid"
+    },
+    {
+      "family": "LeanP1",
+      "mode": "graph",
+      "workers": 1,
+      "property": "NoBarrierStep",
+      "verdict": "action-property-violation",
+      "states": 4,
+      "genuine": "valid",
+      "damage": "invalid"
+    },
+    {
+      "family": "LeanP1",
+      "mode": "graph",
+      "workers": 8,
+      "property": "NoBarrierStep",
+      "verdict": "action-property-violation",
+      "states": 4,
+      "genuine": "valid",
+      "damage": "invalid"
+    }
+  ]
+}

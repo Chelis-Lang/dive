@@ -27,6 +27,8 @@ are in git history.
 
 - Named symbolic checks can [repair a rejected predicate](docs/user/symbolic.md#repair-a-candidate-on-the-currently-bound-source) in the same invocation.
 
+- The original-source carrier checker can [certify permutations](docs/user/checking.md#certify-interchangeable-model-values) against every reachable state and successor occurrence, or against supported finite relations. Exact-input repeats authenticate the proof and perform a fresh reduced check.
+
 - Named symbolic proofs can [reuse authenticated transition obligations in a new process](docs/user/symbolic.md#reuse-certified-action-obligations-in-another-process).
 
 - Core names the [formula work limit](docs/user/temporal.md#storage-and-limits) when independent fairness assumptions exhaust temporal decomposition.

@@ -20,6 +20,8 @@ The scripts that produced the records are in
 
 [Five- and six-floor Fairness workspace](2026-11-22-streett-workspace.json) records matched Manyan trials, replayed witnesses, peak RSS and a memory-stop control. The larger shared allowance cut five-floor product search from 124.56 s to about 12.4 s.
 
+[Certified carrier symmetry](2026-11-22-certified-orbits.json) records the original and edited Flint reachable-graph proofs, two transaction-commit finite proofs, two other released models, authenticated second-process repeats, matched compiled tla-mc, independent Sail checks, peak memory and damaged/genuine word replay.
+
 [Streett component search](2026-11-22-streett-component-search.json) compares the exact factored fairness searches on four-floor Elevator and a constrained public allocator. It includes elapsed time, peak RSS, phase timings, concrete word replay and source configuration.
 
 [Projected native fairness and periodic graph labels](2026-11-22-projected-fairness.json) records every measured arm, three Elevator sizes against Manyan, peak RSS, label evaluations, a second fair model, and independent replays of both tools’ words. Four-floor medians were 19.08 s before the label and SCC changes, 9.62 s with both, and 7.46 s for Manyan.

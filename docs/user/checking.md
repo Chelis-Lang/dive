@@ -790,7 +790,7 @@ Use `--assume-equivariance` for a single reduced check when the model author est
 
 `--prepare-only` returns an unsigned input manifest with the module closure hashes, configuration digest, exact adapter source and configuration suffix. A separate client can verify the original bytes and submit the assembled request through its own checker. The receiver needs its own authority for any cached verdict. A source or configuration edit requires preparing the current inputs again. `dive analyze MODEL.tla --orbit-observers --output json` exposes the preflight's choice domains and refusal locations.
 
-Exit 0 means fresh unreduced and reduced success agreed on these observables. Exit 1 carries a replayed counterexample, exit 2 means refusal or disagreement, and exit 3 identifies a prepared request or a successful conditional result. `--seconds` limits each check, and `--max-memory` sets the checker's memory limit. [Flint and Lamport controls](../../conformance/reports/perf/2026-11-22-checked-orbits.json)
+Exit 0 means the selected comparison or certificate succeeded. Exit 1 carries a replayed counterexample, exit 2 means refusal or disagreement, and exit 3 identifies a prepared request or a successful conditional result. `--seconds` limits each check, and `--max-memory` sets the checker's memory limit. [Flint and Lamport controls](../../conformance/reports/perf/2026-11-22-checked-orbits.json)
 
 `DIVE_CORE_OPT` (for example `-fold,-delta-hash`) turns individual strategies
 off (`-name`) or on (`+name`) for measurement; results must not change.
@@ -799,6 +799,35 @@ profile builds for repeated membership tests on sets of at least 16 members
 (at most 4 MiB per worker, or a sixteenth of its memo allowance). TLC
 comparisons never use that index. In the TLC profile, `-memo` also turns off
 reuse of set-membership proofs.
+
+### Certify interchangeable model values
+
+Use `--certify-equivariance graph` when you need evidence that every reachable labeled transition survives renaming. This source-checkout driver supports pure safety models with two to four distinct untyped model values in a literal configured carrier. The graph method handles ordinary compound values, translated process tables, duplicate transitions, and configured invariant and step obligations. It requires a complete original search within the supplied limits. Constraints, prior reductions and liveness yield a refusal.
+
+Build the helper from the same checkout as the checker, then run it on the original module and CFG. For example, from the checkout root with the released transaction-commit files in `models/`:
+
+```sh
+cargo build --release --locked -p dive-cli --bin dive
+cargo build --release --locked -p dive-api --example orbit_graph --example symbolic_input
+python3 scripts/perf/scale/checked_orbit.py models/TCommit.tla \
+    --config models/TCommit.cfg --carrier RM --certify-equivariance graph
+```
+
+The first proof runs both the original safety check and an exact capture of its reachable graph. For each adjacent carrier swap it verifies that every state maps into the graph, that the mapping is its own inverse, and that each initial state and each mapped successor occurs with the same multiplicity. Checking each outgoing multiset also covers swaps that fix the source. The fresh reduced search must agree with the original on verdict, expanded distinct and generated counts, and depth. A violation carries a word independently replayed against the original files. Stops, diagnostic disagreement and failed conjugacy yield exit 2. Successful certification returns exit 0 and `status: certified-orbit`.
+
+For a model with a supported finite layout, select `--certify-equivariance finite --type-invariant TCTypeOK`. Install the optional [symbolic checker dependencies](../../scripts/symbolic/requirements.txt) in the Python environment that runs the driver. This method proves the finite initial occurrences, guarded updates with their multiplicities, invariant predicates, and supported boxed step predicates commute with the generators. It also checks the original directly on first use to preserve observable diagnostics. Ambiguous whole-function comparisons, unconstrained state coordinates, and unsupported value shapes or operators refuse by name. Use `--proof-memory-mib` to bound the helper address space and `--seconds` to bound each individual proof or check.
+
+To reuse a proof in another local process, create a private 32-byte key once and retain it under your control. Python 3.11 or newer is required.
+
+```sh
+export DIVE_ORBIT_PROOF_KEY="$PWD/orbit.key"
+python3 -c 'import os,sys; f=os.open(sys.argv[1],os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600); os.write(f,os.urandom(32)); os.close(f)' "$DIVE_ORBIT_PROOF_KEY"
+python3 scripts/perf/scale/checked_orbit.py models/TCommit.tla \
+    --config models/TCommit.cfg --carrier RM --certify-equivariance graph \
+    --certificate-cache "$PWD/orbit-proofs"
+```
+
+Run the final command again to see `certificate.reuse: authenticated`. Every invocation rebinds the source and runs the reduced search. The HMAC covers the complete source and CFG identity, group, checker, proof implementation, worker count, and proof result. An edit requires a new proof. Undo can reuse the original. A damaged receipt or a different private key causes reproof. Possession of the key grants authority to sign a reusable proof. Give another checker the prepared input bytes and let it establish its own verdict and cache authority. [Complete edit cycle, memory and separate Sail measurements](../../conformance/reports/perf/2026-11-22-certified-orbits.json).
 
 ## Embedding notes
 
