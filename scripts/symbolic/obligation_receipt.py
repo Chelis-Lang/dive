@@ -87,9 +87,7 @@ class ObligationReceipt:
             [(name, identity(node).hex()) for name, node in model.properties],
         ])).hexdigest()
         for guard, update in model.effects:
-            parts = model.effect_parts[update]
-            key = (guard, tuple((relation, tuple(old), tuple(sorted(rename.items()))) for relation, old, rename in parts))
-            self.actions[key] = sha256(pack([identity(guard).hex(), sorted(
+            self.actions[guard, update] = sha256(pack([identity(guard).hex(), sorted(
                 (name, identity(expr).hex()) for name, expr in update
             )])).hexdigest()
         identity.cache_clear()

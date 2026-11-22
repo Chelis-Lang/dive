@@ -6,6 +6,7 @@ from collections import Counter
 from contextlib import suppress
 from dataclasses import dataclass
 from enum import Enum, auto
+from functools import cached_property
 import gc
 import itertools
 import json
@@ -190,15 +191,19 @@ class SourceModel(FiniteRelation):
                     break
             else:
                 group.append(guard)
-        self.effects = Counter((g, frozenset(change)) for change, guards in merged.items() for g in guards)
-        self.effect_parts = {
-            frozenset(change): self.partitions(dict(change), single_partition) for change in merged
-        }
-        self.actions = [
-            (guard, self.effect_parts[frozenset(change)])
-            for change, guards in merged.items()
-            for guard in guards
-        ]
+        self.action_effects = [(guard, frozenset(change)) for change, guards in merged.items() for guard in guards]
+        self.effects = Counter(self.action_effects)
+        self.single_partition = single_partition
+
+    @cached_property
+    def effect_parts(self):
+        """Build image relations only when a search needs them."""
+        updates = dict.fromkeys(update for _, update in self.effects)
+        return {update: self.partitions(dict(sorted(update)), self.single_partition) for update in updates}
+
+    @cached_property
+    def actions(self):
+        return [(guard, self.effect_parts[update]) for guard, update in self.action_effects]
 
     def check_specification(self, name):
         # The implicit stutter in [Next]_v preserves every state invariant
