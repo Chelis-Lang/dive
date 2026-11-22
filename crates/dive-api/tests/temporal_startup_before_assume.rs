@@ -90,13 +90,12 @@ fn a_false_assume_without_a_startup_tautology_still_reports_2104() {
 }
 
 #[test]
-fn independent_strong_fairness_clauses_name_the_decomposition_limit() -> std::io::Result<()> {
+fn independent_strong_fairness_holds_and_nested_disjunction_keeps_its_named_limit()
+-> std::io::Result<()> {
     let dir = std::env::temp_dir().join(format!("dive-fair-choice-limit-{}", std::process::id()));
     std::fs::create_dir_all(&dir)?;
     let file = dir.join("FairChoices.tla");
-    std::fs::write(
-        &file,
-        r"---- MODULE FairChoices ----
+    let source = r"---- MODULE FairChoices ----
 EXTENDS Naturals
 VARIABLE x
 Init == x = 0
@@ -105,12 +104,22 @@ Next == \E i \in 0..15 : Act(i)
 Spec == Init /\ [][Next]_x /\ \A i \in 0..15 : SF_x(Act(i))
 Progress == []<>(x = 0)
 ====
-",
-    )?;
+";
+    std::fs::write(&file, source)?;
     std::fs::write(
         file.with_extension("cfg"),
         "SPECIFICATION Spec\nPROPERTY Progress\n",
     )?;
+    let holds = check(file.clone(), false, 1).to_json();
+    assert_eq!(holds["verdict"], "success");
+    assert_eq!(holds["statistics"]["distinct"], 16);
+    // Extraction under OR would incorrectly require the fairness conjunct on
+    // the other arm. Its large nested disjunction retains its named refusal.
+    let nested = source.replace(
+        r"\A i \in 0..15 : SF_x(Act(i))",
+        r"((\A i \in 0..15 : SF_x(Act(i))) \/ <>[](x = 0))",
+    );
+    std::fs::write(&file, nested)?;
     let report = check(file, false, 1);
     std::fs::remove_dir_all(dir)?;
     let json = report.to_json();

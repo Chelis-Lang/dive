@@ -11,6 +11,8 @@ are in git history.
 
 - Core names the [formula work limit](docs/user/temporal.md#storage-and-limits) when independent fairness assumptions exhaust temporal decomposition.
 
+- Ordinary Core can [check models with independent strong-fairness choices](docs/user/temporal.md#fairness), including the four-floor Elevator counterexample, on the original configuration.
+
 ### Added
 
 - [Automatic strategy selection](docs/user/symbolic.md#choose-a-strategy-automatically) chooses exact population, packed, decision-diagram or Core search for an original TLA+ configuration.

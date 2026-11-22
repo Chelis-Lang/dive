@@ -1217,6 +1217,7 @@ fn budget_limit(error: &AnalysisError) -> bool {
 struct PreparedProperty {
     plan: Plan,
     groups: Vec<PreparedGroup>,
+    streett: Vec<formula::StreettPair>,
     frozen_prefix: Option<plan::FrozenPrefix>,
 }
 
@@ -1344,8 +1345,21 @@ fn prepare(
     let plans = original_plans
         .into_iter()
         .map(|plan| {
-            let groups = formula::decompose(&plan.formula, limits.formula)
-                .map_err(AnalysisError::Tableau)?
+            let formula::FactoredSolutions {
+                groups,
+                pairs: streett,
+            } = match formula::decompose(&plan.formula, limits.formula) {
+                Ok(groups) => formula::FactoredSolutions {
+                    groups,
+                    pairs: Vec::new(),
+                },
+                Err(formula::FormulaError::Limit("solution decomposition work")) => {
+                    formula::streett(&plan.formula, limits.formula)
+                        .map_err(AnalysisError::Tableau)?
+                }
+                Err(e) => return Err(AnalysisError::Tableau(e)),
+            };
+            let groups = groups
                 .into_iter()
                 .map(|group| {
                     let tableau = formula::compile_residual(&group.core, limits.formula)
@@ -1359,6 +1373,7 @@ fn prepare(
             Ok(PreparedProperty {
                 plan,
                 groups,
+                streett,
                 frozen_prefix,
             })
         })
@@ -1563,7 +1578,7 @@ fn analyze_graph<S: StateSource + ?Sized>(
                     ImplicitProduct::new(graph, &group.tableau, &labels, limits.product, policy)
                         .map_err(AnalysisError::Product)?;
                 if let Some(lasso) = product
-                    .find_lasso_in_alternatives(&labels, &group.alternatives)
+                    .find_lasso_with_streett(&labels, &group.alternatives, &prepared.streett)
                     .map_err(AnalysisError::Product)?
                 {
                     let (word_states, _, edges) = original_word(captured, states, &lasso)?;

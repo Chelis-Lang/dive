@@ -504,10 +504,27 @@ On Elevator Medium the one-worker median fell from 1.50 s to 0.28 s. On
 Large it fell from 92.33 s to 4.16 s for the same 50,653 distinct states.
 Finding an accepting cycle or ruling one out took 0.89 s of those 4.16 s;
 evaluation of temporal predicates on the graph took 2.57 s. Manyan ran the
-same Large configuration in 1.31 s. At four floors, Manyan found a 202-state
-counterexample that Dive independently validates. Ordinary Core refused that
-configuration during temporal preparation in the measured run.
+same Large configuration in 1.31 s.
 [Elevator comparisons and negative controls](../../conformance/reports/perf/2026-11-22-fairness-components.json)
+
+Strong fairness permits either an action to become permanently disabled or the
+action to occur infinitely often. When expanding independent choices exhausts
+the formula work limit, Core can keep these pairs separate if they occur as
+conjuncts. It searches the residual property and inspects each candidate cycle.
+If a cycle violates a pair, Core checks both ways of meeting it. An accepting
+cycle goes through the ordinary property attribution and independent validation.
+A holding outcome requires all branches to finish. A nested disjunction can
+still reach the formula work limit.
+
+On Elevator with four floors, two people and two elevators, ordinary Core
+finds a violation of `TemporalInvariant` on the original model. Its 114-state
+word took 18.74 s at one worker. Manyan found a 202-state word in 7.30 s.
+Both words pass independent validation. Changing only their closing targets
+makes both words invalid. The default Core run found the violation after
+150,372 distinct states. Manyan reported 281,976, so these timings measure
+time to a counterexample. Core in the TLC profile completed the depth-41
+graph and reported a validated violation in 100.63 s.
+[Four-floor comparison and replay instructions](../../conformance/reports/perf/2026-11-22-factored-streett.json)
 
 dive can also reuse the evaluated truth of each `WF` and `SF` condition shared
 by several properties, in at most the smaller of 16 MiB and 1/256 of the
@@ -596,8 +613,8 @@ Before cycle search, Core groups the temporal formula into alternatives. Several
 independent strong-fairness assumptions can multiply the number of alternatives.
 If grouping reaches its work limit, both profiles return `unsupported` with
 `temporal formula resource limit: solution decomposition work` (exit 3). This
-can happen even when the state graph fits in memory. The four-floor, two-elevator
-model reaches this limit.
+can happen even when the state graph fits in memory. Top-level strong-fairness
+conjuncts have the [factored search](#fairness) described above.
 
 The behavior graph keeps every captured state in memory and stops on the run's
 `--time-limit` and `--max-memory`, not on a fixed state, edge, product or

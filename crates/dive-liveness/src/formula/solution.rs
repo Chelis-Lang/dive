@@ -6,7 +6,7 @@ use std::collections::{BTreeSet, HashMap};
 
 use super::{Formula, FormulaError, Limits, Nnf, Node, Normalizer, Recurrence};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub(crate) struct CycleConditions {
     /// Each Boolean condition must hold on every recurrent edge. Prefixes
     /// remain unrestricted: these are eventually-always obligations.
@@ -127,6 +127,79 @@ fn classify(formula: &Formula, root: usize) -> Option<(bool, Recurrence)> {
     // Nested temporal operands retain the general tableau route. This is a
     // semantic split of Boolean conditions, never an admission restriction.
     Recurrence::condition(formula, &[body]).map(|condition| (always, condition))
+}
+
+/// A positive Streett clause: FG(persistent) or GF(recurring).
+/// For strong fairness these are disabledness and the corresponding action.
+pub(crate) struct StreettPair {
+    pub persistent: Recurrence,
+    pub recurring: Recurrence,
+}
+
+pub(crate) struct FactoredSolutions {
+    pub groups: Vec<SolutionGroup>,
+    pub pairs: Vec<StreettPair>,
+}
+
+fn streett_pair(formula: &Formula, index: usize) -> Option<StreettPair> {
+    let Node::Or(children) = &formula.nodes[index] else {
+        return None;
+    };
+    let [left, right] = children.as_slice() else {
+        return None;
+    };
+    match (classify(formula, *left)?, classify(formula, *right)?) {
+        ((true, persistent), (false, recurring)) | ((false, recurring), (true, persistent)) => {
+            Some(StreettPair {
+                persistent,
+                recurring,
+            })
+        }
+        _ => None,
+    }
+}
+
+/// Factor only clauses reachable through top-level conjunctions. Everything
+/// inside a disjunction or a temporal context stays in its original formula.
+pub(crate) fn streett(
+    original: &Formula,
+    limits: Limits,
+) -> Result<FactoredSolutions, FormulaError> {
+    let formula = normalized(original, limits)?;
+    let mut pairs = Vec::new();
+    let mut residual = Vec::new();
+    let mut pending = vec![formula.root];
+    let mut seen = BTreeSet::new();
+    let mut budget = Budget {
+        remaining: limits.expansion_steps,
+    };
+    while let Some(index) = pending.pop() {
+        budget.step()?;
+        // AND is idempotent. A shared normalized node contributes once even
+        // if exponentially many conjunction paths lead to it.
+        if !seen.insert(index) {
+            continue;
+        }
+        if let Node::And(children) = &formula.nodes[index] {
+            pending.extend(children.iter().rev());
+        } else if let Some(pair) = streett_pair(&formula, index) {
+            pairs.push(pair);
+        } else {
+            residual.push(index);
+        }
+    }
+    if pairs.is_empty() {
+        return Err(FormulaError::Limit("solution decomposition work"));
+    }
+    let residual = core(&formula, &residual, &mut budget)?;
+    let groups = decompose(
+        &residual,
+        Limits {
+            expansion_steps: budget.remaining,
+            ..limits
+        },
+    )?;
+    Ok(FactoredSolutions { groups, pairs })
 }
 
 pub(crate) fn decompose(
