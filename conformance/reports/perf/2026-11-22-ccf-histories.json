@@ -1,0 +1,240 @@
+{
+  "issue": 1319,
+  "source_commit": "4ef031c6fb844e58baa820937bc1b65b4533a062",
+  "sources_sha256": {
+    "TraceMultiNodeReads.tla": "4c333d9ea385a308bbe74894e6838db7aea92a0cd760c640b38c5ac3b8fcb42a",
+    "TraceMultiNodeReads.cfg": "41415359ff02859e705bb24e89a7ec762ed43413dccae44d080e62bd0e0f2697",
+    "MultiNodeReads.tla": "efa7b9213f61534bbb826719e48643c8ef1750829fd355b724a7dd5e919546e1",
+    "MultiNode.tla": "dfae3b4e0cc47c743365e1fe00495437c1324bb657266572ccab799e8bf589cf",
+    "SingleNode.tla": "76d89beda180945967369a2e42d6e6aed5303dd6315afd881b8b1f2d598767c8",
+    "SingleNodeReads.tla": "064a1a7499f50f672133eafd255200e145781fab0d7a3934349889c3488f3b88",
+    "ExternalHistory.tla": "8ff72d4bc2b1d43e346a8fe0df0ff8430b72da8010228199a46b8b0c938e8334",
+    "ExternalHistoryInvars.tla": "eb43f21778ab16b4f689a37fed7aae06044e858ff4f746535111cc6164505ec5"
+  },
+  "dependencies_sha256": {
+    "CommunityModules-deps.jar": "5ca48222f7d137accbbae1e632ccfee14d786a2ad16ee31fe27fc540ee2dd8ba",
+    "tla2tools.jar": "fdffef247f563ef6edbfd44958d2a82db79e7564e07cb673262d896353fa6713"
+  },
+  "dive_sha256": "f5698833dbd559e72393df6f91b2b87ea09da3f2442eee9f56ce8f8cf57c7fee",
+  "adapter_sha256": {
+    "match-ccf-trace.py": "3250990c36e28d62120f060b3985503edcbc452ba3e67596f960d8c89c53f55c",
+    "trace_match_support.py": "3fbe49b77b7b69e1386554f751ea7ba93a684322c3b7c9866037ffa305a14189"
+  },
+  "host": "Dedicated EC2 c7i.4xlarge, Intel Xeon Platinum 8488C, Linux 7.0.0-1018-aws, Ubuntu OpenJDK 21.0.13.1 and Python 3.12.3. Each run includes startup and reports dedicated cgroup v2 memory.peak for the process family.",
+  "tlc_configured_obligations": {
+    "MNRSpec": "Refinement of the executions checked under the configured TraceSpec and Termination. TLC reported no violation in any of the four runs.",
+    "TraceMatched": "Queue-based coverage check. TLC reported no violation in any run. Termination requests exit at cursor Len(JsonLog), with queued states measured at that exit.",
+    "TraceMatchedNonTrivially": "Postcondition requires the maximum recorded cursor to be at least Len(JsonLog). TLC reported no violation in any run."
+  },
+  "dive_contract": "Finds one complete history in the intersection of the source observation relation and the CCF protocol, then independently replays both. Advances the cursor through every supplied observation.",
+  "commands": [
+    "From CCF/tla, JSON=\"$TRACE\" python3 tlc.py --workers 1 --config consistency/TraceMultiNodeReads.cfg tv consistency/TraceMultiNodeReads.tla",
+    "python3 scripts/match-ccf-trace.py CCF/tla/consistency TRACE --dive DIVE",
+    "python3 scripts/test-match-ccf-trace.py CCF/tla/consistency --dive DIVE"
+  ],
+  "rows": [
+    {
+      "history": "election_no_rollback.ndjson",
+      "tlc": {
+        "exit": 0,
+        "wall_s": 0.825,
+        "peak_cgroup_bytes": 197402624,
+        "generated": 19,
+        "distinct": 19,
+        "queued_at_configured_exit": 2,
+        "report": "no error reported"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.173,
+        "peak_cgroup_bytes": 31858688,
+        "result": "matched",
+        "events": 8,
+        "search": "invariant-violation",
+        "search_statistics": {
+          "depth": 19,
+          "distinct": 20,
+          "generated": 20,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "matched_observations": 8,
+        "witness_states": 19,
+        "observation_replay": "valid",
+        "protocol_replay": "valid"
+      },
+      "ndjson_sha256": "305531479af499e5c654dfecde944fd8db0a138d4f950c55bba0e903378eef5e"
+    },
+    {
+      "history": "election_non_contiguous_view.ndjson",
+      "tlc": {
+        "exit": 0,
+        "wall_s": 0.877,
+        "peak_cgroup_bytes": 201043968,
+        "generated": 23,
+        "distinct": 23,
+        "queued_at_configured_exit": 4,
+        "report": "no error reported"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.173,
+        "peak_cgroup_bytes": 31633408,
+        "result": "matched",
+        "events": 8,
+        "search": "invariant-violation",
+        "search_statistics": {
+          "depth": 21,
+          "distinct": 24,
+          "generated": 24,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "matched_observations": 8,
+        "witness_states": 21,
+        "observation_replay": "valid",
+        "protocol_replay": "valid"
+      },
+      "ndjson_sha256": "f21fdfafc1c6e817f219357f76c8f89767d0b307d3964806093ae5eb2239062c"
+    },
+    {
+      "history": "rollback_same_seqno.ndjson",
+      "tlc": {
+        "exit": 0,
+        "wall_s": 0.875,
+        "peak_cgroup_bytes": 214937600,
+        "generated": 22,
+        "distinct": 22,
+        "queued_at_configured_exit": 2,
+        "report": "no error reported"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.175,
+        "peak_cgroup_bytes": 31731712,
+        "result": "matched",
+        "events": 11,
+        "search": "invariant-violation",
+        "search_statistics": {
+          "depth": 22,
+          "distinct": 23,
+          "generated": 23,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "matched_observations": 11,
+        "witness_states": 22,
+        "observation_replay": "valid",
+        "protocol_replay": "valid"
+      },
+      "ndjson_sha256": "a621b061aad47604a0ca7334d784158bac7e18e94bed033bb4c6eedb0eaa02e9"
+    },
+    {
+      "history": "rollback_two_transactions.ndjson",
+      "tlc": {
+        "exit": 0,
+        "wall_s": 0.875,
+        "peak_cgroup_bytes": 205606912,
+        "generated": 27,
+        "distinct": 27,
+        "queued_at_configured_exit": 2,
+        "report": "no error reported"
+      },
+      "dive": {
+        "exit": 0,
+        "wall_s": 0.173,
+        "peak_cgroup_bytes": 31719424,
+        "result": "matched",
+        "events": 16,
+        "search": "invariant-violation",
+        "search_statistics": {
+          "depth": 27,
+          "distinct": 28,
+          "generated": 28,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "matched_observations": 16,
+        "witness_states": 27,
+        "observation_replay": "valid",
+        "protocol_replay": "valid"
+      },
+      "ndjson_sha256": "3bb5bdcdc3684e4c77b0462c4dd695333a670e16b2781e28dade6e0d86da1b5d"
+    }
+  ],
+  "controls": [
+    {
+      "input": "corrupted.ndjson",
+      "result": "no-completion",
+      "events": 8,
+      "search": "success",
+      "search_statistics": {
+        "depth": 12,
+        "distinct": 12,
+        "generated": 12,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "matched_observations": 2,
+      "first_incompatible_observation": 3
+    },
+    {
+      "input": "repaired.ndjson",
+      "result": "matched",
+      "events": 8,
+      "search": "invariant-violation",
+      "search_statistics": {
+        "depth": 19,
+        "distinct": 20,
+        "generated": 20,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "matched_observations": 8,
+      "witness_states": 19,
+      "observation_replay": "valid",
+      "protocol_replay": "valid"
+    },
+    {
+      "input": "repaired.ndjson",
+      "result": "inconclusive",
+      "events": 8,
+      "search": "stopped",
+      "search_statistics": {
+        "depth": 1,
+        "distinct": 1,
+        "exhaustive": false,
+        "generated": 2,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "reason": "stopped during safety-search: the next states would be 2, exceeding the limit of 1"
+    }
+  ],
+  "etcd_regression": {
+    "controls": "Pinned scripts/test-match-etcd-trace.py passed, including the inconsistent vote rejection and the repaired term-three vote.",
+    "corrupted_vote": {
+      "case": "globally inconsistent vote",
+      "scope": "full-input",
+      "events": 77,
+      "search": "success",
+      "distinct": 77,
+      "generated": 77,
+      "depth": 77,
+      "result": "no-completion"
+    },
+    "512_observations": {
+      "result": "matched",
+      "states": 532,
+      "event_replay": "valid",
+      "raft_replay": "valid"
+    }
+  }
+}
