@@ -498,6 +498,14 @@ scope and level restrictions.
 
 ## Fairness
 
+In the default profile, Core can evaluate a bound fairness action on several
+original transitions from the same source together. It evaluates each source-only
+guard or assigned value once, then compares it with each still-eligible
+destination. Source-order short-circuiting includes the nonstuttering subscript.
+A warning, type error, unproved input, or unsupported action shape sends the
+row through ordinary evaluation. The native atom metrics report how many
+plans and source rows used this path under `action_batches`.
+
 Both profiles keep pure recurrence (`[]<>B`) and persistence (`<>[]B`)
 obligations apart from the temporal memory a property needs, and several
 strong-fairness alternatives share that memory. A finite prefix may violate a

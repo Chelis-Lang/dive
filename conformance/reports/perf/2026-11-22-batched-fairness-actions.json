@@ -1,0 +1,689 @@
+{
+  "scope": "One-worker ordinary Core on the pinned MultiCarElevator source and CFG. The four- and five-floor variants change only FloorCount. Each timing is a fresh process. Manyan uses its native membership policy. For violations the metric is wall to a counterexample; the checkers can search different prefixes.",
+  "base": "efccb99be714b5eb73a0269c15fb1846d1dcd0c5",
+  "examples": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "manyan": "a39816a873a2c2aabc00dbcef50908e996f3d44b",
+  "host": {
+    "hardware": "Dedicated AWS c7i.4xlarge, us-east-2, one logical worker",
+    "kernel": "7.0.0-1018-aws",
+    "compiler": "rustc 1.99.0, release --locked",
+    "host_timing": "GNU time %e and %M (KiB); sequential, wall includes process startup"
+  },
+  "commands": [
+    "dive check Elevator.tla --config CFG --workers 1 --fp 0 --seed 0 --compat dive --max-memory 8g --time-limit 90s --output json",
+    "make manyan on the pinned checkout. manyan -workers 1 -seed 0 -fp 0 -config CFG Elevator.tla. For separate witness runs add -dumpTrace json WORD.json. The matched short trials use 180s and no per-process CPU affinity.",
+    "Translate Manyan witnesses with scripts/perf/scale/elevator-peer-word.py. Extract Dive counterexample.trace; use unmodified main dive validate-trace on original source and CFG, then change ending.back_to to 0 and repeat.",
+    "Kafka uses the fixed4.cfg recipe from 2026-11-21-kafka-liveness.json with six invariants and four temporal properties, --store exact --max-memory 4g --time-limit 180s."
+  ],
+  "artifacts": {
+    "baseline": "3f9c242a3a347327de96d8f8e3f7b4669c00ede5fd5dc29190bca0392304d28a",
+    "batch": "a771d7b32ce5ecbd5292f480afa1b22b5e7a8ecfd17232576cea7874ad62c28e",
+    "nested": "cc14186020902c22a835a23b8c7f06b5af4c4dd47c571be40fd4944aa3db3ced",
+    "manyan/manyan": "89f6da894a58220f7607853ca3907122f692fe66e507c148e1898731b8b4fcf1",
+    "Elevator.tla": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+    "ElevatorLivenessLarge.cfg": "f41449494507bb7def26453fd0bfc46a3928b6436de0da8d6aa888a13aed410c",
+    "four-floor.cfg": "707f56c9952ed53cee5dda44b20ed51224f0035039c73cd96a51ea02d34c0c49",
+    "five-floor.cfg": "ec00a1abc115f9a6052da98a5a3c3a6dd1534506db40dbdcf4528eb54ff55d93",
+    "kafka/fixed4.cfg": "bcc440239b186397f621273de5325df5832a15a853641cd1dd65bc466b847ce9"
+  },
+  "arms": {
+    "baseline": "unmodified main",
+    "batch": "source guards plus grouped original edges, projected source reads only",
+    "nested": "also admits nested ENABLED with closed preset arguments, and omits redundant unchanged probes for batchable actions"
+  },
+  "ab_trials": [
+    {
+      "panel": "first",
+      "input": "Four",
+      "rep": 1,
+      "arm": "baseline",
+      "wall_s": 9.38,
+      "rss_kib": 196720,
+      "labels_ms": 5536.852,
+      "product_ms": 1651.086,
+      "native_individual_action_evaluations": 1971138,
+      "native_batch_rows": 0,
+      "full_native_state_evaluations": 1703034,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "first",
+      "input": "Four",
+      "rep": 1,
+      "arm": "batch",
+      "wall_s": 8.45,
+      "rss_kib": 196580,
+      "labels_ms": 4613.72,
+      "product_ms": 1630.41,
+      "native_individual_action_evaluations": 1172308,
+      "native_batch_rows": 316852,
+      "full_native_state_evaluations": 1703034,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "first",
+      "input": "Four",
+      "rep": 2,
+      "arm": "baseline",
+      "wall_s": 9.79,
+      "rss_kib": 176328,
+      "labels_ms": 5905.486,
+      "product_ms": 1634.802,
+      "native_individual_action_evaluations": 1971138,
+      "native_batch_rows": 0,
+      "full_native_state_evaluations": 1703034,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "first",
+      "input": "Four",
+      "rep": 2,
+      "arm": "batch",
+      "wall_s": 8.29,
+      "rss_kib": 196788,
+      "labels_ms": 4413.199,
+      "product_ms": 1658.727,
+      "native_individual_action_evaluations": 1172308,
+      "native_batch_rows": 316852,
+      "full_native_state_evaluations": 1703034,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "first",
+      "input": "Four",
+      "rep": 3,
+      "arm": "baseline",
+      "wall_s": 9.34,
+      "rss_kib": 175432,
+      "labels_ms": 5523.183,
+      "product_ms": 1627.783,
+      "native_individual_action_evaluations": 1971138,
+      "native_batch_rows": 0,
+      "full_native_state_evaluations": 1703034,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "first",
+      "input": "Four",
+      "rep": 3,
+      "arm": "batch",
+      "wall_s": 8.24,
+      "rss_kib": 176044,
+      "labels_ms": 4461.365,
+      "product_ms": 1615.394,
+      "native_individual_action_evaluations": 1172308,
+      "native_batch_rows": 316852,
+      "full_native_state_evaluations": 1703034,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "first",
+      "input": "Large",
+      "rep": 1,
+      "arm": "baseline",
+      "wall_s": 2.83,
+      "rss_kib": 75868,
+      "labels_ms": 1838.322,
+      "product_ms": 292.818,
+      "native_individual_action_evaluations": 653202,
+      "native_batch_rows": 0,
+      "full_native_state_evaluations": 538742,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "first",
+      "input": "Large",
+      "rep": 1,
+      "arm": "batch",
+      "wall_s": 2.46,
+      "rss_kib": 73988,
+      "labels_ms": 1474.332,
+      "product_ms": 283.752,
+      "native_individual_action_evaluations": 371496,
+      "native_batch_rows": 116064,
+      "full_native_state_evaluations": 538742,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "first",
+      "input": "Large",
+      "rep": 2,
+      "arm": "baseline",
+      "wall_s": 2.87,
+      "rss_kib": 76048,
+      "labels_ms": 1877.739,
+      "product_ms": 291.32,
+      "native_individual_action_evaluations": 653202,
+      "native_batch_rows": 0,
+      "full_native_state_evaluations": 538742,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "first",
+      "input": "Large",
+      "rep": 2,
+      "arm": "batch",
+      "wall_s": 2.44,
+      "rss_kib": 74020,
+      "labels_ms": 1457.023,
+      "product_ms": 283.894,
+      "native_individual_action_evaluations": 371496,
+      "native_batch_rows": 116064,
+      "full_native_state_evaluations": 538742,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "first",
+      "input": "Large",
+      "rep": 3,
+      "arm": "baseline",
+      "wall_s": 2.83,
+      "rss_kib": 73952,
+      "labels_ms": 1842.928,
+      "product_ms": 287.526,
+      "native_individual_action_evaluations": 653202,
+      "native_batch_rows": 0,
+      "full_native_state_evaluations": 538742,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "first",
+      "input": "Large",
+      "rep": 3,
+      "arm": "batch",
+      "wall_s": 2.44,
+      "rss_kib": 74000,
+      "labels_ms": 1456.03,
+      "product_ms": 285.223,
+      "native_individual_action_evaluations": 371496,
+      "native_batch_rows": 116064,
+      "full_native_state_evaluations": 538742,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "measure",
+      "input": "Four",
+      "rep": 1,
+      "arm": "baseline",
+      "wall_s": 9.41,
+      "rss_kib": 195940,
+      "labels_ms": 5621.073,
+      "product_ms": 1621.625,
+      "native_individual_action_evaluations": 1971138,
+      "native_batch_rows": 0,
+      "full_native_state_evaluations": 1703034,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "measure",
+      "input": "Four",
+      "rep": 1,
+      "arm": "nested",
+      "wall_s": 6.89,
+      "rss_kib": 196740,
+      "labels_ms": 3067.888,
+      "product_ms": 1655.039,
+      "native_individual_action_evaluations": 0,
+      "native_batch_rows": 593260,
+      "full_native_state_evaluations": 1703034,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "measure",
+      "input": "Four",
+      "rep": 2,
+      "arm": "baseline",
+      "wall_s": 9.89,
+      "rss_kib": 176176,
+      "labels_ms": 5880.964,
+      "product_ms": 1727.209,
+      "native_individual_action_evaluations": 1971138,
+      "native_batch_rows": 0,
+      "full_native_state_evaluations": 1703034,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "measure",
+      "input": "Four",
+      "rep": 2,
+      "arm": "nested",
+      "wall_s": 6.82,
+      "rss_kib": 196580,
+      "labels_ms": 3049.439,
+      "product_ms": 1599.404,
+      "native_individual_action_evaluations": 0,
+      "native_batch_rows": 593260,
+      "full_native_state_evaluations": 1703034,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "measure",
+      "input": "Four",
+      "rep": 3,
+      "arm": "baseline",
+      "wall_s": 9.63,
+      "rss_kib": 196688,
+      "labels_ms": 5752.656,
+      "product_ms": 1658.734,
+      "native_individual_action_evaluations": 1971138,
+      "native_batch_rows": 0,
+      "full_native_state_evaluations": 1703034,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "measure",
+      "input": "Four",
+      "rep": 3,
+      "arm": "nested",
+      "wall_s": 6.89,
+      "rss_kib": 176040,
+      "labels_ms": 3057.289,
+      "product_ms": 1663.104,
+      "native_individual_action_evaluations": 0,
+      "native_batch_rows": 593260,
+      "full_native_state_evaluations": 1703034,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "measure",
+      "input": "Large",
+      "rep": 1,
+      "arm": "baseline",
+      "wall_s": 2.84,
+      "rss_kib": 75996,
+      "labels_ms": 1846.933,
+      "product_ms": 288.367,
+      "native_individual_action_evaluations": 653202,
+      "native_batch_rows": 0,
+      "full_native_state_evaluations": 538742,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "measure",
+      "input": "Large",
+      "rep": 1,
+      "arm": "nested",
+      "wall_s": 2.04,
+      "rss_kib": 73948,
+      "labels_ms": 1049.583,
+      "product_ms": 288.806,
+      "native_individual_action_evaluations": 0,
+      "native_batch_rows": 217370,
+      "full_native_state_evaluations": 538742,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "measure",
+      "input": "Large",
+      "rep": 2,
+      "arm": "baseline",
+      "wall_s": 2.83,
+      "rss_kib": 76000,
+      "labels_ms": 1840.883,
+      "product_ms": 286.793,
+      "native_individual_action_evaluations": 653202,
+      "native_batch_rows": 0,
+      "full_native_state_evaluations": 538742,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "measure",
+      "input": "Large",
+      "rep": 2,
+      "arm": "nested",
+      "wall_s": 2.04,
+      "rss_kib": 73816,
+      "labels_ms": 1050.064,
+      "product_ms": 286.295,
+      "native_individual_action_evaluations": 0,
+      "native_batch_rows": 217370,
+      "full_native_state_evaluations": 538742,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "measure",
+      "input": "Large",
+      "rep": 3,
+      "arm": "baseline",
+      "wall_s": 2.82,
+      "rss_kib": 76100,
+      "labels_ms": 1838.69,
+      "product_ms": 280.819,
+      "native_individual_action_evaluations": 653202,
+      "native_batch_rows": 0,
+      "full_native_state_evaluations": 538742,
+      "reference_fallback": 0
+    },
+    {
+      "panel": "measure",
+      "input": "Large",
+      "rep": 3,
+      "arm": "nested",
+      "wall_s": 2.03,
+      "rss_kib": 73928,
+      "labels_ms": 1051.465,
+      "product_ms": 281.63,
+      "native_individual_action_evaluations": 0,
+      "native_batch_rows": 217370,
+      "full_native_state_evaluations": 538742,
+      "reference_fallback": 0
+    }
+  ],
+  "short": [
+    {
+      "cfg": "ElevatorLivenessLarge",
+      "arm": "manyan",
+      "rep": 1,
+      "wall_s": 1.32,
+      "peak_kib": 46652
+    },
+    {
+      "cfg": "ElevatorLivenessLarge",
+      "arm": "nested",
+      "rep": 1,
+      "wall_s": 2.04,
+      "peak_kib": 75880
+    },
+    {
+      "cfg": "ElevatorLivenessLarge",
+      "arm": "nested",
+      "rep": 2,
+      "wall_s": 2.1,
+      "peak_kib": 76136
+    },
+    {
+      "cfg": "ElevatorLivenessLarge",
+      "arm": "manyan",
+      "rep": 2,
+      "wall_s": 1.34,
+      "peak_kib": 46640
+    },
+    {
+      "cfg": "ElevatorLivenessLarge",
+      "arm": "manyan",
+      "rep": 3,
+      "wall_s": 1.34,
+      "peak_kib": 46536
+    },
+    {
+      "cfg": "ElevatorLivenessLarge",
+      "arm": "nested",
+      "rep": 3,
+      "wall_s": 2.03,
+      "peak_kib": 76120
+    },
+    {
+      "cfg": "ElevatorLivenessLarge",
+      "arm": "nested",
+      "rep": 4,
+      "wall_s": 2.03,
+      "peak_kib": 74088
+    },
+    {
+      "cfg": "ElevatorLivenessLarge",
+      "arm": "manyan",
+      "rep": 4,
+      "wall_s": 1.31,
+      "peak_kib": 46660
+    },
+    {
+      "cfg": "ElevatorLivenessLarge",
+      "arm": "manyan",
+      "rep": 5,
+      "wall_s": 1.3,
+      "peak_kib": 46636
+    },
+    {
+      "cfg": "ElevatorLivenessLarge",
+      "arm": "nested",
+      "rep": 5,
+      "wall_s": 2.12,
+      "peak_kib": 75944
+    },
+    {
+      "cfg": "four-floor",
+      "arm": "manyan",
+      "rep": 1,
+      "wall_s": 7.66,
+      "peak_kib": 270156
+    },
+    {
+      "cfg": "four-floor",
+      "arm": "nested",
+      "rep": 1,
+      "wall_s": 7.1,
+      "peak_kib": 196744
+    },
+    {
+      "cfg": "four-floor",
+      "arm": "nested",
+      "rep": 2,
+      "wall_s": 6.88,
+      "peak_kib": 196732
+    },
+    {
+      "cfg": "four-floor",
+      "arm": "manyan",
+      "rep": 2,
+      "wall_s": 8.06,
+      "peak_kib": 270196
+    },
+    {
+      "cfg": "four-floor",
+      "arm": "manyan",
+      "rep": 3,
+      "wall_s": 7.85,
+      "peak_kib": 270200
+    },
+    {
+      "cfg": "four-floor",
+      "arm": "nested",
+      "rep": 3,
+      "wall_s": 6.85,
+      "peak_kib": 196760
+    },
+    {
+      "cfg": "four-floor",
+      "arm": "nested",
+      "rep": 4,
+      "wall_s": 6.92,
+      "peak_kib": 176160
+    },
+    {
+      "cfg": "four-floor",
+      "arm": "manyan",
+      "rep": 4,
+      "wall_s": 7.77,
+      "peak_kib": 270232
+    },
+    {
+      "cfg": "four-floor",
+      "arm": "manyan",
+      "rep": 5,
+      "wall_s": 7.67,
+      "peak_kib": 270180
+    },
+    {
+      "cfg": "four-floor",
+      "arm": "nested",
+      "rep": 5,
+      "wall_s": 6.91,
+      "peak_kib": 196724
+    }
+  ],
+  "growth": {
+    "four-floor": {
+      "core_verdict": "liveness-violation",
+      "core_stop": null,
+      "core": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "manyan_counts": [
+        "1583418",
+        "281976",
+        "0"
+      ],
+      "timed_cold_with_output": {
+        "manyan": "7.61 266456",
+        "nested": "6.98 176176"
+      },
+      "analysis_ms": {
+        "atoms": 3073.634838,
+        "attribution": 18.302212,
+        "product": 1686.950457
+      }
+    },
+    "five-floor": {
+      "core_verdict": "liveness-violation",
+      "core_stop": null,
+      "core": {
+        "depth": 23,
+        "distinct": 667943,
+        "generated": 4035115,
+        "initial_generated": 15625,
+        "left_on_queue": 52398,
+        "reported_by_tlc": false
+      },
+      "manyan_counts": [
+        "6994267",
+        "1051289",
+        "0"
+      ],
+      "timed_cold_with_output": {
+        "manyan": "38.79 1057180",
+        "nested": "149.59 313724"
+      },
+      "analysis_ms": {
+        "atoms": 14720.526586,
+        "attribution": 28.064784999999997,
+        "product": 124564.36557300002
+      }
+    }
+  },
+  "replays": [
+    {
+      "input": "four-floor",
+      "checker": "peer",
+      "damaged": false,
+      "verdict": "valid",
+      "exit": 0,
+      "states": 202,
+      "original_sha256": "8b66315631d6707f300946be20f0cd9234bba8056ef2b307662759c14a80e134"
+    },
+    {
+      "input": "four-floor",
+      "checker": "peer",
+      "damaged": true,
+      "verdict": "invalid",
+      "exit": 1,
+      "states": 202,
+      "original_sha256": "8b66315631d6707f300946be20f0cd9234bba8056ef2b307662759c14a80e134"
+    },
+    {
+      "input": "four-floor",
+      "checker": "batch",
+      "damaged": false,
+      "verdict": "valid",
+      "exit": 0,
+      "states": 102,
+      "original_sha256": "218c526dde86e962c8fabb4711cbb1c660d95d8edf035ef3f28243019874f314"
+    },
+    {
+      "input": "four-floor",
+      "checker": "batch",
+      "damaged": true,
+      "verdict": "invalid",
+      "exit": 1,
+      "states": 102,
+      "original_sha256": "218c526dde86e962c8fabb4711cbb1c660d95d8edf035ef3f28243019874f314"
+    },
+    {
+      "input": "five-floor",
+      "checker": "peer",
+      "damaged": false,
+      "verdict": "valid",
+      "exit": 0,
+      "states": 354,
+      "original_sha256": "f0d9c0a00f0b3c94bff52a5039f754880a6eaac9bbf47c78e3a1578582792738"
+    },
+    {
+      "input": "five-floor",
+      "checker": "peer",
+      "damaged": true,
+      "verdict": "invalid",
+      "exit": 1,
+      "states": 354,
+      "original_sha256": "f0d9c0a00f0b3c94bff52a5039f754880a6eaac9bbf47c78e3a1578582792738"
+    },
+    {
+      "input": "five-floor",
+      "checker": "batch",
+      "damaged": false,
+      "verdict": "valid",
+      "exit": 0,
+      "states": 146,
+      "original_sha256": "201860b27c608ee4f3617abad307baad7c84b4b298df673e4dbad024a608d014"
+    },
+    {
+      "input": "five-floor",
+      "checker": "batch",
+      "damaged": true,
+      "verdict": "invalid",
+      "exit": 1,
+      "states": 146,
+      "original_sha256": "201860b27c608ee4f3617abad307baad7c84b4b298df673e4dbad024a608d014"
+    }
+  ],
+  "kafka": {
+    "baseline": {
+      "statistics": {
+        "depth": 38,
+        "distinct": 28440,
+        "generated": 95041,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "time_kib": "20.23 202224",
+      "atoms": null
+    },
+    "nested": {
+      "statistics": {
+        "depth": 38,
+        "distinct": 28440,
+        "generated": 95041,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "time_kib": "19.83 204908",
+      "atoms": {
+        "plans": 0,
+        "rows": 0
+      }
+    }
+  },
+  "audit": {
+    "config": "ElevatorLivenessMedium.cfg",
+    "command_prefix": "DIVE_NATIVE_ATOM_AUDIT=1",
+    "statistics": {
+      "depth": 36,
+      "distinct": 4122,
+      "generated": 14296,
+      "initial_generated": 64,
+      "left_on_queue": 0,
+      "reported_by_tlc": false
+    },
+    "audit": true,
+    "batches": {
+      "plans": 18,
+      "rows": 74196
+    },
+    "outcome": "success"
+  }
+}

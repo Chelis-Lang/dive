@@ -93,6 +93,21 @@ pub trait NativeReader {
         false
     }
 
+    /// Supplies complete action truth in physical edge order, or defers each demand.
+    /// Duplicate destinations use their first physical original.
+    ///
+    /// # Errors
+    /// An owned interruption or a malformed captured row.
+    fn action_row(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+        _graph: &capture::CsrCapture<'_>,
+        _source: usize,
+        _control: &dive_runtime::budget::EvaluationControl,
+    ) -> Result<Option<u64>, AnalysisError> {
+        Ok(None)
+    }
+
     /// Whether this exact action is defined and false from `before` to
     /// every physical target row in `0..rows`. A successful proof must
     /// preserve the evaluation of the subscript and action, including
