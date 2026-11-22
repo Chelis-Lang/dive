@@ -211,12 +211,13 @@ for version/AST limits and JSON reports.
 
 === dive validate-trace --help ===
 USAGE: dive validate-trace FILE.tla [--trace TRACE.json] [--inputs RUN.json]
-                                [--config FILE.cfg] [--claim ENDING] [--sample]
+                                [--config FILE.cfg] [--claim ENDING] [--sample | --repair]
                                 [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc]
                                 [--seed N] [--fp N] [-deadlock] [--output human|json]
                                 [--library-path DIR]... [--module-path DIR]...
 
 Independently validate a counterexample against its specification.
+--repair searches for short replacement paths for a named periodic word and requires --output json.
 
 === dive explain --help ===
 USAGE: dive explain <CODE> [--output human|json]
