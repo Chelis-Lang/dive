@@ -41,7 +41,7 @@ COMMANDS:
                 [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--output human|json]
     dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]
     dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]
-    dive validate-trace <FILE.tla> [--trace TRACE.json] [--inputs RUN.json] [--config FILE.cfg] [--claim ENDING] [--sample]
+    dive validate-trace <FILE.tla> [--trace TRACE.json] [--inputs RUN.json] [--config FILE.cfg] [--claim ENDING] [--sample | --repair]
                [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...
 
     Eligible ordinary temporal checks use deterministic completed-level checks in the dive
