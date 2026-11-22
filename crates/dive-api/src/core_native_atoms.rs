@@ -1140,6 +1140,7 @@ pub(crate) struct Reader<'a, 'model> {
     prefix: Option<bool>,
     prefix_validated: usize,
     emissions: emissions::Rows,
+    packed_emissions: emissions::PackedRows,
     emission_capture: Option<dive_runtime::capture::CsrCapture<'a>>,
     proofs: RowProofs<'a>,
     pub(crate) values: &'a mut NativeValues<'model>,
@@ -1157,6 +1158,7 @@ impl<'a, 'model> Reader<'a, 'model> {
             prefix: None,
             prefix_validated: 0,
             emissions: emissions::Rows::default(),
+            packed_emissions: emissions::PackedRows::default(),
             emission_capture: None,
             proofs: RowProofs::new(graph),
             unchanged: None,
@@ -1184,7 +1186,10 @@ impl Reader<'_, '_> {
 
 impl Drop for Reader<'_, '_> {
     fn drop(&mut self) {
-        self.atoms.emission_peak_bytes = self.atoms.emission_peak_bytes.max(self.emissions.bytes());
+        self.atoms.emission_peak_bytes = self
+            .atoms
+            .emission_peak_bytes
+            .max(self.emissions.bytes() + self.packed_emissions.bytes());
         let total = &mut self.atoms.row_proofs;
         total.scans += self.proofs.metrics.scans;
         total.hits += self.proofs.metrics.hits;
@@ -1365,6 +1370,16 @@ impl NativeReader for Reader<'_, '_> {
             }
         }
         Ok(bits)
+    }
+
+    fn closed_state_word(
+        &mut self,
+        atom: &PredicateAtom,
+        graph: &dive_runtime::capture::CsrCapture<'_>,
+        first: usize,
+        control: &EvaluationControl,
+    ) -> Result<Option<u64>, AnalysisError> {
+        self.emitted_word(atom, graph, first, control)
     }
 
     fn closed_state_predicate(
@@ -1947,6 +1962,91 @@ P == <>(gate=1)
                 assert_eq!(reader.atoms.reuse.action, 2);
             });
         }
+    }
+
+    #[test]
+    fn packed_closed_enabledness_matches_each_actual_cell() {
+        use dive_runtime::capture::CsrCapture;
+        let src = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLES x,r
+vars == <<x,r>>
+Init == x=0 /\ r=0
+A == /\ x<127 /\ x'=x+1 /\ UNCHANGED r
+B == /\ x=127 /\ x'=0 /\ UNCHANGED r
+Stut == UNCHANGED vars
+Next == A \/ B \/ Stut
+Spec == Init /\ [][Next]_vars /\ WF_vars(A) /\ WF_vars(Stut) /\ WF_r(A)
+P == <> (x=127)
+====";
+        with_wrappers(src, false, |prepared, driver, atoms, control| {
+            let options = dive_runtime::CheckOptions::dive(0);
+            atoms.enable_live_emissions(&prepared.model, &options);
+            let (graph, mut values) = capture(prepared, &options);
+            let csr =
+                CsrCapture::checked_targets(graph.input(), graph.limits(), control).expect("csr");
+            let copied = CsrCapture::checked_targets(graph.input(), graph.limits(), control)
+                .expect("fresh validation");
+            assert_eq!(csr.closed_rows(), 128);
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            reader.live_prefix(true);
+            reader.live_emission_capture(&csr);
+            reader.atoms.audit = true;
+            let mut admitted = Vec::new();
+            let mut declined = 0;
+            for atom in driver
+                .native_predicates()
+                .filter(|a| matches!(a.test, AtomTest::Enabled { .. }))
+            {
+                assert_eq!(
+                    reader
+                        .closed_state_word(atom, &copied, 0, control)
+                        .expect("identity"),
+                    None
+                );
+                assert_eq!(
+                    reader
+                        .closed_state_word(atom, &csr, 1, control)
+                        .expect("unaligned"),
+                    None
+                );
+                assert_eq!(
+                    reader
+                        .closed_state_word(atom, &csr, 128, control)
+                        .expect("short"),
+                    None
+                );
+                let mut words = Vec::new();
+                for first in [0, 64] {
+                    let Some(bits) = reader
+                        .closed_state_word(atom, &csr, first, control)
+                        .expect("packed")
+                    else {
+                        declined += 1;
+                        continue;
+                    };
+                    for offset in 0..64 {
+                        let source = first + offset;
+                        let before = csr.representative_row(source).expect("representative");
+                        assert_eq!(
+                            reader
+                                .closed_state_predicate(atom, &csr, source, before, control)
+                                .expect("scalar"),
+                            Some(bits & (1 << offset) != 0)
+                        );
+                    }
+                    words.push(bits);
+                }
+                if !words.is_empty() {
+                    admitted.push(words);
+                }
+            }
+            // The full-variable A changes except at x=127. Stut never changes.
+            // Each partial-subscript word falls through to its ordinary evaluator.
+            admitted.sort();
+            assert_eq!(admitted, [vec![0, 0], vec![u64::MAX, u64::MAX >> 1]]);
+            assert_eq!(declined, 2);
+        });
     }
 
     fn committed_frontier<'a>(

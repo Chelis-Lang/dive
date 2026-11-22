@@ -126,6 +126,22 @@ pub trait NativeReader {
         Ok(false)
     }
 
+    /// Optional truth for exactly 64 consecutive closed state representatives.
+    /// Bit zero names `first`, which must be aligned to a 64-state word.
+    /// Implementations must prove every cell, including its original diagnostics.
+    ///
+    /// # Errors
+    /// An owned interruption or resource stop.
+    fn closed_state_word(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+        _graph: &dive_runtime::capture::CsrCapture<'_>,
+        _first: usize,
+        _control: &dive_runtime::budget::EvaluationControl,
+    ) -> Result<Option<u64>, AnalysisError> {
+        Ok(None)
+    }
+
     /// Optional state truth certified by the actual source's closed producer row.
     /// Readers must establish their graph identity, original unrestricted action,
     /// bound scope, complete emission coverage and preservation of diagnostics.

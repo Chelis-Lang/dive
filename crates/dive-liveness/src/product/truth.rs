@@ -341,6 +341,27 @@ impl<'a> PackedTruth<'a> {
         })
     }
 
+    pub(crate) fn set_state_word(
+        &mut self,
+        atom: usize,
+        first: usize,
+        word: u64,
+    ) -> Result<(), ProductError> {
+        if !first.is_multiple_of(64) || self.vertices.saturating_sub(first) < 64 {
+            return Err(ProductError::Shape(
+                "state predicate word dimensions".into(),
+            ));
+        }
+        let slot = self
+            .columns
+            .get_mut(atom)
+            .filter(|column| column.kind == AtomKind::State)
+            .and_then(|column| column.words.get_mut(first / 64))
+            .ok_or_else(|| ProductError::Shape("state predicate word column".into()))?;
+        *slot = word;
+        Ok(())
+    }
+
     pub(crate) fn set_state(
         &mut self,
         atom: usize,

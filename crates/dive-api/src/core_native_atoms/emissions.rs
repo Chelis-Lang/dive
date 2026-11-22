@@ -1,4 +1,7 @@
 //! Reuse of closed ordinary Core rows for the exact bound ENABLED query.
+mod word;
+pub(super) use word::PackedRows;
+
 use super::{AnalysisError, EvaluationControl, NativeAtoms, PredicateAtom, Reader, check};
 use dive_runtime::capture::CsrCapture;
 

@@ -1006,11 +1006,26 @@ fn labels_with_reuse<'a>(
                 consumed = start != 0;
             }
         }
-        for v in start..states.representative_count() {
+        let mut vertices = start..states.representative_count();
+        while let Some(v) = vertices.next() {
             if crate::budget::exhausted() {
                 return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
             }
             if pred.kind == AtomKind::State {
+                if !eager
+                    && v.is_multiple_of(64)
+                    && vertices.len() >= 63
+                    && matches!(graph, OriginalEdges::Native(_))
+                    && reuse.get(recipe, v).is_none()
+                    && let Some(word) = states.closed_state_word(pred, v)?
+                {
+                    labels
+                        .set_state_word(index, v, word)
+                        .map_err(AnalysisError::Product)?;
+                    vertices.nth(62);
+                    consumed = true;
+                    continue;
+                }
                 let mut vals = if eager {
                     Some(states.representative(v)?.into_owned())
                 } else {

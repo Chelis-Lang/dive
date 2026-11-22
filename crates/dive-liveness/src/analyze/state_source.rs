@@ -62,6 +62,14 @@ pub(super) trait StateSource {
         Ok(None)
     }
 
+    fn closed_state_word(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+        _first: usize,
+    ) -> Result<Option<u64>, AnalysisError> {
+        Ok(None)
+    }
+
     fn action_row(
         &mut self,
         _atom: &crate::plan::PredicateAtom,
@@ -239,6 +247,15 @@ impl StateSource for NativeStates<'_, '_> {
             return Ok(Some(value));
         }
         self.read.predicate(atom, before, after, self.control)
+    }
+
+    fn closed_state_word(
+        &mut self,
+        atom: &crate::plan::PredicateAtom,
+        first: usize,
+    ) -> Result<Option<u64>, AnalysisError> {
+        self.read
+            .closed_state_word(atom, self.graph, first, self.control)
     }
 
     fn action_row(
