@@ -35,8 +35,8 @@ fn options(args: &[String], command: &mut Command) -> Result<(), String> {
                     return Err("--config given twice".to_owned());
                 }
             }
-            "--type-invariant" | "--write-predicate" | "--verify-predicate" | "--trace"
-            | "--max-orbits" | "--workers" => {
+            "--property-proof" | "--type-invariant" | "--write-predicate"
+            | "--verify-predicate" | "--trace" | "--max-orbits" | "--workers" => {
                 command.arg(key).arg(value()?);
             }
             "--recheck" if inline.is_none() => {

@@ -357,3 +357,42 @@ symbolic checker refuses this initial membership choice even through an
 operator or `LET` binding. It accepts disjoint unions of proven duplicate-free
 domains. The compiler bounds explicit expansion at 100,000 initial witnesses.
 An empty initial set refuses.
+
+## Prove one configured state invariant
+
+Use `--property-proof NAME` with the symbolic strategy when the question is
+whether a particular invariant holds. For example, the original Recomp-Verify
+lock server configures `Mutex` and its module defines a finite layout called
+`TypeOK`.
+
+```sh
+dive check lockserv.tla --strategy symbolic --property-proof Mutex --type-invariant TypeOK
+dive check lockserv.tla --strategy symbolic --property-proof Mutex --type-invariant TypeOK \
+  --write-predicate mutex.json
+dive check edited/lockserv.tla --config lockserv.cfg --strategy symbolic \
+  --property-proof Mutex --type-invariant TypeOK --verify-predicate mutex.json
+```
+
+The layout can be an unconfigured, parameterless source operator. Its bounds
+must admit Init and the encoded assignments. A variable without a finite
+declaration may be a private integer initialized to a literal. Each step must
+preserve it, reset it to a literal, or add an integer literal to itself.
+A read in a guard, retained assignment, constraint or property can require
+that variable and cause a refusal. The checker reconstructs integer values
+when it produces a witness.
+
+The `dive-property-proof-v1` report names the property. `inductive-safety`
+means the checker established initial inclusion, preservation by every guarded
+action and implication of the requested invariant. Other configured invariants,
+deadlock and temporal properties require separate checks. Graph counts and
+diameter require a reachability run. A violation includes an independently
+validated concrete trace. A transferred predicate that fails induction yields
+`inconclusive` and names the failed obligation.
+
+`support_variables` and `support_bits` describe the closed dependencies of the
+property and constraints in the bound transition relation. A closure sweep
+applies each action to everything reached so far. With `--recheck MODULE CFG`,
+the checker binds each revision. An unchanged guarded transition can retain
+its proof for the same predicate and compatible encoding. The report counts
+the retained obligations. In another process `--verify-predicate` checks every
+obligation again. [Measured comparisons and edit controls](../developer/large-models.md#prove-a-property-on-the-original-recomp-verify-models).

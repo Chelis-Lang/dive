@@ -1,0 +1,2235 @@
+{
+  "question": "Can the original configured invariant be proved from the bound TLA+ transitions as the participant domain grows or the full graph is infinite?",
+  "paper": {
+    "url": "https://arxiv.org/pdf/2408.03488",
+    "figure": 5,
+    "timeout_s": 600,
+    "portfolio_wall_s": {
+      "pyv-lockserv-20": 2,
+      "tla-twophase-counter-9": 31
+    },
+    "portfolio_largest_component": {
+      "pyv-lockserv-20": 61,
+      "tla-twophase-counter-9": 145691
+    }
+  },
+  "source": {
+    "url": "https://github.com/cmu-soda/recomp-verify",
+    "revision": "0cbd95f0002af10f70f25c87638e8f2673229f2e",
+    "inputs": [
+      "benchmarks/tla/lockserv/20/lockserv.{tla,cfg}",
+      "benchmarks/tla/two_phase_counter/9/TwoPhaseCounter.{tla,cfg}"
+    ],
+    "hashes": {
+      "bin/LTS-Robustness.jar": "b0a6166ac75ee3f9789c9379fe0081229eea2dbbac2639bf31fd4f4961bc65d6",
+      "bin/recomp-verify.jar": "d9e3515f3771d9e6ce5232fa31866515e987491015a4d0b65b8cf1c6cfa0f232",
+      "bin/tla2tools.jar": "fa18543e44ed5974a85bd2c60c0dc16620ae117680ea8e693d2691999ed90b22",
+      "TwoPhaseCounter/TwoPhaseCounter.tla": "fba2a25ac500f3b9a14cbefd1df72090f68997d881c9e0ea0adb2a79a5964961",
+      "lockserv/lockserv.tla": "cf7a9fa627ce98e0081db3d86e993fab5df8b23d7c9c4adb41a3551d22ed4463",
+      "TwoPhaseCounter/TwoPhaseCounter.cfg": "7241e5516ee4aea7f0edf9dbf6d2e948269a970b24e75c01a9a9ce32be55bb3b",
+      "lockserv/lockserv.cfg": "68fc79e1013d3a184d6a75501b732f15cc96e167f436e2696231ad3a934b1361"
+    }
+  },
+  "host": "Dedicated Linux AWS c7i.4xlarge, us-east-2, Xeon Platinum 8488C, 16 vCPUs / 8 cores with SMT, 32 GiB. Ubuntu 24.04, OpenJDK 21.0.13.1, CPython 3.12.3, dd 0.6.0 CUDD. Dive/Sail measured using optimized binaries and the local symbolic companion with that Python environment.",
+  "identities": {
+    "installed/dive": "5bc12a042a2319d80433955da4063c3eba0173b53e5dc07cbe7f54576b86f970",
+    "installed/sail": "7e51699abd4c77a84c37a102cc9c3635854dabd11e8751ef333b7c1309ce9bc9",
+    "installed/libexec/dive-symbolic/symbolic_input": "8831a01c482a4cc1fa9c8b5a18a1718004a26ea90d41d0109cbb9a0c159555bc",
+    "installed/libexec/dive-symbolic/check.py": "d0f8536955c7884494848940740c9ef3c24ddada7047a5c067d0682e61799804",
+    "installed/libexec/dive-symbolic/engine.py": "4cd3bc547d1ca731f369a3a8b5e9e2d1536c59a48a3952cbd9d2bb6681fbcd87",
+    "installed/libexec/dive-symbolic/property_proof.py": "99cdb1591c85abb0ab93ed0c21d680960b65ca273311a3c7ce1c48dd7c108259",
+    "wal/four-writers-fixed.cfg": "78fe19cfa6484d2654fa3b469be27e86b59708c63cce7cb87edfc11e36d857b3",
+    "wal/four-writers-switch.cfg": "ebf76fba475a0e85b16f9a85bdd919b45455511992117f814f0bbe5e88cc9e4b",
+    "wal/released-switch.cfg": "2c9711665a226af8aef9b03f63fc674e39dd14ca6a787cf68482dfd915e54f8e",
+    "wal/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+    "wal/four-writers-switch.trace": "a29a6c0a90febf9e7b54c97d60f652a2f0d7170de91d34699397f72ccc461c53",
+    "wal/released-switch.trace": "ea4967d6476428b88d4cfb6eaf2fcc140242b4211258a3a3de44f4f875efa2d9",
+    "grown/TwoPhaseCounter-32/TwoPhaseCounter.tla": "d289df9db5e49384df485368b1918d5cf9918be4510f7b67b47731371b44e530",
+    "grown/TwoPhaseCounter-64/TwoPhaseCounter.tla": "e0ecc5b88c6c597fbfa94f2ad77985f0f49405b7cfb33903ba9cb505ed2c3ce0",
+    "grown/lockserv-100/lockserv.tla": "9b3516e2a8c23be89ccd1bfe3fe036d5db4ed1b949dea1d90bdb6c8100fe5563",
+    "grown/TwoPhaseCounter-32/TwoPhaseCounter.cfg": "7241e5516ee4aea7f0edf9dbf6d2e948269a970b24e75c01a9a9ce32be55bb3b",
+    "grown/TwoPhaseCounter-64/TwoPhaseCounter.cfg": "7241e5516ee4aea7f0edf9dbf6d2e948269a970b24e75c01a9a9ce32be55bb3b",
+    "grown/lockserv-100/lockserv.cfg": "68fc79e1013d3a184d6a75501b732f15cc96e167f436e2696231ad3a934b1361"
+  },
+  "method": [
+    "Unchanged published source and configuration. Use Recomp's upstream --parallel runner (four competing processes). Run each portfolio in a separate disposable systemd unit with 28 GiB and a 610 s watchdog. Read the printed property result and stop remaining children when its driver exits. GNU time maximum RSS is the largest reaped process, not a sum over concurrent JVMs. The systemd memory-peak strings are service-level observations.",
+    "The competitor and development worker alternated order over three rounds on the same node. The installed named-property CLI then ran three fresh processes per original and one per grown configuration. Measured installed elapsed time includes process startup, binding, relation construction, closure and induction. Independent session trials use a new candidate directory. No compilation took place during the installed CLI or session measurements.",
+    "Extend only Node or RMs with consecutive string identifiers n1..nN or rm1..rmN. The CFG is byte-identical. The lock guard edit adds ~holds_lock[n] to SendLock. The counter-model guard edit adds tmState = \"init\" to SndPrepare. Fresh edit uses those same revised bytes.",
+    "The first development worker computed exact BFS layers before certifying the predicate. Its later sweep/order ablation changes two things jointly: applying actions immediately and ordering finite record messages near their manager. Individual attribution to those two changes was not measured."
+  ],
+  "commands": [
+    "cd BENCHMARK_DIR && python3 -u RECOMP_ROOT/recomp-verify.py MODEL.tla MODEL.cfg --parallel",
+    "dive check MODEL.tla --config MODEL.cfg --strategy symbolic --type-invariant TypeOK --property-proof PROPERTY --time-limit 600s",
+    "dive check BASE.tla --config BASE.cfg --strategy symbolic --type-invariant TypeOK --property-proof PROPERTY --recheck EDIT.tla BASE.cfg --recheck BASE.tla BASE.cfg",
+    "sail runtime symbolic-check --dive DIVE --session DIR --module MODEL.tla --config MODEL.cfg --type-invariant TypeOK --property-proof PROPERTY --time-limit 120",
+    "python3 scripts/symbolic/check_property_proof.py LOCK_DIR/lockserv.tla COUNTER_DIR/TwoPhaseCounter.tla --exporter SYMBOLIC_INPUT --dive DIVE",
+    "dive check lockserv.tla --strategy symbolic --type-invariant TypeOK --property-proof Mutex --write-predicate predicate.json; python3 scripts/perf/scale/lockserv_predicate.py CLIENTS predicate.json",
+    "dive check MODEL.tla --config MODEL.cfg --store exact --workers 1 --seed 0 --fp 0 --max-states 1000000 --time-limit 120s --max-memory 8g --output json"
+  ],
+  "recomp_trials": [
+    {
+      "run": "recomp-lockserv-1",
+      "portfolio_returned_property_satisfied": true,
+      "cgroup": {
+        "Finished with result": "success",
+        "Service runtime": "3.394s",
+        "CPU time consumed": "31.615s",
+        "Memory peak": "1.4G"
+      },
+      "wall_s": 3.04,
+      "max_process_rss_kib": 329200,
+      "artifact_reported_total_states_checked": 61
+    },
+    {
+      "run": "recomp-twophasecounter-1",
+      "portfolio_returned_property_satisfied": true,
+      "cgroup": {
+        "Finished with result": "success",
+        "Service runtime": "35.467s",
+        "CPU time consumed": "4min 23.924s",
+        "Memory peak": "12.1G"
+      },
+      "wall_s": 34.93,
+      "max_process_rss_kib": 2800376,
+      "artifact_reported_total_states_checked": 182495
+    },
+    {
+      "run": "recomp-lockserv-2",
+      "portfolio_returned_property_satisfied": true,
+      "cgroup": {
+        "Finished with result": "success",
+        "Service runtime": "3.414s",
+        "CPU time consumed": "31.632s",
+        "Memory peak": "1.4G"
+      },
+      "wall_s": 3.05,
+      "max_process_rss_kib": 301740,
+      "artifact_reported_total_states_checked": 61
+    },
+    {
+      "run": "recomp-twophasecounter-2",
+      "portfolio_returned_property_satisfied": true,
+      "cgroup": {
+        "Finished with result": "success",
+        "Service runtime": "35.295s",
+        "CPU time consumed": "4min 12.915s",
+        "Memory peak": "12.1G"
+      },
+      "wall_s": 34.73,
+      "max_process_rss_kib": 3130440,
+      "artifact_reported_total_states_checked": 182495
+    },
+    {
+      "run": "recomp-lockserv-3",
+      "portfolio_returned_property_satisfied": true,
+      "cgroup": {
+        "Finished with result": "success",
+        "Service runtime": "3.350s",
+        "CPU time consumed": "30.434s",
+        "Memory peak": "1.4G"
+      },
+      "wall_s": 2.99,
+      "max_process_rss_kib": 307732,
+      "artifact_reported_total_states_checked": 61
+    },
+    {
+      "run": "recomp-twophasecounter-3",
+      "portfolio_returned_property_satisfied": true,
+      "cgroup": {
+        "Finished with result": "success",
+        "Service runtime": "35.316s",
+        "CPU time consumed": "4min 22.947s",
+        "Memory peak": "11.9G"
+      },
+      "wall_s": 34.69,
+      "max_process_rss_kib": 2996324,
+      "artifact_reported_total_states_checked": 182495
+    }
+  ],
+  "grown_peer": [
+    {
+      "run": "peer-lockserv",
+      "portfolio_returned_property_satisfied": true,
+      "cgroup": {
+        "Finished with result": "success",
+        "Service runtime": "4.228s",
+        "CPU time consumed": "34.515s",
+        "Memory peak": "1.7G"
+      },
+      "wall_s": 3.87,
+      "max_process_rss_kib": 494680,
+      "artifact_reported_total_states_checked": 301
+    },
+    {
+      "run": "peer-twophasecounter",
+      "portfolio_returned_property_satisfied": false,
+      "cgroup": {
+        "Finished with result": "timeout",
+        "Service runtime": "2min 424ms",
+        "CPU time consumed": "9min 34.891s",
+        "Memory peak": "4.7G"
+      }
+    }
+  ],
+  "dive_and_sail_trials": [
+    {
+      "case": "lockserv",
+      "trial": 1,
+      "end_to_end_s": 0.351581,
+      "max_rss_kib": 61216,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 0,
+          "seconds": 0.091361
+        }
+      ]
+    },
+    {
+      "case": "lockserv",
+      "trial": 2,
+      "end_to_end_s": 0.351754,
+      "max_rss_kib": 54208,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 0,
+          "seconds": 0.094387
+        }
+      ]
+    },
+    {
+      "case": "lockserv",
+      "trial": 3,
+      "end_to_end_s": 0.351367,
+      "max_rss_kib": 54140,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 0,
+          "seconds": 0.094586
+        }
+      ]
+    },
+    {
+      "case": "TwoPhaseCounter",
+      "trial": 1,
+      "end_to_end_s": 0.250371,
+      "max_rss_kib": 54344,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 40,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 48,
+          "reused_obligations": 0,
+          "seconds": 0.032792
+        }
+      ]
+    },
+    {
+      "case": "TwoPhaseCounter",
+      "trial": 2,
+      "end_to_end_s": 0.250688,
+      "max_rss_kib": 54224,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 40,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 48,
+          "reused_obligations": 0,
+          "seconds": 0.032511
+        }
+      ]
+    },
+    {
+      "case": "TwoPhaseCounter",
+      "trial": 3,
+      "end_to_end_s": 0.301686,
+      "max_rss_kib": 54096,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 40,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 48,
+          "reused_obligations": 0,
+          "seconds": 0.033163
+        }
+      ]
+    },
+    {
+      "case": "TwoPhaseCounter-32",
+      "trial": 1,
+      "end_to_end_s": 0.501531,
+      "max_rss_kib": 59336,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 132,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 163,
+          "reused_obligations": 0,
+          "seconds": 0.231831
+        }
+      ]
+    },
+    {
+      "case": "TwoPhaseCounter-64",
+      "trial": 1,
+      "end_to_end_s": 1.254381,
+      "max_rss_kib": 111096,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 0,
+          "seconds": 0.973012
+        }
+      ]
+    },
+    {
+      "case": "lockserv-100",
+      "trial": 1,
+      "end_to_end_s": 2.456785,
+      "max_rss_kib": 81192,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 401,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 500,
+          "reused_obligations": 0,
+          "seconds": 2.168023
+        }
+      ]
+    },
+    {
+      "case": "sail-lockserv-20-cold",
+      "trial": 1,
+      "end_to_end_s": 0.354352,
+      "max_rss_kib": 54152,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 0,
+          "seconds": 0.09715
+        }
+      ]
+    },
+    {
+      "case": "sail-lockserv-20-edit",
+      "trial": 1,
+      "end_to_end_s": 0.353565,
+      "max_rss_kib": 54196,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "closure_sweeps": 0,
+          "reused_obligations": 0,
+          "transition_obligations": 100,
+          "seconds": 0.089512
+        }
+      ]
+    },
+    {
+      "case": "sail-lockserv-20-undo",
+      "trial": 1,
+      "end_to_end_s": 0.355128,
+      "max_rss_kib": 54244,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "closure_sweeps": 0,
+          "reused_obligations": 0,
+          "transition_obligations": 100,
+          "seconds": 0.088051
+        }
+      ]
+    },
+    {
+      "case": "sail-lockserv-20-fresh-edit",
+      "trial": 1,
+      "end_to_end_s": 0.354205,
+      "max_rss_kib": 54276,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 0,
+          "seconds": 0.09879
+        }
+      ]
+    },
+    {
+      "case": "dive-session-lockserv-20",
+      "trial": 1,
+      "end_to_end_s": 0.500841,
+      "max_rss_kib": 54072,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 0,
+          "seconds": 0.094192
+        },
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 80,
+          "seconds": 0.093694
+        },
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 80,
+          "seconds": 0.083368
+        }
+      ]
+    },
+    {
+      "case": "sail-lockserv-20-cold",
+      "trial": 2,
+      "end_to_end_s": 0.354516,
+      "max_rss_kib": 54148,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 0,
+          "seconds": 0.099602
+        }
+      ]
+    },
+    {
+      "case": "sail-lockserv-20-edit",
+      "trial": 2,
+      "end_to_end_s": 0.354793,
+      "max_rss_kib": 54152,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "closure_sweeps": 0,
+          "reused_obligations": 0,
+          "transition_obligations": 100,
+          "seconds": 0.088819
+        }
+      ]
+    },
+    {
+      "case": "sail-lockserv-20-undo",
+      "trial": 2,
+      "end_to_end_s": 0.35281,
+      "max_rss_kib": 54256,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "closure_sweeps": 0,
+          "reused_obligations": 0,
+          "transition_obligations": 100,
+          "seconds": 0.088487
+        }
+      ]
+    },
+    {
+      "case": "sail-lockserv-20-fresh-edit",
+      "trial": 2,
+      "end_to_end_s": 0.353747,
+      "max_rss_kib": 54124,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 0,
+          "seconds": 0.097768
+        }
+      ]
+    },
+    {
+      "case": "dive-session-lockserv-20",
+      "trial": 2,
+      "end_to_end_s": 0.501547,
+      "max_rss_kib": 54124,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 0,
+          "seconds": 0.093049
+        },
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 80,
+          "seconds": 0.093445
+        },
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 80,
+          "seconds": 0.083191
+        }
+      ]
+    },
+    {
+      "case": "sail-lockserv-20-cold",
+      "trial": 3,
+      "end_to_end_s": 0.354463,
+      "max_rss_kib": 54144,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 0,
+          "seconds": 0.097036
+        }
+      ]
+    },
+    {
+      "case": "sail-lockserv-20-edit",
+      "trial": 3,
+      "end_to_end_s": 0.352973,
+      "max_rss_kib": 54208,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "closure_sweeps": 0,
+          "reused_obligations": 0,
+          "transition_obligations": 100,
+          "seconds": 0.08911
+        }
+      ]
+    },
+    {
+      "case": "sail-lockserv-20-undo",
+      "trial": 3,
+      "end_to_end_s": 0.354257,
+      "max_rss_kib": 54012,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "closure_sweeps": 0,
+          "reused_obligations": 0,
+          "transition_obligations": 100,
+          "seconds": 0.088508
+        }
+      ]
+    },
+    {
+      "case": "sail-lockserv-20-fresh-edit",
+      "trial": 3,
+      "end_to_end_s": 0.353753,
+      "max_rss_kib": 54236,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 0,
+          "seconds": 0.098422
+        }
+      ]
+    },
+    {
+      "case": "dive-session-lockserv-20",
+      "trial": 3,
+      "end_to_end_s": 0.502078,
+      "max_rss_kib": 54148,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 0,
+          "seconds": 0.094864
+        },
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 80,
+          "seconds": 0.0947
+        },
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Mutex",
+          "projected_integers": [],
+          "support_bits": 81,
+          "support_variables": [
+            "grant_msg",
+            "holds_lock",
+            "lock_msg",
+            "server_holds_lock",
+            "unlock_msg"
+          ],
+          "closure_sweeps": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 100,
+          "reused_obligations": 80,
+          "seconds": 0.08449
+        }
+      ]
+    },
+    {
+      "case": "sail-TwoPhaseCounter-64-cold",
+      "trial": 1,
+      "end_to_end_s": 1.2568,
+      "max_rss_kib": 111224,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 0,
+          "seconds": 0.979379
+        }
+      ]
+    },
+    {
+      "case": "sail-TwoPhaseCounter-64-edit",
+      "trial": 1,
+      "end_to_end_s": 1.005788,
+      "max_rss_kib": 111532,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "closure_sweeps": 0,
+          "reused_obligations": 0,
+          "transition_obligations": 323,
+          "seconds": 0.721086
+        }
+      ]
+    },
+    {
+      "case": "sail-TwoPhaseCounter-64-undo",
+      "trial": 1,
+      "end_to_end_s": 1.004488,
+      "max_rss_kib": 111424,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "closure_sweeps": 0,
+          "reused_obligations": 0,
+          "transition_obligations": 323,
+          "seconds": 0.726695
+        }
+      ]
+    },
+    {
+      "case": "sail-TwoPhaseCounter-64-fresh-edit",
+      "trial": 1,
+      "end_to_end_s": 1.156675,
+      "max_rss_kib": 111144,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 0,
+          "seconds": 0.897363
+        }
+      ]
+    },
+    {
+      "case": "dive-session-TwoPhaseCounter-64",
+      "trial": 1,
+      "end_to_end_s": 2.557999,
+      "max_rss_kib": 111192,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 0,
+          "seconds": 0.980599
+        },
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 259,
+          "seconds": 0.69354
+        },
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 259,
+          "seconds": 0.633764
+        }
+      ]
+    },
+    {
+      "case": "sail-TwoPhaseCounter-64-cold",
+      "trial": 2,
+      "end_to_end_s": 1.206229,
+      "max_rss_kib": 111000,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 0,
+          "seconds": 0.961802
+        }
+      ]
+    },
+    {
+      "case": "sail-TwoPhaseCounter-64-edit",
+      "trial": 2,
+      "end_to_end_s": 0.956275,
+      "max_rss_kib": 111500,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "closure_sweeps": 0,
+          "reused_obligations": 0,
+          "transition_obligations": 323,
+          "seconds": 0.711757
+        }
+      ]
+    },
+    {
+      "case": "sail-TwoPhaseCounter-64-undo",
+      "trial": 2,
+      "end_to_end_s": 0.95587,
+      "max_rss_kib": 111132,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "closure_sweeps": 0,
+          "reused_obligations": 0,
+          "transition_obligations": 323,
+          "seconds": 0.717743
+        }
+      ]
+    },
+    {
+      "case": "sail-TwoPhaseCounter-64-fresh-edit",
+      "trial": 2,
+      "end_to_end_s": 1.157656,
+      "max_rss_kib": 111264,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 0,
+          "seconds": 0.907584
+        }
+      ]
+    },
+    {
+      "case": "dive-session-TwoPhaseCounter-64",
+      "trial": 2,
+      "end_to_end_s": 2.557065,
+      "max_rss_kib": 111188,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 0,
+          "seconds": 0.96371
+        },
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 259,
+          "seconds": 0.684755
+        },
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 259,
+          "seconds": 0.624751
+        }
+      ]
+    },
+    {
+      "case": "sail-TwoPhaseCounter-64-cold",
+      "trial": 3,
+      "end_to_end_s": 1.255861,
+      "max_rss_kib": 111236,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 0,
+          "seconds": 0.97325
+        }
+      ]
+    },
+    {
+      "case": "sail-TwoPhaseCounter-64-edit",
+      "trial": 3,
+      "end_to_end_s": 1.00488,
+      "max_rss_kib": 111520,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "closure_sweeps": 0,
+          "reused_obligations": 0,
+          "transition_obligations": 323,
+          "seconds": 0.721117
+        }
+      ]
+    },
+    {
+      "case": "sail-TwoPhaseCounter-64-undo",
+      "trial": 3,
+      "end_to_end_s": 1.005778,
+      "max_rss_kib": 111292,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "closure_sweeps": 0,
+          "reused_obligations": 0,
+          "transition_obligations": 323,
+          "seconds": 0.720447
+        }
+      ]
+    },
+    {
+      "case": "sail-TwoPhaseCounter-64-fresh-edit",
+      "trial": 3,
+      "end_to_end_s": 1.155256,
+      "max_rss_kib": 111348,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 0,
+          "seconds": 0.890307
+        }
+      ]
+    },
+    {
+      "case": "dive-session-TwoPhaseCounter-64",
+      "trial": 3,
+      "end_to_end_s": 2.507282,
+      "max_rss_kib": 111200,
+      "rows": [
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 3,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 0,
+          "seconds": 0.943504
+        },
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 259,
+          "seconds": 0.675053
+        },
+        {
+          "format": "dive-property-proof-v1",
+          "property": "Consistent",
+          "projected_integers": [
+            "dummy"
+          ],
+          "support_bits": 260,
+          "support_variables": [
+            "msgs",
+            "rmState",
+            "tmPrepared",
+            "tmState"
+          ],
+          "closure_sweeps": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "transition_obligations": 323,
+          "reused_obligations": 259,
+          "seconds": 0.616283
+        }
+      ]
+    }
+  ],
+  "lock_predicate_count": [
+    {
+      "clients": 20,
+      "predicate_assignments_decimal": "63963136"
+    },
+    {
+      "clients": 100,
+      "predicate_assignments_decimal": "381562830668697049850507664818176"
+    }
+  ],
+  "controls": [
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "closure_sweeps": 3,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "transition_obligations": 100,
+      "reused_obligations": 0,
+      "seconds": 0.094872
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "closure_sweeps": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "transition_obligations": 100,
+      "reused_obligations": 80,
+      "seconds": 0.096785
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "closure_sweeps": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "transition_obligations": 100,
+      "reused_obligations": 80,
+      "seconds": 0.085106
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "closure_sweeps": 3,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "transition_obligations": 100,
+      "reused_obligations": 0,
+      "seconds": 0.097671
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "closure_sweeps": 1,
+      "verdict": "invariant-violation",
+      "ending": {
+        "kind": "invariant",
+        "name": "Mutex"
+      },
+      "depth": 7,
+      "trace_validated": true,
+      "seconds": 0.130715
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Consistent",
+      "projected_integers": [
+        "dummy"
+      ],
+      "support_bits": 40,
+      "support_variables": [
+        "msgs",
+        "rmState",
+        "tmPrepared",
+        "tmState"
+      ],
+      "closure_sweeps": 3,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "transition_obligations": 48,
+      "reused_obligations": 0,
+      "seconds": 0.034167
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "closure_sweeps": 3,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "transition_obligations": 100,
+      "reused_obligations": 0,
+      "seconds": 0.100255
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "closure_sweeps": 0,
+      "reused_obligations": 0,
+      "transition_obligations": 100,
+      "seconds": 0.090826
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "proof": "inconclusive",
+      "failed_obligation": "Next closure",
+      "closure_sweeps": 0,
+      "reused_obligations": 0,
+      "transition_obligations": null,
+      "seconds": 0.087655
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Safe",
+      "projected_integers": [
+        "n"
+      ],
+      "support_bits": 2,
+      "support_variables": [
+        "x"
+      ],
+      "closure_sweeps": 1,
+      "verdict": "invariant-violation",
+      "ending": {
+        "kind": "invariant",
+        "name": "Safe"
+      },
+      "depth": 3,
+      "trace_validated": true,
+      "seconds": 0.011253
+    },
+    {
+      "verdict": "unsupported",
+      "reason": "projected integer is read: dummy"
+    }
+  ],
+  "development_observations": {
+    "bfs": [
+      {
+        "format": "dive-property-proof-v1",
+        "property": "Mutex",
+        "projected_integers": [],
+        "closure_layers": 25,
+        "proof": "inductive-safety",
+        "transition_obligations": 100,
+        "reused_obligations": 0,
+        "seconds": 0.218724
+      },
+      {
+        "format": "dive-property-proof-v1",
+        "property": "Mutex",
+        "projected_integers": [],
+        "closure_layers": 0,
+        "proof": "inductive-safety",
+        "transition_obligations": 100,
+        "reused_obligations": 80,
+        "seconds": 0.093786
+      },
+      {
+        "format": "dive-property-proof-v1",
+        "property": "Mutex",
+        "projected_integers": [],
+        "closure_layers": 0,
+        "proof": "inductive-safety",
+        "transition_obligations": 100,
+        "reused_obligations": 80,
+        "seconds": 0.082202
+      },
+      {
+        "format": "dive-property-proof-v1",
+        "property": "Mutex",
+        "projected_integers": [],
+        "closure_layers": 25,
+        "proof": "inductive-safety",
+        "transition_obligations": 100,
+        "reused_obligations": 0,
+        "seconds": 0.226796
+      },
+      {
+        "format": "dive-property-proof-v1",
+        "property": "Mutex",
+        "projected_integers": [],
+        "closure_layers": 7,
+        "proof": "violated",
+        "trace_validated": true,
+        "seconds": 0.1231490229999963
+      },
+      {
+        "format": "dive-property-proof-v1",
+        "property": "Consistent",
+        "projected_integers": [
+          "dummy"
+        ],
+        "closure_layers": 29,
+        "proof": "inductive-safety",
+        "transition_obligations": 48,
+        "reused_obligations": 0,
+        "seconds": 3.722167
+      },
+      {
+        "verdict": "unsupported",
+        "reason": "projected integer is read: dummy"
+      }
+    ],
+    "sweeps_and_message_order": [
+      {
+        "format": "dive-property-proof-v1",
+        "property": "Mutex",
+        "projected_integers": [],
+        "support_bits": 81,
+        "support_variables": [
+          "grant_msg",
+          "holds_lock",
+          "lock_msg",
+          "server_holds_lock",
+          "unlock_msg"
+        ],
+        "closure_sweeps": 3,
+        "proof": "inductive-safety",
+        "transition_obligations": 100,
+        "reused_obligations": 0,
+        "seconds": 0.093152
+      },
+      {
+        "format": "dive-property-proof-v1",
+        "property": "Mutex",
+        "projected_integers": [],
+        "support_bits": 81,
+        "support_variables": [
+          "grant_msg",
+          "holds_lock",
+          "lock_msg",
+          "server_holds_lock",
+          "unlock_msg"
+        ],
+        "closure_sweeps": 0,
+        "proof": "inductive-safety",
+        "transition_obligations": 100,
+        "reused_obligations": 80,
+        "seconds": 0.095124
+      },
+      {
+        "format": "dive-property-proof-v1",
+        "property": "Mutex",
+        "projected_integers": [],
+        "support_bits": 81,
+        "support_variables": [
+          "grant_msg",
+          "holds_lock",
+          "lock_msg",
+          "server_holds_lock",
+          "unlock_msg"
+        ],
+        "closure_sweeps": 0,
+        "proof": "inductive-safety",
+        "transition_obligations": 100,
+        "reused_obligations": 80,
+        "seconds": 0.084179
+      },
+      {
+        "format": "dive-property-proof-v1",
+        "property": "Mutex",
+        "projected_integers": [],
+        "support_bits": 81,
+        "support_variables": [
+          "grant_msg",
+          "holds_lock",
+          "lock_msg",
+          "server_holds_lock",
+          "unlock_msg"
+        ],
+        "closure_sweeps": 3,
+        "proof": "inductive-safety",
+        "transition_obligations": 100,
+        "reused_obligations": 0,
+        "seconds": 0.095599
+      },
+      {
+        "format": "dive-property-proof-v1",
+        "property": "Mutex",
+        "projected_integers": [],
+        "support_bits": 81,
+        "support_variables": [
+          "grant_msg",
+          "holds_lock",
+          "lock_msg",
+          "server_holds_lock",
+          "unlock_msg"
+        ],
+        "closure_sweeps": 1,
+        "proof": "violated",
+        "trace_validated": true,
+        "seconds": 0.12751284400002305
+      },
+      {
+        "format": "dive-property-proof-v1",
+        "property": "Consistent",
+        "projected_integers": [
+          "dummy"
+        ],
+        "support_bits": 40,
+        "support_variables": [
+          "msgs",
+          "rmState",
+          "tmPrepared",
+          "tmState"
+        ],
+        "closure_sweeps": 3,
+        "proof": "inductive-safety",
+        "transition_obligations": 48,
+        "reused_obligations": 0,
+        "seconds": 0.033186
+      },
+      {
+        "verdict": "unsupported",
+        "reason": "projected integer is read: dummy"
+      }
+    ]
+  },
+  "development_paired_times": {
+    "lockserv": [
+      {
+        "wall_s": 0.34,
+        "max_process_rss_kib": 54268
+      },
+      {
+        "wall_s": 0.34,
+        "max_process_rss_kib": 54200
+      },
+      {
+        "wall_s": 0.34,
+        "max_process_rss_kib": 54108
+      }
+    ],
+    "twophasecounter": [
+      {
+        "wall_s": 0.24,
+        "max_process_rss_kib": 54180
+      },
+      {
+        "wall_s": 0.24,
+        "max_process_rss_kib": 54160
+      },
+      {
+        "wall_s": 0.24,
+        "max_process_rss_kib": 54184
+      }
+    ]
+  },
+  "core_budget_controls": {
+    "lockserv": {
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 9,
+        "distinct": 1000000,
+        "exhaustive": false,
+        "generated": 6674816,
+        "initial_generated": 1,
+        "left_on_queue": 700551,
+        "reported_by_tlc": false
+      },
+      "wall_s": 6.95,
+      "max_process_rss_kib": 175740
+    },
+    "TwoPhaseCounter": {
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 10,
+        "distinct": 1000000,
+        "exhaustive": false,
+        "generated": 14861649,
+        "initial_generated": 1,
+        "left_on_queue": 542283,
+        "reported_by_tlc": false
+      },
+      "wall_s": 14.08,
+      "max_process_rss_kib": 133380
+    }
+  },
+  "slatedb": {
+    "source": "Vanlightly/s3-wal-collection @ 35fdc537af4d226f43b4574cded1764375f264ac",
+    "original_run": "2026-11-21-slatedb-source-edits.json",
+    "commands": [
+      "Run the recorded three-writer released-switch exact search and save its counterexample in dive-trace format. Extend Writers with w4 and preserve MaxWriterRestarts = 1 and the full six-invariant list.",
+      "python3 scripts/symbolic/extend_witness.py SlateDBWAL.tla released-switch.cfg four-writers-switch.cfg released-switch.trace --dive DIVE --existing-member w1 --new-member w4 --output four.trace",
+      "Repeat with four-writers-fixed.cfg. The independent validator rejects state 14 against Next. The validation and extension times exclude discovery of the base witness."
+    ],
+    "fix_off": {
+      "proof": "violated",
+      "property": "ConsistentMachineData",
+      "trace_validated": true,
+      "states": 65,
+      "extended_fields": [
+        "wEpoch",
+        "wMachineData",
+        "wManifest",
+        "wNextWalId",
+        "wRefreshState",
+        "wReplayId",
+        "wSnapshotId",
+        "wState"
+      ],
+      "wall_s": 0.12,
+      "max_process_rss_kib": 42520,
+      "validator_sha256": "425057b2e3038a7c2ae1ec65254fc9529cd994ca3a020d6e6f9e318724d7c395",
+      "repeat_with_current_validator": {
+        "exit": 0,
+        "wall_s": 0.11,
+        "max_process_rss_kib": 38092,
+        "sha256": "5bc12a042a2319d80433955da4063c3eba0173b53e5dc07cbe7f54576b86f970"
+      }
+    },
+    "fix_on_witness": {
+      "result": "invalid",
+      "failed_step": 14,
+      "failed_check": "next",
+      "wall_s": 0.11,
+      "max_process_rss_kib": 42472,
+      "repeat_with_current_validator": {
+        "exit": 2,
+        "wall_s": 0.1,
+        "max_process_rss_kib": 38084,
+        "sha256": "5bc12a042a2319d80433955da4063c3eba0173b53e5dc07cbe7f54576b86f970"
+      }
+    },
+    "fix_on_named_attempts": {
+      "ConsistentMachineData": {
+        "verdict": "unsupported",
+        "reason": "expected a finite type declaration"
+      },
+      "ManifestRepresentsCommittedLog": {
+        "verdict": "unsupported",
+        "reason": "expected a finite type declaration"
+      },
+      "TypeOK": {
+        "verdict": "unsupported",
+        "reason": "expected a finite type declaration"
+      },
+      "UniqueEpochs": {
+        "verdict": "unsupported",
+        "reason": "expected a finite type declaration"
+      },
+      "ValidGarbageCollectors": {
+        "verdict": "unsupported",
+        "reason": "expected a finite type declaration"
+      },
+      "ValidWriters": {
+        "verdict": "unsupported",
+        "reason": "expected a finite type declaration"
+      }
+    },
+    "peer": {
+      "run": "peer-slatedbwal",
+      "portfolio_returned_property_satisfied": false,
+      "cgroup": {
+        "Finished with result": "success",
+        "Service runtime": "771ms",
+        "CPU time consumed": "2.280s",
+        "Memory peak": "256.0K"
+      },
+      "wall_s": 0.76,
+      "max_process_rss_kib": 107592,
+      "diagnostic": "Cannot find source file for module FiniteSetsExt imported in module SlateDBWAL."
+    },
+    "peer_with_library": {
+      "run": "peer-wal-library",
+      "portfolio_returned_property_satisfied": false,
+      "cgroup": {
+        "Finished with result": "timeout",
+        "Service runtime": "2min 471ms",
+        "CPU time consumed": "2min 27.255s",
+        "Memory peak": "1.3G"
+      },
+      "invocation": "Named-only ConsistentMachineData CFG, original module and four-writer fix-on constants. Made FiniteSetsExt and its imports available inside every portfolio working directory and via JAVA_TOOL_OPTIONS=-DTLA-Library=MODULE_DIR. The prior unconfigured-library attempt failed during parsing."
+    }
+  },
+  "optimized_controls": [
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "closure_sweeps": 3,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "transition_obligations": 100,
+      "reused_obligations": 0,
+      "seconds": 0.092927
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "closure_sweeps": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "transition_obligations": 100,
+      "reused_obligations": 80,
+      "seconds": 0.095148
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "closure_sweeps": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "transition_obligations": 100,
+      "reused_obligations": 80,
+      "seconds": 0.08415
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "closure_sweeps": 3,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "transition_obligations": 100,
+      "reused_obligations": 0,
+      "seconds": 0.09474
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "closure_sweeps": 1,
+      "verdict": "invariant-violation",
+      "ending": {
+        "kind": "invariant",
+        "name": "Mutex"
+      },
+      "depth": 7,
+      "trace_validated": true,
+      "seconds": 0.127115
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Consistent",
+      "projected_integers": [
+        "dummy"
+      ],
+      "support_bits": 40,
+      "support_variables": [
+        "msgs",
+        "rmState",
+        "tmPrepared",
+        "tmState"
+      ],
+      "closure_sweeps": 3,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "transition_obligations": 48,
+      "reused_obligations": 0,
+      "seconds": 0.032743
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "closure_sweeps": 3,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "transition_obligations": 100,
+      "reused_obligations": 0,
+      "seconds": 0.097005
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "closure_sweeps": 0,
+      "reused_obligations": 0,
+      "transition_obligations": 100,
+      "seconds": 0.089049
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Mutex",
+      "projected_integers": [],
+      "support_bits": 81,
+      "support_variables": [
+        "grant_msg",
+        "holds_lock",
+        "lock_msg",
+        "server_holds_lock",
+        "unlock_msg"
+      ],
+      "proof": "inconclusive",
+      "failed_obligation": "Next closure",
+      "closure_sweeps": 0,
+      "reused_obligations": 0,
+      "transition_obligations": null,
+      "seconds": 0.087052
+    },
+    {
+      "format": "dive-property-proof-v1",
+      "property": "Safe",
+      "projected_integers": [
+        "n"
+      ],
+      "support_bits": 2,
+      "support_variables": [
+        "x"
+      ],
+      "closure_sweeps": 1,
+      "verdict": "invariant-violation",
+      "ending": {
+        "kind": "invariant",
+        "name": "Safe"
+      },
+      "depth": 3,
+      "trace_validated": true,
+      "seconds": 0.010045
+    },
+    {
+      "verdict": "unsupported",
+      "reason": "projected integer is read: dummy"
+    }
+  ]
+}
