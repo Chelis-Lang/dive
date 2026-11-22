@@ -1887,7 +1887,10 @@ of the status table for each action. Reusing each closed guard within the
 bound revision and omitting unchanged Next coordinates reduced median public
 CLI time to verify `TCConsistent` from 3.159 to 0.752 s. After restricting
 `canCommit`, verification fell from 2.708 to 0.652 s. Both checked all 600
-transition obligations in fresh processes with an unsigned predicate.
+transition obligations in fresh processes with an unsigned predicate. Fresh
+proofs on two other protocols also improved. Recomp-Verify's 64-manager
+TwoPhaseCounter went from 1.303 to 1.104 s and 100-client lockserv from
+2.606 to 2.106 s. The original 20-client lockserv stayed at 0.35 s.
 [All 64, 100 and 200 manager timings, ablations, profile and reproduction](../../conformance/reports/perf/2026-11-22-transaction-guard-lowering.json).
 
 ### Transfer a SlateDB witness to a larger configuration

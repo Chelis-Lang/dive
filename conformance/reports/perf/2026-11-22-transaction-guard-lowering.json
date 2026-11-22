@@ -39,6 +39,37 @@
     "bin": "early baseline with the optional receipt work present but disabled; the final guard-base panel uses main source"
   },
   "controls": "The new guarded fixture checks a three-state replay after changing a shared current-state predicate in an already-live manager. The existing finite compiler differential suite checks explicit Core counters, states, symmetry, invalid layouts, witnesses and refusals. Original Recomp-Verify lockserv and TwoPhaseCounter exercise unrelated guards and counters.",
+  "held_out": {
+    "repository": "https://github.com/cmu-soda/recomp-verify",
+    "revision": "0cbd95f0002af10f70f25c87638e8f2673229f2e",
+    "procedure": "Check benchmarks/tla/lockserv/20/lockserv.tla and benchmarks/tla/two_phase_counter/9/TwoPhaseCounter.tla with their release .cfg files, named Mutex or Consistent and layout TypeOK. For growth replace only the Node or RMs definition with the set of string literals n1 through n100 or rm1 through rm64. Alternate builds for three fresh checks in new processes. No predicate input or signer.",
+    "trials": [
+      {"model":"TwoPhaseCounter","participants":9,"trial":0,"build":"guard-base","wall_s":0.301397,"worker_s":0.032334,"total":48,"sweeps":3},
+      {"model":"TwoPhaseCounter","participants":9,"trial":0,"build":"sparse-install","wall_s":0.251517,"worker_s":0.028027,"total":48,"sweeps":3},
+      {"model":"TwoPhaseCounter","participants":9,"trial":1,"build":"sparse-install","wall_s":0.250702,"worker_s":0.027743,"total":48,"sweeps":3},
+      {"model":"TwoPhaseCounter","participants":9,"trial":1,"build":"guard-base","wall_s":0.30116,"worker_s":0.033957,"total":48,"sweeps":3},
+      {"model":"TwoPhaseCounter","participants":9,"trial":2,"build":"guard-base","wall_s":0.301357,"worker_s":0.034064,"total":48,"sweeps":3},
+      {"model":"TwoPhaseCounter","participants":9,"trial":2,"build":"sparse-install","wall_s":0.301665,"worker_s":0.028786,"total":48,"sweeps":3},
+      {"model":"TwoPhaseCounter","participants":64,"trial":0,"build":"guard-base","wall_s":1.304523,"worker_s":1.052562,"total":323,"sweeps":3},
+      {"model":"TwoPhaseCounter","participants":64,"trial":0,"build":"sparse-install","wall_s":1.103828,"worker_s":0.828141,"total":323,"sweeps":3},
+      {"model":"TwoPhaseCounter","participants":64,"trial":1,"build":"sparse-install","wall_s":1.103553,"worker_s":0.813218,"total":323,"sweeps":3},
+      {"model":"TwoPhaseCounter","participants":64,"trial":1,"build":"guard-base","wall_s":1.303029,"worker_s":1.041631,"total":323,"sweeps":3},
+      {"model":"TwoPhaseCounter","participants":64,"trial":2,"build":"guard-base","wall_s":1.303306,"worker_s":1.059786,"total":323,"sweeps":3},
+      {"model":"TwoPhaseCounter","participants":64,"trial":2,"build":"sparse-install","wall_s":1.103136,"worker_s":0.833235,"total":323,"sweeps":3},
+      {"model":"lockserv","participants":20,"trial":0,"build":"guard-base","wall_s":0.351781,"worker_s":0.096102,"total":100,"sweeps":3},
+      {"model":"lockserv","participants":20,"trial":0,"build":"sparse-install","wall_s":0.352534,"worker_s":0.078429,"total":100,"sweeps":3},
+      {"model":"lockserv","participants":20,"trial":1,"build":"sparse-install","wall_s":0.351997,"worker_s":0.079848,"total":100,"sweeps":3},
+      {"model":"lockserv","participants":20,"trial":1,"build":"guard-base","wall_s":0.353198,"worker_s":0.095941,"total":100,"sweeps":3},
+      {"model":"lockserv","participants":20,"trial":2,"build":"guard-base","wall_s":0.35349,"worker_s":0.09639,"total":100,"sweeps":3},
+      {"model":"lockserv","participants":20,"trial":2,"build":"sparse-install","wall_s":0.3521,"worker_s":0.078602,"total":100,"sweeps":3},
+      {"model":"lockserv","participants":100,"trial":0,"build":"guard-base","wall_s":2.656611,"worker_s":2.40181,"total":500,"sweeps":3},
+      {"model":"lockserv","participants":100,"trial":0,"build":"sparse-install","wall_s":2.205676,"worker_s":1.914879,"total":500,"sweeps":3},
+      {"model":"lockserv","participants":100,"trial":1,"build":"sparse-install","wall_s":2.05423,"worker_s":1.789531,"total":500,"sweeps":3},
+      {"model":"lockserv","participants":100,"trial":1,"build":"guard-base","wall_s":2.605113,"worker_s":2.345594,"total":500,"sweeps":3},
+      {"model":"lockserv","participants":100,"trial":2,"build":"guard-base","wall_s":2.60605,"worker_s":2.323745,"total":500,"sweeps":3},
+      {"model":"lockserv","participants":100,"trial":2,"build":"sparse-install","wall_s":2.10554,"worker_s":1.825128,"total":500,"sweeps":3}
+    ]
+  },
   "panels": {
     "guard-probe": [
       [64, 0, "guard-install", 0.170573, 0.453912, 192],
