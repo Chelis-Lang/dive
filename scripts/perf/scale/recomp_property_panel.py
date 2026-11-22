@@ -12,28 +12,46 @@ import signal
 import subprocess
 import sys
 import time
-from tempfile import TemporaryDirectory
+from tempfile import TemporaryDirectory, mkdtemp
 
 
-def measured(command, folder, seconds):
+def measured(command, folder, seconds, cgroup_parent):
     # The upstream portfolio can return while losing JVMs are still running.
     # Each invocation has its own session and files; descendants cannot retain
     # a capture pipe and delay a winning result or compete with the next row.
-    with (folder / "stdout").open("w") as out, (folder / "stderr").open("w") as err:
-        start = time.monotonic()
-        process = subprocess.Popen(command, cwd=folder, stdout=out, stderr=err, start_new_session=True)
-        try:
-            status = process.wait(timeout=seconds)
-        except subprocess.TimeoutExpired:
-            status = None
-        finally:
-            elapsed = time.monotonic() - start
+    group = Path(mkdtemp(prefix="panel-", dir=cgroup_parent)) if cgroup_parent else None
+
+    def join_group():
+        # Writing zero places the writing process and its future descendants here.
+        (group / "cgroup.procs").write_text("0")
+
+    peak = None
+    try:
+        with (folder / "stdout").open("w") as out, (folder / "stderr").open("w") as err:
+            start = time.monotonic()
+            process = subprocess.Popen(command, cwd=folder, stdout=out, stderr=err, start_new_session=True,
+                                       preexec_fn=join_group if group else None)
             try:
-                os.killpg(process.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
+                status = process.wait(timeout=seconds)
+            except subprocess.TimeoutExpired:
+                status = None
+            finally:
+                elapsed = time.monotonic() - start
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+    finally:
+        if group:
+            (group / "cgroup.kill").write_text("1")
+            for _ in range(100):
+                if "populated 0" in (group / "cgroup.events").read_text().splitlines():
+                    break
+                time.sleep(0.05)
+            peak = int((group / "memory.peak").read_text())
+            group.rmdir()
     output = (folder / "stdout").read_text(errors="replace")
-    return status, round(elapsed, 3), output
+    return status, round(elapsed, 3), output, peak
 
 
 def main():
@@ -43,6 +61,7 @@ def main():
     parser.add_argument("--seconds", type=int, default=30)
     parser.add_argument("--tool", choices=("both", "dive", "recomp"), default="both")
     parser.add_argument("--config", help="run one relative CFG path")
+    parser.add_argument("--cgroup-parent", type=Path, help="delegated cgroup v2 directory with memory enabled")
     args = parser.parse_args()
     root = args.root.resolve()
     pin = "0cbd95f0002af10f70f25c87638e8f2673229f2e"
@@ -79,8 +98,10 @@ def main():
                         "--strategy", "symbolic", "--type-invariant", layout, "--property-proof", prop,
                         "--output", "json"] if tool == "dive" else
                        [sys.executable, "-u", root / "recomp-verify.py", model.name, config.name, "--parallel"])
-                status, wall, out = measured(cmd, folder, args.seconds)
+                status, wall, out, peak = measured(cmd, folder, args.seconds, args.cgroup_parent)
                 result = dict(exit=status, wall_s=wall)
+                if peak is not None:
+                    result["peak_cgroup_bytes"] = peak
                 if status is None:
                     result["result"] = "deadline"
                 elif tool == "dive":

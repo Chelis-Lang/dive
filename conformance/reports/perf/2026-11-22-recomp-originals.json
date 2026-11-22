@@ -54,6 +54,11 @@
         "exit": 0,
         "wall_s": 0.314,
         "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 0.365,
+        "result": "inductive-safety"
       }
     },
     {
@@ -79,6 +84,11 @@
         "result": "deadline"
       },
       "integrated": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
         "exit": 0,
         "wall_s": 0.265,
         "result": "inductive-safety"
@@ -110,6 +120,11 @@
         "exit": 0,
         "wall_s": 0.515,
         "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 0.515,
+        "result": "inductive-safety"
       }
     },
     {
@@ -138,6 +153,11 @@
         "exit": 0,
         "wall_s": 2.07,
         "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 2.171,
+        "result": "inductive-safety"
       }
     },
     {
@@ -162,6 +182,11 @@
         "result": "property-satisfied"
       },
       "integrated": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
         "exit": 0,
         "wall_s": 0.265,
         "result": "inductive-safety"
@@ -193,6 +218,11 @@
         "exit": 0,
         "wall_s": 2.07,
         "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 2.472,
+        "result": "inductive-safety"
       }
     },
     {
@@ -219,6 +249,12 @@
         "result": "property-satisfied"
       },
       "integrated": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "scalar assignment outside finite layout"
+      },
+      "function_and_guard_support": {
         "exit": 2,
         "wall_s": 0.265,
         "result": "unsupported",
@@ -253,6 +289,12 @@
         "wall_s": 0.265,
         "result": "unsupported",
         "reason": "scalar assignment outside finite layout"
+      },
+      "function_and_guard_support": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "scalar assignment outside finite layout"
       }
     },
     {
@@ -283,6 +325,11 @@
         "wall_s": 0.265,
         "result": "unsupported",
         "reason": "Init choice over a non-atomic set"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
       }
     },
     {
@@ -313,6 +360,11 @@
         "wall_s": 0.265,
         "result": "unsupported",
         "reason": "Init choice over a non-atomic set"
+      },
+      "function_and_guard_support": {
+        "exit": null,
+        "wall_s": 30.001,
+        "result": "deadline"
       }
     },
     {
@@ -338,6 +390,11 @@
         "result": "property-satisfied"
       },
       "integrated": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
         "exit": 0,
         "wall_s": 0.315,
         "result": "inductive-safety"
@@ -369,6 +426,11 @@
         "exit": null,
         "wall_s": 30.001,
         "result": "deadline"
+      },
+      "function_and_guard_support": {
+        "exit": null,
+        "wall_s": 30.001,
+        "result": "deadline"
       }
     },
     {
@@ -396,6 +458,11 @@
         "exit": 0,
         "wall_s": 0.315,
         "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
       }
     },
     {
@@ -420,6 +487,11 @@
         "result": "property-satisfied"
       },
       "integrated": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
         "exit": 0,
         "wall_s": 0.315,
         "result": "inductive-safety"
@@ -453,6 +525,12 @@
         "wall_s": 0.265,
         "result": "unsupported",
         "reason": "mixed-type equality"
+      },
+      "function_and_guard_support": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "mixed-type equality"
       }
     },
     {
@@ -481,6 +559,11 @@
         "exit": 0,
         "wall_s": 1.719,
         "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 1.618,
+        "result": "inductive-safety"
       }
     },
     {
@@ -507,6 +590,12 @@
         "result": "deadline"
       },
       "integrated": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "IR standard operator NaturalsNat"
+      },
+      "function_and_guard_support": {
         "exit": 2,
         "wall_s": 0.265,
         "result": "unsupported",
@@ -539,6 +628,11 @@
         "exit": 0,
         "wall_s": 0.265,
         "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
       }
     },
     {
@@ -566,6 +660,11 @@
       "integrated": {
         "exit": 0,
         "wall_s": 0.315,
+        "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 0.314,
         "result": "inductive-safety"
       }
     },
@@ -597,6 +696,11 @@
         "wall_s": 0.265,
         "result": "unsupported",
         "reason": "Init choice over a non-atomic set"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 1.017,
+        "result": "inductive-safety"
       }
     },
     {
@@ -627,6 +731,11 @@
         "wall_s": 0.265,
         "result": "unsupported",
         "reason": "Init choice over a non-atomic set"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 1.167,
+        "result": "inductive-safety"
       }
     },
     {
@@ -657,6 +766,11 @@
         "wall_s": 0.265,
         "result": "unsupported",
         "reason": "IR standard operator NaturalsNat"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
       }
     },
     {
@@ -682,6 +796,11 @@
         "result": "property-satisfied"
       },
       "integrated": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
         "exit": 0,
         "wall_s": 0.265,
         "result": "inductive-safety"
@@ -713,6 +832,11 @@
         "exit": 0,
         "wall_s": 1.77,
         "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 1.719,
+        "result": "inductive-safety"
       }
     },
     {
@@ -743,6 +867,12 @@
         "wall_s": 0.265,
         "result": "unsupported",
         "reason": "IR standard operator NaturalsNat"
+      },
+      "function_and_guard_support": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "set of nonscalars"
       }
     },
     {
@@ -767,6 +897,11 @@
         "result": "property-satisfied"
       },
       "integrated": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
         "exit": 0,
         "wall_s": 0.265,
         "result": "inductive-safety"
@@ -798,6 +933,11 @@
         "exit": 0,
         "wall_s": 0.365,
         "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 0.365,
+        "result": "inductive-safety"
       }
     },
     {
@@ -826,6 +966,11 @@
         "exit": 0,
         "wall_s": 0.566,
         "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 0.566,
+        "result": "inductive-safety"
       }
     },
     {
@@ -851,6 +996,11 @@
         "result": "property-satisfied"
       },
       "integrated": {
+        "exit": 0,
+        "wall_s": 0.315,
+        "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
         "exit": 0,
         "wall_s": 0.315,
         "result": "inductive-safety"
@@ -884,6 +1034,12 @@
         "wall_s": 0.265,
         "result": "unsupported",
         "reason": "IR standard operator NaturalsNat"
+      },
+      "function_and_guard_support": {
+        "exit": 2,
+        "wall_s": 0.265,
+        "result": "unsupported",
+        "reason": "expected one source layout operator named TypeOK"
       }
     },
     {
@@ -908,6 +1064,11 @@
         "result": "deadline"
       },
       "integrated": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
         "exit": 0,
         "wall_s": 0.265,
         "result": "inductive-safety"
@@ -937,6 +1098,11 @@
       "integrated": {
         "exit": 0,
         "wall_s": 0.264,
+        "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 0.265,
         "result": "inductive-safety"
       }
     },
@@ -968,6 +1134,11 @@
         "wall_s": 0.265,
         "result": "unsupported",
         "reason": "unsupported action guard: overlapping boolean alternatives"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
       }
     },
     {
@@ -995,6 +1166,11 @@
         "exit": 0,
         "wall_s": 0.265,
         "result": "inductive-safety"
+      },
+      "function_and_guard_support": {
+        "exit": 0,
+        "wall_s": 0.265,
+        "result": "inductive-safety"
       }
     }
   ],
@@ -1006,5 +1182,39 @@
     "induction.py": "b7ecbea58d652aeba18b8555d3d54395a273da911ef358582154a35e68682785",
     "check.py": "d0f8536955c7884494848940740c9ef3c24ddada7047a5c067d0682e61799804"
   },
-  "negative_reproduce": "python3 scripts/symbolic/test_property_relations.py /path/to/dive --client-server RECOMP/benchmarks/tla/client_server_ae/2-4-2/client_server_ae.tla"
+  "negative_reproduce": "python3 scripts/symbolic/test_property_relations.py /path/to/dive --client-server RECOMP/benchmarks/tla/client_server_ae/2-4-2/client_server_ae.tla",
+  "function_and_guard_support": "Unchanged 30-second limits, same dedicated host. Admit Init finite function choices, guarded state quantifiers and integer tests. 26 inductive-safety, 6 unsupported, 2 deadlines. The earlier candidate timings remain in dive and integrated columns.",
+  "function_and_guard_worker_sha256": {
+    "engine.py": "2cf2bbdd7926f7d75e30310dac8483622d8d1771c8b5be4072601f408964c868",
+    "property_proof.py": "500c623fc41344a585b56168a75132fa20e01e66959f64c0704f333778247905"
+  },
+  "exploratory_screens": {
+    "scope": "Separate isolated development host, 20-second internal limit and TypeOK on all 34 CFGs, including TCommit which requires TCTypeOK. These are intermediate implementation screens, distinct from the formal panel.",
+    "results": {
+      "tuple-screen": {
+        "inductive-safety": 11,
+        "unsupported": 23
+      },
+      "sets-screen": {
+        "inductive-safety": 18,
+        "unsupported": 15,
+        "stopped": 1
+      },
+      "nonconstant-screen": {
+        "inductive-safety": 18,
+        "unsupported": 15,
+        "stopped": 1
+      },
+      "final-screen": {
+        "inductive-safety": 20,
+        "unsupported": 13,
+        "stopped": 1
+      },
+      "function-panel": {
+        "inductive-safety": 23,
+        "unsupported": 9,
+        "stopped": 2
+      }
+    }
+  }
 }
