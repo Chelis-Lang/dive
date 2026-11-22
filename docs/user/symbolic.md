@@ -122,6 +122,24 @@ The selected type invariant must appear in the configuration and as a required c
 On EmergencyCall with three extra local numbers, the final worker checked both invariants from scratch in 1,038.55 s and reached **1,400,862,255,552 distinct states**. Checking the type invariant alone in the same process took 118 ms. Restoring both invariants took 43 ms. All three revisions reported the same initial, generated and reachable counts and depth. On the original full configuration, adding the violated `F1` invariant produced an independently validated seven-state counterexample. [Commands, timings, memory and replay controls](../../conformance/reports/perf/2026-11-21-whole-value-edit-sessions.json).
 
 
+### Reuse a whole-value predicate in another process
+
+A completed check can save its finite reachable predicate with `--write-predicate FILE`.
+On the current source and configuration, a separate installation can submit it with
+`--verify-predicate FILE`. The receiver checks the whole-value layout, inclusion of
+every initial state, defined successor expressions, closure under every original
+action, safety and any requested deadlock check. A successful verification returns
+`inductive-safety` without search counts. When both processes have the same local
+`DIVE_SYMBOLIC_PROOF_KEY`, an authenticated predicate can reuse the transition
+obligations for the matching bound relation and checks all current invariants.
+
+Sail's `runtime symbolic-check` session can use the same artifact across processes.
+If the predicate cannot prove the current check, Sail searches with the time left
+on the original deadline. On the original full-initializer EmergencyCall model,
+restoring the safety obligation took 104.539 s cold, 1.928 s with an unsigned
+predicate, and 0.676 s through a separately launched Sail process with local
+authentication. [Matched runs and failure controls](../../conformance/reports/perf/2026-11-22-whole-value-portable.json).
+
 ## Compile a finite safety check
 
 Use `dive check --strategy compiled` in the Linux release bundle to compile a

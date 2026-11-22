@@ -49,6 +49,8 @@ The [temporal analysis phase measurements](2026-11-21-temporal-analysis-phases.j
 
 [Whole-value edit sessions](2026-11-21-whole-value-edit-sessions.json) records cold, edited and restored invariant checks on the 49.9-billion and 1.40-trillion state models, and independent replay when an added invariant fails.
 
+[Portable whole-value predicates](2026-11-22-whole-value-portable.json) compare cold searches, unsigned closure checks and authenticated cross-process Sail reuse on the unchanged EmergencyCall module.
+
 The [source-driven EmergencyCall measurements](2026-11-21-source-whole-values.json) contain the installed Linux worker identities, monolithic and 64-cell counts, wall time, peak RSS, independent exact comparisons and trace controls.
 
 The [automatic strategy comparison](2026-11-22-auto-strategy.json) records the KVS Medium/Large crossover, same-host direct controls and independent model-family controls.

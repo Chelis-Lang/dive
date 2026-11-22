@@ -27,6 +27,8 @@ are in git history.
 
 - Ordinary Core can [check models with independent strong-fairness choices](docs/user/temporal.md#fairness), including the four-floor Elevator counterexample. Component search also speeds up completed checks with many independent fairness choices.
 
+- Whole-value symbolic checks can save a portable safety predicate and recheck an edited invariant list in a separate Dive or Sail process.
+
 ### Added
 
 - `dive check --periodic-min-states N` sets the first size threshold for [scheduled liveness checks](docs/user/temporal.md). Reports record the actual completed level, counts and validated word.

@@ -1,10 +1,19 @@
 """Finite alphabets for whole record, set, string and integer state values."""
 
+from hashlib import sha256
+import hmac
 import itertools
 from math import prod
+from pathlib import Path
 
 from dd import cudd
 from engine import SourceModel, Unsupported, require, unpack
+import induction
+from obligation_receipt import implementation, local_key, pack
+
+
+WHOLE_FORMAT = "dive-whole-values-predicate-v1"
+WHOLE_MAX_NODES = 750_000
 
 
 def as_set(value):
@@ -647,18 +656,16 @@ class FiniteValueModel(SourceModel):
             encoding="whole-values",
         ), result["trace"]
 
-    def check_values(self, fixed_values=(), keep_trace=False, *, retain=False):
+    def initial_states(self, fixed):
         assigned = self.check_init_order(self.doc["init"], frozenset(), {})
         require(assigned == self.values.keys(), "incomplete initial state binding")
         self.bound_reads = None
         initial = self.valid & self.predicate(self.doc["init"], {})
-        fixed = self.conjunction(
-            self.values[index][value] for index, value in fixed_values
-        )
         self.check_initial_choices(self.doc["init"], {}, initial & fixed)
-        reached = frontier = initial & fixed
-        require(frontier != self.b.false, "empty initial set")
-        initial_count = self.state_count(frontier)
+        require(initial & fixed != self.b.false, "empty initial set")
+        return initial & fixed
+
+    def successor_obligations(self):
         invalid_rhs = self.b.false
         self.partial_rhs = self.b.false
         actions = []
@@ -688,11 +695,72 @@ class FiniteValueModel(SourceModel):
             actions.append((guard, self.partitions(updates, False)))
         invalid_rhs |= self.partial_rhs
         checks = [("invalid or undefined successor value", ~invalid_rhs)]
+        if self.doc["check_deadlock"]:
+            checks.append(("deadlock", self.any(guard for guard, _ in actions)))
+        return actions, checks
+
+    def layout_digest(self):
+        return sha256(pack([
+            (self.names[index], [bit.var for bit in self.bits[index]], [order(value) for value in domain])
+            for index, domain in self.domains.items()
+        ])).hexdigest()
+
+    def seal(self, payload, exporter, key):
+        # Keep all bound inputs and the complete IR, including imported
+        # definitions. Only the requested invariant list can vary.
+        relation = {name: value for name, value in self.doc.items() if name != "invariants"}
+        return hmac.digest(key, pack([WHOLE_FORMAT, implementation(exporter), relation, payload]), "sha256").hex()
+
+    def save_predicate(self, path, exporter):
+        reached, _ = self.completed
+        payload = induction.encode(self, reached, WHOLE_MAX_NODES)
+        payload.update(format=WHOLE_FORMAT, layout=self.layout_digest())
+        key = local_key()
+        if key is not None:
+            payload["seal"] = self.seal(payload, exporter, key)
+        data = pack(payload) + b"\n"
+        require(len(data) <= induction.MAX_BYTES, "whole-value predicate exceeds the file limit")
+        induction.write_atomic(Path(path), data)
+
+    def verify_predicate(self, path, exporter):
+        payload = induction.read(Path(path))
+        if not isinstance(payload, dict) or payload.get("layout") != self.layout_digest():
+            return "whole-value encoding", False
+        signature = payload.pop("seal", None)
+        states = induction.decode(payload, self, max_nodes=WHOLE_MAX_NODES, format_name=WHOLE_FORMAT)
+        if states & ~self.valid != self.b.false:
+            return "whole-value encoding", False
+        for name, expr in self.doc["invariants"]:
+            if states & ~self.predicate(expr, {}) != self.b.false:
+                return name, False
+        key = local_key()
+        if (key is not None and isinstance(signature, str) and len(signature) == 64 and signature.isascii()
+                and hmac.compare_digest(signature, self.seal(payload, exporter, key))):
+            return None, True
+        if self.initial_states(self.b.true) & ~states != self.b.false:
+            return "Init inclusion", False
+        actions, checks = self.successor_obligations()
+        for name, obligation in checks:
+            if states & ~obligation != self.b.false:
+                return name, False
+        for guard, relation in actions:
+            if self.image(states, guard, relation) & ~states != self.b.false:
+                return "Next closure", False
+        return None, False
+
+    def check_values(self, fixed_values=(), keep_trace=False, *, retain=False):
+        fixed = self.conjunction(self.values[index][value] for index, value in fixed_values)
+        reached = frontier = self.initial_states(fixed)
+        initial_count = self.state_count(frontier)
+        actions, checks = self.successor_obligations()
+        # Preserve the original evaluation and diagnostic order.
+        invalid_rhs = ~checks[0][1]
+        invalid, *deadlock = checks
+        checks = [invalid]
         checks.extend(
             (name, self.predicate(expr, {})) for name, expr in self.doc["invariants"]
         )
-        if self.doc["check_deadlock"]:
-            checks.append(("deadlock", self.any(guard for guard, _ in actions)))
+        checks.extend(deadlock)
         checks.append(("partition changed", fixed))
         admissible = self.conjunction(test for _, test in checks)
         layers = []
