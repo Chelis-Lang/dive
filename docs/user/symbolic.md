@@ -373,6 +373,14 @@ dive check edited/lockserv.tla --config lockserv.cfg --strategy symbolic \
   --property-proof Mutex --type-invariant TypeOK --verify-predicate mutex.json
 ```
 
+A named proof can use a finite relation such as `sent \in SUBSET (Clients \X Requests)`,
+tuple literals and tuple-pattern quantifiers over it. An initial choice or binder
+over `SUBSET S` represents each subset exactly when every member occurs in the
+current `S`. The named worker accepts at most 12 possible members for that
+enumeration and 16,384 combinations per tuple expression. Exceeding a bound
+gives an explicit refusal. A subset used directly as a tuple component must
+be ground. [Original Recomp-Verify configurations and measured limits](../../conformance/reports/perf/2026-11-22-recomp-originals.json)
+
 The layout can be an unconfigured, parameterless source operator. Its bounds
 must admit Init and the encoded assignments. A variable without a finite
 declaration may be a private integer initialized to a literal. Each step must
