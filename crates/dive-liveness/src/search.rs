@@ -66,7 +66,7 @@ pub(crate) struct Poll {
 }
 
 impl Poll {
-    fn step(&mut self) -> Result<(), SearchError> {
+    pub(crate) fn step(&mut self) -> Result<(), SearchError> {
         if self.remaining == 0 {
             if crate::budget::exhausted() {
                 return Err(SearchError::Budget);
@@ -77,7 +77,7 @@ impl Poll {
         Ok(())
     }
 
-    fn any<T>(
+    pub(crate) fn any<T>(
         &mut self,
         values: impl IntoIterator<Item = T>,
         mut predicate: impl FnMut(T) -> bool,
@@ -385,52 +385,58 @@ impl<'a, G: Adjacency + ?Sized> LassoSearch<'a, G> {
         let mut selected: Option<(usize, usize, Vec<usize>)> = None;
         let mut membership = initialized(graph.vertex_count(), 0, &mut poll)?;
         let mut stamp = 0_usize;
-        restricted_components(graph, labels, prefix, &mut poll, |component, poll| {
-            if component.len() == 1 {
-                let v = component[0];
-                let mut edges = Edges::new(graph, v);
-                let mut cyclic = false;
-                while let Some((_, to, label)) = edges.next()? {
-                    poll.step()?;
-                    if to == v && labels.recurrent(v, label) {
-                        cyclic = true;
-                        break;
+        restricted_components(
+            graph,
+            |v| prefix.distance(v).is_some(),
+            |v, e| labels.recurrent(v, e),
+            &mut poll,
+            |component, poll| {
+                if component.len() == 1 {
+                    let v = component[0];
+                    let mut edges = Edges::new(graph, v);
+                    let mut cyclic = false;
+                    while let Some((_, to, label)) = edges.next()? {
+                        poll.step()?;
+                        if to == v && labels.recurrent(v, label) {
+                            cyclic = true;
+                            break;
+                        }
+                    }
+                    if !cyclic {
+                        return Ok(());
                     }
                 }
-                if !cyclic {
+                // Components are disjoint, so a fresh stamp never matches a stale one.
+                stamp += 1;
+                for &v in &component {
+                    poll.step()?;
+                    membership[v] = stamp;
+                }
+                if !labels.accepts(graph, &component, &membership, stamp, poll)? {
                     return Ok(());
                 }
-            }
-            // Components are disjoint, so a fresh stamp never matches a stale one.
-            stamp += 1;
-            for &v in &component {
-                poll.step()?;
-                membership[v] = stamp;
-            }
-            if !labels.accepts(graph, &component, &membership, stamp, poll)? {
-                return Ok(());
-            }
-            let mut best = None;
-            for &v in &component {
-                poll.step()?;
-                let Some(d) = prefix.distance(v) else {
-                    return Err(SearchError::Invariant("component is not reachable"));
-                };
-                if best.is_none_or(|b| (d, v) < b) {
-                    best = Some((d, v));
+                let mut best = None;
+                for &v in &component {
+                    poll.step()?;
+                    let Some(d) = prefix.distance(v) else {
+                        return Err(SearchError::Invariant("component is not reachable"));
+                    };
+                    if best.is_none_or(|b| (d, v) < b) {
+                        best = Some((d, v));
+                    }
                 }
-            }
-            // `(distance, vertex)` is a strict total order over disjoint
-            // components, so the selection is independent of emission order.
-            if let Some((d, v)) = best
-                && selected
-                    .as_ref()
-                    .is_none_or(|(best, entry, _)| (d, v) < (*best, *entry))
-            {
-                selected = Some((d, v, component));
-            }
-            Ok(())
-        })?;
+                // `(distance, vertex)` is a strict total order over disjoint
+                // components, so the selection is independent of emission order.
+                if let Some((d, v)) = best
+                    && selected
+                        .as_ref()
+                        .is_none_or(|(best, entry, _)| (d, v) < (*best, *entry))
+                {
+                    selected = Some((d, v, component));
+                }
+                Ok(())
+            },
+        )?;
         drop(membership);
         let Some((_, entry, component)) = selected else {
             if crate::budget::exhausted() {
@@ -474,10 +480,10 @@ const NONE: usize = usize::MAX;
 // only), rooted at every prefix-reachable vertex in vertex order. Restricted
 // edges are filtered while walking the rows; no restricted copy is stored.
 // Each component is passed on with its members in vertex order.
-fn restricted_components<G: Adjacency + ?Sized>(
+pub(crate) fn restricted_components<G: Adjacency + ?Sized>(
     graph: &G,
-    labels: &impl AcceptanceAccess,
-    prefix: &Paths,
+    reachable: impl Fn(usize) -> bool,
+    recurrent: impl Fn(usize, usize) -> bool,
     poll: &mut Poll,
     mut visit: impl FnMut(Vec<usize>, &mut Poll) -> Result<(), SearchError>,
 ) -> Result<(), SearchError> {
@@ -490,7 +496,7 @@ fn restricted_components<G: Adjacency + ?Sized>(
     let mut next_index = 0;
     for root in 0..n {
         poll.step()?;
-        if prefix.distance(root).is_none() || index[root] != NONE {
+        if !reachable(root) || index[root] != NONE {
             continue;
         }
         index[root] = next_index;
@@ -505,7 +511,7 @@ fn restricted_components<G: Adjacency + ?Sized>(
             poll.step()?;
             let v = *v;
             if let Some((target, label)) = graph.advance(v, cursor)? {
-                if !labels.recurrent(v, label) {
+                if !recurrent(v, label) {
                     continue;
                 }
                 if index[target] == NONE {

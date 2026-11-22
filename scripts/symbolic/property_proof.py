@@ -32,6 +32,11 @@ class PropertyModel(SourceModel):
         # This proof checks the labeled relation. Symmetry is a search reduction,
         # so it can be omitted once the exporter has bound the original config.
         self.counters = set()
+        self.closed_state_predicates = {
+            definition["body"] for definition in doc["ir"]["defs"]
+            if definition["scope"] == "TopLevel" and definition["level"] == "State" and not definition["params"]
+        }
+        self.closed_guard_values = {}
         self.initial_recipes = []
         self.step_recipes = []
         self.trace_points = []
@@ -77,6 +82,16 @@ class PropertyModel(SourceModel):
         if tag == "Builtin" and x == {"op": "Boolean", "args": []}:
             return Members([(("boolean", flag), self.b.true) for flag in (False, True)],
                            enumeration=Enumeration.REDUCIBLE)
+        # A nullary operator denotes one Boolean function on this revision's
+        # fixed state bits. Retain it only after layout/Init construction, when
+        # there are no lexical arguments or pending primed assignments.
+        if not self.reading_init and not env and not assigned and i in self.closed_state_predicates:
+            if i in self.closed_guard_values:
+                return self.closed_guard_values[i]
+            value = super().eval(i, env, assigned)
+            if isinstance(value, cudd.Function):
+                self.closed_guard_values[i] = value
+            return value
         return super().eval(i, env, assigned)
 
     def static_set(self, value):

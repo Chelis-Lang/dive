@@ -1,0 +1,350 @@
+{
+  "question": "Ordinary finite temporal checking with quantified weak and strong fairness, original MultiCarElevator",
+  "host": "Dedicated c7i.4xlarge Intel Xeon Platinum 8488C, Ubuntu 24.04 Linux x86_64, us-east-2",
+  "model": "https://github.com/tlaplus/Examples/tree/6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/MultiCarElevator",
+  "main_revision": "c3f6a8a494444d632e02dfdff1e645b2564352f1",
+  "manyan_revision": "a39816a873a2c2aabc00dbcef50908e996f3d44b",
+  "binary_sha256": {
+    "main": "5bc12a042a2319d80433955da4063c3eba0173b53e5dc07cbe7f54576b86f970",
+    "grouped": "c49c68bb072f132ff485abb7c1f26b470ab87c708128b900f09b213e8d5debcc",
+    "manyan": "89f6da894a58220f7607853ca3907122f692fe66e507c148e1898731b8b4fcf1"
+  },
+  "commands": [
+    "dive check Elevator.tla --config CFG --seed 0 --fp 0 --workers 1 --output json",
+    "manyan -workers 1 -seed 0 -fp 0 -config CFG Elevator.tla",
+    "For four-floor.cfg change only FloorCount = 3 to 4 in ElevatorLivenessLarge.cfg; add --time-limit 65s --max-memory 8g to Dive. 70s outer cap for both."
+  ],
+  "method": "Fresh processes on one host. Medium alternates three samples per Dive binary. One run per checker on Large and growth; shared oracle library input downloads briefly overlapped main Large but ran on separate CPUs. Growth main refusal was also confirmed. GNU time maximum RSS in KiB. Analysis phase measurements are Core reported, in ms.",
+  "profile": {
+    "main_medium_cpu_clock_samples": 1499,
+    "conditioned_truth_percent": 41.29,
+    "search_alternative_percent": 34.42
+  },
+  "word_only_experiment": [
+    {
+      "arm": "baseline",
+      "rep": 0,
+      "wall_s": 1.49756,
+      "peak_rss_kib": 38992
+    },
+    {
+      "arm": "candidate",
+      "rep": 0,
+      "wall_s": 0.88423,
+      "peak_rss_kib": 39004
+    },
+    {
+      "arm": "candidate",
+      "rep": 1,
+      "wall_s": 0.88192,
+      "peak_rss_kib": 38880
+    },
+    {
+      "arm": "baseline",
+      "rep": 1,
+      "wall_s": 1.49788,
+      "peak_rss_kib": 38788
+    },
+    {
+      "arm": "baseline",
+      "rep": 2,
+      "wall_s": 1.49883,
+      "peak_rss_kib": 38972
+    },
+    {
+      "arm": "candidate",
+      "rep": 2,
+      "wall_s": 0.88549,
+      "peak_rss_kib": 39000
+    }
+  ],
+  "rows": [
+    {
+      "arm": "main",
+      "cfg": "ElevatorLivenessMedium.cfg",
+      "rep": 0,
+      "exit": 0,
+      "wall_s": 1.50021,
+      "peak_rss_kib": 39032,
+      "status": "success",
+      "reason": null,
+      "generated": 14296,
+      "distinct": 4122,
+      "depth": 36,
+      "phase_ms": {
+        "atoms": 167.668552,
+        "product": 1256.334285
+      }
+    },
+    {
+      "arm": "grouped",
+      "cfg": "ElevatorLivenessMedium.cfg",
+      "rep": 0,
+      "exit": 0,
+      "wall_s": 0.28229,
+      "peak_rss_kib": 39060,
+      "status": "success",
+      "reason": null,
+      "generated": 14296,
+      "distinct": 4122,
+      "depth": 36,
+      "phase_ms": {
+        "atoms": 166.839611,
+        "product": 41.286035
+      }
+    },
+    {
+      "arm": "grouped",
+      "cfg": "ElevatorLivenessMedium.cfg",
+      "rep": 1,
+      "exit": 0,
+      "wall_s": 0.28489,
+      "peak_rss_kib": 38920,
+      "status": "success",
+      "reason": null,
+      "generated": 14296,
+      "distinct": 4122,
+      "depth": 36,
+      "phase_ms": {
+        "atoms": 169.464302,
+        "product": 42.204771
+      }
+    },
+    {
+      "arm": "main",
+      "cfg": "ElevatorLivenessMedium.cfg",
+      "rep": 1,
+      "exit": 0,
+      "wall_s": 1.49434,
+      "peak_rss_kib": 39028,
+      "status": "success",
+      "reason": null,
+      "generated": 14296,
+      "distinct": 4122,
+      "depth": 36,
+      "phase_ms": {
+        "atoms": 166.736831,
+        "product": 1251.734293
+      }
+    },
+    {
+      "arm": "main",
+      "cfg": "ElevatorLivenessMedium.cfg",
+      "rep": 2,
+      "exit": 0,
+      "wall_s": 1.5001,
+      "peak_rss_kib": 39028,
+      "status": "success",
+      "reason": null,
+      "generated": 14296,
+      "distinct": 4122,
+      "depth": 36,
+      "phase_ms": {
+        "atoms": 168.015364,
+        "product": 1256.732666
+      }
+    },
+    {
+      "arm": "grouped",
+      "cfg": "ElevatorLivenessMedium.cfg",
+      "rep": 2,
+      "exit": 0,
+      "wall_s": 0.28387,
+      "peak_rss_kib": 39056,
+      "status": "success",
+      "reason": null,
+      "generated": 14296,
+      "distinct": 4122,
+      "depth": 36,
+      "phase_ms": {
+        "atoms": 167.052231,
+        "product": 41.221526000000004
+      }
+    },
+    {
+      "arm": "grouped",
+      "cfg": "ElevatorLivenessLarge.cfg",
+      "rep": 0,
+      "exit": 0,
+      "wall_s": 4.16426,
+      "peak_rss_kib": 100432,
+      "status": "success",
+      "reason": null,
+      "generated": 230899,
+      "distinct": 50653,
+      "depth": 39,
+      "phase_ms": {
+        "atoms": 2567.726098,
+        "product": 886.9972670000001
+      }
+    },
+    {
+      "arm": "manyan",
+      "cfg": "ElevatorLivenessLarge.cfg",
+      "rep": 0,
+      "exit": 0,
+      "wall_s": 1.30678,
+      "peak_rss_kib": 46716,
+      "status": "success",
+      "generated": 230899,
+      "distinct": 50653,
+      "depth": 39
+    },
+    {
+      "arm": "grouped",
+      "cfg": "four-floor.cfg",
+      "rep": 0,
+      "exit": 3,
+      "wall_s": 0.15122,
+      "peak_rss_kib": 175172,
+      "status": "unsupported",
+      "reason": "a temporal validation failure (core): its report is not implemented on Core",
+      "generated": null,
+      "distinct": null,
+      "depth": null,
+      "phase_ms": null
+    },
+    {
+      "arm": "manyan",
+      "cfg": "four-floor.cfg",
+      "rep": 0,
+      "exit": 13,
+      "wall_s": 7.29616,
+      "peak_rss_kib": 270164,
+      "status": "liveness-violation",
+      "generated": 1583418,
+      "distinct": 281976,
+      "depth": 41,
+      "property": "TemporalInvariant"
+    },
+    {
+      "arm": "main",
+      "cfg": "ElevatorLivenessLarge.cfg",
+      "rep": 0,
+      "exit": 0,
+      "wall_s": 92.33,
+      "peak_rss_kib": 98108,
+      "status": "success",
+      "reason": null,
+      "generated": 230899,
+      "distinct": 50653,
+      "depth": 39,
+      "phase_ms": {
+        "atoms": 2531.410474,
+        "product": 89092.565978
+      }
+    }
+  ],
+  "witness_controls": [
+    {
+      "case": "small-fair",
+      "module_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "99b3a1c26fe43dbaaf00fe57228a836c2f7e3e59ad00404f184885716558a6e2",
+      "manyan": {
+        "wall_s": 0.00507,
+        "exit": 0,
+        "peak_rss_kib": 3912,
+        "status": "success",
+        "generated": 68,
+        "distinct": 36
+      },
+      "dive": {
+        "wall_s": 0.01718,
+        "exit": 0,
+        "peak_rss_kib": 26772,
+        "status": "success",
+        "property": null,
+        "distinct": 36,
+        "generated": 68,
+        "depth": 12
+      }
+    },
+    {
+      "case": "small-no-move-SF",
+      "module_sha256": "c6e3199e16ddf3f44bee6e2573bccc2826df09ae77725aca62a93ae8634176e6",
+      "cfg_sha256": "99b3a1c26fe43dbaaf00fe57228a836c2f7e3e59ad00404f184885716558a6e2",
+      "replay": {
+        "result": "valid",
+        "exit": 0
+      },
+      "initial_stutter_replay": {
+        "result": "invalid",
+        "exit": 1
+      },
+      "original_fairness_replay": {
+        "result": "invalid",
+        "exit": 1
+      },
+      "manyan": {
+        "wall_s": 0.00501,
+        "exit": 13,
+        "peak_rss_kib": 3940,
+        "status": "violation",
+        "generated": 68,
+        "distinct": 36
+      },
+      "dive": {
+        "wall_s": 0.02295,
+        "exit": 13,
+        "peak_rss_kib": 35396,
+        "status": "liveness-violation",
+        "property": "TemporalInvariant",
+        "distinct": 36,
+        "generated": 68,
+        "depth": 12,
+        "witness_states": 6,
+        "ending": {
+          "back_to": 5,
+          "kind": "lasso"
+        }
+      }
+    },
+    {
+      "case": "medium-fair",
+      "module_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "3e6d67656512a5d2e4795c7de9c13d510096608e506c56f31f0fa4eb618d9290",
+      "manyan": {
+        "wall_s": 0.10914,
+        "exit": 0,
+        "peak_rss_kib": 10476,
+        "status": "success",
+        "generated": 14296,
+        "distinct": 4122
+      },
+      "dive": {
+        "wall_s": 0.28414,
+        "exit": 0,
+        "peak_rss_kib": 38976,
+        "status": "success",
+        "property": null,
+        "distinct": 4122,
+        "generated": 14296,
+        "depth": 36
+      }
+    }
+  ],
+  "four_floor_witness": {
+    "cfg_sha256": "707f56c9952ed53cee5dda44b20ed51224f0035039c73cd96a51ea02d34c0c49",
+    "manyan_dump_sha256": "771ebd5990bcb116d3ab2ddf26bf9483a7d4e9b9451c1c32d134aae60dc5b6a4",
+    "typed_word_sha256": "8ee57af067d3c9d614c20ba101d7176ca45a545cbbd070ddda687c6eea1fa1f3",
+    "property": "TemporalInvariant",
+    "states": 202,
+    "back_to_zero_based": 8,
+    "independent_replay": "valid",
+    "tampered_back_to_zero_based": 0,
+    "tampered_replay": "invalid closing Next transition",
+    "issue": 1294
+  },
+  "focused_small_core_ratchet": {
+    "baseline": "small-core-dive-w1.json",
+    "filters": [
+      "ElevatorLivenessMedium.cfg",
+      "MCLiveWriteThroughCache.cfg",
+      "ConfiguredReplyFails.cfg",
+      "ConfiguredReplyHolds.cfg"
+    ],
+    "workers": 1,
+    "agree": 4,
+    "regressions": 0
+  }
+}
