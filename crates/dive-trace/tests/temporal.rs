@@ -612,3 +612,34 @@ Order == (Warm \/ ~Warm) /\ \A k \in {1,2} : SF_Vars(Before(k))
     let active = [make(false, &[]), make(true, &[2]), make(false, &[])];
     assert!(evaluate_lasso(&model, &predicate(&model, "Fault"), &active, 0).is_err());
 }
+
+#[test]
+fn sparse_guard_preserves_demand_for_a_strict_let_in_a_supplied_scope() {
+    let model = bound(
+        r"---- MODULE Demand ----
+VARIABLE x, active
+Init == x = FALSE /\ active = {}
+Next == x' = ~x /\ UNCHANGED active
+V == x
+Warm == WF_V(x' = ~x)
+P == \A u \in {1} : (Warm \/ ~Warm) /\ \A k \in {1} :
+     SF_V(LET unused == <<u>> IN k \in active /\ x' = ~x)
+====",
+        "INIT Init\nNEXT Next\n",
+    );
+    let root = predicate(&model, "P");
+    let dive_ir::Expr::Quant { body, .. } = model.ir.expr(root.expr) else {
+        panic!("P must start with a quantifier")
+    };
+    // The library caller supplies a root frame without binding u. Building
+    // the strict tuple forces u before the first membership guard.
+    let inner = Pred::new(*body, root.scope);
+    let empty = Value::set(vec![], dive_value::Ctx::tlc()).expect("empty set");
+    let states: Vec<State> = [false, true]
+        .into_iter()
+        .map(|x| Arc::from([Some(Value::Bool(x)), Some(empty.clone())]))
+        .collect();
+    let err =
+        evaluate_lasso(&model, &inner, &states, 0).expect_err("strict value must be evaluated");
+    assert!(err.to_string().contains("unbound slot"), "{err}");
+}
