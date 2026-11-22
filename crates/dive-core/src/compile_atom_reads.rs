@@ -237,6 +237,7 @@ impl Compiler<'_> {
 struct AssignmentProof {
     written: u64,
     guard_update: bool,
+    different_boolean_guard: bool,
     suffix_update: bool,
 }
 
@@ -296,6 +297,7 @@ impl Compiler<'_> {
             subscript,
             quiet_suffix: !proof.suffix_update,
             quiet_guards: !proof.guard_update,
+            boolean_guard_prefix: !proof.different_boolean_guard,
         })
     }
 
@@ -388,6 +390,65 @@ impl Compiler<'_> {
         }
     }
 
+    /// Check a deliberately small value language structurally. P nodes for
+    /// the same source conjunct can be emitted twice, once by guard_expr and
+    /// once by the Boolean conjunction compiler. An opcode alone cannot
+    /// identify operands, lexical slots, selectors or a comparison operator.
+    fn same_source_value(&self, left: P, right: P, depth: usize, work: &mut usize) -> bool {
+        let Some(remaining) = work.checked_sub(1) else {
+            return false;
+        };
+        *work = remaining;
+        if depth >= super::MAX_GUARD_DEPTH {
+            return false;
+        }
+        let left = &self.code.nodes[left as usize];
+        let right = &self.code.nodes[right as usize];
+        if std::mem::discriminant(left) != std::mem::discriminant(right) {
+            return false;
+        }
+        let equivalent = match (left, right) {
+            (Node::Const(a), Node::Const(b)) => return a == b,
+            (Node::Var(a), Node::Var(b)) => return a == b,
+            (Node::Slot(a), Node::Slot(b)) => return a == b,
+            (Node::Select(_, a), Node::Select(_, b)) => a == b,
+            (Node::Lazy { slot: a, .. }, Node::Lazy { slot: b, .. }) => a == b,
+            (Node::Scope { reset: a, .. }, Node::Scope { reset: b, .. }) => a == b,
+            (Node::Arith(a, ..), Node::Arith(b, ..)) => a == b,
+            (Node::Cmp(a, ..), Node::Cmp(b, ..)) => a == b,
+            (Node::SetBin(a, ..), Node::SetBin(b, ..)) => a == b,
+            (Node::InLazy { neg: a, .. }, Node::InLazy { neg: b, .. }) => a == b,
+            // All scalar parameters of these opcodes are value operands.
+            (
+                Node::Not(_)
+                | Node::And(_)
+                | Node::Or(_)
+                | Node::If(..)
+                | Node::Eq(..)
+                | Node::Neq(..)
+                | Node::In(..)
+                | Node::NotIn(..)
+                | Node::Apply(..)
+                | Node::SetEnum(_)
+                | Node::Tuple(_)
+                | Node::Range(..),
+                _,
+            ) => true,
+            _ => false,
+        };
+        if !equivalent {
+            return false;
+        }
+        let mut a = Vec::new();
+        let mut b = Vec::new();
+        super::push_operands(left, &mut a);
+        super::push_operands(right, &mut b);
+        a.len() == b.len()
+            && a.into_iter()
+                .zip(b)
+                .all(|(a, b)| self.same_source_value(a, b, depth + 1, work))
+    }
+
     fn closed_assignments(
         &self,
         g: G,
@@ -409,6 +470,8 @@ impl Compiler<'_> {
                         let generator = self.source_guard_update(item, depth + 1, work);
                         if let Some(generator_update) = generator {
                             proof.guard_update |= update | generator_update;
+                            proof.different_boolean_guard |= !matches!(self.code.gnodes.get(item as usize),
+                            Some(GNode::Guard(source)) if self.same_source_value(*source, predicate, 0, &mut 512));
                             continue;
                         }
                     }
