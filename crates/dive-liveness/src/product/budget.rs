@@ -137,15 +137,11 @@ fn promise_columns(
     for p in 0..tableau.promise_count {
         let mut words = requests.reserve(layout.state_words)?;
         initialize(&mut words, layout.state_words, 0)?;
-        for (v, &old) in input.order.iter().enumerate() {
+        for (v, (_, node)) in input.iter().enumerate() {
             if v.is_multiple_of(1024) {
                 super::csr::poll()?;
             }
-            set_bit(
-                &mut words,
-                v,
-                tableau.nodes[input.pairs[old].1].fulfilled[p],
-            );
+            set_bit(&mut words, v, tableau.nodes[node].fulfilled[p]);
         }
         states.push(words);
     }
@@ -158,7 +154,7 @@ pub(super) fn materialize(
     bytes: usize,
     work: usize,
 ) -> Result<CompactAcceptance, ProductError> {
-    let vertices = input.order.len();
+    let vertices = input.pairs.len();
     let layout = Layout::new(vertices, tableau.promise_count)
         .ok()
         .filter(|layout| layout.bytes <= bytes)

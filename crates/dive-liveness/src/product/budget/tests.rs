@@ -479,7 +479,7 @@ fn actual_budget_stops_acceptance_materialization_without_a_count_ceiling() {
     let order = [0];
     let input = Ordered {
         pairs: &pairs,
-        order: &order,
+        order: Some(&order),
     };
     let t = tableau(1);
     let run = || materialize(&input, &t, usize::MAX, usize::MAX);

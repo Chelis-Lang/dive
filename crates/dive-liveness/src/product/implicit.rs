@@ -49,6 +49,41 @@ impl Seen {
         Ok(Self::Sparse(HashSet::new()))
     }
 
+    /// The dense index already names pairs in Cartesian order. Walk its set
+    /// bits directly. Sparse discovery retains the ordinary cancellable sort.
+    fn order(self, pairs: &mut [(usize, usize)]) -> Result<Option<Vec<usize>>, ProductError> {
+        let Self::Dense { words, width } = self else {
+            drop(self);
+            return pair_order::cartesian(pairs).map(|(order, _)| Some(order));
+        };
+        if width == 0 || words.len() > pairs.len().saturating_mul(8).saturating_add(1024) {
+            drop(words);
+            return pair_order::cartesian(pairs).map(|(order, _)| Some(order));
+        }
+        let mut written = 0usize;
+        for (block, mut bits) in words.into_iter().enumerate() {
+            if block.is_multiple_of(1024) {
+                csr::poll()?;
+            }
+            while bits != 0 {
+                if written.is_multiple_of(1024) {
+                    csr::poll()?;
+                }
+                let position = block * 64 + bits.trailing_zeros() as usize;
+                let pair = pairs
+                    .get_mut(written)
+                    .ok_or_else(|| ProductError::Shape("extra discovered pair bit".into()))?;
+                *pair = (position / width, position % width);
+                written += 1;
+                bits &= bits - 1;
+            }
+        }
+        if written != pairs.len() {
+            return Err(ProductError::Shape("missing discovered pair bit".into()));
+        }
+        Ok(None)
+    }
+
     /// Records the pair and reports whether it was new.
     fn insert(&mut self, v: usize, n: usize, pairs: usize) -> Result<bool, ProductError> {
         match self {
@@ -257,18 +292,16 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
             limits,
             policy,
             seen,
-            pairs,
+            mut pairs,
             edge_count,
             ..
         } = discovery;
-        drop(seen);
         // Discovery order never chooses the witness: ids follow the
         // Cartesian `(behavior vertex, tableau node)` order.
-        let (ordered, scratch) = pair_order::cartesian(&pairs)?;
-        drop(scratch);
+        let ordered = seen.order(&mut pairs)?;
         let input = Ordered {
             pairs: &pairs,
-            order: &ordered,
+            order: ordered.as_deref(),
         };
         let acceptance = match policy {
             AcceptancePolicy::Cells => CompactAcceptance::new(&input, tableau),
@@ -276,13 +309,12 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
                 budget::materialize(&input, tableau, bytes, work)?
             }
         };
-        let mut states = csr::reserve(ordered.len())?;
-        let mut nodes = csr::reserve(ordered.len())?;
-        for (position, &old) in ordered.iter().enumerate() {
+        let mut states = csr::reserve(pairs.len())?;
+        let mut nodes = csr::reserve(pairs.len())?;
+        for (position, (v, n)) in input.iter().enumerate() {
             if position.is_multiple_of(1024) {
                 csr::poll()?;
             }
-            let (v, n) = pairs[old];
             states.push(v);
             nodes.push(n);
         }

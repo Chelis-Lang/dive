@@ -572,9 +572,11 @@ required event. Property attribution and independent replay use the original
 states and edges, including the closing edge.
 
 Up to 63 distinct Boolean conditions share one truth word per original edge.
-The index, component filters and cached product rows share up to one sixty-fourth
-of the requested memory limit, capped at 128 MiB. With no memory limit the
-cap is also 128 MiB. Core allocates only what the current graph needs. When these buffers do not fit, Core can check
+The index, component filters and cached product rows share up to 1/16 of the
+requested memory limit, capped at 512 MiB. Exact labels retained across
+periodic checks have their own allowance of 1/64, capped at 128 MiB. Without
+an explicit memory limit, both caps still apply. Core allocates buffers as the
+graph grows. When these buffers do not fit, Core can check
 candidate cycles individually and split a failed fairness pair into its two
 alternatives. A nested disjunction can still reach the formula work limit.
 
@@ -585,6 +587,48 @@ allowance. Manyan took 39.13 s. On six floors Core found its word after
 the 3,065,338-state graph in 162.48 s at 3,600 MiB. Both words replayed
 independently, and both failed replay after changing their closing edges.
 [Measurements, inputs and memory-limit controls](../../conformance/reports/perf/2026-11-22-streett-workspace.json)
+
+A dense product index records reachability as a bit for each pair of a
+behavior state and a tableau node. Reading its set bits in order gives the
+same vertex identifiers used to construct the witness. Sparse indices and
+widely separated bits still use an interruptible sort. On the three-floor
+proof this reduced median product time from 292 to 259 ms. On six floors
+the two samples per build took 25.6–26.1 s of product time before the change
+and 23.5–24.0 s after it.
+[Product sizes, memory boundaries and original-edge controls](../../conformance/reports/perf/2026-11-22-elevator-seven.json)
+
+At seven floors the default one-worker check found a 249-state counterexample
+in 226.29 s at 1.49 GiB on the benchmark host. It reached 3,437,051 distinct
+states and generated 25,765,017 at depth 21. Manyan stopped at 240 s and in a
+separate trial at 480 s. Independent replay accepted the word and rejected
+the changed closing edge. An eight-floor development run reached 7,109,953
+distinct states in 360 s and stopped without a verdict.
+
+### Recheck an Elevator counterexample after increasing the floor count
+
+A car stops at the boundary, so an unchanged seven-floor trace fails on
+eight floors. The source-checkout helper maps the original floor values and
+inserts one concrete move for each added floor a car crosses. Dispatch and
+fairness on the new configuration still need independent validation.
+For example, save a four-floor report with JSON output and set FloorCount
+to 121 in a copy of the same CFG. Keep both original invariants, temporal
+assumptions and `TemporalInvariant`.
+
+```sh
+jq '.counterexample.trace' four-report.json > four-word.json
+python3 scripts/perf/scale/elevator-lift-word.py four-word.json 1,41,81,121 candidate.json
+dive validate-trace Elevator.tla --config floor121.cfg --trace candidate.json --output json
+```
+
+The 102-state four-floor donor produced an 882-state word. A fresh validator
+accepted it on 121 floors in 2.52 s and rejected a damaged closing edge in
+0.20 s. A fresh four-floor check on merged Core produced the same donor;
+constructing the 121-floor word took 26 ms and independent replay took
+2.57 s. These timings exclude the initial four-floor search. Two people each have an initial location and destination, and two
+cars each have an initial floor, giving this configuration 121⁶ =
+3,138,428,376,721 initial assignments. Replay verifies one concrete
+counterexample. At 151 floors this donor reached the validator’s work limit.
+[All floor maps, word hashes and independent controls](../../conformance/reports/perf/2026-11-22-elevator-seven.json)
 
 A default Core file check can also use component search when ordinary formula
 decomposition succeeds. If one temporal core has at least eight alternatives

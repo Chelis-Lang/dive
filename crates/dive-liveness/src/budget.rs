@@ -60,10 +60,15 @@ pub(crate) fn optional_buffer_limit() -> usize {
     memory_share(256, 16 * 1024 * 1024)
 }
 
+/// Total retained original truth across completed periodic prefixes.
+pub(crate) fn prefix_buffer_limit() -> usize {
+    memory_share(64, 128 * 1024 * 1024)
+}
+
 /// Shared allowance for the component solver's original-edge truth words,
 /// vertex filters, membership array and optional cached product rows.
 pub(crate) fn streett_buffer_limit() -> usize {
-    memory_share(64, 128 * 1024 * 1024)
+    memory_share(16, 512 * 1024 * 1024)
 }
 
 #[cfg(test)]
@@ -92,21 +97,27 @@ mod reuse_limit_tests {
     #[test]
     fn component_workspace_scales_with_memory_and_restores_scope() {
         const MIB: usize = 1024 * 1024;
-        let original = super::streett_buffer_limit();
-        for (memory, expected) in [
-            (None, 128 * MIB),
-            (Some(0), 0),
-            (Some(63), 0),
-            (Some(64), 1),
-            (Some(1024 * 1024 * 1024), 16 * MIB),
-            (Some(8 * 1024 * 1024 * 1024), 128 * MIB),
-            (Some(u64::MAX), 128 * MIB),
+        let original = (super::streett_buffer_limit(), super::prefix_buffer_limit());
+        for (memory, component, prefix) in [
+            (None, 512 * MIB, 128 * MIB),
+            (Some(0), 0, 0),
+            (Some(15), 0, 0),
+            (Some(16), 1, 0),
+            (Some(63), 3, 0),
+            (Some(64), 4, 1),
+            (Some(1024 * 1024 * 1024), 64 * MIB, 16 * MIB),
+            (Some(8 * 1024 * 1024 * 1024), 512 * MIB, 128 * MIB),
+            (Some(u64::MAX), 512 * MIB, 128 * MIB),
         ] {
             let budget = dive_runtime::budget::Budget::new(None, memory);
             let _scope = super::enter(&budget);
-            assert_eq!(super::streett_buffer_limit(), expected);
+            assert_eq!(super::streett_buffer_limit(), component);
+            assert_eq!(super::prefix_buffer_limit(), prefix);
         }
-        assert_eq!(super::streett_buffer_limit(), original);
+        assert_eq!(
+            (super::streett_buffer_limit(), super::prefix_buffer_limit()),
+            original
+        );
     }
 
     #[test]
