@@ -1,0 +1,1006 @@
+{
+  "question": "Independent verification of supplied concrete periodic behaviors under quantified fairness and response properties.",
+  "machine": "Dedicated AWS c7i.4xlarge, Linux x86_64, Intel Sapphire Rapids. One validate-trace process per row, wall seconds and peak process RSS from /usr/bin/time. Individual observations, no timing assertions. Word preparation measured separately.",
+  "source": {
+    "examples": "tlaplus/Examples 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f specifications/MultiCarElevator. Original two cars, two people, both invariants, TemporalInvariant and fairness. Only FloorCount varies.",
+    "baseline_main": "61ede21aacefadba193f6f674221aeaf01d833a0",
+    "stock_binary_sha256": "9c691f6d2ac56cd0618afa7afd2749f8aaf99445de925010428e24e344f1132c",
+    "timed_binary_sha256": "c8f18d102f85ecc8eb80c67f5d0571615e41958ee3b440c6c12c0862e0c13329",
+    "instrumented_binary_sha256": "1c260aabecf2978b73bd604984f1b36ed259aec95d0b10476b738a51af4b9129",
+    "donor_sha256": "218c526dde86e962c8fabb4711cbb1c660d95d8edf035ef3f28243019874f314",
+    "donor_cfg_sha256": "707f56c9952ed53cee5dda44b20ed51224f0035039c73cd96a51ea02d34c0c49"
+  },
+  "reproduce": [
+    "Use the four-floor CFG from 2026-11-22-packed-word-replay.json. Run dive check Elevator.tla --config four-floor.cfg --workers 1 --seed 0 --fp 0 --max-memory 8g --time-limit 100s --output json. Save .counterexample.trace as JSON.",
+    "Use scripts/perf/scale/elevator-lift-word.py on the original donor with the four increasing floors [1+i*(n-1)//3 for i in range(4)]. Set FloorCount=n in the donor CFG. Reported word hash is Python SHA-256(json.dumps(word,sort_keys=True).encode()).",
+    "Run /usr/bin/time -f \"%e %M\" dive validate-trace Elevator.tla --config target.cfg --trace word.json --output json. For damage set only ending.back_to=0.",
+    "For changed fairness add Drop(c) == /\\ c \\in ActiveElevatorCalls /\\ ActiveElevatorCalls' = {} /\\ UNCHANGED <<PersonState, ElevatorState>> before DispatchElevator(c) and replace only SF_Vars(DispatchElevator(c)) by SF_Vars(Drop(c)). Original Init, Next, property, CFG and supplied word are preserved."
+  ],
+  "bounds": {
+    "work_per_formula": 1000000,
+    "word_positions": 1000000,
+    "index_max_positions_examined": 65536,
+    "index_max_memberships": 65536,
+    "index_max_distinct_keys": 4096,
+    "key_shapes": "Bool, i64, string or a flat record with <=16 of those fields; model names and ordering checked. Explicit normalized sets only.",
+    "batch_admission": "At least four distinct same-shape keys in a directly quantified fairness or leads-to body. Setup, postings and charged truth blocks must fit the ordinary position work for the batch, reserving a dense first binding. Dense individual keys retain ordinary evaluation."
+  },
+  "stock_rows": [
+    {
+      "n": 181,
+      "case": "genuine",
+      "positions": 1282,
+      "word_sha256": "b440c01415082585ef0a586e4e3561ed916e2cc414e1bea9e854cb85355233dc",
+      "source_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "009feb4a01d642a0f49c11dfd96e24affb29a54c7eca8ac4a043617d605e7534",
+      "build_ms": 33.086,
+      "wall_s": 5.58,
+      "rss_kib": 122132,
+      "result": "valid"
+    },
+    {
+      "n": 241,
+      "case": "genuine",
+      "positions": 1682,
+      "word_sha256": "aab1d75ae7f54046b0c524742e6924a2a44ea8b65ea71fc4869ca7593324abfd",
+      "source_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "3c62ec41f3eb0547ce977eb2031c79b023b17190a21b5deec876acda37ac8b4c",
+      "build_ms": 53.244,
+      "wall_s": 5.44,
+      "rss_kib": 170880,
+      "result": "unsupported",
+      "detail": "temporal validation resource bound: 1000111 work units exceed 1000000 on 1682 positions"
+    },
+    {
+      "n": 251,
+      "case": "genuine",
+      "positions": 1748,
+      "word_sha256": "569e2028af9efe3275366ff1ac89a1d7668ddb29199af65386417b5a23677a9d",
+      "source_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "ab6c75502a69e9c186e5ed80bc57dbb31a897549f89caa3d3355d86efe31c281",
+      "build_ms": 43.155,
+      "wall_s": 5.62,
+      "rss_kib": 179556,
+      "result": "unsupported",
+      "detail": "temporal validation resource bound: 1000595 work units exceed 1000000 on 1748 positions"
+    }
+  ],
+  "candidate_rows": [
+    {
+      "n": 181,
+      "case": "genuine",
+      "positions": 1282,
+      "word_sha256": "b440c01415082585ef0a586e4e3561ed916e2cc414e1bea9e854cb85355233dc",
+      "source_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "009feb4a01d642a0f49c11dfd96e24affb29a54c7eca8ac4a043617d605e7534",
+      "build_ms": 33.424,
+      "wall_s": 1.87,
+      "rss_kib": 122140,
+      "result": "valid"
+    },
+    {
+      "n": 181,
+      "case": "damaged",
+      "positions": 1282,
+      "word_sha256": "ca6babbc107fec6df2a3171b294e8ad86b1a1ef03038bdaf43a95c2719b6c1e4",
+      "source_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "009feb4a01d642a0f49c11dfd96e24affb29a54c7eca8ac4a043617d605e7534",
+      "build_ms": 33.424,
+      "wall_s": 0.36,
+      "rss_kib": 122160,
+      "result": "invalid",
+      "detail": {
+        "check": "next",
+        "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+        "state": 1281
+      }
+    },
+    {
+      "n": 181,
+      "case": "changed-fairness",
+      "positions": 1282,
+      "word_sha256": "b440c01415082585ef0a586e4e3561ed916e2cc414e1bea9e854cb85355233dc",
+      "source_sha256": "0e270385be12b331821005c36e18bbbf42b42deff1d61322b3876c6c5c1beffe",
+      "cfg_sha256": "009feb4a01d642a0f49c11dfd96e24affb29a54c7eca8ac4a043617d605e7534",
+      "build_ms": 33.424,
+      "wall_s": 0.45,
+      "rss_kib": 122112,
+      "result": "invalid",
+      "detail": {
+        "check": "fairness",
+        "detail": "behavior temporal conjunct line 230, col 8 to line 230, col 47 of module Elevator is false on this word",
+        "state": 0
+      }
+    },
+    {
+      "n": 241,
+      "case": "genuine",
+      "positions": 1682,
+      "word_sha256": "aab1d75ae7f54046b0c524742e6924a2a44ea8b65ea71fc4869ca7593324abfd",
+      "source_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "3c62ec41f3eb0547ce977eb2031c79b023b17190a21b5deec876acda37ac8b4c",
+      "build_ms": 53.761,
+      "wall_s": 3.31,
+      "rss_kib": 173288,
+      "result": "valid"
+    },
+    {
+      "n": 241,
+      "case": "damaged",
+      "positions": 1682,
+      "word_sha256": "e7073cbb9c81ac4886b703e5ce0ec89f804f8f01f0ece173731db98fb5b10a82",
+      "source_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "3c62ec41f3eb0547ce977eb2031c79b023b17190a21b5deec876acda37ac8b4c",
+      "build_ms": 53.761,
+      "wall_s": 0.59,
+      "rss_kib": 172720,
+      "result": "invalid",
+      "detail": {
+        "check": "next",
+        "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+        "state": 1681
+      }
+    },
+    {
+      "n": 241,
+      "case": "changed-fairness",
+      "positions": 1682,
+      "word_sha256": "aab1d75ae7f54046b0c524742e6924a2a44ea8b65ea71fc4869ca7593324abfd",
+      "source_sha256": "0e270385be12b331821005c36e18bbbf42b42deff1d61322b3876c6c5c1beffe",
+      "cfg_sha256": "3c62ec41f3eb0547ce977eb2031c79b023b17190a21b5deec876acda37ac8b4c",
+      "build_ms": 53.761,
+      "wall_s": 0.73,
+      "rss_kib": 173316,
+      "result": "invalid",
+      "detail": {
+        "check": "fairness",
+        "detail": "behavior temporal conjunct line 230, col 8 to line 230, col 47 of module Elevator is false on this word",
+        "state": 0
+      }
+    },
+    {
+      "n": 251,
+      "case": "genuine",
+      "positions": 1748,
+      "word_sha256": "569e2028af9efe3275366ff1ac89a1d7668ddb29199af65386417b5a23677a9d",
+      "source_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "ab6c75502a69e9c186e5ed80bc57dbb31a897549f89caa3d3355d86efe31c281",
+      "build_ms": 43.183,
+      "wall_s": 3.46,
+      "rss_kib": 183648,
+      "result": "valid"
+    },
+    {
+      "n": 251,
+      "case": "damaged",
+      "positions": 1748,
+      "word_sha256": "b5b486276f5229c22c60176150295331a5522b4df00064edb6607a642f70b6b5",
+      "source_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "ab6c75502a69e9c186e5ed80bc57dbb31a897549f89caa3d3355d86efe31c281",
+      "build_ms": 43.183,
+      "wall_s": 0.64,
+      "rss_kib": 183524,
+      "result": "invalid",
+      "detail": {
+        "check": "next",
+        "detail": "the closing step does not satisfy the next-state relation line 232, col 11 to line 232, col 14 of module Elevator",
+        "state": 1747
+      }
+    },
+    {
+      "n": 251,
+      "case": "changed-fairness",
+      "positions": 1748,
+      "word_sha256": "569e2028af9efe3275366ff1ac89a1d7668ddb29199af65386417b5a23677a9d",
+      "source_sha256": "0e270385be12b331821005c36e18bbbf42b42deff1d61322b3876c6c5c1beffe",
+      "cfg_sha256": "ab6c75502a69e9c186e5ed80bc57dbb31a897549f89caa3d3355d86efe31c281",
+      "build_ms": 43.183,
+      "wall_s": 0.78,
+      "rss_kib": 183612,
+      "result": "invalid",
+      "detail": {
+        "check": "fairness",
+        "detail": "behavior temporal conjunct line 230, col 8 to line 230, col 47 of module Elevator is false on this word",
+        "state": 0
+      }
+    },
+    {
+      "n": 271,
+      "case": "genuine",
+      "positions": 1882,
+      "word_sha256": "05eb6d9db63d55e0cb4eafd79c733ad07df6052bb4b57ddf0bbc3332b6e3f334",
+      "source_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "d701fcca1b73d743495fe3dfed54bcf483af2a0c15c4d438f8aef3ade513fd90",
+      "build_ms": 58.157,
+      "wall_s": 3.62,
+      "rss_kib": 195948,
+      "result": "unsupported",
+      "detail": "temporal validation resource bound: 1001572 work units exceed 1000000 on 1882 positions"
+    }
+  ],
+  "diagnostic": {
+    "method": "An independent diagnostic release build counts admission and ordinary work at each site; verification semantics match the timed binary on the same original words. These readings were collected on the precursor which charged admitted setup at the beginning of the quantifier and had no 24-hop cap on singleton-wrapper recognition. The study formulas have fewer wrappers. Completed batches incur the same charge on the final implementation. For an unfinished batch, the recorded diagnostic charge is specific to that diagnostic build. All formulas use the original 1M work limit. Counts only describe operations that actually occurred before a stop.",
+    "columns": [
+      "membership atom absent positions handled via index",
+      "membership atom stored positive positions",
+      "sparse fairness occurrence positions skipped",
+      "sparse fairness occurrence positions admitted before the subscript test",
+      "sparse fairness cycle enabledness positions skipped",
+      "sparse fairness cycle enabledness positions evaluated",
+      "ordinary temporal atom positions charged"
+    ],
+    "binding": "Formula IDs are per bound IR. On the original source, 844 is forall c in ElevatorCall: SF_Vars(DispatchElevator(c)); 254 is TemporalInvariant including its quantified existential response. Source mutation can change IDs. An individual dense key or the priming binding may still take the ordinary path.",
+    "reproduction": "Inside evaluate_lasso record formula.expr.index(), states.len() and Word.cells on return. At each successful indexed leaf record n-positions.len() and positions.len(); at sparse_fairness record the same two values at occurrence, then n-back_to-cycle.len() and cycle.len() before fair_enabled. In the ordinary leaf path count n after successful charge. Reset counters for each formula.",
+    "original_word_rows": [
+      {
+        "floors": 181,
+        "case": "genuine",
+        "positions": 1282,
+        "result": "valid",
+        "formulas": [
+          {
+            "bound_expr": 802,
+            "charged": 3910,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 808,
+            "charged": 2630,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 814,
+            "charged": 2630,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 820,
+            "charged": 2630,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 826,
+            "charged": 2630,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 832,
+            "charged": 2630,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 838,
+            "charged": 2630,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 844,
+            "charged": 23627,
+            "counts": [
+              0,
+              0,
+              461504,
+              16,
+              454400,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 254,
+            "charged": 528460,
+            "counts": [
+              462786,
+              16,
+              0,
+              0,
+              0,
+              0,
+              470494
+            ]
+          }
+        ]
+      },
+      {
+        "floors": 241,
+        "case": "genuine",
+        "positions": 1682,
+        "result": "valid",
+        "formulas": [
+          {
+            "bound_expr": 802,
+            "charged": 5128,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 808,
+            "charged": 3448,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 814,
+            "charged": 3448,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 820,
+            "charged": 3448,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 826,
+            "charged": 3448,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 832,
+            "charged": 3448,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 838,
+            "charged": 3448,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 844,
+            "charged": 37085,
+            "counts": [
+              0,
+              0,
+              807344,
+              16,
+              798000,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 254,
+            "charged": 916480,
+            "counts": [
+              809026,
+              16,
+              0,
+              0,
+              0,
+              0,
+              819134
+            ]
+          }
+        ]
+      },
+      {
+        "floors": 251,
+        "case": "genuine",
+        "positions": 1748,
+        "result": "valid",
+        "formulas": [
+          {
+            "bound_expr": 802,
+            "charged": 5329,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 808,
+            "charged": 3583,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 814,
+            "charged": 3583,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 820,
+            "charged": 3583,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 826,
+            "charged": 3583,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 832,
+            "charged": 3583,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 838,
+            "charged": 3583,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 844,
+            "charged": 39604,
+            "counts": [
+              0,
+              0,
+              873984,
+              16,
+              864270,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 254,
+            "charged": 991124,
+            "counts": [
+              875732,
+              16,
+              0,
+              0,
+              0,
+              0,
+              886236
+            ]
+          }
+        ]
+      },
+      {
+        "floors": 271,
+        "case": "genuine",
+        "positions": 1882,
+        "result": "unsupported",
+        "formulas": [
+          {
+            "bound_expr": 802,
+            "charged": 5737,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 808,
+            "charged": 3857,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 814,
+            "charged": 3857,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 820,
+            "charged": 3857,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 826,
+            "charged": 3857,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 832,
+            "charged": 3857,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 838,
+            "charged": 3857,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 844,
+            "charged": 44894,
+            "counts": [
+              0,
+              0,
+              1016264,
+              16,
+              1005800,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 254,
+            "charged": 1001701,
+            "counts": [
+              892052,
+              16,
+              0,
+              0,
+              0,
+              0,
+              893950
+            ]
+          }
+        ]
+      },
+      {
+        "floors": 501,
+        "case": "genuine",
+        "positions": 3415,
+        "result": "unsupported",
+        "formulas": [
+          {
+            "bound_expr": 802,
+            "charged": 10408,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 808,
+            "charged": 6995,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 814,
+            "charged": 6995,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 820,
+            "charged": 6995,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 826,
+            "charged": 6995,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 832,
+            "charged": 6995,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 838,
+            "charged": 6995,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 844,
+            "charged": 130684,
+            "counts": [
+              0,
+              0,
+              3414984,
+              16,
+              3395935,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 254,
+            "charged": 1002503,
+            "counts": [
+              894728,
+              2,
+              0,
+              0,
+              0,
+              0,
+              891315
+            ]
+          }
+        ]
+      },
+      {
+        "floors": 1000,
+        "case": "genuine",
+        "positions": 6742,
+        "result": "unsupported",
+        "formulas": [
+          {
+            "bound_expr": 802,
+            "charged": 20545,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 808,
+            "charged": 13805,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 814,
+            "charged": 13805,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 820,
+            "charged": 13805,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 826,
+            "charged": 13805,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 832,
+            "charged": 13805,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 838,
+            "charged": 13805,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "bound_expr": 844,
+            "charged": 1,
+            "counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "growth_controls": [
+    {
+      "n": 501,
+      "case": "genuine",
+      "positions": 3415,
+      "word_sha256": "e26c0be0e02bf5feb0638c530b312575d4ab417a08ce648d08f8b3504857c6e3",
+      "source_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "144b3820a9af3676400ef57cbe14770ef0b754cc4e577b6454a92c12de665f4f",
+      "build_ms": 95.301,
+      "wall_s": 5.98,
+      "rss_kib": 474820,
+      "result": "unsupported",
+      "detail": "temporal validation resource bound: 1002503 work units exceed 1000000 on 3415 positions"
+    },
+    {
+      "n": 1000,
+      "case": "genuine",
+      "positions": 6742,
+      "word_sha256": "f4a94329b02ec1b715416a9643ab6f8771061e9b42dd9df7adc7c444ba0e5363",
+      "source_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "a848c2c1b9deaf4b374f07e0f273dd6795bcbe81bea0530833517da2307e5012",
+      "build_ms": 229.6,
+      "wall_s": 12.81,
+      "rss_kib": 1502412,
+      "result": "unsupported",
+      "detail": "temporal quantifier bindings: resource limit: quantifier domain materialization work"
+    }
+  ],
+  "conclusions": [
+    "At 501 floors dispatch fairness completes despite millions of absent (binding,position) pairs. The ordinary existential response in TemporalInvariant remains the next dense computation. At 1,000 floors the quantified-domain materialization limit is encountered before dispatch. Neither larger row yields a word validation verdict. See #1388.",
+    "A separate dense 16,000-position word with one binding and 55 additional eventualities retains its valid result within the ordinary work budget. Controlled tests cover cancellation; differential small words cover every loop target, WF/SF, overlapping and inactive bindings, strict-scope errors and typed fallbacks."
+  ]
+}

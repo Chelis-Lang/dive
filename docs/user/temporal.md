@@ -891,22 +891,34 @@ accounting is incomplete, and sampled process memory is not a true peak.
 
 ### Work limits for independent lasso replay
 
-On the original Elevator configuration, standalone replay accepts the 1,082-position word at 151 floors, the
-1,282-position word at 181 floors, and a different 1,712-position word at 121
-floors. The validator evaluates state and action predicates at the original
-positions and combines their results in 64-position blocks. A repeated
-subscript over the same root variables can reuse equality results from the
-same concrete word, including its closing edge. Quantified bindings and
-source expressions that can affect the result keep their scoped evaluation.
+On the original Elevator configuration, standalone replay accepts a
+1,748-position word at 251 floors and rejects a changed closing edge. The
+source, both invariants, fairness and the temporal property are active. The
+four-floor donor supplies the word. [Construction and replay](../../conformance/reports/perf/2026-11-22-sparse-word-membership.json)
 
-Each temporal formula has a one-million-unit limit. A scoped expression visit,
-a concrete position evaluated for a predicate, and one block of a Boolean
-operation each use a unit. The separate one-million-position limit bounds the
-size of a column, and the validator retains at most one extra equality column
-(125,000 bytes of bits). Parsing and storing the supplied states takes
-additional memory. A 241-floor control exceeded the formula limit. A work-limit
-refusal reports the positions, required charge and limit.
-[Word sizes, memory, timings and controls](../../conformance/reports/perf/2026-11-22-packed-word-replay.json)
+For a quantified action whose first guard tests a bound value for membership
+in a root state variable, the validator can index the positions containing
+each value. It builds the index when a finite quantifier demands enough
+distinct bindings to cover setup and membership work. Dense or solitary
+queries keep ordinary evaluation. Fairness uses a completed subscript-equality
+column for the same word, including its closing edge. An absent member makes the guarded action
+impossible at that position for both occurrence and enabledness. Each
+remaining position is evaluated in source order. A direct membership test
+in a state predicate can use the same index. Admission requires explicit
+normalized sets and compatible Boolean, integer or string keys, or flat
+records of these scalars. Other values and source shapes use the ordinary
+scoped evaluator.
+
+Each temporal formula has a one-million-unit limit. The validator charges
+source-expression visits, concrete predicate positions and 64-position
+Boolean blocks. An admitted index also charges one unit per input position
+and stored membership, plus one per participating binding. It charges that
+setup when the quantifier finishes evaluating its bindings. The validator
+retains at most one index per formula, with at most 65,536 memberships and 4,096 distinct keys. The separate
+one-million-position word limit bounds the size of a truth column. The
+retained subscript-equality column uses at most 125,000 bytes. Source
+binding and storage of the supplied word add to process memory. A work-limit
+refusal includes its charge and position count. [Earlier dense controls](../../conformance/reports/perf/2026-11-22-packed-word-replay.json)
 
 ## Metrics
 
