@@ -1825,6 +1825,93 @@ P == <>(gate=1)
     }
 
     #[test]
+    fn periodic_column_requires_its_capture_even_when_the_store_and_shape_match() {
+        use dive_runtime::capture::CsrCapture;
+
+        let source = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLE x
+Init == x=0
+Next == x'=1-x
+Spec == Init /\ [][Next]_x
+P == <>(x=1)
+====";
+        with_wrappers(source, false, |prepared, driver, atoms, control| {
+            let options = dive_runtime::CheckOptions::dive(0);
+            let (graph, mut values) = capture(prepared, &options);
+            let atom = driver
+                .native_predicates()
+                .find(|atom| matches!(atom.test, AtomTest::Predicate))
+                .expect("state predicate");
+            let csr = CsrCapture::checked_targets(graph.input(), graph.limits(), control)
+                .expect("capture");
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            reader.live_prefix(true);
+            assert_eq!(
+                reader.predicate(atom, 0, None, control).expect("zero"),
+                Some(false)
+            );
+            assert_eq!(
+                reader.predicate(atom, 1, None, control).expect("one"),
+                Some(true)
+            );
+            reader
+                .save_label_prefix(atom, &csr, &mut [0b10].into_iter(), 8, control)
+                .expect("save");
+            drop(reader);
+
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            reader.live_prefix(false);
+            let prefix = reader
+                .label_prefix(atom, &csr, control)
+                .expect("same graph")
+                .expect("saved truths");
+            assert_eq!(
+                (prefix.sources, prefix.cells, prefix.words),
+                (2, 2, &[0b10][..])
+            );
+            reader.atoms.fuel = NATIVE_FUEL - 1;
+            assert!(
+                reader
+                    .label_prefix(atom, &csr, control)
+                    .expect("limited fuel")
+                    .is_none()
+            );
+            reader.atoms.fuel = NATIVE_FUEL;
+            reader.atoms.audit = true;
+            assert!(
+                reader
+                    .label_prefix(atom, &csr, control)
+                    .expect("audit")
+                    .is_none()
+            );
+            reader.atoms.audit = false;
+            let (replacement, mut other_values) = capture(prepared, &options);
+            let other =
+                CsrCapture::checked_targets(replacement.input(), replacement.limits(), control)
+                    .expect("second capture");
+            assert_eq!(csr.offsets(), other.offsets());
+            assert!(
+                reader
+                    .label_prefix(atom, &other, control)
+                    .expect("foreign CSR")
+                    .is_none()
+            );
+            drop(reader);
+
+            let mut reader = Reader::new(&replacement, &mut other_values, atoms);
+            reader.live_prefix(true);
+            assert!(
+                reader
+                    .label_prefix(atom, &other, control)
+                    .expect("new owner")
+                    .is_none()
+            );
+            assert_eq!(reader.atoms.prefix_bytes, 0);
+        });
+    }
+
+    #[test]
     fn reader_proof_hits_preserve_semantic_fallback_and_owned_stops() {
         let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nSpec == Init /\\ [][Next]_x\nP == <> (x \\div 0=0)\n====\n";
         for tlc in [false, true] {
