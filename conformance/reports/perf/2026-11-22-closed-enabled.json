@@ -861,5 +861,170 @@
       "warnings": [],
       "stderr": ""
     }
+  },
+  "with_batched_actions": {
+    "composition": "Batched fairness action evaluation (#1346) plus closed-row enabledness. On the same host as the standalone comparison. Three fresh Core processes for each size. The extra default and 100000 prefix runs verify counts, obligations and independently replay words.",
+    "core": {
+      "Medium": {
+        "wall_seconds": [
+          0.15,
+          0.15,
+          0.15
+        ],
+        "peak_rss_kib": [
+          33072,
+          33008,
+          32628
+        ]
+      },
+      "Large": {
+        "wall_seconds": [
+          1.79,
+          1.8,
+          1.79
+        ],
+        "peak_rss_kib": [
+          75912,
+          76012,
+          76012
+        ]
+      },
+      "Four": {
+        "wall_seconds": [
+          6.63,
+          6.73,
+          6.6
+        ],
+        "peak_rss_kib": [
+          176024,
+          176004,
+          176004
+        ]
+      }
+    },
+    "acceptance": [
+      {
+        "name": "Medium",
+        "verdict": "success",
+        "property": null,
+        "counts": [
+          4122,
+          14296,
+          36
+        ],
+        "time_s_rss_kib": [
+          "0.15",
+          "32932"
+        ],
+        "direct": 0,
+        "receipts": {
+          "absent": 63740,
+          "peak_mask_bytes": 32976,
+          "plans": 18,
+          "present": 10456
+        }
+      },
+      {
+        "name": "Large",
+        "verdict": "success",
+        "property": null,
+        "counts": [
+          50653,
+          230899,
+          39
+        ],
+        "time_s_rss_kib": [
+          "1.79",
+          "76084"
+        ],
+        "direct": 0,
+        "receipts": {
+          "absent": 876262,
+          "peak_mask_bytes": 405224,
+          "plans": 20,
+          "present": 136798
+        }
+      },
+      {
+        "name": "Four",
+        "verdict": "liveness-violation",
+        "property": "TemporalInvariant",
+        "counts": [
+          150372,
+          717693,
+          20
+        ],
+        "time_s_rss_kib": [
+          "6.61",
+          "176072"
+        ],
+        "direct": 256299,
+        "receipts": {
+          "absent": 2428448,
+          "peak_mask_bytes": 1105632,
+          "plans": 22,
+          "present": 325204
+        },
+        "validations": [
+          {
+            "label": "recorded",
+            "status": "valid",
+            "length": 102,
+            "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc"
+          },
+          {
+            "label": "damaged",
+            "status": "invalid",
+            "length": 102,
+            "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca"
+          }
+        ]
+      },
+      {
+        "name": "Four-100000",
+        "verdict": "liveness-violation",
+        "property": "TemporalInvariant",
+        "counts": [
+          104122,
+          505657,
+          15
+        ],
+        "time_s_rss_kib": [
+          "4.11",
+          "184384"
+        ],
+        "direct": 75309,
+        "receipts": {
+          "absent": 1842439,
+          "peak_mask_bytes": 760576,
+          "plans": 22,
+          "present": 249145
+        },
+        "validations": [
+          {
+            "label": "recorded",
+            "status": "valid",
+            "length": 102,
+            "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc"
+          },
+          {
+            "label": "damaged",
+            "status": "invalid",
+            "length": 102,
+            "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca"
+          }
+        ]
+      },
+      {
+        "word": "peer-recorded",
+        "length": 202,
+        "status": "valid"
+      },
+      {
+        "word": "peer-damaged",
+        "length": 202,
+        "status": "invalid"
+      }
+    ]
   }
 }
