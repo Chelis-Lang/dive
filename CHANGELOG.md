@@ -5,6 +5,7 @@ are in git history.
 
 ## Unreleased
 
+- The source-checkout [named induction checker](docs/user/symbolic.md#check-a-named-inductive-predicate) verifies a compact safety predicate through original TLA+ actions, including MongoLoglessDynamicRaft membership changes.
 - [Repair a saved temporal counterexample](docs/user/temporal.md#repair-a-saved-counterexample-after-an-edit) by searching short paths through the edited source and independently validating the complete replacement.
 
 - Core lowers disjoint updates to a shared [actor record](docs/developer/core/06-memoization.md#26-disjoint-updates-to-one-actor-row). The original Flint growth edit fell from 57.99 s to 48.89 s with all ten configured properties checked. [Performance record](conformance/reports/perf/2026-11-22-actor-table-rows.json).
