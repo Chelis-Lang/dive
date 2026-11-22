@@ -29,6 +29,7 @@ struct Compiled {
     batch: Option<dive_core::compile::ActionBatch>,
     column: Option<prefix::Column>,
     emission: Option<(usize, dive_core::compile::ClosedEnabled)>,
+    producer: Option<usize>,
     identity: *const PredicateAtom,
     plan: dive_core::plan::Plan,
     false_guard: Option<dive_core::plan::P>,
@@ -130,6 +131,8 @@ pub(crate) struct NativeAtoms {
     prefix_bytes: usize,
     prefix_cells_reused: u64,
     live_emissions: bool,
+    producer_images: [Option<dive_core::compile::ClosedEnabled>; 64],
+    image_hits: u64,
     emission_hits: [u64; 2],
     emission_peak_bytes: usize,
     projected: dive_core::memo::Memo,
@@ -314,6 +317,11 @@ impl NativeAtoms {
                 continue;
             }
             result.compiled.push(Compiled {
+                producer: if false_guard.batch.is_some() {
+                    bound_next::action_index(model, atom.pred.expr, &atom.pred.scope)
+                } else {
+                    None
+                },
                 batch: false_guard.batch,
                 column: None,
                 emission: false_guard.closed_enabled.and_then(|cert| {
@@ -353,6 +361,13 @@ impl NativeAtoms {
                 dive_liveness::formula::AtomKind::Action => result.eligible_action += 1,
             }
         }
+        for compiled in &result.compiled {
+            if let Some((id, cert)) = compiled.emission
+                && let Some(item) = result.producer_images.get_mut(id)
+            {
+                *item = Some(cert);
+            }
+        }
         result.projected = dive_core::memo::Memo::new(&key_lengths);
         result.projected.set_cap(8 << 20);
         control.check().map_err(|cause| {
@@ -376,6 +391,8 @@ impl NativeAtoms {
             prefix_bytes: 0,
             prefix_cells_reused: 0,
             live_emissions: false,
+            producer_images: [None; 64],
+            image_hits: 0,
             emission_hits: [0; 2],
             emission_peak_bytes: 0,
             projected: dive_core::memo::Memo::default(),
@@ -440,7 +457,7 @@ impl NativeAtoms {
 
     pub(crate) fn metrics(&self) -> serde_json::Value {
         serde_json::json!({"total_atoms": self.total, "eligible_atoms": self.eligible,
-            "action_batches":{"plans":self.compiled.iter().filter(|p|p.batch.is_some()).count(),"rows":self.batch_rows},
+            "action_batches":{"plans":self.compiled.iter().filter(|p|p.batch.is_some()).count(),"rows":self.batch_rows, "producer_images": self.image_hits},
             "unchanged_target_guards":{"plans":self.compiled.iter().filter(|p|p.unchanged_guard.is_some()).count(),"probes":self.unchanged_probes,"rows":self.unchanged_rows,"edges":self.unchanged_edges},
             "action_source_guards": {"plans": self.compiled.iter().filter(|p| p.false_guard.is_some()).count(),
                 "probes": self.guard_probes, "false_rows": self.guard_rows},
@@ -1332,6 +1349,21 @@ impl NativeReader for Reader<'_, '_> {
             .representative_row(source)
             .ok_or(AnalysisError::Inconsistent("native action batch source"))?;
         let source_row = retained.row(before)?;
+        let producer = compiled.producer.and_then(|id| {
+            let cert = self.atoms.producer_images.get(id).copied().flatten()?;
+            (self.atoms.live_emissions
+                && self.prefix.is_some()
+                && self
+                    .emission_capture
+                    .as_ref()
+                    .is_some_and(|original| original.same_validation(graph))
+                && source < graph.closed_rows()
+                && compiled.exhausted_in_a_row == 0
+                && ((cert.quiet_suffix && cert.quiet_guards)
+                    || !self.atoms.machine.heap.store().saw_missing_update()))
+            .then_some((id, cert.boolean_guard_prefix))
+        });
+        let mut emission = None;
         let mut rows = [source_row; 16];
         let mut ids = [before; 16];
         for pos in 0..len - 1 {
@@ -1345,19 +1377,27 @@ impl NativeReader for Reader<'_, '_> {
                 return Ok(None);
             }
             rows[pos] = retained.row(original)?;
+            if let Some((id, quiet)) = producer
+                && emission.is_none()
+                && graph.original_action(source, pos) == u32::try_from(id).ok()
+            {
+                emission = Some((rows[pos], quiet));
+            }
             ids[pos] = original;
         }
         check(&self.atoms.control, control)?;
-        let bits = batch.evaluate(
+        let bits = batch.evaluate_image(
             &compiled.plan,
             &mut self.atoms.machine,
             source_row,
             &rows[..len],
             self.atoms.fuel,
+            emission,
         );
         check(&self.atoms.control, control)?;
         if let Some(bits) = bits {
             self.atoms.batch_rows += 1;
+            self.atoms.image_hits += u64::from(emission.is_some());
             if self.atoms.audit {
                 for (pos, &after) in ids[..len].iter().enumerate() {
                     self.audit(atom, before, Some(after), bits & (1 << pos) != 0, control)?;
