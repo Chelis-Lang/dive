@@ -36,8 +36,9 @@ fn assign(
     rhs: u32,
     k: Finish,
 ) -> Result<(), Error> {
-    let value = match c.native_blocks.write(m,c,r,site)? {
-        Some(value) => value, None => m.eval_component(c,rhs)?,
+    let value = match c.native_blocks.write(m, c, r, site)? {
+        Some(value) => value,
+        None => m.eval_component(c, rhs)?,
     };
     let present = m.s1.get(usize::from(v)).copied().unwrap_or(Handle::EMPTY);
     if present.is_empty() {
@@ -111,17 +112,17 @@ fn exists(
     };
     m.charge(slots.len())?;
     let mark = m.save(slots.iter().copied());
-    let out = m
-        .existential_bindings(c, binds, &mut |m| {
-            k(m, c, s, r)?;
-            Ok(true)
-        })
-        .map(|_| ());
+    let visit = |m: &mut Machine| {
+        k(m, c, s, r)?;
+        Ok(true)
+    };
+    let out = if let Some(domain) = c.native_blocks.domain(g as usize) {
+        c.native_blocks.record(crate::native_blocks::Event::Exists);
+        domain.each(m, visit)
+    } else {
+        m.existential_bindings(c, binds, &mut { visit })
+    }
+    .map(|_| ());
     m.restore(mark, slots.iter().copied());
     out
-}
-
-#[inline]
-fn test(m:&mut Machine,c:&Code,r:&mut Register,g:usize,p:u32)->Result<bool,Error>{
-    match c.native_blocks.test(m,r,g){Some(value)=>Ok(value),None=>m.eval_bool(c,p)}
 }

@@ -65,6 +65,71 @@ def lower(plan):
         tests = " && ".join(f"m.eval_bool(c,{p})?" for _, p in pending)
         return function(f"if m.warn && m.assigned==m.s1.len(){{if {tests}{{s.emit(m,c)}}else{{Ok(())}}}}else{{{call(following)}}}")
 
+    def parts(node):
+        raw = ast.literal_eval(re.search(r"\(\s*(\[.*?\])", node).group(1))
+        return [(natural(g), natural(p)) for g, p in raw]
+
+    def alternatives(g):
+        n = nodes[g]
+        if not n.startswith("Disj("):
+            return [g]
+        return [leaf for a in operand_list(n[5:-1]) for leaf in alternatives(a)]
+
+    def leading(g):
+        todo = [(g, 0)]
+        predicates = []
+        while todo:
+            first, _ = todo[0]
+            node = nodes[first]
+            if node.startswith(("Conj(", "LabelArm(")):
+                todo = parts(node) + todo[1:]
+                continue
+            label = re.fullmatch(r"LabelGuard\(\d+, LabelTest \{ table: (\d+), slot: (\d+), field: (Empty|Str#\d+), selector: \d+, label: Str#(\d+) \}\)", node)
+            if not label:
+                break
+            table, slot, field, value = label.groups()
+            if predicates and (table, slot) != predicates[0][:2]:
+                break
+            predicates.append((table, slot, field, natural(int(value))))
+            todo = todo[1:]
+        return predicates, tuple(todo)
+
+    def routed(g, pending):
+        leaves = alternatives(g)
+        if not 3 <= len(leaves) <= 32:
+            return None
+        arms = [leading(arm) for arm in leaves]
+        bases = {test[:2] for tests, _ in arms for test in tests}
+        if len(bases) != 1 or sum(bool(t) for t, _ in arms) < 3:
+            return None
+        table, slot = next(iter(bases))
+        fields = {}
+        for arm, (tests, _) in enumerate(arms):
+            for _, _, field, value in tests:
+                match, restricted = fields.setdefault(field, ({}, set()))
+                if arm in restricted:
+                    return None
+                match[value] = match.get(value, 0) | (1 << arm)
+                restricted.add(arm)
+        if not fields or len(fields)>4:
+            return None
+        code = f"if c.native_blocks.enabled && m.assigned==0 && !m.s1.is_empty() && let Some(row)=r.actor(m,{table},{slot})"
+        masks = []
+        for i,(field,(values,restricted)) in enumerate(fields.items()):
+            arg = "Handle::EMPTY" if field=="Empty" else f"Handle::string({natural(int(field[4:]))})"
+            code += f" && let Some(label{i})=r.field(m,row,{arg}).and_then(Handle::as_str_id)"
+            kept = sum(1 << j for j in range(len(arms)) if j not in restricted)
+            choices = "".join(f"{key}=>{mask|kept}u32," for key,mask in values.items())
+            masks.append(f"(match label{i}{{{choices}_=>{kept}u32}})")
+        code += "{c.native_blocks.record(crate::native_blocks::Event::Route);let active=" + "&".join(masks) + ";"
+        for i,(tests,rest) in enumerate(arms):
+            next_fn = tail(rest + pending) if tests else branch(leaves[i],pending)
+            code += f"if active & {1<<i}u32!=0{{{call(next_fn)}?;}}"
+        # Unknown carriers or field classes need the original first failing
+        # expression. All successful arms retain their order and multiplicity.
+        fallback = "".join(call(branch(arm,pending))+"?;" for arm in leaves)
+        return function(code+"Ok(())}else{"+fallback+"Ok(())}")
+
     @cache
     def branch(g, pending):
         node = nodes[g]
@@ -84,19 +149,22 @@ def lower(plan):
                 return target
             return function(f"if let GNode::LabelArm(_,x)=&c.gnodes[{g}]{{if m.known_label(*x,m.slot(x.slot)).is_some_and(|v|v!=x.label){{return Ok(())}}}} {call(target)}")
         if kind == "Disj":
+            specialized = routed(g, pending)
+            if specialized is not None:
+                return specialized
             arms = operand_list(node.removeprefix("Disj(").removesuffix(")"))
             return function("".join(call(branch(child, pending)) + "?;" for child in arms) + "Ok(())")
         if kind == "If":
             yes, no = branch(field("then"), pending), branch(field("other"), pending)
-            return function(f"if test(m,c,r,{g},{field('cond')})?{{{call(yes)}}}else{{{call(no)}}}")
+            return function(f"if m.eval_bool(c,{field('cond')})?{{{call(yes)}}}else{{{call(no)}}}")
         if kind == "Implies":
             rhs = branch(field("rhs"), pending)
-            return function(f"if test(m,c,r,{g},{field('lhs')})?{{{call(rhs)}}}else{{{done}}}")
+            return function(f"if m.eval_bool(c,{field('lhs')})?{{{call(rhs)}}}else{{{done}}}")
         if kind == "Guard":
             p = natural(int(re.fullmatch(r"Guard\((\d+)\)", node).group(1)))
-            return function(f"if test(m,c,r,{g},{p})?{{{done}}}else{{Ok(())}}")
+            return function(f"if m.eval_bool(c,{p})?{{{done}}}else{{Ok(())}}")
         if kind == "LabelGuard":
-            return function(f"let GNode::LabelGuard(p,x)=&c.gnodes[{g}]else{{return Err(Error::internal(\"native label shape\"))}};if match c.native_blocks.test(m,r,{g}){{Some(v)=>v,None=>m.label_matches(c,*p,*x)?}}{{{done}}}else{{Ok(())}}")
+            return function(f"let GNode::LabelGuard(p,x)=&c.gnodes[{g}]else{{return Err(Error::internal(\"native label shape\"))}};if m.label_matches(c,*p,*x)?{{{done}}}else{{Ok(())}}")
         if kind == "Assign":
             return function(f"assign(m,c,s,r,{g},{field('var')},{field('rhs')},{following})")
         if kind == "Scope":

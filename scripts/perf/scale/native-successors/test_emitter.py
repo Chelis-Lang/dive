@@ -11,13 +11,34 @@ from prepare import EXPORT_MARKER, cached_binary, compiler_environment, require_
 class EmitterTest(unittest.TestCase):
     def test_duplicate_arms_emit_twice(self):
         rust, shape, counts = lower("root 1\nnode Guard(4)\nnode Disj([0, 0])\n")
-        self.assertIn("next_0(m,c,s)?;next_0(m,c,s)?;", rust)
+        self.assertIn("next_0(m,c,s,r)?;next_0(m,c,s,r)?;", rust)
         self.assertEqual(shape, "Guard(4)\nDisj([0, 0])\n")
         self.assertEqual(counts["roots"], 1)
 
     def test_mixed_unchanged_uses_the_original_generator(self):
         rust, _, _ = lower("root 0\nnode Unchanged([Var { var: 1, at: 0 }, Verify(2)])\n")
-        self.assertIn("generic(m,c,s,0,&[])", rust)
+        self.assertIn("generic(m,c,s,r,0,&[])", rust)
+
+    @staticmethod
+    def choices(last_slot=2):
+        nodes = [
+            f"LabelGuard({i}, LabelTest {{ table: 0, slot: {slot}, field: Str#8, selector: 1, label: Str#{label} }})"
+            for i, (slot, label) in enumerate([(2, 6), (2, 7), (last_slot, 6)])
+        ]
+        nodes += ["Disj([1, 0])", "Disj([3, 2])"]
+        return "root 4\n" + "".join(f"node {node}\n" for node in nodes)
+
+    def test_shared_discriminator_preserves_duplicate_survivors(self):
+        rust, _, _ = lower(self.choices())
+        self.assertIn("let active=(match label0{7=>1u32,6=>6u32,_=>0u32})", rust)
+        masked = rust.split("let active=", 1)[1]
+        self.assertLess(masked.index("active & 1u32"), masked.index("active & 2u32"))
+        self.assertLess(masked.index("active & 2u32"), masked.index("active & 4u32"))
+        self.assertIn("if c.native_blocks.enabled && m.assigned==0", rust)
+        self.assertIn("m.label_matches", rust)
+
+    def test_different_actor_slots_use_original_alternatives(self):
+        self.assertNotIn("let active=", lower(self.choices(last_slot=4))[0])
 
     def test_operand_text_never_becomes_source(self):
         with self.assertRaises(ValueError):

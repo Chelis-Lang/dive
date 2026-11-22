@@ -59,8 +59,10 @@ def extract(tree, destination):
         if source.wait():
             raise ValueError("could not extract the committed Dive tree")
     core = destination / "crates/dive-core/src"
+    (core / "native_binders.rs").write_text((HERE / "binders.rs").read_text())
+    (core / "native_history.rs").write_text((HERE / "history.rs").read_text())
     (core / "native_blocks.rs").write_text((HERE / "blocks.rs").read_text())
-    replace_once(core / "lib.rs", "pub mod plan;", "pub mod plan;\n#[doc(hidden)] pub mod native_blocks;")
+    replace_once(core / "lib.rs", "pub mod plan;", "pub mod plan;\n#[doc(hidden)] pub mod native_blocks;\nmod native_history;\nmod native_binders;")
     replace_once(core / "eval.rs", "        let row = outer.values()[index];", """        let row = outer.values()[index];
         self.native_row_write(code, table, updates, plan, index, row)
     }
@@ -68,19 +70,30 @@ def extract(tree, destination):
     pub(crate) fn native_entry(&self, table:Handle, key:Handle, field:bool)->Option<(usize, Handle)> {
         if !table.is_compound() || key.is_compound() || key.is_empty() {return None;}
         let v=self.heap.view(table);
-        if !v.kind.is_fcn() || (field && (v.kind!=Kind::Fcn || key.as_str_id().is_none())) {return None;}
+        if v.is_lazy() || !v.kind.is_fcn() || (field && (v.kind!=Kind::Fcn || key.as_str_id().is_none())) {return None;}
         let pos=self.fcn_index(v,key).ok()??;
         Some((pos,v.values()[pos]))
     }
 
     pub(crate) fn native_row_write(&mut self,code:&Code,table:Handle,updates:&[Update],plan:&crate::plan::RowUpdate,index:usize,row:Handle)->Result<Option<Handle>,Error>{
         let outer=self.heap.view(table);""")
+    replace_once(core / "eval.rs", "        let r = self.eval(code, body)?;\n        let added = self.heap.cache.added;", """        let r = if self.fuel==u64::MAX && self.debugger.is_none() && self.transient_bound==usize::MAX && let Some(h)=code.native_blocks.history(self,site) {
+            self.charge(1)?;
+            h
+        } else { self.eval(code,body)? };
+        let added = self.heap.cache.added;""")
+    replace_once(core / "eval.rs", "Node::Quant { kind, binds, body } => self.quant(code, *kind, binds, *body),", """Node::Quant {kind,binds,body} => {
+        if self.fuel==u64::MAX && self.debugger.is_none() && self.transient_bound==usize::MAX && !self.heap.speculative && let Some(domain)=code.native_blocks.quant(p){
+            code.native_blocks.record(crate::native_blocks::Event::Quant);
+            domain.quant(self,code,*kind,*body)
+        } else {self.quant(code,*kind,binds,*body)}
+    },""")
     replace_once(core / "plan.rs", "pub struct Code {", "pub struct Code {\n    /// Shape-bound native successor study worker.\n    pub native_worker: bool,\n    /// Bound source value operands.\n    pub native_blocks: crate::native_blocks::Blocks,")
     replace_once(core / "compile.rs", "    let mut plan = Plan {", (HERE / "export.rs").read_text() + "\n    let mut plan = Plan {")
     replace_once(core / "generate.rs", "mod composition;", "mod composition;\npub(crate) mod native_study;")
     replace_once(core / "generate.rs", "        let result = self.run_action(code, action.g, sink);", """
         let result = if code.native_worker && self.debugger.is_none() && self.fuel == u64::MAX
-            && self.unbounded.is_none() && !self.heap.speculative && sink.exhaustive() && !sink.constructive() {
+            && self.transient_bound == usize::MAX && self.unbounded.is_none() && !self.heap.speculative && sink.exhaustive() && !sink.constructive() {
             self.clear_buffer();
             native_study::run(self,code,action.g,sink)
         } else { self.run_action(code, action.g, sink) };""")

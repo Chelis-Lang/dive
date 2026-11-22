@@ -1,7 +1,6 @@
 //! Bound operations used by source-emitted guard and write continuations.
 use crate::handle::Handle;
-use crate::node::Kind;
-use crate::plan::{Cmp, Code, GNode, Node, P};
+use crate::plan::{Code, GNode, Node, P};
 use crate::{Error, Machine};
 
 #[derive(Clone, Copy, Debug)]
@@ -15,7 +14,7 @@ enum Atom {
 impl Atom {
     fn bind(c: &Code, p: P) -> Option<Self> {
         Some(match *c.nodes.get(p as usize)? {
-            Node::Const(h) => Self::Constant(h),
+            Node::Const(h) if !h.is_compound() && !h.is_empty() => Self::Constant(h),
             Node::Var(v) => Self::State(v),
             Node::Primed(v) => Self::Next(v),
             Node::Slot(s) => Self::Slot(s),
@@ -35,42 +34,12 @@ impl Atom {
 }
 
 #[derive(Clone, Copy, Debug)]
-enum Step { At(Atom), Field(Handle) }
-
-#[derive(Clone, Debug)]
-struct Read { root: Atom, path: Box<[Step]> }
-
-impl Read {
-    fn bind(c: &Code, mut p: P) -> Option<Self> {
-        let mut path = Vec::new();
-        while path.len() <= 4 {
-            if let Some(root) = Atom::bind(c,p) {
-                path.reverse();
-                return Some(Self {root, path:path.into()});
-            }
-            match *c.nodes.get(p as usize)? {
-                Node::Select(base,field) => { path.push(Step::Field(field)); p=base; }
-                Node::Apply(base,key) => { path.push(Step::At(Atom::bind(c,key)?)); p=base; }
-                _=>return None,
-            }
-        }
-        None
-    }
-
-    fn get(&self, m: &Machine, r:&mut Register) -> Option<Handle> {
-        let mut base=self.root.value(m)?;
-        for (i,step) in self.path.iter().enumerate(){
-            base=match *step {
-                Step::At(a) => {let k=a.value(m)?; if i==0 {r.resolve(m,base,k)?.row} else {m.native_entry(base,k,false)?.1}},
-                Step::Field(k) => m.native_entry(base,k,true)?.1,
-            }
-        }
-        Some(base)
-    }
+struct Cell {
+    table: Handle,
+    key: Handle,
+    pos: usize,
+    row: Handle,
 }
-
-#[derive(Clone,Copy,Debug)]
-struct Cell { table:Handle, key:Handle, pos:usize, row:Handle }
 
 /// A register lives on the stack for one emitted action. Neither a Store epoch
 /// nor an arena rollback can extend its lifetime. Only immutable persistent
@@ -78,109 +47,220 @@ struct Cell { table:Handle, key:Handle, pos:usize, row:Handle }
 #[derive(Default)]
 pub(crate) struct Register(Option<Cell>);
 impl Register {
-    fn resolve(&mut self,m:&Machine,table:Handle,key:Handle)->Option<Cell>{
-        if let Some(cell)=self.0 && cell.table==table && cell.key==key { return Some(cell); }
-        let (pos,row)=m.native_entry(table,key,false)?;
-        let cell=Cell{table,key,pos,row};
-        if table.is_persistent() && !table.is_lazy_persistent() && !row.is_transient() { self.0=Some(cell); }
+    pub(crate) fn actor(&mut self, m: &Machine, var: u16, slot: u32) -> Option<Handle> {
+        let table = *m.s0.get(usize::from(var))?;
+        Some(self.resolve(m, table, m.slot(slot))?.row)
+    }
+    pub(crate) fn field(&self, m: &Machine, row: Handle, key: Handle) -> Option<Handle> {
+        if key.is_empty() {
+            Some(row)
+        } else {
+            m.native_entry(row, key, true).map(|e| e.1)
+        }
+    }
+    fn resolve(&mut self, m: &Machine, table: Handle, key: Handle) -> Option<Cell> {
+        if let Some(cell) = self.0
+            && cell.table == table
+            && cell.key == key
+        {
+            return Some(cell);
+        }
+        let (pos, row) = m.native_entry(table, key, false)?;
+        let cell = Cell {
+            table,
+            key,
+            pos,
+            row,
+        };
+        if table.is_persistent() && !table.is_lazy_persistent() && !row.is_transient() {
+            self.0 = Some(cell);
+        }
         Some(cell)
     }
 }
 
-#[derive(Clone,Debug)]
-enum Predicate {
-    Bool(Read), Same(Read,Read,bool), Compare(Cmp,Read,Read), Member(Read,Read,bool),
-    Not(Box<Self>), All(Box<[Self]>), Any(Box<[Self]>),
+#[derive(Clone, Debug)]
+struct Write {
+    rhs: P,
+    table: Atom,
+    actor: Atom,
 }
-
-impl Predicate {
-    fn bind(c:&Code,p:P,depth:usize)->Option<Self>{
-        if depth==0{return None}
-        let bind=|p|Self::bind(c,p,depth-1);
-        let read=|p|Read::bind(c,p);
-        Some(match c.nodes.get(p as usize)? {
-            Node::Memo{body,..}=>return bind(*body),
-            Node::Eq(a,b)=>Self::Same(read(*a)?,read(*b)?,true),
-            Node::Neq(a,b)=>Self::Same(read(*a)?,read(*b)?,false),
-            Node::Cmp(cmp,a,b)=>Self::Compare(*cmp,read(*a)?,read(*b)?),
-            Node::In(a,b)=>Self::Member(read(*a)?,read(*b)?,true),
-            Node::NotIn(a,b)=>Self::Member(read(*a)?,read(*b)?,false),
-            Node::Not(a)=>Self::Not(Box::new(bind(*a)?)),
-            Node::And(v) if v.len()<=8=>Self::All(v.iter().map(|p|bind(*p)).collect::<Option<_>>()?),
-            Node::Or(v) if v.len()<=8=>Self::Any(v.iter().map(|p|bind(*p)).collect::<Option<_>>()?),
-            _=>Self::Bool(read(p)?),
-        })
-    }
-    fn run(&self,m:&mut Machine,reg:&mut Register)->Option<bool>{
-        match self {
-            Self::Bool(a)=>a.get(m,reg)?.as_bool(),
-            Self::Same(a,b,positive)=>{
-                let a=a.get(m,reg)?;let b=b.get(m,reg)?;
-                if (a.as_str_id().is_some()&&b.as_str_id().is_some()) || (a.as_int().is_some()&&b.as_int().is_some()) || (a.as_bool().is_some()&&b.as_bool().is_some()) || (a.as_model_id().is_some()&&a==b) {
-                    Some((a==b)==*positive)
-                } else {None}
-            }
-            Self::Compare(op,a,b)=>{
-                let a=a.get(m,reg)?.as_int()?;let b=b.get(m,reg)?.as_int()?;
-                Some(match op{Cmp::Lt=>a<b,Cmp::Le=>a<=b,Cmp::Gt=>a>b,Cmp::Ge=>a>=b})
-            }
-            Self::Member(a,b,positive)=>{
-                let value=a.get(m,reg)?;let set=b.get(m,reg)?;
-                if value.is_compound()|| !set.is_compound(){return None;}
-                let v=m.heap.view(set);
-                if v.kind!=Kind::Set||v.is_lazy()||v.data.len()>8{return None;}
-                // Handle exactly closed homogeneous primitive operands.
-                let yes= if v.data.is_empty() { false }
-                    else if value.as_str_id().is_some() && v.data.iter().all(|h|h.as_str_id().is_some())
-                    ||value.as_int().is_some()&&v.data.iter().all(|h|h.as_int().is_some())
-                    ||value.as_bool().is_some()&&v.data.iter().all(|h|h.as_bool().is_some()) {
-                        v.data.contains(&value)
-                    }else{return None};
-                Some(yes==*positive)
-            }
-            Self::Not(a)=>Some(!a.run(m,reg)?),
-            Self::All(xs)=>{for x in xs {if !x.run(m,reg)?{return Some(false)}}Some(true)},
-            Self::Any(xs)=>{for x in xs {if x.run(m,reg)?{return Some(true)}}Some(false)}
-        }
-    }
-}
-
-#[derive(Clone,Debug)]
-struct Write {rhs:P,table:Atom,actor:Atom}
 
 /// Exact operands derived once from the current compiled value nodes.
-#[derive(Clone,Debug,Default)]
-pub struct Blocks { guards:Vec<Option<Predicate>>, writes:Vec<Option<Write>> }
+#[derive(Clone, Debug, Default)]
+pub struct Blocks {
+    pub(crate) enabled: bool,
+    meter: Option<std::path::PathBuf>,
+    writes: Vec<Option<Write>>,
+    domains: Vec<Option<crate::native_binders::Domain>>,
+    quant: std::collections::BTreeMap<u32, crate::native_binders::Domain>,
+    history: Vec<Option<Box<crate::native_history::History>>>,
+}
 impl Blocks {
-    pub(crate) fn bind(c:&Code)->Self{
-        let mut guards=Vec::with_capacity(c.gnodes.len()); let mut writes=Vec::with_capacity(c.gnodes.len());
-        for node in &c.gnodes{
-            let pred=match node {
-                GNode::Guard(p)|GNode::LabelGuard(p,_)=>Some(*p),
-                GNode::If{cond,..}=>Some(*cond),GNode::Implies{lhs,..}=>Some(*lhs),_=>None
-            }.and_then(|p|Predicate::bind(c,p,5));
-            guards.push(pred);
-            let w=match node {
-                GNode::Assign{rhs,..}=>{let rhs=*rhs;
-                    if let Node::Except{base,updates,row_fields:Some(_)}=&c.nodes[rhs as usize] {
-                        Atom::bind(c,*base).zip(updates.first().and_then(|u|u.path.first()).and_then(|p|Atom::bind(c,*p)))
-                            .map(|(table,actor)|Write{rhs,table,actor})
-                    }else{None}
-                },_=>None};
+    pub(crate) fn bind(c: &Code, heap: &crate::heap::Heap) -> Self {
+        let mut writes = Vec::with_capacity(c.gnodes.len());
+        for node in &c.gnodes {
+            let w = match node {
+                GNode::Assign { rhs, .. } => {
+                    let rhs = *rhs;
+                    if let Node::Except {
+                        base,
+                        updates,
+                        row_fields,
+                    } = &c.nodes[rhs as usize]
+                        && (row_fields.is_some() || matches!(&**updates,[u] if u.path.len()==1))
+                    {
+                        Atom::bind(c, *base)
+                            .zip(
+                                updates
+                                    .first()
+                                    .and_then(|u| u.path.first())
+                                    .and_then(|p| Atom::bind(c, *p)),
+                            )
+                            .map(|(table, actor)| Write { rhs, table, actor })
+                    } else {
+                        None
+                    }
+                }
+                _ => None,
+            };
             writes.push(w);
         }
-        Self{guards,writes}
+        let domains = c
+            .gnodes
+            .iter()
+            .map(|g| match g {
+                GNode::Exists { binds, .. } => crate::native_binders::Domain::bind(heap, c, binds),
+                _ => None,
+            })
+            .collect();
+        let quant = c
+            .nodes
+            .iter()
+            .enumerate()
+            .filter_map(|(i, v)| {
+                if let Node::Quant {
+                    binds,
+                    kind: crate::plan::Quant::Forall | crate::plan::Quant::Exists,
+                    ..
+                } = v
+                {
+                    Some((
+                        u32::try_from(i).ok()?,
+                        crate::native_binders::Domain::bind(heap, c, binds)?,
+                    ))
+                } else {
+                    None
+                }
+            })
+            .collect();
+        Self {
+            enabled: true,
+            meter: std::env::var_os("DIVE_NATIVE_BLOCK_METER").map(Into::into),
+            writes,
+            domains,
+            quant,
+            history: crate::native_history::History::sites(c, heap),
+        }
     }
 
-    pub(crate) fn test(&self,m:&mut Machine,r:&mut Register,g:usize)->Option<bool>{
-        self.guards.get(g)?.as_ref()?.run(m,r)
+    pub(crate) fn domain(&self, g: usize) -> Option<&crate::native_binders::Domain> {
+        self.domains.get(g)?.as_ref()
+    }
+    pub(crate) fn quant(&self, p: u32) -> Option<&crate::native_binders::Domain> {
+        self.quant.get(&p)
+    }
+    pub(crate) fn history(&self, m: &mut Machine, site: u32) -> Option<Handle> {
+        let (value, changed) = self.history.get(site as usize)?.as_ref()?.update(m)?;
+        self.record(if changed {
+            Event::HistoryChanged
+        } else {
+            Event::History
+        });
+        Some(value)
     }
 
-    pub(crate) fn write(&self,m:&mut Machine,c:&Code,r:&mut Register,g:usize)->Result<Option<Handle>,Error>{
-        let Some(w)=self.writes.get(g).and_then(Option::as_ref) else{return Ok(None)};
-        let Some((table,key))=w.table.value(m).zip(w.actor.value(m))else{return Ok(None)};
-        let Some(cell)=r.resolve(m,table,key)else{return Ok(None)};
-        let Node::Except{updates,row_fields:Some(plan),..}=&c.nodes[w.rhs as usize]else{return Ok(None)};
-        m.native_row_write(c,table,updates,plan,cell.pos,cell.row)
+    pub(crate) fn write(
+        &self,
+        m: &mut Machine,
+        c: &Code,
+        r: &mut Register,
+        g: usize,
+    ) -> Result<Option<Handle>, Error> {
+        let Some(w) = self.writes.get(g).and_then(Option::as_ref) else {
+            return Ok(None);
+        };
+        let Some((table, key)) = w.table.value(m).zip(w.actor.value(m)) else {
+            return Ok(None);
+        };
+        // The source normalizes the carrier before processing its selectors.
+        // A canonical persistent function is already in that state.
+        if !table.is_persistent() || table.is_lazy_persistent() {
+            return Ok(None);
+        }
+        let Some(cell) = r.resolve(m, table, key) else {
+            return Ok(None);
+        };
+        let Node::Except {
+            updates,
+            row_fields,
+            ..
+        } = &c.nodes[w.rhs as usize]
+        else {
+            return Ok(None);
+        };
+        if let Some(plan) = row_fields {
+            if !m.opts.actor_rows {
+                return Ok(None);
+            }
+            let value = m.native_row_write(c, table, updates, plan, cell.pos, cell.row)?;
+            if value.is_some() {
+                self.record(Event::RowWrite)
+            }
+            return Ok(value);
+        }
+        let [update] = &**updates else {
+            return Ok(None);
+        };
+        let v = m.heap.view(table);
+        let (lookups, copies) = (v.len(), v.data.len());
+        m.charge(lookups)?;
+        m.set_slot(update.at, cell.row);
+        let new = m.eval_component(c, update.value)?;
+        self.record(Event::CellWrite);
+        if new == cell.row {
+            return Ok(Some(table));
+        }
+        m.charge(copies)?;
+        Ok(Some(m.heap.fcn_with(table, cell.pos, new)))
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+pub(crate) enum Event {
+    Route,
+    RowWrite,
+    CellWrite,
+    History,
+    HistoryChanged,
+    Exists,
+    Quant,
+}
+impl Blocks {
+    pub(crate) fn record(&self, event: Event) {
+        use std::io::Write;
+        use std::sync::atomic::{AtomicU64, Ordering};
+        static COUNTS: [AtomicU64; 7] = [const { AtomicU64::new(0) }; 7];
+        if let Some(path) = &self.meter {
+            let n = COUNTS[event as usize].fetch_add(1, Ordering::Relaxed) + 1;
+            if n.is_power_of_two()
+                && let Ok(mut out) = std::fs::OpenOptions::new()
+                    .create(true)
+                    .append(true)
+                    .open(path)
+            {
+                let _ = out.write_all(format!("{event:?} {n}\n").as_bytes());
+            }
+        }
     }
 }

@@ -20,5 +20,5 @@ if !next.is_empty()
 }
 c.code.native_worker = !mapped && !c.effects.any && crate::generate::native_study::matches(&c.code);
 if c.code.native_worker && std::env::var_os("DIVE_DISABLE_NATIVE_BLOCKS").is_none() {
-    c.code.native_blocks = crate::native_blocks::Blocks::bind(&c.code);
+    c.code.native_blocks = crate::native_blocks::Blocks::bind(&c.code,&c.m.heap);
 }
