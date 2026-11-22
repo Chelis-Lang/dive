@@ -390,8 +390,35 @@ impl Compiler<'_> {
         }
     }
 
+    fn same_guard_order(&self, generator: G, value: P, depth: usize, work: &mut usize) -> bool {
+        let Some(remaining) = work.checked_sub(1) else {
+            return false;
+        };
+        *work = remaining;
+        if depth >= super::MAX_GUARD_DEPTH {
+            return false;
+        }
+        match (
+            &self.code.gnodes[generator as usize],
+            &self.code.nodes[value as usize],
+        ) {
+            (GNode::Guard(guard), _) => self.same_source_value(*guard, value, depth + 1, work),
+            (GNode::Scope { body: g, reset: a }, Node::Scope { body: p, reset: b }) => {
+                a == b && self.same_guard_order(*g, *p, depth + 1, work)
+            }
+            (GNode::Conj(parts), Node::And(operands)) => {
+                parts.len() == operands.len()
+                    && parts
+                        .iter()
+                        .zip(operands)
+                        .all(|(&(g, _), &p)| self.same_guard_order(g, p, depth + 1, work))
+            }
+            _ => false,
+        }
+    }
+
     /// Check a deliberately small value language structurally. P nodes for
-    /// the same source conjunct can be emitted twice, once by guard_expr and
+    /// the same source conjunct can be emitted twice, once by `guard_expr` and
     /// once by the Boolean conjunction compiler. An opcode alone cannot
     /// identify operands, lexical slots, selectors or a comparison operator.
     fn same_source_value(&self, left: P, right: P, depth: usize, work: &mut usize) -> bool {
@@ -470,8 +497,8 @@ impl Compiler<'_> {
                         let generator = self.source_guard_update(item, depth + 1, work);
                         if let Some(generator_update) = generator {
                             proof.guard_update |= update | generator_update;
-                            proof.different_boolean_guard |= !matches!(self.code.gnodes.get(item as usize),
-                            Some(GNode::Guard(source)) if self.same_source_value(*source, predicate, 0, &mut 512));
+                            proof.different_boolean_guard |=
+                                !self.same_guard_order(item, predicate, 0, &mut 512);
                             continue;
                         }
                     }

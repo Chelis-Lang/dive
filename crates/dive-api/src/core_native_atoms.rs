@@ -1991,6 +1991,35 @@ P == <>(x=1)
     }
 
     #[test]
+    fn only_sequential_value_guards_certify_boolean_action_demand() {
+        let src = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLES x,y
+vars == <<x,y>>
+Init == x=0 /\ y=0
+Plain == /\ x=0 /\ y/=1 /\ x'=1 /\ UNCHANGED y
+Quantified == /\ (\E k \in {x}: k=0) /\ x'=1 /\ UNCHANGED y
+Next == Plain \/ Quantified
+Spec == Init /\ [][Next]_vars /\ WF_vars(Plain) /\ WF_vars(Quantified)
+P == <> (x=1)
+====";
+        with_wrappers(src, false, |prepared, driver, atoms, _| {
+            let mut found = Vec::new();
+            for atom in driver
+                .native_predicates()
+                .filter(|a| matches!(a.test, AtomTest::Enabled { .. }))
+            {
+                let compiled = &atoms.compiled[atoms.position(atom).expect("prepared")];
+                let (index, cert) = compiled.emission.expect("both enabled generators admitted");
+                let label = prepared.model.actions[index].label();
+                found.push((label.starts_with("<Plain "), cert.boolean_guard_prefix));
+            }
+            found.sort_unstable();
+            assert_eq!(found, [(false, false), (true, true)]);
+        });
+    }
+
+    #[test]
     fn compile_time_update_miss_and_empty_assignment_domain_preserve_fallback() {
         use dive_runtime::capture::CsrCapture;
         let src = r"---- MODULE Atoms ----
