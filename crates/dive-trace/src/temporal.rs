@@ -477,7 +477,7 @@ impl Word<'_> {
             }
             Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
                 let scopes = self.finite_scopes(expr, scope, child, &mut 0)?;
-                self.prepare_memberships(*body, &scopes)?;
+                let setup = self.prepare_memberships(*body, &scopes)?;
                 let and = *kind == QuantKind::Forall;
                 self.charge(words)?;
                 let mut values = Truth::constant(n, and);
@@ -485,6 +485,12 @@ impl Word<'_> {
                     let rhs = self.eval(*body, &bound, child)?;
                     self.charge(words)?;
                     values = values.combine(&rhs, |l, r| if and { l & r } else { l | r });
+                }
+                // Only a completed batch earns its setup cost. Charging it
+                // before evaluating the bodies can mask a reachable source
+                // error in an early binding with a resource refusal.
+                if setup != 0 {
+                    self.charge(setup)?;
                 }
                 Ok(values)
             }

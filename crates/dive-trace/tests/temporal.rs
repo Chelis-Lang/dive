@@ -700,3 +700,24 @@ P == (\A k \in {{1}} : (k \in active) ~> x){}
         evaluate_lasso(&model, &predicate(&model, "P"), &word, 0).expect("dense baseline fits");
     assert!(answer.into_iter().all(|v| !v));
 }
+
+#[test]
+fn late_dense_binding_reaches_its_error_before_batch_setup_is_charged() {
+    let src = format!(
+        r"---- MODULE Late ----
+EXTENDS Naturals
+VARIABLE x, active
+Init == x = FALSE /\ active = {{1,2,3,4}}
+Next == UNCHANGED <<x,active>>
+P == {}(\A k \in 1..16 : (k \in active) ~> (x = ((1 \div 0) = 0)))
+====",
+        "<>x /\\ ".repeat(55)
+    );
+    let model = bound(&src, "INIT Init\nNEXT Next\n");
+    let set =
+        Value::set((1..=4).map(Value::Int).collect(), dive_value::Ctx::tlc()).expect("dense set");
+    let row: State = Arc::from([Some(Value::FALSE), Some(set)]);
+    let word = vec![row; 16_000];
+    let err = evaluate_lasso(&model, &predicate(&model, "P"), &word, 0).expect_err("zero divisor");
+    assert!(err.to_string().contains("zero"), "{err}");
+}

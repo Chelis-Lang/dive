@@ -204,23 +204,23 @@ impl Word<'_> {
         None
     }
 
-    // The old evaluator visits every bound body. Prepay index construction
+    // The old evaluator visits every bound body. Amortize index construction
     // only from distinct queries that this quantifier necessarily demands.
     // Reserve the first fairness binding for ordinary subscript evaluation.
     pub(super) fn prepare_memberships(
         &mut self,
         mut body: ExprId,
         scopes: &[Scope],
-    ) -> Result<(), TemporalError> {
+    ) -> Result<usize, TemporalError> {
         if self.membership.variable.is_some() || scopes.len() < 4 {
-            return Ok(());
+            return Ok(0);
         }
         for _ in 0..24 {
             let Expr::Junction { items, .. } = self.model.ir.expr(body) else {
                 break;
             };
             let [only] = items.as_ref() else {
-                return Ok(());
+                return Ok(0);
             };
             body = *only;
         }
@@ -236,15 +236,15 @@ impl Word<'_> {
             {
                 (*action, Some(*sub))
             }
-            _ => return Ok(()),
+            _ => return Ok(0),
         };
         let Some((var, sample)) = self.first_membership(guard, &scopes[0], sub.is_some()) else {
-            return Ok(());
+            return Ok(0);
         };
         self.membership.variable = Some(var);
         let sub_key = sub.and_then(|e| self.subscript_key(e, &scopes[0]));
         if sub.is_some() && sub_key.is_none() {
-            return Ok(());
+            return Ok(0);
         }
         #[allow(
             clippy::mutable_key_type,
@@ -256,14 +256,14 @@ impl Word<'_> {
                 self.model.evaluator.poll_host_control()?;
             }
             let Some((v, k)) = self.first_membership(guard, scope, sub.is_some()) else {
-                return Ok(());
+                return Ok(0);
             };
             if v != var
                 || !compatible(&sample, &k)
                 || !distinct.insert(k)
                 || sub.is_some_and(|e| self.subscript_key(e, scope) != sub_key)
             {
-                return Ok(());
+                return Ok(0);
             }
         }
         let n = self.states.len();
@@ -273,10 +273,15 @@ impl Word<'_> {
         // occurrence and cycle-enabledness. Dense groups keep the old budget.
         let max_entries = baseline.saturating_sub(setup) / 3;
         if baseline < setup {
-            return Ok(());
+            return Ok(0);
         }
-        self.membership.index = self.build_membership(var, &sample, max_entries, scopes.len())?;
-        Ok(())
+        let Some((index, setup)) =
+            self.build_membership(var, &sample, max_entries, scopes.len())?
+        else {
+            return Ok(0);
+        };
+        self.membership.index = Some(index);
+        Ok(setup)
     }
 
     pub(super) fn members(&self, var: VarId, key: &Value) -> Option<Arc<Vec<usize>>> {
@@ -298,12 +303,14 @@ impl Word<'_> {
         sample: &Value,
         max_entries: usize,
         queries: usize,
-    ) -> Result<Option<Index>, TemporalError> {
+    ) -> Result<Option<(Index, usize)>, TemporalError> {
         // Bound the number of retained word references and key clones. Every key
         // is a scalar or a shallow record backed by existing immutable word data.
         const MAX_ENTRIES: usize = 65_536;
         const MAX_KEYS: usize = 4096;
-        if self.states.len() > MAX_ENTRIES {
+        let fixed = self.states.len() + queries;
+        let remaining = Self::LIMIT.saturating_sub(self.cells);
+        if self.states.len() > MAX_ENTRIES || fixed > remaining {
             return Ok(None);
         }
         #[allow(
@@ -330,7 +337,7 @@ impl Word<'_> {
                 return Ok(None);
             };
             entries = entries.saturating_add(items.len());
-            if entries > MAX_ENTRIES.min(max_entries) {
+            if entries > MAX_ENTRIES.min(max_entries).min(remaining - fixed) {
                 return Ok(None);
             }
             for (j, key) in items.iter().enumerate() {
@@ -347,10 +354,12 @@ impl Word<'_> {
                 }
             }
         }
-        self.charge(self.states.len() + entries + queries)?;
-        Ok(Some(Index {
-            sample: sample.clone(),
-            positions,
-        }))
+        Ok(Some((
+            Index {
+                sample: sample.clone(),
+                positions,
+            },
+            fixed + entries,
+        )))
     }
 }
