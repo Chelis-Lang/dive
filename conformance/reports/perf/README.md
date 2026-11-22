@@ -121,6 +121,8 @@ The [population edit-session measurements](2026-11-21-occupancy-edits.json) pair
 
 [Bounded AsyncRaft election induction](2026-11-22-asyncraft-election-induction.json) records original-action closure, boundary checks, genuine voting histories, and both reachable double-election mutations.
 
+[Portable finite induction](2026-11-22-portable-finite-induction.json) records complete TwoPhase and AsyncRaft certificates through separate Dive and Sail processes, including edits, authentication, refusals and matched cold checks.
+
 [Finite lemma discovery](2026-11-22-lemma-discovery.json) records predicates derived from counterexamples to induction on TwoPhase and AsyncRaft, checked against the pinned TLC and the published formulas.
 
 [Deterministic action images](2026-11-22-producer-action-images.json) records paired original-Elevator measurements, generated-value reuse, fallback on CoffeeCan and an independent differential audit.

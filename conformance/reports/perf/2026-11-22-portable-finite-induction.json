@@ -1,0 +1,1275 @@
+{
+  "schema": 1,
+  "source_pin": "https://github.com/will62794/scimitar/tree/f1b902dc0801cf435cb9dd6e6be495d5ed121787/benchmarks",
+  "runner": "scripts/perf/scale/portable_induction.py",
+  "host": "Dedicated EC2 c7i.4xlarge, Ubuntu 24.04, one logical CPU. Each measured invocation has its own delegated memory cgroup.",
+  "method": "Alternating full independent certification, unsigned revalidation, authenticated fresh Sail and ordinary Core with the same edited properties. Wall times include startup, dispatch, binding and serialization as applicable. Memory is the cgroup peak for the entire process family. Ordinary Core checks safety without producing the complete certificate. Break-even counts later edits and charges the full establishment cost. Both independently certified producer candidates were loaded through --verify-predicate and reissued through --write-predicate after full revalidation. Both can be regenerated with --certificate-out and replayed with --certificates.",
+  "identities": {
+    "dive": "f7703883ca370aeb9500551a70599fdac0879cca49d8b59489ea63a450c8fb1d",
+    "exporter": "e9c2febe91569b38432b60513187b8e3d6b080be429eed36d9bdfa71e716d7aa",
+    "certificate_worker": "da9a5ad1d0ba3aa4bf4c13842a5ba241f9b4ad307d9fa6cbf0674237c19834ec",
+    "sail": "5d049ce101e2a78fd9b6173bbfd38165812d4529048f0f516510eac52f016027"
+  },
+  "two_phase_omitted_premise": {
+    "source_report": "conformance/reports/perf/2026-11-22-twophase-induction.json",
+    "result": {
+      "removed": "<<tmState, [type |-> \"Commit\"] \\in msgsCommit, [type |-> \"Abort\"] \\in msgsAbort>> = <<\"aborted\", FALSE, TRUE>> => (\\A r \\in RM : <<rmState[r], r \\in tmPrepared, [type |-> \"Prepared\", rm |-> r] \\in msgsPrepared>> \\in {<<\"aborted\", FALSE, FALSE>>, <<\"aborted\", FALSE, TRUE>>, <<\"aborted\", TRUE, TRUE>>, <<\"prepared\", FALSE, TRUE>>, <<\"prepared\", TRUE, TRUE>>, <<\"working\", FALSE, FALSE>>})",
+      "action": {
+        "location": "<ProofNext line 8, col 14 to line 8, col 55 of module FiniteTrial>",
+        "name": "ProofNext"
+      },
+      "hypothesis_replay": "valid",
+      "original_init_replay": "invalid",
+      "prestate_reachable": false,
+      "damaged_replay": "invalid",
+      "pinned_tlc": {
+        "seconds": 0.551222,
+        "peak_rss_kib": 302308,
+        "generated": 4062,
+        "distinct": 3515
+      }
+    }
+  },
+  "standalone_controls": {
+    "driver": "scripts/symbolic/test_finite_certificate.py",
+    "scope": "edited invariant fails only outside constraint",
+    "signed": "rejected",
+    "unsigned": "rejected",
+    "repeated_encoding": "identical",
+    "expired_budget": "stopped",
+    "tlc_profile": "refused",
+    "definition_value_override": "rechecked and rejected",
+    "representation_sensitive_operator": "refused",
+    "random_effect": "refused",
+    "stale_boundary_after_relation_edit": "current obligations rechecked successfully without reuse",
+    "lazy_IsFiniteSet": "named refusal in both producer and receiver"
+  },
+  "comparison": {
+    "raft_edited_speedup": 4.127811860940695
+  },
+  "panels": [
+    {
+      "model": "TwoPhase",
+      "source_sha256": "787afe81e60270d4b1489527504a4fb42c471d26a516bc0562126b57f23f0b87",
+      "cfg": {
+        "base": "INIT Init\nNEXT Next\nCONSTANT RM = {rm1,rm2,rm3}\nINVARIANT H_TCConsistent\nINVARIANT LearnedConjunction\n",
+        "property": "INIT Init\nNEXT Next\nCONSTANT RM = {rm1,rm2,rm3}\nINVARIANT H_TCConsistent\nINVARIANT LearnedConjunction\nINVARIANT TypeOK\n",
+        "restricted": "INIT Init\nNEXT RestrictedNext\nCONSTANT RM = {rm1,rm2,rm3}\nINVARIANT H_TCConsistent\nINVARIANT LearnedConjunction\n",
+        "wrong_carrier": "INIT Init\nNEXT Next\nCONSTANT RM = {rm1,rm2}\nINVARIANT H_TCConsistent\nINVARIANT LearnedConjunction\n"
+      },
+      "establishment": {
+        "wall_s": 0.374,
+        "memory_peak_bytes": 44875776,
+        "proof": "inductive-safety",
+        "reused_obligations": 0,
+        "transition_obligations": 7,
+        "freshly_checked": [
+          "Init",
+          "target-on-prestates-and-boundary",
+          "TMCommitAction",
+          "TMAbortAction",
+          "TMRcvPreparedAction",
+          "RMPrepareAction",
+          "RMChooseToAbortAction",
+          "RMRcvCommitMsgAction",
+          "RMRcvAbortMsgAction"
+        ],
+        "authorized_closure": false,
+        "failed_obligation": null,
+        "action_inventory": [
+          "TMCommitAction",
+          "TMAbortAction",
+          "TMRcvPreparedAction",
+          "RMPrepareAction",
+          "RMChooseToAbortAction",
+          "RMRcvCommitMsgAction",
+          "RMRcvAbortMsgAction"
+        ]
+      },
+      "exported_producer_candidate": true,
+      "producer_targets": [
+        {
+          "expr": 996,
+          "name": "H_TCConsistent",
+          "scope": 113,
+          "source_tokens": "\\Arm1,rm2\\inRM:~(rmState[rm1]=\"aborted\"/\\rmState[rm2]=\"committed\")"
+        },
+        {
+          "expr": 1912,
+          "name": "LearnedConjunction",
+          "scope": 173,
+          "source_tokens": "TypeOK/\\(<<tmState,[type|->\"Commit\"]\\inmsgsCommit,[type|->\"Abort\"]\\inmsgsAbort>>\\in{<<\"aborted\",FALSE,TRUE>>,<<\"committed\",TRUE,FALSE>>,<<\"init\",FALSE,FALSE>>})/\\(<<tmState,[type|->\"Commit\"]\\inmsgsCommit,[type|->\"Abort\"]\\inmsgsAbort>>=<<\"aborted\",FALSE,TRUE>>=>(\\Ar\\inRM:<<rmState[r],r\\intmPrepared,[type|->\"Prepared\",rm|->r]\\inmsgsPrepared>>\\in{<<\"aborted\",FALSE,FALSE>>,<<\"aborted\",FALSE,TRUE>>,<<\"aborted\",TRUE,TRUE>>,<<\"prepared\",FALSE,TRUE>>,<<\"prepared\",TRUE,TRUE>>,<<\"working\",FALSE,FALSE>>}))/\\(<<tmState,[type|->\"Commit\"]\\inmsgsCommit,[type|->\"Abort\"]\\inmsgsAbort>>=<<\"committed\",TRUE,FALSE>>=>(\\Ar\\inRM:<<rmState[r],r\\intmPrepared,[type|->\"Prepared\",rm|->r]\\inmsgsPrepared>>\\in{<<\"committed\",TRUE,TRUE>>,<<\"prepared\",TRUE,TRUE>>}))/\\(<<tmState,[type|->\"Commit\"]\\inmsgsCommit,[type|->\"Abort\"]\\inmsgsAbort>>=<<\"init\",FALSE,FALSE>>=>(\\Ar\\inRM:<<rmState[r],r\\intmPrepared,[type|->\"Prepared\",rm|->r]\\inmsgsPrepared>>\\in{<<\"aborted\",FALSE,FALSE>>,<<\"prepared\",FALSE,TRUE>>,<<\"prepared\",TRUE,TRUE>>,<<\"working\",FALSE,FALSE>>}))"
+        }
+      ],
+      "artifact_bytes": 11293,
+      "admitted_rows": 288,
+      "boundary_rows": 0,
+      "samples": [
+        {
+          "cold_certify": {
+            "wall_s": 0.328,
+            "memory_peak_bytes": 44855296,
+            "proof": "inductive-safety",
+            "reused_obligations": 0,
+            "transition_obligations": 7,
+            "freshly_checked": [
+              "Init",
+              "target-on-prestates-and-boundary",
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ],
+            "authorized_closure": false,
+            "failed_obligation": null,
+            "action_inventory": [
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ]
+          },
+          "unsigned_revalidate": {
+            "wall_s": 0.276,
+            "memory_peak_bytes": 44613632,
+            "proof": "inductive-safety",
+            "reused_obligations": 0,
+            "transition_obligations": 7,
+            "freshly_checked": [
+              "Init",
+              "target-on-prestates-and-boundary",
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ],
+            "authorized_closure": false,
+            "failed_obligation": null,
+            "action_inventory": [
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ]
+          },
+          "authorized_sail": {
+            "wall_s": 0.325,
+            "memory_peak_bytes": 45117440,
+            "proof": "inductive-safety",
+            "reused_obligations": 7,
+            "transition_obligations": 7,
+            "freshly_checked": [
+              "target-on-prestates-and-boundary"
+            ],
+            "authorized_closure": true,
+            "failed_obligation": null,
+            "action_inventory": [
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ]
+          },
+          "ordinary_core": {
+            "wall_s": 0.027,
+            "memory_peak_bytes": 13254656,
+            "verdict": "success"
+          }
+        },
+        {
+          "ordinary_core": {
+            "wall_s": 0.027,
+            "memory_peak_bytes": 13254656,
+            "verdict": "success"
+          },
+          "authorized_sail": {
+            "wall_s": 0.327,
+            "memory_peak_bytes": 45244416,
+            "proof": "inductive-safety",
+            "reused_obligations": 7,
+            "transition_obligations": 7,
+            "freshly_checked": [
+              "target-on-prestates-and-boundary"
+            ],
+            "authorized_closure": true,
+            "failed_obligation": null,
+            "action_inventory": [
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ]
+          },
+          "unsigned_revalidate": {
+            "wall_s": 0.276,
+            "memory_peak_bytes": 44601344,
+            "proof": "inductive-safety",
+            "reused_obligations": 0,
+            "transition_obligations": 7,
+            "freshly_checked": [
+              "Init",
+              "target-on-prestates-and-boundary",
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ],
+            "authorized_closure": false,
+            "failed_obligation": null,
+            "action_inventory": [
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ]
+          },
+          "cold_certify": {
+            "wall_s": 0.326,
+            "memory_peak_bytes": 44896256,
+            "proof": "inductive-safety",
+            "reused_obligations": 0,
+            "transition_obligations": 7,
+            "freshly_checked": [
+              "Init",
+              "target-on-prestates-and-boundary",
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ],
+            "authorized_closure": false,
+            "failed_obligation": null,
+            "action_inventory": [
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ]
+          }
+        },
+        {
+          "cold_certify": {
+            "wall_s": 0.327,
+            "memory_peak_bytes": 44826624,
+            "proof": "inductive-safety",
+            "reused_obligations": 0,
+            "transition_obligations": 7,
+            "freshly_checked": [
+              "Init",
+              "target-on-prestates-and-boundary",
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ],
+            "authorized_closure": false,
+            "failed_obligation": null,
+            "action_inventory": [
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ]
+          },
+          "unsigned_revalidate": {
+            "wall_s": 0.326,
+            "memory_peak_bytes": 44552192,
+            "proof": "inductive-safety",
+            "reused_obligations": 0,
+            "transition_obligations": 7,
+            "freshly_checked": [
+              "Init",
+              "target-on-prestates-and-boundary",
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ],
+            "authorized_closure": false,
+            "failed_obligation": null,
+            "action_inventory": [
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ]
+          },
+          "authorized_sail": {
+            "wall_s": 0.328,
+            "memory_peak_bytes": 45109248,
+            "proof": "inductive-safety",
+            "reused_obligations": 7,
+            "transition_obligations": 7,
+            "freshly_checked": [
+              "target-on-prestates-and-boundary"
+            ],
+            "authorized_closure": true,
+            "failed_obligation": null,
+            "action_inventory": [
+              "TMCommitAction",
+              "TMAbortAction",
+              "TMRcvPreparedAction",
+              "RMPrepareAction",
+              "RMChooseToAbortAction",
+              "RMRcvCommitMsgAction",
+              "RMRcvAbortMsgAction"
+            ]
+          },
+          "ordinary_core": {
+            "wall_s": 0.027,
+            "memory_peak_bytes": 13250560,
+            "verdict": "success"
+          }
+        }
+      ],
+      "median_wall_s": {
+        "cold_certify": 0.327,
+        "unsigned_revalidate": 0.276,
+        "authorized_sail": 0.327,
+        "ordinary_core": 0.027
+      },
+      "break_even_including_establishment": null,
+      "sequence": {
+        "unchanged": {
+          "wall_s": 0.327,
+          "memory_peak_bytes": 45113344,
+          "proof": "inductive-safety",
+          "reused_obligations": 7,
+          "transition_obligations": 7,
+          "freshly_checked": [
+            "target-on-prestates-and-boundary"
+          ],
+          "authorized_closure": true,
+          "failed_obligation": null,
+          "action_inventory": [
+            "TMCommitAction",
+            "TMAbortAction",
+            "TMRcvPreparedAction",
+            "RMPrepareAction",
+            "RMChooseToAbortAction",
+            "RMRcvCommitMsgAction",
+            "RMRcvAbortMsgAction"
+          ]
+        },
+        "property": {
+          "wall_s": 0.325,
+          "memory_peak_bytes": 45117440,
+          "proof": "inductive-safety",
+          "reused_obligations": 7,
+          "transition_obligations": 7,
+          "freshly_checked": [
+            "target-on-prestates-and-boundary"
+          ],
+          "authorized_closure": true,
+          "failed_obligation": null,
+          "action_inventory": [
+            "TMCommitAction",
+            "TMAbortAction",
+            "TMRcvPreparedAction",
+            "RMPrepareAction",
+            "RMChooseToAbortAction",
+            "RMRcvCommitMsgAction",
+            "RMRcvAbortMsgAction"
+          ]
+        },
+        "restriction": {
+          "wall_s": 0.378,
+          "memory_peak_bytes": 50696192,
+          "proof": "inductive-safety",
+          "reused_obligations": 0,
+          "transition_obligations": 5,
+          "freshly_checked": [
+            "Init",
+            "target-on-prestates-and-boundary",
+            "TMAbortAction",
+            "TMRcvPreparedAction",
+            "RMChooseToAbortAction",
+            "RMRcvCommitMsgAction",
+            "RMRcvAbortMsgAction"
+          ],
+          "authorized_closure": false,
+          "failed_obligation": null,
+          "action_inventory": [
+            "TMAbortAction",
+            "TMRcvPreparedAction",
+            "RMChooseToAbortAction",
+            "RMRcvCommitMsgAction",
+            "RMRcvAbortMsgAction"
+          ]
+        },
+        "restriction_cold_core": {
+          "wall_s": 0.027,
+          "memory_peak_bytes": 13254656,
+          "verdict": "success"
+        },
+        "expansion_previous_candidate": {
+          "wall_s": 0.326,
+          "memory_peak_bytes": 44093440,
+          "proof": "inconclusive",
+          "failed_obligation": "<RMPrepareAction line 172, col 20 to line 172, col 55 of module TwoPhase>: action closure"
+        },
+        "expansion": {
+          "wall_s": 0.631,
+          "memory_peak_bytes": 44916736,
+          "proof": "inductive-safety",
+          "reused_obligations": 0,
+          "transition_obligations": 7,
+          "freshly_checked": [
+            "Init",
+            "target-on-prestates-and-boundary",
+            "TMCommitAction",
+            "TMAbortAction",
+            "TMRcvPreparedAction",
+            "RMPrepareAction",
+            "RMChooseToAbortAction",
+            "RMRcvCommitMsgAction",
+            "RMRcvAbortMsgAction"
+          ],
+          "authorized_closure": false,
+          "failed_obligation": null,
+          "action_inventory": [
+            "TMCommitAction",
+            "TMAbortAction",
+            "TMRcvPreparedAction",
+            "RMPrepareAction",
+            "RMChooseToAbortAction",
+            "RMRcvCommitMsgAction",
+            "RMRcvAbortMsgAction"
+          ]
+        },
+        "expansion_cold_core": {
+          "wall_s": 0.027,
+          "memory_peak_bytes": 13250560,
+          "verdict": "success"
+        },
+        "import_edit": {
+          "wall_s": 0.379,
+          "memory_peak_bytes": 50798592,
+          "proof": "inductive-safety",
+          "reused_obligations": 0,
+          "transition_obligations": 7,
+          "freshly_checked": [
+            "Init",
+            "target-on-prestates-and-boundary",
+            "TMCommitAction",
+            "TMAbortAction",
+            "TMRcvPreparedAction",
+            "RMPrepareAction",
+            "RMChooseToAbortAction",
+            "RMRcvCommitMsgAction",
+            "RMRcvAbortMsgAction"
+          ],
+          "authorized_closure": false,
+          "failed_obligation": null,
+          "action_inventory": [
+            "TMCommitAction",
+            "TMAbortAction",
+            "TMRcvPreparedAction",
+            "RMPrepareAction",
+            "RMChooseToAbortAction",
+            "RMRcvCommitMsgAction",
+            "RMRcvAbortMsgAction"
+          ]
+        },
+        "import_edit_cold_core": {
+          "wall_s": 0.028,
+          "memory_peak_bytes": 13344768,
+          "verdict": "success"
+        },
+        "undo": {
+          "wall_s": 0.326,
+          "memory_peak_bytes": 45125632,
+          "proof": "inductive-safety",
+          "reused_obligations": 7,
+          "transition_obligations": 7,
+          "freshly_checked": [
+            "target-on-prestates-and-boundary"
+          ],
+          "authorized_closure": true,
+          "failed_obligation": null,
+          "action_inventory": [
+            "TMCommitAction",
+            "TMAbortAction",
+            "TMRcvPreparedAction",
+            "RMPrepareAction",
+            "RMChooseToAbortAction",
+            "RMRcvCommitMsgAction",
+            "RMRcvAbortMsgAction"
+          ]
+        },
+        "undo_cold_core": {
+          "wall_s": 0.027,
+          "memory_peak_bytes": 13328384,
+          "verdict": "success"
+        }
+      },
+      "controls": {
+        "wrong_carrier": {
+          "wall_s": 0.276,
+          "memory_peak_bytes": 38060032,
+          "proof": "inconclusive",
+          "failed_obligation": "target implication: false predicate LearnedConjunction"
+        },
+        "clause": {
+          "wall_s": 0.273,
+          "memory_peak_bytes": 37974016,
+          "proof": "inconclusive",
+          "failed_obligation": "Init inclusion"
+        },
+        "missing_action": {
+          "wall_s": 0.326,
+          "memory_peak_bytes": 44617728,
+          "proof": "inconclusive",
+          "failed_obligation": "missing or altered original action inventory"
+        },
+        "seal": {
+          "wall_s": 0.327,
+          "memory_peak_bytes": 44593152,
+          "proof": "inductive-safety",
+          "reused_obligations": 0,
+          "transition_obligations": 7,
+          "freshly_checked": [
+            "Init",
+            "target-on-prestates-and-boundary",
+            "TMCommitAction",
+            "TMAbortAction",
+            "TMRcvPreparedAction",
+            "RMPrepareAction",
+            "RMChooseToAbortAction",
+            "RMRcvCommitMsgAction",
+            "RMRcvAbortMsgAction"
+          ],
+          "authorized_closure": false,
+          "failed_obligation": null,
+          "action_inventory": [
+            "TMCommitAction",
+            "TMAbortAction",
+            "TMRcvPreparedAction",
+            "RMPrepareAction",
+            "RMChooseToAbortAction",
+            "RMRcvCommitMsgAction",
+            "RMRcvAbortMsgAction"
+          ]
+        }
+      }
+    },
+    {
+      "model": "AsyncRaft",
+      "source_sha256": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322",
+      "cfg": {
+        "base": "CONSTANTS\nn1 = n1\nn2 = n2\nn3 = n3\nv1 = v1\nServer = {n1, n2, n3}\nFollower = Follower\nCandidate = Candidate\nLeader = Leader\nNil = Nil\nRequestVoteRequest = RequestVoteRequest\nRequestVoteResponse = RequestVoteResponse\nAppendEntriesRequest = AppendEntriesRequest\nAppendEntriesResponse = AppendEntriesResponse\nEqualTerm = EqualTerm\nLessOrEqualTerm = LessOrEqualTerm\nMaxTerm = 1\nMaxLogLen = 1\nMaxMsgCount = 3\nINIT Init\nNEXT Next\nCONSTRAINT StateConstraint\nINVARIANT H_OnePrimaryPerTerm\nCHECK_DEADLOCK FALSE\n",
+        "property": "CONSTANTS\nn1 = n1\nn2 = n2\nn3 = n3\nv1 = v1\nServer = {n1, n2, n3}\nFollower = Follower\nCandidate = Candidate\nLeader = Leader\nNil = Nil\nRequestVoteRequest = RequestVoteRequest\nRequestVoteResponse = RequestVoteResponse\nAppendEntriesRequest = AppendEntriesRequest\nAppendEntriesResponse = AppendEntriesResponse\nEqualTerm = EqualTerm\nLessOrEqualTerm = LessOrEqualTerm\nMaxTerm = 1\nMaxLogLen = 1\nMaxMsgCount = 3\nINIT Init\nNEXT Next\nCONSTRAINT StateConstraint\nINVARIANT H_OnePrimaryPerTerm\nCHECK_DEADLOCK FALSE\nINVARIANT H_CurrentTermAtLeastAsLargeAsLogTerms\n",
+        "restricted": "CONSTANTS\nn1 = n1\nn2 = n2\nn3 = n3\nv1 = v1\nServer = {n1, n2, n3}\nFollower = Follower\nCandidate = Candidate\nLeader = Leader\nNil = Nil\nRequestVoteRequest = RequestVoteRequest\nRequestVoteResponse = RequestVoteResponse\nAppendEntriesRequest = AppendEntriesRequest\nAppendEntriesResponse = AppendEntriesResponse\nEqualTerm = EqualTerm\nLessOrEqualTerm = LessOrEqualTerm\nMaxTerm = 1\nMaxLogLen = 1\nMaxMsgCount = 3\nINIT Init\nNEXT RestrictedNext\nCONSTRAINT StateConstraint\nINVARIANT H_OnePrimaryPerTerm\nCHECK_DEADLOCK FALSE\n",
+        "wrong_carrier": "CONSTANTS\nn1 = n1\nn2 = n2\nn3 = n3\nv1 = v1\nServer = {n1, n2}\nFollower = Follower\nCandidate = Candidate\nLeader = Leader\nNil = Nil\nRequestVoteRequest = RequestVoteRequest\nRequestVoteResponse = RequestVoteResponse\nAppendEntriesRequest = AppendEntriesRequest\nAppendEntriesResponse = AppendEntriesResponse\nEqualTerm = EqualTerm\nLessOrEqualTerm = LessOrEqualTerm\nMaxTerm = 2\nMaxLogLen = 1\nMaxMsgCount = 3\nINIT Init\nNEXT Next\nCONSTRAINT StateConstraint\nINVARIANT H_OnePrimaryPerTerm\nCHECK_DEADLOCK FALSE\n"
+      },
+      "establishment": {
+        "wall_s": 3.684,
+        "memory_peak_bytes": 191676416,
+        "proof": "inductive-safety",
+        "reused_obligations": 0,
+        "transition_obligations": 11,
+        "freshly_checked": [
+          "Init",
+          "target-on-prestates-and-boundary",
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction",
+          "ClientRequestAction",
+          "AppendEntriesAction",
+          "AcceptAppendEntriesRequestAppendAction",
+          "AcceptAppendEntriesRequestLearnCommitAction",
+          "HandleAppendEntriesResponseAction",
+          "AdvanceCommitIndexAction"
+        ],
+        "authorized_closure": false,
+        "failed_obligation": null,
+        "action_inventory": [
+          "RequestVoteAction",
+          "UpdateTermAction",
+          "HandleRequestVoteRequestAction",
+          "HandleRequestVoteResponseAction",
+          "BecomeLeaderAction",
+          "ClientRequestAction",
+          "AppendEntriesAction",
+          "AcceptAppendEntriesRequestAppendAction",
+          "AcceptAppendEntriesRequestLearnCommitAction",
+          "HandleAppendEntriesResponseAction",
+          "AdvanceCommitIndexAction"
+        ]
+      },
+      "exported_producer_candidate": true,
+      "producer_targets": [
+        {
+          "expr": 3207,
+          "name": "H_OnePrimaryPerTerm",
+          "scope": 187,
+          "source_tokens": "\\As,t\\inServer:(s#t/\\state[s]=Leader/\\state[t]=Leader)=>currentTerm[s]#currentTerm[t]"
+        }
+      ],
+      "artifact_bytes": 2174832,
+      "admitted_rows": 13837,
+      "boundary_rows": 46149,
+      "samples": [
+        {
+          "cold_certify": {
+            "wall_s": 4.033,
+            "memory_peak_bytes": 183386112,
+            "proof": "inductive-safety",
+            "reused_obligations": 0,
+            "transition_obligations": 11,
+            "freshly_checked": [
+              "Init",
+              "target-on-prestates-and-boundary",
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ],
+            "authorized_closure": false,
+            "failed_obligation": null,
+            "action_inventory": [
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ]
+          },
+          "unsigned_revalidate": {
+            "wall_s": 3.13,
+            "memory_peak_bytes": 133939200,
+            "proof": "inductive-safety",
+            "reused_obligations": 0,
+            "transition_obligations": 11,
+            "freshly_checked": [
+              "Init",
+              "target-on-prestates-and-boundary",
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ],
+            "authorized_closure": false,
+            "failed_obligation": null,
+            "action_inventory": [
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ]
+          },
+          "authorized_sail": {
+            "wall_s": 0.979,
+            "memory_peak_bytes": 132894720,
+            "proof": "inductive-safety",
+            "reused_obligations": 11,
+            "transition_obligations": 11,
+            "freshly_checked": [
+              "target-on-prestates-and-boundary"
+            ],
+            "authorized_closure": true,
+            "failed_obligation": null,
+            "action_inventory": [
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ]
+          },
+          "ordinary_core": {
+            "wall_s": 0.425,
+            "memory_peak_bytes": 23810048,
+            "verdict": "success"
+          }
+        },
+        {
+          "ordinary_core": {
+            "wall_s": 0.426,
+            "memory_peak_bytes": 23814144,
+            "verdict": "success"
+          },
+          "authorized_sail": {
+            "wall_s": 0.978,
+            "memory_peak_bytes": 133156864,
+            "proof": "inductive-safety",
+            "reused_obligations": 11,
+            "transition_obligations": 11,
+            "freshly_checked": [
+              "target-on-prestates-and-boundary"
+            ],
+            "authorized_closure": true,
+            "failed_obligation": null,
+            "action_inventory": [
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ]
+          },
+          "unsigned_revalidate": {
+            "wall_s": 3.131,
+            "memory_peak_bytes": 133771264,
+            "proof": "inductive-safety",
+            "reused_obligations": 0,
+            "transition_obligations": 11,
+            "freshly_checked": [
+              "Init",
+              "target-on-prestates-and-boundary",
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ],
+            "authorized_closure": false,
+            "failed_obligation": null,
+            "action_inventory": [
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ]
+          },
+          "cold_certify": {
+            "wall_s": 4.037,
+            "memory_peak_bytes": 183496704,
+            "proof": "inductive-safety",
+            "reused_obligations": 0,
+            "transition_obligations": 11,
+            "freshly_checked": [
+              "Init",
+              "target-on-prestates-and-boundary",
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ],
+            "authorized_closure": false,
+            "failed_obligation": null,
+            "action_inventory": [
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ]
+          }
+        },
+        {
+          "cold_certify": {
+            "wall_s": 4.037,
+            "memory_peak_bytes": 183447552,
+            "proof": "inductive-safety",
+            "reused_obligations": 0,
+            "transition_obligations": 11,
+            "freshly_checked": [
+              "Init",
+              "target-on-prestates-and-boundary",
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ],
+            "authorized_closure": false,
+            "failed_obligation": null,
+            "action_inventory": [
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ]
+          },
+          "unsigned_revalidate": {
+            "wall_s": 3.08,
+            "memory_peak_bytes": 133832704,
+            "proof": "inductive-safety",
+            "reused_obligations": 0,
+            "transition_obligations": 11,
+            "freshly_checked": [
+              "Init",
+              "target-on-prestates-and-boundary",
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ],
+            "authorized_closure": false,
+            "failed_obligation": null,
+            "action_inventory": [
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ]
+          },
+          "authorized_sail": {
+            "wall_s": 0.978,
+            "memory_peak_bytes": 133197824,
+            "proof": "inductive-safety",
+            "reused_obligations": 11,
+            "transition_obligations": 11,
+            "freshly_checked": [
+              "target-on-prestates-and-boundary"
+            ],
+            "authorized_closure": true,
+            "failed_obligation": null,
+            "action_inventory": [
+              "RequestVoteAction",
+              "UpdateTermAction",
+              "HandleRequestVoteRequestAction",
+              "HandleRequestVoteResponseAction",
+              "BecomeLeaderAction",
+              "ClientRequestAction",
+              "AppendEntriesAction",
+              "AcceptAppendEntriesRequestAppendAction",
+              "AcceptAppendEntriesRequestLearnCommitAction",
+              "HandleAppendEntriesResponseAction",
+              "AdvanceCommitIndexAction"
+            ]
+          },
+          "ordinary_core": {
+            "wall_s": 0.426,
+            "memory_peak_bytes": 23724032,
+            "verdict": "success"
+          }
+        }
+      ],
+      "median_wall_s": {
+        "cold_certify": 4.037,
+        "unsigned_revalidate": 3.13,
+        "authorized_sail": 0.978,
+        "ordinary_core": 0.426
+      },
+      "break_even_including_establishment": 2,
+      "sequence": {
+        "unchanged": {
+          "wall_s": 0.878,
+          "memory_peak_bytes": 133091328,
+          "proof": "inductive-safety",
+          "reused_obligations": 11,
+          "transition_obligations": 11,
+          "freshly_checked": [
+            "target-on-prestates-and-boundary"
+          ],
+          "authorized_closure": true,
+          "failed_obligation": null,
+          "action_inventory": [
+            "RequestVoteAction",
+            "UpdateTermAction",
+            "HandleRequestVoteRequestAction",
+            "HandleRequestVoteResponseAction",
+            "BecomeLeaderAction",
+            "ClientRequestAction",
+            "AppendEntriesAction",
+            "AcceptAppendEntriesRequestAppendAction",
+            "AcceptAppendEntriesRequestLearnCommitAction",
+            "HandleAppendEntriesResponseAction",
+            "AdvanceCommitIndexAction"
+          ]
+        },
+        "property": {
+          "wall_s": 0.979,
+          "memory_peak_bytes": 132894720,
+          "proof": "inductive-safety",
+          "reused_obligations": 11,
+          "transition_obligations": 11,
+          "freshly_checked": [
+            "target-on-prestates-and-boundary"
+          ],
+          "authorized_closure": true,
+          "failed_obligation": null,
+          "action_inventory": [
+            "RequestVoteAction",
+            "UpdateTermAction",
+            "HandleRequestVoteRequestAction",
+            "HandleRequestVoteResponseAction",
+            "BecomeLeaderAction",
+            "ClientRequestAction",
+            "AppendEntriesAction",
+            "AcceptAppendEntriesRequestAppendAction",
+            "AcceptAppendEntriesRequestLearnCommitAction",
+            "HandleAppendEntriesResponseAction",
+            "AdvanceCommitIndexAction"
+          ]
+        },
+        "restriction": {
+          "wall_s": 3.282,
+          "memory_peak_bytes": 147267584,
+          "proof": "inductive-safety",
+          "reused_obligations": 0,
+          "transition_obligations": 10,
+          "freshly_checked": [
+            "Init",
+            "target-on-prestates-and-boundary",
+            "RequestVoteAction",
+            "UpdateTermAction",
+            "HandleRequestVoteRequestAction",
+            "HandleRequestVoteResponseAction",
+            "BecomeLeaderAction",
+            "AppendEntriesAction",
+            "AcceptAppendEntriesRequestAppendAction",
+            "AcceptAppendEntriesRequestLearnCommitAction",
+            "HandleAppendEntriesResponseAction",
+            "AdvanceCommitIndexAction"
+          ],
+          "authorized_closure": false,
+          "failed_obligation": null,
+          "action_inventory": [
+            "RequestVoteAction",
+            "UpdateTermAction",
+            "HandleRequestVoteRequestAction",
+            "HandleRequestVoteResponseAction",
+            "BecomeLeaderAction",
+            "AppendEntriesAction",
+            "AcceptAppendEntriesRequestAppendAction",
+            "AcceptAppendEntriesRequestLearnCommitAction",
+            "HandleAppendEntriesResponseAction",
+            "AdvanceCommitIndexAction"
+          ]
+        },
+        "restriction_cold_core": {
+          "wall_s": 0.081,
+          "memory_peak_bytes": 21725184,
+          "verdict": "success"
+        },
+        "expansion_previous_candidate": {
+          "wall_s": 0.526,
+          "memory_peak_bytes": 78610432,
+          "proof": "inconclusive",
+          "failed_obligation": "<ClientRequestAction line 549, col 24 to line 549, col 65 of module AsyncRaft>: action closure"
+        },
+        "expansion": {
+          "wall_s": 4.335,
+          "memory_peak_bytes": 183443456,
+          "proof": "inductive-safety",
+          "reused_obligations": 0,
+          "transition_obligations": 11,
+          "freshly_checked": [
+            "Init",
+            "target-on-prestates-and-boundary",
+            "RequestVoteAction",
+            "UpdateTermAction",
+            "HandleRequestVoteRequestAction",
+            "HandleRequestVoteResponseAction",
+            "BecomeLeaderAction",
+            "ClientRequestAction",
+            "AppendEntriesAction",
+            "AcceptAppendEntriesRequestAppendAction",
+            "AcceptAppendEntriesRequestLearnCommitAction",
+            "HandleAppendEntriesResponseAction",
+            "AdvanceCommitIndexAction"
+          ],
+          "authorized_closure": false,
+          "failed_obligation": null,
+          "action_inventory": [
+            "RequestVoteAction",
+            "UpdateTermAction",
+            "HandleRequestVoteRequestAction",
+            "HandleRequestVoteResponseAction",
+            "BecomeLeaderAction",
+            "ClientRequestAction",
+            "AppendEntriesAction",
+            "AcceptAppendEntriesRequestAppendAction",
+            "AcceptAppendEntriesRequestLearnCommitAction",
+            "HandleAppendEntriesResponseAction",
+            "AdvanceCommitIndexAction"
+          ]
+        },
+        "expansion_cold_core": {
+          "wall_s": 0.374,
+          "memory_peak_bytes": 23818240,
+          "verdict": "success"
+        },
+        "import_edit": {
+          "wall_s": 3.331,
+          "memory_peak_bytes": 147378176,
+          "proof": "inductive-safety",
+          "reused_obligations": 0,
+          "transition_obligations": 11,
+          "freshly_checked": [
+            "Init",
+            "target-on-prestates-and-boundary",
+            "RequestVoteAction",
+            "UpdateTermAction",
+            "HandleRequestVoteRequestAction",
+            "HandleRequestVoteResponseAction",
+            "BecomeLeaderAction",
+            "ClientRequestAction",
+            "AppendEntriesAction",
+            "AcceptAppendEntriesRequestAppendAction",
+            "AcceptAppendEntriesRequestLearnCommitAction",
+            "HandleAppendEntriesResponseAction",
+            "AdvanceCommitIndexAction"
+          ],
+          "authorized_closure": false,
+          "failed_obligation": null,
+          "action_inventory": [
+            "RequestVoteAction",
+            "UpdateTermAction",
+            "HandleRequestVoteRequestAction",
+            "HandleRequestVoteResponseAction",
+            "BecomeLeaderAction",
+            "ClientRequestAction",
+            "AppendEntriesAction",
+            "AcceptAppendEntriesRequestAppendAction",
+            "AcceptAppendEntriesRequestLearnCommitAction",
+            "HandleAppendEntriesResponseAction",
+            "AdvanceCommitIndexAction"
+          ]
+        },
+        "import_edit_cold_core": {
+          "wall_s": 0.373,
+          "memory_peak_bytes": 23793664,
+          "verdict": "success"
+        },
+        "undo": {
+          "wall_s": 0.878,
+          "memory_peak_bytes": 133099520,
+          "proof": "inductive-safety",
+          "reused_obligations": 11,
+          "transition_obligations": 11,
+          "freshly_checked": [
+            "target-on-prestates-and-boundary"
+          ],
+          "authorized_closure": true,
+          "failed_obligation": null,
+          "action_inventory": [
+            "RequestVoteAction",
+            "UpdateTermAction",
+            "HandleRequestVoteRequestAction",
+            "HandleRequestVoteResponseAction",
+            "BecomeLeaderAction",
+            "ClientRequestAction",
+            "AppendEntriesAction",
+            "AcceptAppendEntriesRequestAppendAction",
+            "AcceptAppendEntriesRequestLearnCommitAction",
+            "HandleAppendEntriesResponseAction",
+            "AdvanceCommitIndexAction"
+          ]
+        },
+        "undo_cold_core": {
+          "wall_s": 0.378,
+          "memory_peak_bytes": 23728128,
+          "verdict": "success"
+        }
+      },
+      "controls": {
+        "wrong_carrier": {
+          "wall_s": 0.927,
+          "memory_peak_bytes": 132308992,
+          "proof": "inconclusive",
+          "failed_obligation": "Init inclusion"
+        },
+        "clause": {
+          "wall_s": 0.625,
+          "memory_peak_bytes": 103501824,
+          "proof": "inconclusive",
+          "failed_obligation": "Init inclusion"
+        },
+        "missing_action": {
+          "wall_s": 2.978,
+          "memory_peak_bytes": 132038656,
+          "proof": "inconclusive",
+          "failed_obligation": "missing or altered original action inventory"
+        },
+        "seal": {
+          "wall_s": 2.978,
+          "memory_peak_bytes": 132636672,
+          "proof": "inductive-safety",
+          "reused_obligations": 0,
+          "transition_obligations": 11,
+          "freshly_checked": [
+            "Init",
+            "target-on-prestates-and-boundary",
+            "RequestVoteAction",
+            "UpdateTermAction",
+            "HandleRequestVoteRequestAction",
+            "HandleRequestVoteResponseAction",
+            "BecomeLeaderAction",
+            "ClientRequestAction",
+            "AppendEntriesAction",
+            "AcceptAppendEntriesRequestAppendAction",
+            "AcceptAppendEntriesRequestLearnCommitAction",
+            "HandleAppendEntriesResponseAction",
+            "AdvanceCommitIndexAction"
+          ],
+          "authorized_closure": false,
+          "failed_obligation": null,
+          "action_inventory": [
+            "RequestVoteAction",
+            "UpdateTermAction",
+            "HandleRequestVoteRequestAction",
+            "HandleRequestVoteResponseAction",
+            "BecomeLeaderAction",
+            "ClientRequestAction",
+            "AppendEntriesAction",
+            "AcceptAppendEntriesRequestAppendAction",
+            "AcceptAppendEntriesRequestLearnCommitAction",
+            "HandleAppendEntriesResponseAction",
+            "AdvanceCommitIndexAction"
+          ]
+        },
+        "reachable_vote_mutation": {
+          "wall_s": 1.485,
+          "memory_peak_bytes": 132857856,
+          "verdict": "invariant-violation",
+          "independently_replayed_states": 10,
+          "cold_core": {
+            "wall_s": 0.075,
+            "memory_peak_bytes": 21725184,
+            "verdict": "invariant-violation"
+          }
+        }
+      }
+    }
+  ],
+  "producer_candidates": {
+    "TwoPhase": {
+      "sha256": "398fa655757d690a99b6ef2d3b1d8eb27cf80c67a2917022b701df031d057f66",
+      "driver": "scripts/perf/scale/certify_twophase.py"
+    },
+    "AsyncRaft": {
+      "sha256": "9ca16d9895a2491678b28b7bea2ababf377558ee3a1645d0ae19825f24a99ba2",
+      "driver": "scripts/perf/scale/certify_asyncraft.py"
+    }
+  }
+}

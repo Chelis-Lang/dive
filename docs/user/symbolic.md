@@ -140,6 +140,40 @@ restoring the safety obligation took 104.539 s cold, 1.928 s with an unsigned
 predicate, and 0.676 s through a separately launched Sail process with local
 authentication. [Matched runs and failure controls](../../conformance/reports/perf/2026-11-22-whole-value-portable.json).
 
+## Transfer a complete finite induction certificate
+
+On Linux, use `dive check MODULE --config CFG --strategy finite-induction --output json
+--write-predicate FILE` on an admitted finite safety configuration. The
+checker explores original Init and Next with exact values in the Dive profile.
+The certificate
+holds the finite predicate as value dictionaries and a set of encoded rows.
+The checker conservatively refuses representation-sensitive operators in
+the loaded modules, including some imports that expose those operators.
+The verifier checks safety on each generated successor, including states
+outside a configured state constraint. Only in-domain rows are expanded.
+
+A separate process can load the certificate with `--verify-predicate FILE`.
+Without a local signing key, it independently checks the original initial
+states, every bound action, closure and the configured invariants. When
+`DIVE_SYMBOLIC_PROOF_KEY` points to the same qualifying local key in both
+processes, Dive can reuse Init and action closure on the same bound model.
+It checks every current invariant over the admitted rows and the recorded
+boundary successors. Changing an imported action, the carrier or the
+constraint changes the binding. A successful verification returns
+`inductive-safety` with checked and reused obligations.
+
+To transfer a candidate from an independent finite proof, pass
+`--verify-predicate INPUT --write-predicate OUTPUT` in the same invocation.
+Dive rechecks the supplied rows, regenerates the boundary evidence, and
+records the current proved formulas before it writes the new certificate.
+The TwoPhase and AsyncRaft proof drivers can save their certified candidates
+with `--certificate-out DIR`.
+
+An installed Sail client can use the same strategy with
+`sail runtime symbolic-check --strategy finite-induction`. It searches the
+current configuration within the remaining session deadline if a candidate
+is inconclusive. [Complete TwoPhase and AsyncRaft edit histories](../../conformance/reports/perf/2026-11-22-portable-finite-induction.json).
+
 ## Compile a finite safety check
 
 Use `dive check --strategy compiled` in the Linux release bundle to compile a

@@ -61,6 +61,8 @@ def main():
     strategy.add_argument("--property-proof", metavar="NAME", help="prove a single configured state invariant")
     strategy.add_argument("--occupancy", action="store_true", help="exact labeled BFS on anonymous status tables")
     strategy.add_argument("--compiled", action="store_true", help="compile a packed exact safety search")
+    strategy.add_argument("--finite-induction", action="store_true",
+                          help="certify a finite predicate and optionally transfer its obligations")
     strategy.add_argument("--auto-core-args", type=json.loads, help=argparse.SUPPRESS)
     parser.add_argument("--workers", type=int, choices=range(1, 9), help="maximum compiled search workers")
     parser.add_argument("--max-orbits", type=int, help="maximum reachable population vectors for the occupancy strategy")
@@ -78,6 +80,9 @@ def main():
     parser.add_argument("--max-memory", type=positive_mib, metavar="MIB",
                         help="virtual address-space limit inherited by the worker and each child")
     args = parser.parse_args()
+    if args.finite_induction and any((args.type_invariant, args.recheck, args.refine_domains, args.prove_inductive,
+                                      args.order_by_path, args.single_partition, args.workers, args.max_orbits)):
+        parser.error("finite induction accepts only a fresh finite safety question or a portable predicate")
     if args.type_invariant is None and not args.property_proof:
         args.type_invariant = "TypeInvariant"
     auto = args.auto_core_args is not None
@@ -91,7 +96,7 @@ def main():
         parser.error("auto selects an exhaustive check of a single original configuration")
     if args.prove_inductive and (args.write_predicate or args.verify_predicate):
         parser.error("direct induction and portable predicate checking require separate runs")
-    if args.write_predicate and args.verify_predicate and not args.property_proof:
+    if args.write_predicate and args.verify_predicate and not (args.property_proof or args.finite_induction):
         parser.error("checking and repairing a portable predicate requires --property-proof")
     if args.property_proof == "":
         parser.error("--property-proof requires a nonempty invariant name")
@@ -125,7 +130,11 @@ def main():
 
     if args.compiled and sys.maxsize < 2**32:
         parser.error("compiled checking requires 64-bit Linux")
-    directory = TemporaryDirectory(prefix="dive-compiled-") if args.compiled or auto else nullcontext(None)
+    prefix = "dive-induction-" if args.finite_induction else "dive-compiled-"
+    directory = (
+        TemporaryDirectory(prefix=prefix)
+        if args.compiled or args.finite_induction or auto else nullcontext(None)
+    )
     with directory as args.scratch:
         return supervise(args)
 
@@ -135,6 +144,8 @@ def supervise(args):
     script = "compiled.py" if args.compiled else "occupancy.py" if args.occupancy else "engine.py"
     if args.auto_core_args is not None:
         script = "auto.py"
+    if args.finite_induction:
+        script = "finite_certificate.py"
     worker = Path(__file__).with_name(script)
     args.workers = args.workers or 1
     class Cancelled(Exception):

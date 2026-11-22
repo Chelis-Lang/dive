@@ -247,6 +247,10 @@ def prove(args, root, servers):
     stored.write_text(json.dumps(slice_proof["states"]))
     incomplete, _ = measured([args.producer, module, cfg, stored], root)
     assert incomplete.returncode and "action closure" in incomplete.stderr
+    if args.certificate_out:
+        artifact = {"manifest": manifest, "rows": native["states"], "resolved_actions": native["actions"]}
+        exported = args.certificate_out / f"AsyncRaft-{servers}.json"
+        exported.write_text(json.dumps(artifact, separators=(",", ":")))
     return {
         "carrier": servers, "cfg": cfg.read_text(), "model_sha256": digest(module),
         "rowset_sha256": sha256(json.dumps(native["states"], separators=(",", ":")).encode()).hexdigest(),
@@ -265,7 +269,10 @@ def main():
         p.add_argument("--" + option, required=True, type=lambda v: Path(v).resolve())
     p.add_argument("--java", default="java")
     p.add_argument("--carrier", type=int, choices=(2, 3))
+    p.add_argument("--certificate-out", type=lambda v: Path(v).resolve())
     args = p.parse_args()
+    if args.certificate_out:
+        args.certificate_out.mkdir(parents=True, exist_ok=True)
     for n in ((args.carrier,) if args.carrier else (2, 3)):
         with TemporaryDirectory() as temporary:
             print(json.dumps(prove(args, Path(temporary), n)), flush=True)

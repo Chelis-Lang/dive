@@ -45,6 +45,8 @@ are in git history.
 
 - Whole-value symbolic checks can save a portable safety predicate and recheck an edited invariant list in a separate Dive or Sail process.
 
+- Transfer complete bounded induction certificates across installed Dive and Sail processes with `--strategy finite-induction`. The receiver checks edited invariants and can reuse authenticated Init and action closure.
+
 ### Added
 
 - `dive check --periodic-min-states N` sets the first size threshold for [scheduled liveness checks](docs/user/temporal.md). Reports record the actual completed level, counts and validated word.
