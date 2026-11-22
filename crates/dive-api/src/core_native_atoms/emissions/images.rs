@@ -35,7 +35,8 @@ impl Reader<'_, '_> {
         let Some(cert) = self.atoms.producer_images.get(id).copied().flatten() else {
             return Ok(false);
         };
-        if compiled.exhausted_in_a_row != 0
+        if (!cert.boolean_guard_prefix && compiled.image_guard_key.is_none())
+            || compiled.exhausted_in_a_row != 0
             || ((!cert.quiet_guards || !cert.quiet_suffix)
                 && self.atoms.machine.heap.store().saw_missing_update())
         {
