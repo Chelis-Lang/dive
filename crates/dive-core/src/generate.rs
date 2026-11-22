@@ -13,6 +13,7 @@ use crate::eval::Machine;
 use crate::handle::Handle;
 use crate::plan::{Bind, Code, G, GNode, Node, P, Raw, Unch};
 
+pub(crate) mod action_deltas;
 mod composition;
 mod constructive;
 mod framed_choices;
@@ -386,6 +387,18 @@ impl Machine {
 
     fn gen_node(&mut self, code: &Code, g: G, acts: u32, sink: &mut dyn Sink) -> Result<(), Error> {
         let Some(observer) = &self.debugger else {
+            if !code.successor_projections.is_empty()
+                && !self.capturing
+                && self.assigned == 0
+                && self.fuel == u64::MAX
+                && sink.exhaustive()
+                && !sink.constructive()
+                && self.warnings.is_empty()
+                && !self.heap.speculative
+                && let Some(result) = self.projected_branch(code, g, acts, sink)
+            {
+                return result;
+            }
             return self.gen_node_inner(code, g, acts, sink);
         };
         let instruction = crate::debug::Instruction::Generator(g);

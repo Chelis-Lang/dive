@@ -617,6 +617,30 @@ impl MemoSite {
     }
 }
 
+/// A conservative source dependency and changed-column projection.
+#[derive(Clone, Debug, Default)]
+pub struct SuccProjection {
+    pub(crate) read: u64,
+    pub(crate) write: u64,
+    pub(crate) copy: u64,
+    pub(crate) slots: Vec<u32>,
+    pub(crate) block: bool,
+}
+impl SuccProjection {
+    pub(crate) fn merge(&mut self, b: &Self, sequential: bool) {
+        if sequential {
+            self.read |= (self.copy & (b.copy | b.write)) | (self.write & b.copy);
+        }
+        self.read |= b.read;
+        self.write |= b.write;
+        self.copy |= b.copy;
+        for &s in &b.slots {
+            if !self.slots.contains(&s) {
+                self.slots.push(s);
+            }
+        }
+    }
+}
 /// The node arrays.
 #[derive(Clone, Debug, Default)]
 pub struct Code {
@@ -628,6 +652,8 @@ pub struct Code {
     pub nodes: Vec<Node>,
     /// Generator nodes.
     pub gnodes: Vec<GNode>,
+    /// Source dependencies for cacheable completed action branches.
+    pub successor_projections: Vec<Option<SuccProjection>>,
     /// Recursive operators.
     pub funs: Vec<Fun>,
     /// Memo sites.

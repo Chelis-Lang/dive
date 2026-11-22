@@ -76,6 +76,7 @@ pub struct Machine {
     pub memo: Memo,
     /// Counters.
     pub stats: EvalStats,
+    pub(crate) capturing: bool,
     /// Whether the all-assigned shortcut runs for successors (TLC's
     /// `TLCGlobals.warn`; on in both profiles).
     pub warn: bool,
@@ -257,6 +258,7 @@ impl Machine {
             opts,
             memo,
             stats: EvalStats::default(),
+            capturing: false,
             warn: true,
             warnings: Vec::new(),
             printed: Vec::new(),

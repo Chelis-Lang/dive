@@ -55,6 +55,8 @@ mod generator;
 mod atom_reads;
 #[path = "compile_action_batch.rs"]
 mod batch;
+#[path = "compile_successor_projection.rs"]
+mod successor_projection;
 pub use batch::ActionBatch;
 
 #[path = "compile_split.rs"]
@@ -903,6 +905,9 @@ fn compile_inner(
     c.reset_composition_thunks();
     c.stats.nodes = c.code.nodes.len();
     c.stats.gnodes = c.code.gnodes.len();
+    if !mapped && nvars <= 64 && !c.effects.any && std::env::var_os("DIVE_DELTA").is_some() {
+        c.code.successor_projections = c.successor_projections();
+    }
     let vars =
         h.ir.vars()
             .iter()
