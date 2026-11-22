@@ -1,0 +1,501 @@
+{
+  "question": "How much does replayable prefix placement affect time to an independently admissible fair counterexample, and how does a selected threshold compare with the ordinary default and Manyan?",
+  "host": "One dedicated c7i.4xlarge in us-east-2, 16 vCPUs, Ubuntu 24.04.5, pinned Rust 1.99.0. Single worker, serial fresh processes. GNU time wall s and peak RSS KiB.",
+  "inputs": "Pin and CFG digests are in 2026-11-22-projected-fairness.json. The four-floor case changes only FloorCount in the original ElevatorLivenessLarge.cfg. The source, Next and all configured obligations are identical across thresholds.",
+  "peer": "Pinned Manyan a39816a873a2c2aabc00dbcef50908e996f3d44b; three cold processes on this same isolated host in 2026-11-22-projected-fairness.json took 7.52, 7.44 and 7.46 seconds. Its repaired-format original 202-state word passes the previous validator and a changed closing target fails. Manyan completes a larger behavior graph; only time to a valid counterexample is comparable here.",
+  "method": "Exploratory minimum-state sweep on the existing Rust CheckRequest::periodic (growth_factor=2). Threshold 100000 selected after inspecting the sweep. Separate fresh processes compare the production CLI setting with its unmodified default in alternating order. Testing smaller thresholds can cost more and changing the stopping boundary can change counters or which failure appears first.",
+  "commands": [
+    "dive check Elevator.tla --config four-floor.cfg --workers 1 --seed 0 --fp 0 --compat dive --time-limit 100s --max-memory 8g --output json",
+    "Repeat with --periodic-min-states N. Use the original ElevatorLivenessMedium.cfg and ElevatorLivenessLarge.cfg as exhausted holding controls. At 100000, no prefix check is due on those two graphs.",
+    "Extract .counterexample.trace and run the previous dive validate-trace Elevator.tla --config four-floor.cfg --trace WORD --seed 0 --fp 0 --output json; set ending.back_to to 0 and repeat."
+  ],
+  "executables_sha256": {
+    "sched": "ac2e9363a2fbb8b147092f73676ac3acf2b3083621e6624e7f0c1fd920a64c17",
+    "threshold-cli": "cfdc7bec71abbe5eb56b3a4b3c2a37532520ec3c0c3e75efa68ae716df91d6b4",
+    "baseline": "96899100160edb2e9a2683dc3b0d0e07878f558561c22c7c528e0b1ad5bb23a2",
+    "manyan-src/manyan": "89f6da894a58220f7607853ca3907122f692fe66e507c148e1898731b8b4fcf1"
+  },
+  "exploratory_sweep": [
+    {
+      "wall_s": 6.37,
+      "rss_kib": 177832,
+      "threshold": 100000,
+      "prefix_checks": 1,
+      "level": 14,
+      "exhausted": false,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 15,
+        "distinct": 104122,
+        "generated": 505657,
+        "initial_generated": 4096,
+        "left_on_queue": 9050,
+        "reported_by_tlc": false
+      },
+      "property": "TemporalInvariant",
+      "witness_states": 102,
+      "independent_validation": "valid",
+      "phases_ms": {
+        "atoms": 4011.66,
+        "attribution": 19.41,
+        "product": 779.95
+      }
+    },
+    {
+      "wall_s": 9.84,
+      "rss_kib": 180096,
+      "threshold": 131072,
+      "prefix_checks": 1,
+      "level": 18,
+      "exhausted": false,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 19,
+        "distinct": 138204,
+        "generated": 661468,
+        "initial_generated": 4096,
+        "left_on_queue": 9056,
+        "reported_by_tlc": false
+      },
+      "property": "TemporalInvariant",
+      "witness_states": 102,
+      "independent_validation": "valid",
+      "phases_ms": {
+        "atoms": 6697.09,
+        "attribution": 20.6,
+        "product": 1092.38
+      }
+    },
+    {
+      "wall_s": 9.81,
+      "rss_kib": 198720,
+      "threshold": 32768,
+      "prefix_checks": 3,
+      "level": 19,
+      "exhausted": false,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "property": "TemporalInvariant",
+      "witness_states": 102,
+      "independent_validation": "valid",
+      "phases_ms": {
+        "atoms": 5773.02,
+        "attribution": 20.32,
+        "product": 1846.65
+      }
+    },
+    {
+      "wall_s": 8.27,
+      "rss_kib": 188412,
+      "threshold": 49152,
+      "prefix_checks": 2,
+      "level": 17,
+      "exhausted": false,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 18,
+        "distinct": 129148,
+        "generated": 621961,
+        "initial_generated": 4096,
+        "left_on_queue": 8006,
+        "reported_by_tlc": false
+      },
+      "property": "TemporalInvariant",
+      "witness_states": 102,
+      "independent_validation": "valid",
+      "phases_ms": {
+        "atoms": 5016.7,
+        "attribution": 19.32,
+        "product": 1304.62
+      }
+    },
+    {
+      "wall_s": 9.65,
+      "rss_kib": 196396,
+      "threshold": 65536,
+      "prefix_checks": 2,
+      "level": 19,
+      "exhausted": false,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "property": "TemporalInvariant",
+      "witness_states": 102,
+      "independent_validation": "valid",
+      "phases_ms": {
+        "atoms": 5824.86,
+        "attribution": 20.74,
+        "product": 1631.26
+      }
+    },
+    {
+      "wall_s": 12.08,
+      "rss_kib": 202808,
+      "threshold": 81920,
+      "prefix_checks": 2,
+      "level": 21,
+      "exhausted": false,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 22,
+        "distinct": 181056,
+        "generated": 903915,
+        "initial_generated": 4096,
+        "left_on_queue": 15380,
+        "reported_by_tlc": false
+      },
+      "property": "TemporalInvariant",
+      "witness_states": 102,
+      "independent_validation": "valid",
+      "phases_ms": {
+        "atoms": 7355.45,
+        "attribution": 20.32,
+        "product": 2048.07
+      }
+    },
+    {
+      "wall_s": 6.38,
+      "rss_kib": 176036,
+      "threshold": 98304,
+      "prefix_checks": 1,
+      "level": 14,
+      "exhausted": false,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 15,
+        "distinct": 104122,
+        "generated": 505657,
+        "initial_generated": 4096,
+        "left_on_queue": 9050,
+        "reported_by_tlc": false
+      },
+      "property": "TemporalInvariant",
+      "witness_states": 102,
+      "independent_validation": "valid",
+      "phases_ms": {
+        "atoms": 4019.88,
+        "attribution": 19.4,
+        "product": 778.36
+      }
+    }
+  ],
+  "cli_runs": [
+    {
+      "wall_s": 9.62,
+      "rss_kib": 196732,
+      "threshold": 65536,
+      "prefix_checks": 2,
+      "level": 19,
+      "exhausted": false,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "property": "TemporalInvariant",
+      "witness_states": 102,
+      "independent_validation": "valid",
+      "phases_ms": {
+        "atoms": 5806.12,
+        "attribution": 19.41,
+        "product": 1619.2
+      },
+      "arm": "default",
+      "repeat": 1,
+      "independent_prechange_replay": [
+        {
+          "case": "recorded",
+          "exit": 0,
+          "result": "valid",
+          "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc"
+        },
+        {
+          "case": "damaged",
+          "exit": 1,
+          "result": "invalid",
+          "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca"
+        }
+      ]
+    },
+    {
+      "wall_s": 10.11,
+      "rss_kib": 176060,
+      "threshold": 65536,
+      "prefix_checks": 2,
+      "level": 19,
+      "exhausted": false,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "property": "TemporalInvariant",
+      "witness_states": 102,
+      "independent_validation": "valid",
+      "phases_ms": {
+        "atoms": 6211.58,
+        "attribution": 20.72,
+        "product": 1632.32
+      },
+      "arm": "default",
+      "repeat": 2
+    },
+    {
+      "wall_s": 9.73,
+      "rss_kib": 196576,
+      "threshold": 65536,
+      "prefix_checks": 2,
+      "level": 19,
+      "exhausted": false,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "property": "TemporalInvariant",
+      "witness_states": 102,
+      "independent_validation": "valid",
+      "phases_ms": {
+        "atoms": 5870.74,
+        "attribution": 19.35,
+        "product": 1618.61
+      },
+      "arm": "default",
+      "repeat": 3
+    },
+    {
+      "wall_s": 3.54,
+      "rss_kib": 102452,
+      "threshold": 65536,
+      "prefix_checks": 0,
+      "level": null,
+      "exhausted": true,
+      "verdict": "success",
+      "statistics": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "property": null,
+      "witness_states": null,
+      "independent_validation": null,
+      "phases_ms": {
+        "atoms": 1937.82,
+        "product": 866.45
+      },
+      "arm": "large-default",
+      "repeat": 1
+    },
+    {
+      "wall_s": 3.54,
+      "rss_kib": 102640,
+      "threshold": 100000,
+      "prefix_checks": 0,
+      "level": null,
+      "exhausted": true,
+      "verdict": "success",
+      "statistics": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "property": null,
+      "witness_states": null,
+      "independent_validation": null,
+      "phases_ms": {
+        "atoms": 1932.77,
+        "product": 881.21
+      },
+      "arm": "large-tuned",
+      "repeat": 1
+    },
+    {
+      "wall_s": 0.25,
+      "rss_kib": 39048,
+      "threshold": 65536,
+      "prefix_checks": 0,
+      "level": null,
+      "exhausted": true,
+      "verdict": "success",
+      "statistics": {
+        "depth": 36,
+        "distinct": 4122,
+        "generated": 14296,
+        "initial_generated": 64,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "property": null,
+      "witness_states": null,
+      "independent_validation": null,
+      "phases_ms": {
+        "atoms": 143.68,
+        "product": 40.67
+      },
+      "arm": "medium-default",
+      "repeat": 1
+    },
+    {
+      "wall_s": 0.25,
+      "rss_kib": 38888,
+      "threshold": 100000,
+      "prefix_checks": 0,
+      "level": null,
+      "exhausted": true,
+      "verdict": "success",
+      "statistics": {
+        "depth": 36,
+        "distinct": 4122,
+        "generated": 14296,
+        "initial_generated": 64,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "property": null,
+      "witness_states": null,
+      "independent_validation": null,
+      "phases_ms": {
+        "atoms": 143.36,
+        "product": 41.49
+      },
+      "arm": "medium-tuned",
+      "repeat": 1
+    },
+    {
+      "wall_s": 6.4,
+      "rss_kib": 176024,
+      "threshold": 100000,
+      "prefix_checks": 1,
+      "level": 14,
+      "exhausted": false,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 15,
+        "distinct": 104122,
+        "generated": 505657,
+        "initial_generated": 4096,
+        "left_on_queue": 9050,
+        "reported_by_tlc": false
+      },
+      "property": "TemporalInvariant",
+      "witness_states": 102,
+      "independent_validation": "valid",
+      "phases_ms": {
+        "atoms": 4039.22,
+        "attribution": 19.86,
+        "product": 775.29
+      },
+      "arm": "tuned",
+      "repeat": 1,
+      "independent_prechange_replay": [
+        {
+          "case": "recorded",
+          "exit": 0,
+          "result": "valid",
+          "sha256": "e908fd829b21724694e86170e575e2982e1b19ab323f02f93a437be169006cfc"
+        },
+        {
+          "case": "damaged",
+          "exit": 1,
+          "result": "invalid",
+          "sha256": "3f72800a3b155a5406ef673051420b2ec356db4e61b6c2ddf5bb5245f995e3ca"
+        }
+      ]
+    },
+    {
+      "wall_s": 6.39,
+      "rss_kib": 178108,
+      "threshold": 100000,
+      "prefix_checks": 1,
+      "level": 14,
+      "exhausted": false,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 15,
+        "distinct": 104122,
+        "generated": 505657,
+        "initial_generated": 4096,
+        "left_on_queue": 9050,
+        "reported_by_tlc": false
+      },
+      "property": "TemporalInvariant",
+      "witness_states": 102,
+      "independent_validation": "valid",
+      "phases_ms": {
+        "atoms": 4040.75,
+        "attribution": 19.59,
+        "product": 769.82
+      },
+      "arm": "tuned",
+      "repeat": 2
+    },
+    {
+      "wall_s": 6.74,
+      "rss_kib": 177848,
+      "threshold": 100000,
+      "prefix_checks": 1,
+      "level": 14,
+      "exhausted": false,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 15,
+        "distinct": 104122,
+        "generated": 505657,
+        "initial_generated": 4096,
+        "left_on_queue": 9050,
+        "reported_by_tlc": false
+      },
+      "property": "TemporalInvariant",
+      "witness_states": 102,
+      "independent_validation": "valid",
+      "phases_ms": {
+        "atoms": 4308.3,
+        "attribution": 20.44,
+        "product": 771.3
+      },
+      "arm": "tuned",
+      "repeat": 3
+    }
+  ],
+  "four_floor_medians": {
+    "default": {
+      "wall_s": 9.73,
+      "rss_kib": 196576
+    },
+    "tuned": {
+      "wall_s": 6.4,
+      "rss_kib": 177848
+    }
+  }
+}

@@ -164,6 +164,16 @@ double. The default is 65,536. Increasing the threshold can avoid an expensive
 unsuccessful prefix check or postpone finding a violation. A holding result
 still requires the final check on the exhausted graph.
 
+On four-floor Elevator, `--periodic-min-states 100000` found a validated
+102-state counterexample on the first check, at 104,122 discovered states.
+The CLI median across three fresh processes was 6.40 s. The default crossed
+65,536 too early to find a word, then found one on the second check at
+150,372 states in 9.73 s. Manyan took 7.46 s. The threshold was selected
+after a seven-setting sweep. For example, 81,920 delayed the second check
+until 181,056 states and took 12.08 s. On the two- and three-floor holding
+inputs, both the default and 100,000 selected final-only execution.
+[Threshold sweep, repeated CLI runs and independent replays](../../conformance/reports/perf/2026-11-22-elevator-prefix-placement.json)
+
 ## Ordinary checking in the TLC profile
 
 With the two files from the start of this page:
