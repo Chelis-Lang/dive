@@ -104,6 +104,24 @@ dive validate-trace TestMCReachability.tla --config graph7.cfg --library-path mo
 A successful witness replay establishes the violation. A sampling run that finds
 no witness leaves the exhaustive question open. [Source hashes, commands and the separate TLC witness](../../conformance/reports/perf/2026-11-20-closed-graph-inputs.json).
 
+## Search for a fair counterexample from a cold start
+
+```sh
+dive check Elevator.tla --config ElevatorLivenessLarge.cfg --lncheck cold-fair \
+  --seed 0 --periodic-min-states 1500000 --time-limit 360s --max-memory 8g --output json
+```
+
+Cold fair search chooses the first admitted state emitted by the original
+Init and explores its exact reachable states. It evaluates the original
+fairness assumptions and configured properties. Independent replay checks
+every reported counterexample against the original source and configuration.
+
+The JSON report identifies the selected-root scope. Exhausting that graph
+without a witness reports `bounded-inconclusive`. A budget stop reports the
+limiting resource. Ordinary `dive check` explores all admitted initial states
+and keeps its own coverage counts.
+
+
 ## Four outcomes
 
 The included counter shows the four results a check can give:

@@ -75,6 +75,7 @@ pub use config::{ConfigReport, parse_config_file, parse_config_source};
 mod analyze;
 pub mod bounded;
 mod check;
+pub mod cold_fair;
 mod core_checkpoint;
 mod core_worker;
 pub use core_worker::{CoreWorker, prepare_core_worker};

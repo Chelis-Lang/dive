@@ -1478,6 +1478,21 @@ pub(crate) fn check(
             run,
         );
     }
+    if route.flatten().is_some_and(|(_, _, cold)| cold)
+        && (prepared.model.implied_temporals.is_empty()
+            || dive_runtime::admission::effectful(&prepared.model))
+    {
+        return (
+            finish(result(
+                unsupported(
+                    "cold fair search requires pure source with a configured temporal property",
+                ),
+                options,
+                ir,
+            )),
+            run,
+        );
+    }
     if let Some(route) = route
         && !prepared.model.implied_temporals.is_empty()
     {
@@ -1488,10 +1503,12 @@ pub(crate) fn check(
             return (finish(result(unsupported(feature), options, ir)), run);
         }
         if let Some(verdict) = startup_stop(options) {
-            let checks = route.map(|(schedule, _)| dive_liveness::analyze::periodic::Checks {
-                schedule,
-                ..Default::default()
-            });
+            let checks = route.map(
+                |(schedule, _, _)| dive_liveness::analyze::periodic::Checks {
+                    schedule,
+                    ..Default::default()
+                },
+            );
             // The binder's messages, then what Core's start-up printed after
             // them (`Startup::startup` holds both, as plain text).
             let mut output = prepared.model.output.clone();
@@ -1627,6 +1644,7 @@ pub(crate) fn check(
     .or(options.independent_frontier.then_some(64 << 20));
     let storage = dive_explore::storage::Storage {
         exact: options.store == dive_store::StoreMode::Exact,
+        initial_states: dive_explore::storage::InitialStates::All,
         predecessor_memory_bytes: options.predecessor_memory_bytes,
         predecessor_directory: options.predecessor_directory.clone(),
         frontier_memory_bytes: options.frontier_memory_bytes,

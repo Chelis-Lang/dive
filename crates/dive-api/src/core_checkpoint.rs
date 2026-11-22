@@ -264,6 +264,7 @@ pub(crate) fn check(
             &poll,
             Some(&core_engine::search_work_control(&options.budget)),
             &dive_explore::storage::Storage {
+                initial_states: dive_explore::storage::InitialStates::All,
                 exact: options.store == dive_store::StoreMode::Exact,
                 predecessor_memory_bytes: options.predecessor_memory_bytes,
                 predecessor_directory: options.predecessor_directory.clone(),

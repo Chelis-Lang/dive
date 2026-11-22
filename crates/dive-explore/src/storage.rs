@@ -11,11 +11,24 @@ use dive_core::frontier_codec::FrontierCodec;
 use dive_core::{Error, Handle, Heap};
 use dive_store::spill::{MAX_RECORD_BYTES, OrderedFrontier, SpillError};
 
-/// Storage policies for one native safety search. These do not bound total memory.
+/// Initial states retained by the native explorer.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub enum InitialStates {
+    /// Enumerate all original initial states.
+    #[default]
+    All,
+    /// Retain the first admitted original Init row for witness discovery.
+    /// Requires exact temporal capture and cannot prove the original model.
+    FirstAdmitted,
+}
+
+/// Storage and initial-root policies for a native search.
 #[derive(Clone, Debug, Default)]
 pub struct Storage {
     /// Resolve state-key collisions using complete mathematical state identities.
     pub exact: bool,
+    /// Selection policy for original Init rows.
+    pub initial_states: InitialStates,
     /// Resident predecessor-log capacity before transient spill.
     pub predecessor_memory_bytes: Option<usize>,
     /// Parent directory for private predecessor files.
