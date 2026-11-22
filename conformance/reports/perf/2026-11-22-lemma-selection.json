@@ -1,0 +1,115 @@
+{
+  "scimitar": "https://github.com/will62794/scimitar/tree/f1b902dc0801cf435cb9dd6e6be495d5ed121787/benchmarks",
+  "examples": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "dive": "c3f6a8a49",
+  "verifier": "TLAPS 1.5.0 202210041448; x86_64 Linux installer SHA-256 ebb7a3f271bdb564f74cb0a2767ef7b9ff7045621a9be7c50d363a03c2e6f08a; bundled SMT, --nofp --threads 1 --method smt --stretch 0.2",
+  "question": "Which single published TwoPhase lemma lets a resource manager receive Abort while preserving H_TCConsistent? Does external TLAPS prove that action obligation for arbitrary RM?",
+  "invocation": "python3 scripts/perf/scale/scimitar_controls.py SCIMITAR/benchmarks EXAMPLES/specifications/transaction_commit --dive DIVE --tlapm TLAPM",
+  "scope": "Finite scan checks all typed consistent prestates with RM={rm1,rm2} and at most one original RMRcvAbortMsgAction step. Negative controls are independently replayed under that induction assumption. The external proof uses the original leaf plus explicit expansion of msgsAbortCommit. The Raft leaf is for RollbackEntriesAction and H_OnePrimaryPerTerm. TCommit_proof is the complete original authored module. Fresh-process timings here are not a speed comparison.",
+  "rows": [
+    {
+      "finite": [
+        {
+          "candidate": null,
+          "result": "validated-CTI",
+          "states": 2
+        },
+        {
+          "candidate": "H_RMCommittedImpliesNoRMsWorking",
+          "result": "validated-CTI",
+          "states": 2
+        },
+        {
+          "candidate": "H_RMCommittedImpliesNoAbortMsg",
+          "result": "finite-preservation",
+          "states": 2688
+        },
+        {
+          "candidate": "H_RMAbortedImpliesNoCommitMsg",
+          "result": "validated-CTI",
+          "states": 2
+        },
+        {
+          "candidate": "H_CommitSentImpliesRMsNotWorking",
+          "result": "validated-CTI",
+          "states": 2
+        },
+        {
+          "candidate": "H_RMCommittedImpliesTMCommitted",
+          "result": "validated-CTI",
+          "states": 2
+        },
+        {
+          "candidate": "H_CommitMsgImpliesNoAbortMsg",
+          "result": "validated-CTI",
+          "states": 2
+        },
+        {
+          "candidate": "H_RMWorkingImpliesNoCommitMsg",
+          "result": "validated-CTI",
+          "states": 2
+        },
+        {
+          "candidate": "H_RMAbortedAndPreparedImpliesTMAborted",
+          "result": "validated-CTI",
+          "states": 2
+        },
+        {
+          "candidate": "H_TMKnowsPrepareImpliesRMWorking",
+          "result": "validated-CTI",
+          "states": 2
+        },
+        {
+          "candidate": "H_CommitMsgImpliesTMCommitted",
+          "result": "validated-CTI",
+          "states": 2
+        },
+        {
+          "candidate": "H_InitNoCommitMsg",
+          "result": "validated-CTI",
+          "states": 2
+        },
+        {
+          "candidate": "H_InitNoAbortMsg",
+          "result": "validated-CTI",
+          "states": 2
+        },
+        {
+          "candidate": "H_RMWorkingImpliesNotPrepared",
+          "result": "validated-CTI",
+          "states": 2
+        },
+        {
+          "candidate": "H_RMSentPrepareImpliesNotWorking",
+          "result": "validated-CTI",
+          "states": 2
+        },
+        {
+          "candidate": "H_AbortMsgImpliesTMAborted",
+          "result": "validated-CTI",
+          "states": 2
+        }
+      ]
+    },
+    {
+      "external": "TLAPS",
+      "module": "MissingProof",
+      "failed": 1
+    },
+    {
+      "external": "TLAPS",
+      "module": "ReceiveProof",
+      "proved": 1
+    },
+    {
+      "external": "TLAPS",
+      "module": "RollbackProof",
+      "proved": 1
+    },
+    {
+      "external": "TLAPS",
+      "module": "TCommit_proof",
+      "proved": 16
+    }
+  ]
+}

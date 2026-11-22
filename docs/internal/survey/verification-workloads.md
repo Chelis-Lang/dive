@@ -383,6 +383,28 @@ measurements. Qualify the parallel path at the same worker widths as Core. The
 aggregate evaluator and bounded temporal rows merit targeted work on cases
 that stay in the general engine.
 
+## Selecting a supporting lemma on a published proof
+
+On Scimitar’s TwoPhase protocol, receiving an abort message can violate
+`H_TCConsistent` from a type-correct, consistent induction state. Dive
+checked each of the 14 other candidate lemmas from the published inductive
+invariant as a single strengthening over two resource managers. Only
+`H_RMCommittedImpliesNoAbortMsg` closed the action on that finite instance
+(2,688 states including the post-action states). The other 13 candidates
+and the empty hypothesis each produced an independently replayed two-state
+counterexample to induction.
+
+External TLAPS proved the selected action obligation for arbitrary `RM`
+after unfolding the source’s `msgsAbortCommit` set union. Removing the
+selected premise failed the obligation. The same external checker proved
+the published AbstractRaft rollback action preserves `H_OnePrimaryPerTerm`
+and all 16 obligations in Lamport’s authored TCommit proof. Each of the
+two Scimitar checks covers one action and one lemma. Finite screening uses
+the published candidate pool. Synthesis of new candidate formulas and native
+checking of hierarchical TLA+ proofs remain open.
+[Artifact pins, candidates, controls and commands](../../../conformance/reports/perf/2026-11-22-lemma-selection.json)
+· [Scimitar’s inductive decomposition](https://github.com/will62794/scimitar).
+
 ## TLAPS options and evidence
 
 The charter requires proof-bearing modules to parse and pass semantic
