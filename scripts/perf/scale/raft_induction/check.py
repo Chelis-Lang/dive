@@ -397,6 +397,16 @@ def main():
                     **prove(doc, names),
                     result="proved",
                 )
+            metrics = {}
+            if args.message_sets:
+                # Solver simplification can change the operational AST/query
+                # counts without changing the mathematical obligations. Report
+                # these measurements separately from the portable certificate.
+                metrics["hypothesis_ast_nodes"] = result.pop("hypothesis_ast_nodes")
+                metrics["solver_queries"] = {
+                    row["action"]: row.pop("solver_queries")
+                    for row in result["actions"]
+                }
             if args.verify:
                 require(
                     canonical(prior) == canonical(result),
@@ -404,7 +414,9 @@ def main():
                 )
             else:
                 args.save.write_bytes(canonical(result) + b"\n")
-            print(json.dumps(result))
+            print(
+                json.dumps({**result, "solver_metrics": metrics} if metrics else result)
+            )
             return 0
     except (
         ValueError,

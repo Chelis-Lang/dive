@@ -1,7 +1,10 @@
 """Check configured AsyncRaft by stronger induction over arbitrary finite message sets."""
 
-from concurrent.futures import ProcessPoolExecutor
-import multiprocessing
+from concurrent.futures import ThreadPoolExecutor
+import json
+from pathlib import Path
+import subprocess
+import sys
 import z3
 
 from channels import ChannelModel, Channel
@@ -205,11 +208,22 @@ def prove_channels(doc, names, jobs):
     if jobs == 1:
         results = [group(doc, names, ACTIONS)]
     else:
-        with ProcessPoolExecutor(
-            max_workers=jobs, mp_context=multiprocessing.get_context("spawn")
-        ) as pool:
-            work = [pool.submit(group, doc, names, actions) for actions in assignments]
-            results = [f.result() for f in work]
+        # Use independent interpreters and pipes: each Z3 context belongs to a
+        # single process, including on job runners without persistent POSIX IPC.
+        def run_worker(actions):
+            process = subprocess.run(
+                [sys.executable, Path(__file__).resolve()],
+                input=json.dumps([doc, names, actions]),
+                capture_output=True,
+                text=True,
+                timeout=240,
+            )
+            if process.returncode != 0:
+                raise ValueError(process.stderr.strip() or "action worker failed")
+            return json.loads(process.stdout)
+
+        with ThreadPoolExecutor(max_workers=jobs) as pool:
+            results = list(pool.map(run_worker, assignments))
     stats = results[0][0]
     require(all(stat == stats for stat, _ in results), "inconsistent bound hypotheses")
     rows = {r["action"]: r for _, group_rows in results for r in group_rows}
@@ -228,3 +242,13 @@ def prove_channels(doc, names, jobs):
         actions=[rows[n] for n in ACTIONS],
         **stats,
     )
+
+
+if __name__ == "__main__":
+    # Internal projected obligations only. The user-facing command independently
+    # binds TLA+/CFG and validates coverage before it can issue any receipt.
+    try:
+        print(json.dumps(group(*json.load(sys.stdin))))
+    except (ValueError, TypeError, KeyError, IndexError, z3.Z3Exception) as error:
+        print(error, file=sys.stderr)
+        sys.exit(2)
