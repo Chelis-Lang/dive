@@ -29,6 +29,7 @@ struct Compiled {
     /// A directly syntactic `~ENABLED A` atom: the plan searches `A` and the
     /// truth is its negation, as the dive-eval evaluator negates its search.
     negate: bool,
+    enabled_prefix: Option<(dive_core::plan::P, Projection)>,
     direct_stutter: bool,
     state_key: Option<Projection>,
     guard_key: Option<Projection>,
@@ -121,6 +122,7 @@ pub(crate) struct NativeAtoms {
     projected: dive_core::memo::Memo,
     projected_state_hits: u64,
     projected_enabled_hits: u64,
+    disabled_prefixes: u64,
     projected_guard_hits: u64,
     stutter_hits: u64,
     control: Arc<EvaluationControl>,
@@ -264,10 +266,91 @@ impl NativeAtoms {
             fold: false,
             ..strategies
         };
+        let mut result = Self::empty(model, store, control, opts);
+        let mut key_lengths = Vec::new();
+        for atom in atoms {
+            result.total += 1;
+            // (a) The exact retained atom and its source scope must bind to
+            // this model's evaluator; equal source text is not enough. A
+            // `~ENABLED A` atom validates both its source expression and the
+            // pure action it searches, as the dive-eval evaluator does.
+            let sub = match atom.test {
+                AtomTest::Enabled { sub } => sub,
+                AtomTest::Nonstuttering { sub } => Some(sub),
+                AtomTest::NegatedEnabled { action } => Some(action),
+                AtomTest::Predicate => None,
+            };
+            let ev = &model.evaluator;
+            if !ev.admits_scoped_expr(&atom.pred.scope, atom.pred.expr)
+                || sub.is_some_and(|sub| !ev.admits_scoped_expr(&atom.pred.scope, sub))
+            {
+                result.rejections.record(Rejection::ForeignScope);
+                continue;
+            }
+            let (plan, false_guard) = match compile(model, store, atom, opts, &result.machine.heap)
+            {
+                Ok(plan) => plan,
+                Err(reason) => {
+                    result.rejections.record(reason);
+                    continue;
+                }
+            };
+            if result.compiled.try_reserve(1).is_err() {
+                result.rejections.record(Rejection::Allocation);
+                continue;
+            }
+            result.compiled.push(Compiled {
+                enabled_prefix: false_guard.enabled_prefix.and_then(|(p, reads)| {
+                    Projection::new(Some(reads), model.ir.vars().len(), &mut key_lengths)
+                        .map(|site| (p, site))
+                }),
+                direct_stutter: false_guard.direct_stutter,
+                state_key: Projection::new(
+                    false_guard.state_reads,
+                    model.ir.vars().len(),
+                    &mut key_lengths,
+                ),
+                guard_key: Projection::new(
+                    false_guard.guard_reads,
+                    model.ir.vars().len(),
+                    &mut key_lengths,
+                ),
+                identity: std::ptr::from_ref(atom),
+                plan,
+                false_guard: false_guard.source,
+                unchanged_guard: false_guard.unchanged,
+                negate: matches!(atom.test, AtomTest::NegatedEnabled { .. }),
+                exhausted_in_a_row: 0,
+            });
+            result.eligible += 1;
+            match atom.kind {
+                dive_liveness::formula::AtomKind::State => result.eligible_state += 1,
+                dive_liveness::formula::AtomKind::Action => result.eligible_action += 1,
+            }
+        }
+        result.projected = dive_core::memo::Memo::new(&key_lengths);
+        result.projected.set_cap(8 << 20);
+        control.check().map_err(|cause| {
+            control
+                .verdict(&EvalError::interrupted(cause))
+                .unwrap_or_else(|| dive_runtime::Verdict::InternalError {
+                    message: "native predicate preparation interruption lacks run authority".into(),
+                })
+        })?;
+        Ok(result)
+    }
+
+    fn empty(
+        model: &Model,
+        store: &Arc<Store>,
+        control: &Arc<EvaluationControl>,
+        opts: Opts,
+    ) -> Self {
         let mut result = Self {
             projected: dive_core::memo::Memo::default(),
             projected_state_hits: 0,
             projected_enabled_hits: 0,
+            disabled_prefixes: 0,
             projected_guard_hits: 0,
             stutter_hits: 0,
             machine: Machine::new(
@@ -316,73 +399,7 @@ impl NativeAtoms {
         // A warning Core does not record (2144) must reach the
         // dive-eval evaluator, which prints it.
         result.machine.set_refuse_unrecorded_warnings(true);
-        let mut key_lengths = Vec::new();
-        for atom in atoms {
-            result.total += 1;
-            // (a) The exact retained atom and its source scope must bind to
-            // this model's evaluator; equal source text is not enough. A
-            // `~ENABLED A` atom validates both its source expression and the
-            // pure action it searches, as the dive-eval evaluator does.
-            let sub = match atom.test {
-                AtomTest::Enabled { sub } => sub,
-                AtomTest::Nonstuttering { sub } => Some(sub),
-                AtomTest::NegatedEnabled { action } => Some(action),
-                AtomTest::Predicate => None,
-            };
-            let ev = &model.evaluator;
-            if !ev.admits_scoped_expr(&atom.pred.scope, atom.pred.expr)
-                || sub.is_some_and(|sub| !ev.admits_scoped_expr(&atom.pred.scope, sub))
-            {
-                result.rejections.record(Rejection::ForeignScope);
-                continue;
-            }
-            let (plan, false_guard) = match compile(model, store, atom, opts, &result.machine.heap)
-            {
-                Ok(plan) => plan,
-                Err(reason) => {
-                    result.rejections.record(reason);
-                    continue;
-                }
-            };
-            if result.compiled.try_reserve(1).is_err() {
-                result.rejections.record(Rejection::Allocation);
-                continue;
-            }
-            result.compiled.push(Compiled {
-                direct_stutter: false_guard.direct_stutter,
-                state_key: Projection::new(
-                    false_guard.state_reads,
-                    model.ir.vars().len(),
-                    &mut key_lengths,
-                ),
-                guard_key: Projection::new(
-                    false_guard.guard_reads,
-                    model.ir.vars().len(),
-                    &mut key_lengths,
-                ),
-                identity: std::ptr::from_ref(atom),
-                plan,
-                false_guard: false_guard.source,
-                unchanged_guard: false_guard.unchanged,
-                negate: matches!(atom.test, AtomTest::NegatedEnabled { .. }),
-                exhausted_in_a_row: 0,
-            });
-            result.eligible += 1;
-            match atom.kind {
-                dive_liveness::formula::AtomKind::State => result.eligible_state += 1,
-                dive_liveness::formula::AtomKind::Action => result.eligible_action += 1,
-            }
-        }
-        result.projected = dive_core::memo::Memo::new(&key_lengths);
-        result.projected.set_cap(8 << 20);
-        control.check().map_err(|cause| {
-            control
-                .verdict(&EvalError::interrupted(cause))
-                .unwrap_or_else(|| dive_runtime::Verdict::InternalError {
-                    message: "native predicate preparation interruption lacks run authority".into(),
-                })
-        })?;
-        Ok(result)
+        result
     }
 
     pub(crate) fn analysis_ms(&self) -> &std::collections::BTreeMap<&'static str, f64> {
@@ -395,7 +412,7 @@ impl NativeAtoms {
             "action_source_guards": {"plans": self.compiled.iter().filter(|p| p.false_guard.is_some()).count(),
                 "probes": self.guard_probes, "false_rows": self.guard_rows},
             "projected_truth": {"state_hits": self.projected_state_hits, "enabled_hits": self.projected_enabled_hits,
-                "guard_hits": self.projected_guard_hits, "stutters": self.stutter_hits, "table_bytes": self.projected.bytes()},
+                "enabled_prefix_false": self.disabled_prefixes, "guard_hits": self.projected_guard_hits, "stutters": self.stutter_hits, "table_bytes": self.projected.bytes()},
             "evaluated": self.evaluated, "fallback": self.fallback,
             "eligible_state_atoms": self.eligible_state, "eligible_action_atoms": self.eligible_action,
             "state_evaluations": self.evaluated_state, "action_evaluations": self.evaluated_action,
@@ -529,6 +546,43 @@ impl NativeAtoms {
             ));
             self.compiled[index].exhausted_in_a_row = 0;
             return Ok(Some(value));
+        }
+        if graph_owned
+            && after.is_none()
+            && self.fuel == NATIVE_FUEL
+            && let Some((prefix, site)) = compiled.enabled_prefix
+            && self.projected.active(site.site)
+            && let Some(prefix_key) = site.bind(before)
+        {
+            let prefix_value = if let Some(v) = prefix_key.get(&mut self.projected) {
+                Some(v)
+            } else {
+                let result = run_bound(
+                    &compiled.plan,
+                    &mut self.machine,
+                    before,
+                    None,
+                    self.fuel,
+                    Some(prefix),
+                );
+                check(&self.control, control)?;
+                result
+                    .ok()
+                    .filter(|_| {
+                        !self.machine.heap.poisoned()
+                            && self.machine.warnings.is_empty()
+                            && self.machine.printed.is_empty()
+                    })
+                    .inspect(|&v| prefix_key.put(&mut self.projected, v))
+            };
+            if prefix_value == Some(false) {
+                self.disabled_prefixes += 1;
+                self.compiled[index].exhausted_in_a_row = 0;
+                if let Some(key) = key {
+                    key.put(&mut self.projected, negate);
+                }
+                return Ok(Some(negate));
+            }
         }
         let result = run_bound(
             &compiled.plan,
@@ -1519,7 +1573,7 @@ VARIABLES gate, payload
 vars == <<gate,payload>>
 Init == gate = 0 /\ payload = 0
 Next == gate' \in 0..2 /\ payload' \in 0..3
-Act == /\ IF gate=2 THEN 1 \div 0=0 ELSE gate=0
+Act == /\ 2 \div (2-gate)=1
        /\ gate'=1 /\ UNCHANGED payload
 Spec == Init /\ [][Next]_vars /\ WF_vars(Act)
 P == <>(gate=1)

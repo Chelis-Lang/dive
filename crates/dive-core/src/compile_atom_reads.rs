@@ -37,6 +37,58 @@ impl Compiler<'_> {
         }
     }
 
+    /// Search a literal prefix of this generator. Refuting it means no
+    /// continuation could run, so neither assignments nor the changed
+    /// subscript would have been demanded in the original search.
+    pub(super) fn enabled_prefix(&mut self, p: P) -> Result<Option<(P, u64)>, super::Error> {
+        if self.m.heap.store().semantics().tlc_comparisons
+            || self.code.nodes.len() + super::MAX_GUARD_DEPTH + 2 >= super::MAX_NODES
+            || self.code.gnodes.len() + super::MAX_GUARD_DEPTH + 2 >= super::MAX_NODES
+        {
+            return Ok(None);
+        }
+        let Some(Node::Enabled { g, free }) = self.code.nodes.get(p as usize).cloned() else {
+            return Ok(None);
+        };
+        let action = match self.code.gnodes.get(g as usize) {
+            Some(GNode::StepAngle { action, .. }) => *action,
+            _ => g,
+        };
+        let Some((prefix, reads)) = self.leading_source(action, 0) else {
+            return Ok(None);
+        };
+        let predicate = self.push(Node::Enabled { g: prefix, free })?;
+        Ok(Some((predicate, reads)))
+    }
+
+    fn leading_source(&mut self, g: G, depth: usize) -> Option<(G, u64)> {
+        if depth >= super::MAX_GUARD_DEPTH {
+            return None;
+        }
+        match self.code.gnodes.get(g as usize)?.clone() {
+            GNode::Scope { body, reset } => {
+                let (body, reads) = self.leading_source(body, depth + 1)?;
+                Some((self.gpush(GNode::Scope { body, reset }), reads))
+            }
+            GNode::Conj(items) => {
+                let mut reads = 0;
+                let mut count = 0;
+                for &(_, predicate) in &items {
+                    let Some(mask) = self.atom_source_reads(predicate) else {
+                        break;
+                    };
+                    reads |= mask;
+                    count += 1;
+                }
+                if count == 0 || count == items.len() {
+                    return None;
+                }
+                Some((self.gpush(GNode::Conj(items[..count].into())), reads))
+            }
+            _ => None,
+        }
+    }
+
     /// A straight-line generator binds each destination at most once. A
     /// variable copied by UNCHANGED need not be in the truth key unless its
     /// source value is read elsewhere. On materialized rows its contribution

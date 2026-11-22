@@ -628,6 +628,9 @@ pub fn compile_bound_test_with_guard(
 /// Exact necessary action prefixes retained by optional native atom checks.
 #[derive(Default)]
 pub struct BoundGuards {
+    /// An ENABLED query over the original generator's leading source-only
+    /// items, and their read mask. Only a quiet false proves the full query false.
+    pub enabled_prefix: Option<(P, u64)>,
     /// The nonstuttering subscript is a direct tuple of materialized
     /// variables in a fresh frame under canonical comparison.
     pub direct_stutter: bool,
@@ -2832,6 +2835,7 @@ impl Compiler<'_> {
             BoundTest::Enabled(sub) => {
                 let p = self.enabled(Some(r.expr), sub, env, Mode::Plain)?;
                 self.bound_guards.state_reads = self.enabled_atom_reads(p);
+                self.bound_guards.enabled_prefix = self.enabled_prefix(p)?;
                 p
             }
             BoundTest::Nonstuttering(sub) => {
