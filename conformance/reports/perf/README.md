@@ -35,6 +35,8 @@ The [automatic strategy comparison](2026-11-22-auto-strategy.json) records the K
 
 The [compiled finite safety comparison](2026-11-21-compiled-finite-safety.json) records the exact Core and compiled KVS Medium runs, binding and compilation cost, same-host tlx, TCommit, and the named SlateDB holdout refusal.
 
+[SlateDB induction controls](2026-11-22-slatedb-preservation.json) locate the four-writer fix-on preservation gap at the replay cursor and distinguish it from the reachable fix-off violation.
+
 The [allocator-fixed large-model baseline](2026-11-21-allocator-fixed-large-baselines.json) records EmergencyCall f3 against pinned TLC, an EWD998 capture profile and action-witness counts, and an original KVS Large resource-bounded run.
 
 The [Linux allocator comparison](2026-11-21-linux-allocator-arenas.json) records the mimalloc 3.3.2 and 3.7.0 arena probes on Intel and Graviton, original Flint time to 233 million exact states, ordinary Sailfish, and paired KVS, SlateDB and EWD998 runs. The `fixed_release` object contains the 3.7.0 results.
