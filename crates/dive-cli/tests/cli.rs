@@ -416,6 +416,32 @@ fn analyze_accepts_and_reports_levels() {
 }
 
 #[test]
+fn analyze_reports_resolved_orbit_choice_domains() {
+    let path = temp_file(
+        "Choices.tla",
+        "---- MODULE Choices ----\nCONSTANT Fixed\nPick == CHOOSE x \\in Fixed : TRUE\nDynamic(S) == CHOOSE x \\in S : TRUE\n====\n",
+    );
+    let out = dive(&[
+        "analyze",
+        &path.to_string_lossy(),
+        "--orbit-observers",
+        "--output",
+        "json",
+    ]);
+    assert!(out.status.success(), "{out:?}");
+    let report: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap_or_default();
+    assert_eq!(
+        report["orbit_observers"]["choice_domains"],
+        serde_json::json!(["Fixed"])
+    );
+    assert!(
+        report["orbit_observers"]["refusals"][0]
+            .as_str()
+            .is_some_and(|r| r.contains("CHOOSE") && r.contains("Choices"))
+    );
+}
+
+#[test]
 fn analyze_rejects_with_codes_and_sany_cross_reference() {
     let path = temp_file("Undef.tla", "---- MODULE Undef ----\nInit == y = 0\n====\n");
     let out = dive(&["analyze", &path.to_string_lossy(), "--output", "json"]);

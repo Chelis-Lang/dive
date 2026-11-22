@@ -6,7 +6,7 @@ pub(super) fn command(command: &str) -> Option<&'static str> {
             "USAGE: dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n\nParse a specification or configuration without checking a model.\n"
         }
         "analyze" => {
-            "USAGE: dive analyze FILE.tla [--output human|json]\n                         [--library-path DIR]... [--module-path DIR]...\n\nResolve modules and analyze the specification without checking a model.\n"
+            "USAGE: dive analyze FILE.tla [--output human|json] [--orbit-observers]\n                         [--library-path DIR]... [--module-path DIR]...\n\nResolve modules and analyze the specification without checking a model.\nWith --output json, --orbit-observers lists choice domains and symmetry refusals.\n"
         }
         "check" => CHECK,
         "worker" => {

@@ -1,5 +1,7 @@
 //! Semantic analysis reports (`dive analyze`).
 
+mod orbit;
+
 use dive_sema::model::{DefKind, Model, NodeKind};
 use dive_sema::{Analysis, FileId, Options, SearchPath, Severity};
 use dive_syntax::diagnostics::line_col;
