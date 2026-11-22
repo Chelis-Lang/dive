@@ -270,21 +270,23 @@ class PropertyModel(SourceModel):
 
 
 def certify(model, states, checked):
-    """Check Init, property and all new guarded images against this exact predicate."""
+    """Check Init, property and the preimage of the complement for each new action."""
     if model.initial & ~states != model.b.false:
         return "Init inclusion", None
     for ending, _ in model.violations(states):
         return ending["name"], None
-    actions = set()
-    for guard, parts in model.actions:
-        key = (guard, tuple((relation, tuple(old), tuple(sorted(rename.items())))
-                            for relation, old, rename in parts))
-        if key in actions:
+    admitted = states & model.constraint
+    reads = states.support
+    for key in model.effects:
+        if key in checked:
             continue
-        if key not in checked and model.image(states & model.constraint, guard, parts) & ~states != model.b.false:
+        guard, updates = key
+        # Simultaneous substitution preserves reads of the old state. Omitting
+        # an assignment outside the predicate's support leaves its guard intact.
+        changes = {name: rhs for name, rhs in updates if name in reads}
+        if changes and admitted & guard & ~model.b.let(changes, states) != model.b.false:
             return "Next closure", None
-        actions.add(key)
-    return None, actions
+    return None, set(model.effects)
 
 
 def support(model):
@@ -386,7 +388,13 @@ def check_revisions(args, manager):
             reused = len(actions & checked)
             row["closure_sweeps"] = 0
         else:
-            states, trace, row["closure_sweeps"] = closure(model, relevant)
+            candidate = model.properties[0][1]
+            if not args.verify_predicate:
+                _, actions = certify(model, candidate, set())
+            if actions is not None:
+                states, trace, row["closure_sweeps"] = candidate, None, 0
+            else:
+                states, trace, row["closure_sweeps"] = closure(model, relevant)
             if trace is not None:
                 raw = json.dumps(trace)
                 validated = run_helper([args.dive, "validate-trace", module, "--trace", "/dev/stdin",
@@ -403,8 +411,9 @@ def check_revisions(args, manager):
                     row["trace"] = trace
                 print(json.dumps(row), flush=True)
                 return 1
-            failed, actions = certify(model, states, set())
-            require(actions is not None, f"candidate failed induction: {failed}")
+            if actions is None:
+                failed, actions = certify(model, states, set())
+                require(actions is not None, f"candidate failed induction: {failed}")
         if args.write_predicate:
             receipt = publication_receipt or obligation_receipt.for_candidate(model, states, args)
             signed = receipt.encode(actions) if receipt is not None else None

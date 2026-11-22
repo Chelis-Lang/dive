@@ -27,6 +27,10 @@ The scripts that produced the records are in
 The [peer comparison panel and source pins](../../../docs/internal/survey/verification-workloads.md)
 extend this evidence to native checkers, implementation traces and proofs.
 
+[Learning Switch direct induction](2026-11-22-learning-switch-induction.json)
+records paired cold runs on the original transitive and symmetric inputs,
+whole-process peak memory and the independently replayed induction counterexample.
+
 [EmergencyCall source growth](2026-11-21-source-whole-growth.json) records three installed CLI runs up to 1.40 trillion distinct states, the single-line source edits, worker and source digests, wall time, peak RSS and the alternate search's 64 policy cells.
 
 The [temporal analysis phase measurements](2026-11-21-temporal-analysis-phases.json) separate predicate labeling from accepting-cycle search on seven corpus configurations. Elevator Large spent 399.92 of 404.35 seconds in the product phase at eight requested workers.

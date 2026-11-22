@@ -436,7 +436,11 @@ when it produces a witness.
 
 The `dive-property-proof-v1` report names the property. `inductive-safety`
 means the checker established initial inclusion, preservation by every guarded
-action and implication of the requested invariant. Other configured invariants,
+action and implication of the requested invariant. A fresh proof first tries the
+requested invariant itself. It checks preservation by substituting the action's
+simultaneous updates into the predicate under the original guard. If that
+candidate fails, the checker searches for a closed predicate or a concrete
+counterexample. Other configured invariants,
 deadlock and temporal properties require separate checks. Graph counts and
 diameter require a reachability run. A violation includes an independently
 validated concrete trace. A transferred predicate that fails induction yields
