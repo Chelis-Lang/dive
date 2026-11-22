@@ -1,0 +1,155 @@
+{
+  "schema": 1,
+  "contract": "Existence of a finite execution under the pinned upstream log projection and original stuttering Raft relation. A match is independently replayed on both. A no-completion verdict applies to the exact event-constrained graph only.",
+  "scope": "Runs on original ordered upstream NDJSON prefixes and on discriminating mutations of those same rows. No general safety proof and no benchmark against another checker.",
+  "source": {
+    "upstream": "https://github.com/etcd-io/raft/tree/c51f010c851edd0dada5af41bafbf68e54617767/tla",
+    "upstream_log_lines": 4888,
+    "sha256": {
+      "etcdraft.tla": "15c445684529c59a59877951c7fb7df9a40da250aaa445f056ef48f56bb27044",
+      "Traceetcdraft.tla": "93e46f774c6602674d6f6db90c75ddc4144cfadc101c2f1cb31fd1ce2e90b0bc",
+      "Traceetcdraft.cfg": "f146d25a0311f6944f5f3b3a89dcd66409d7fc3aac9326373b7cebf70a0b1795",
+      "example.ndjson": "cd02768bd1849a717d9abaf29612d7901efe8048d2b3fa25d9a66ba3df7f7db7"
+    },
+    "core_main": "c3f6a8a494444d632e02dfdff1e645b2564352f1",
+    "core_binary_sha256": "5bc12a042a2319d80433955da4063c3eba0173b53e5dc07cbe7f54576b86f970",
+    "build": "release profile from main tracked files, no .git directory",
+    "matcher_sha256": "7f2ec6be71ec40864f7cb0f3098f7f5ab0131ef4cdc12f87279d51b996fbedb4"
+  },
+  "host": {
+    "platform": "Linux x86_64 on an isolated AWS EC2 c7i.large",
+    "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+    "kernel": "Linux 7.0.0-1018-aws x86_64"
+  },
+  "method": "One process at a time, one Core worker, exact store, seed 0, FP 0, 1 GiB Core budget and 60s per command in the size comparison. One observation per size. GNU time elapsed time includes literal generation, Core search and both independent replay processes, plus witness serialization in the private temporary directory. max_rss_kib is GNU time %M, the maximum process RSS, not aggregate simultaneous process memory. No external witness directory on the timed rows.",
+  "commands": [
+    "python3 scripts/test-match-etcd-trace.py --source RAFT/tla --dive DIVE",
+    "/usr/bin/time -f '%e %M' python3 scripts/match-etcd-trace.py RAFT/tla RAFT/tla/example.ndjson --dive DIVE --seconds 60 --prefix N   # N = 81, 200, 512"
+  ],
+  "size_series": [
+    {
+      "scope": "prefix",
+      "events": 81,
+      "search": "invariant-violation",
+      "distinct": 82,
+      "generated": 82,
+      "depth": 82,
+      "result": "matched",
+      "states": 82,
+      "event_replay": "valid",
+      "raft_replay": "valid",
+      "wall_s": 0.85,
+      "max_rss_kib": 76640
+    },
+    {
+      "scope": "prefix",
+      "events": 200,
+      "search": "invariant-violation",
+      "distinct": 209,
+      "generated": 213,
+      "depth": 209,
+      "result": "matched",
+      "states": 209,
+      "event_replay": "valid",
+      "raft_replay": "valid",
+      "wall_s": 3.39,
+      "max_rss_kib": 174732
+    },
+    {
+      "scope": "prefix",
+      "events": 512,
+      "search": "invariant-violation",
+      "distinct": 532,
+      "generated": 547,
+      "depth": 532,
+      "result": "matched",
+      "states": 532,
+      "event_replay": "valid",
+      "raft_replay": "valid",
+      "wall_s": 20.98,
+      "max_rss_kib": 627164
+    }
+  ],
+  "controls": [
+    {
+      "case": "published",
+      "scope": "prefix",
+      "events": 81,
+      "search": "invariant-violation",
+      "distinct": 82,
+      "generated": 82,
+      "depth": 82,
+      "result": "matched",
+      "states": 82,
+      "event_replay": "valid",
+      "raft_replay": "valid"
+    },
+    {
+      "case": "state bound",
+      "scope": "prefix",
+      "events": 81,
+      "search": "stopped",
+      "distinct": 20,
+      "generated": 21,
+      "depth": 20,
+      "result": "inconclusive",
+      "reason": "stopped during safety-search: the next states would be 21, exceeding the limit of 20"
+    },
+    {
+      "case": "globally inconsistent vote",
+      "scope": "full-input",
+      "events": 77,
+      "search": "success",
+      "distinct": 77,
+      "generated": 77,
+      "depth": 77,
+      "result": "no-completion"
+    },
+    {
+      "case": "prefix before inconsistent vote",
+      "scope": "prefix",
+      "events": 76,
+      "search": "invariant-violation",
+      "distinct": 77,
+      "generated": 77,
+      "depth": 77,
+      "result": "matched",
+      "states": 77,
+      "event_replay": "valid",
+      "raft_replay": "valid"
+    },
+    {
+      "case": "term-three vote after another election",
+      "scope": "full-input",
+      "events": 78,
+      "search": "invariant-violation",
+      "distinct": 79,
+      "generated": 79,
+      "depth": 79,
+      "result": "matched",
+      "states": 79,
+      "event_replay": "valid",
+      "raft_replay": "valid"
+    },
+    {
+      "case": "tampered complete Raft word",
+      "result": "invalid"
+    },
+    {
+      "case": "unknown event",
+      "result": "unsupported",
+      "reason": "unrecognized event at trace position 77"
+    },
+    {
+      "case": "missing requested event",
+      "result": "unsupported",
+      "reason": "input contains fewer trace events than requested"
+    },
+    {
+      "case": "changed protocol source",
+      "result": "unsupported",
+      "exit": 3
+    }
+  ],
+  "next_boundary": "Encoding and reading the whole observed prefix in each run costs more as the history grows. Longer-than-512 histories need a larger evaluated input contract or a way to carry every feasible frontier state, including receive substeps, across window boundaries. Carrying a single chosen prefix witness can miss a completion."
+}

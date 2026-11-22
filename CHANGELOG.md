@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- [Match partial etcd Raft event logs](docs/user/traces.md#match-an-etcd-implementation-log) against the upstream trace and protocol specifications, with independently replayable complete states.
+
 - [Prove one configured state invariant](docs/user/symbolic.md#prove-one-configured-state-invariant) on the original TLA+ source, including models with isolated unbounded counters. Compatible transition obligations can survive an edit.
 
 - Core reports [temporal analysis time](docs/user/temporal.md) spent labeling the graph, finding accepting cycles and attributing failed properties.

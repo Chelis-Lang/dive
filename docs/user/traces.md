@@ -58,6 +58,32 @@ A model may define `Sym == Permutations(Actors)` and leave it out of the active 
 
 On the labeled KVS protocol with 102 transactions, the previous validator aborted at 1,883,188 KiB under the test's address-space ceiling. The same two-state `SomeCommit` counterexample now validates on the original source in 0.01 s at 29,780 KiB. Replacing the final state or replaying the word against the unmodified transition relation fails the next-step check. The analogous 16-transaction word also validates in 0.01 s. [Exact sources, commands, address-space limit, timings and negative controls](../../conformance/reports/perf/2026-11-21-kvs-independent-replay.json).
 
+## Match an etcd implementation log
+
+The source-checkout tool `scripts/match-etcd-trace.py` reads the ordered NDJSON emitted by the etcd Raft trace logger. It searches for a single complete execution consistent with the selected events. The model supplies the unlogged state, including message bags, candidate votes and durable storage. An event can take several model steps. The event-specific comparisons, bootstrap policy and skip rules come from upstream `Traceetcdraft.tla`. For example, the bootstrap records determine each node's starting state, while an outgoing vote request constrains a newly added message and the sender's post-state. The result covers the fields observed by that projection. [Upstream trace specification and logger instructions](https://github.com/etcd-io/raft/tree/c51f010c851edd0dada5af41bafbf68e54617767/tla).
+
+From the dive checkout, with the pinned `holdout-etcd-raft` corpus fetched and `dive` on the path:
+
+```sh
+raft="${DIVE_CACHE_DIR:-$HOME/.cache/dive}/git/holdout-etcd-raft/c51f010c851edd0dada5af41bafbf68e54617767/tla"
+python3 scripts/match-etcd-trace.py "$raft" "$raft/example.ndjson" --prefix 81 --out witness
+dive validate-trace witness/EventMatch.tla --config witness/EventMatch.cfg --trace witness/events.json --fp 0 --seed 0 --output json
+dive validate-trace witness/RaftBehavior.tla --config witness/RaftBehavior.cfg --trace witness/behavior.json --fp 0 --seed 0 --output json
+```
+
+`--out` accepts a new directory and saves both complete words and their model inputs after both replays succeed. Omit it for just the JSON result. With `--prefix N` the tool consumes exactly N trace events and reports `scope: prefix`. Without the flag it reads the whole file. The current bounds are 512 trace events, 64 KiB per NDJSON line and 4 MiB of input. An oversized history or a request for more events than the file contains returns `unsupported`. Captures must start at bootstrap. A standalone suffix cannot supply the state inherited from omitted events.
+
+| JSON result | Exit | Meaning |
+|---|---:|---|
+| `matched` | 0 | A complete word consumed the requested events. Independent replay checked the full event relation, then checked the Raft states under the upstream Init and stuttering NextDynamic relation. |
+| `no-completion` | 1 | The exact search exhausted all legal completions of this event sequence under the pinned trace projection. |
+| `unsupported` | 3 | A source digest, input feature, checker operation or replay failed admission. |
+| `inconclusive` | 5 | A time, memory or state limit stopped search or a replay timed out. |
+
+The tool checks the three upstream source digests before building either input. It embeds the selected log as a TLA+ literal, evaluates the pure server-set expression directly, removes progress printing and searches for the first cursor past the requested events. Core uses exact state identity over the full state and cursor. Independent replay first verifies that witness, then drops the two log cursors and validates every remaining Raft transition against the original `etcdraft.tla`, including permitted stutters. This answers finite history compatibility. The upstream Raft safety invariants, temporal properties and behaviors outside the log require their own checks.
+
+The first 512 events of upstream's 4,888-line log matched with **532 full Raft states**. Changing the first outgoing vote from term two to term three, including its sender's reported term, exhausted all 77 reachable matching states. Inserting a second election immediately before that same vote made it match. A 20-state search limit returned `inconclusive`; changing the saved pending-message bag failed independent replay. Repeat the controls with `python3 scripts/test-match-etcd-trace.py --source "$raft" --dive /path/to/dive`. [Inputs, controls, elapsed time and peak memory](../../conformance/reports/perf/2026-11-22-etcd-event-histories.json).
+
 ## Simulation samples
 
 For a finite simulation word, add `--sample`. This checks Init, Next and all
