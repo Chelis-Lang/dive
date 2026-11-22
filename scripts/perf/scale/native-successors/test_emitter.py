@@ -40,6 +40,13 @@ class EmitterTest(unittest.TestCase):
     def test_different_actor_slots_use_original_alternatives(self):
         self.assertNotIn("let active=", lower(self.choices(last_slot=4))[0])
 
+    def test_large_shared_disjunction_uses_ordinary_continuations(self):
+        nodes = ["Guard(0)"] + [f"Disj([{g},{g}])" for g in range(40)]
+        plan = "root 40\n" + "".join(f"node {node}\n" for node in nodes)
+        rust, _, counts = lower(plan)
+        self.assertNotIn("let active=", rust)
+        self.assertLessEqual(counts["continuations"], 41)
+
     def test_operand_text_never_becomes_source(self):
         with self.assertRaises(ValueError):
             lower("root 0\nnode Disj(['arbitrary_text'])\n")

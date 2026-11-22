@@ -70,15 +70,32 @@ def lower(plan):
         return [(natural(g), natural(p)) for g, p in raw]
 
     def alternatives(g):
-        n = nodes[g]
-        if not n.startswith("Disj("):
-            return [g]
-        return [leaf for a in operand_list(n[5:-1]) for leaf in alternatives(a)]
+        # Preserve disjunction order without expanding an exponentially shared
+        # source DAG. Sites over the limit retain ordinary continuations.
+        pending, leaves = [g], []
+        visits = 0
+        while pending:
+            child = pending.pop()
+            node = nodes[child]
+            visits += 1
+            if visits > 128:
+                return []
+            if node.startswith("Disj("):
+                pending.extend(reversed(operand_list(node[5:-1])))
+            else:
+                leaves.append(child)
+            if len(pending) + len(leaves) > 32:
+                return []
+        return leaves
 
     def leading(g):
         todo = [(g, 0)]
         predicates = []
+        visits = 0
         while todo:
+            visits += 1
+            if visits > 128 or len(todo) > 64 or len(predicates) > 4:
+                return [], ()
             first, _ = todo[0]
             node = nodes[first]
             if node.startswith(("Conj(", "LabelArm(")):
