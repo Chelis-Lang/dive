@@ -542,10 +542,19 @@ required event. Property attribution and independent replay use the original
 states and edges, including the closing edge.
 
 Up to 63 distinct Boolean conditions share one truth word per original edge.
-The index, component filters and cached product rows share the optional
-product memory allowance. When these buffers do not fit, Core can check
+The index, component filters and cached product rows share up to one sixty-fourth
+of the requested memory limit, capped at 128 MiB. With no memory limit the
+cap is also 128 MiB. Core allocates only what the current graph needs. When these buffers do not fit, Core can check
 candidate cycles individually and split a failed fairness pair into its two
 alternatives. A nested disjunction can still reach the formula work limit.
+
+On five-floor Elevator the shared allowance cut median wall time to a validated
+counterexample to 36.83 s, down from a 149.59 s run with the smaller
+allowance. Manyan took 39.13 s. On six floors Core found its word after
+1,150,990 distinct states in 73.33 s at 541 MiB peak RSS. Manyan finished
+the 3,065,338-state graph in 162.48 s at 3,600 MiB. Both words replayed
+independently, and both failed replay after changing their closing edges.
+[Measurements, inputs and memory-limit controls](../../conformance/reports/perf/2026-11-22-streett-workspace.json)
 
 A default Core file check can also use component search when ordinary formula
 decomposition succeeds. If one temporal core has at least eight alternatives

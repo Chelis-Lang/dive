@@ -1,0 +1,477 @@
+{
+  "question": "Does retaining the exact component decision at larger graph sizes improve ordinary time to an independently replayable witness?",
+  "prior_record": "2026-11-22-batched-fairness-actions.json",
+  "base": "efccb99be714b5eb73a0269c15fb1846d1dcd0c5",
+  "baseline": "Core with batched action labels from the preceding record; five-floor workspace limited to min(requested bytes / 256, 16 MiB).",
+  "candidate": "Same label evaluator; the shared allowance for the Streett component solver alone is min(requested bytes / 64, 128 MiB). No allowance for other columns changed.",
+  "host": {
+    "hardware": "Dedicated AWS c7i.4xlarge, us-east-2, one logical worker",
+    "kernel": "7.0.0-1018-aws",
+    "compiler": "rustc 1.99.0, release --locked",
+    "host_timing": "GNU time %e and %M (KiB); sequential, wall includes process startup",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "growth_panel_cgroup_memory": "9 GiB"
+  },
+  "examples_revision": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "manyan_revision": "a39816a873a2c2aabc00dbcef50908e996f3d44b",
+  "inputs_and_binaries_sha256": {
+    "nested": "cc14186020902c22a835a23b8c7f06b5af4c4dd47c571be40fd4944aa3db3ced",
+    "manyan/manyan": "89f6da894a58220f7607853ca3907122f692fe66e507c148e1898731b8b4fcf1",
+    "Elevator.tla": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+    "ElevatorLivenessLarge.cfg": "f41449494507bb7def26453fd0bfc46a3928b6436de0da8d6aa888a13aed410c",
+    "four-floor.cfg": "707f56c9952ed53cee5dda44b20ed51224f0035039c73cd96a51ea02d34c0c49",
+    "five-floor.cfg": "ec00a1abc115f9a6052da98a5a3c3a6dd1534506db40dbdcf4528eb54ff55d93",
+    "six-floor.cfg": "bcc7f67ccc914242386ac282a5a903f5a0b7c3c57db62b3fa938c5d0e4d3180e",
+    "components": "6c973588bb6dd4fe403c8f09f0afc8ace13bc44fe5b339fd4d095ee1f0ea4704"
+  },
+  "commands": [
+    "From the pinned Examples MultiCarElevator, copy ElevatorLivenessLarge.cfg. Change only FloorCount from 3 to the requested floor count.",
+    "dive check Elevator.tla --config CFG --workers 1 --seed 0 --fp 0 --max-memory 8g --time-limit LIMIT --output json",
+    "manyan -workers 1 -seed 0 -fp 0 -config CFG Elevator.tla. On six floors also pass -dumpTrace json six-peer.json. Time fresh CLI processes with GNU time %e %M; LIMIT=120s for five floors and 180s for six.",
+    "Extract Core counterexample.trace. Translate Manyan output with scripts/perf/scale/elevator-peer-word.py. Run the unchanged baseline dive validate-trace Elevator.tla --config CFG --trace WORD --output json. Change ending.back_to to 0 and rerun. Five-floor Manyan word controls are in the preceding record."
+  ],
+  "interpretation": "Wall time to a valid counterexample includes capture, search, and normal CLI output. Core can stop on a committed prefix. Manyan finished the full graph. These are different amounts of graph exploration. Six floors is a single pair. The five-floor baseline and 3/4-floor controls are separate measurements.",
+  "five_floor_smaller_workspace": {
+    "core_verdict": "liveness-violation",
+    "core_stop": null,
+    "core": {
+      "depth": 23,
+      "distinct": 667943,
+      "generated": 4035115,
+      "initial_generated": 15625,
+      "left_on_queue": 52398,
+      "reported_by_tlc": false
+    },
+    "manyan_counts": [
+      "6994267",
+      "1051289",
+      "0"
+    ],
+    "timed_cold_with_output": {
+      "manyan": "38.79 1057180",
+      "nested": "149.59 313724"
+    },
+    "analysis_ms": {
+      "atoms": 14720.526586,
+      "attribution": 28.064784999999997,
+      "product": 124564.36557300002
+    }
+  },
+  "growth_trials": [
+    {
+      "cfg": "five-floor",
+      "arm": "components",
+      "rep": 1,
+      "rc": 13,
+      "wall_s": 36.83,
+      "peak_kib": 342816,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stats": {
+        "depth": 23,
+        "distinct": 667943,
+        "generated": 4035115,
+        "initial_generated": 15625,
+        "left_on_queue": 52398,
+        "reported_by_tlc": false
+      },
+      "stopped": null,
+      "phases_ms": {
+        "atoms": 14650.448666,
+        "attribution": 30.072009,
+        "product": 12267.887385999999
+      },
+      "word_length": 147,
+      "original_sha256": "d9c7fa8aa6c8efc926182212774be2a3d5220657eec886c8043848e4e6a82c03",
+      "genuine": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "cfg": "five-floor",
+      "arm": "manyan",
+      "rep": 1,
+      "rc": 13,
+      "wall_s": 38.79,
+      "peak_kib": 1056892,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stats": {
+        "generated": 6994267,
+        "distinct": 1051289,
+        "left_on_queue": 0,
+        "depth": 43
+      }
+    },
+    {
+      "cfg": "five-floor",
+      "arm": "manyan",
+      "rep": 2,
+      "rc": 13,
+      "wall_s": 39.22,
+      "peak_kib": 1056764,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stats": {
+        "generated": 6994267,
+        "distinct": 1051289,
+        "left_on_queue": 0,
+        "depth": 43
+      }
+    },
+    {
+      "cfg": "five-floor",
+      "arm": "components",
+      "rep": 2,
+      "rc": 13,
+      "wall_s": 37.79,
+      "peak_kib": 351356,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stats": {
+        "depth": 23,
+        "distinct": 667943,
+        "generated": 4035115,
+        "initial_generated": 15625,
+        "left_on_queue": 52398,
+        "reported_by_tlc": false
+      },
+      "stopped": null,
+      "phases_ms": {
+        "atoms": 15061.323025000002,
+        "attribution": 29.789506,
+        "product": 12469.530782
+      },
+      "word_length": 147,
+      "original_sha256": "d9c7fa8aa6c8efc926182212774be2a3d5220657eec886c8043848e4e6a82c03",
+      "genuine": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "cfg": "five-floor",
+      "arm": "components",
+      "rep": 3,
+      "rc": 13,
+      "wall_s": 36.83,
+      "peak_kib": 348144,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stats": {
+        "depth": 23,
+        "distinct": 667943,
+        "generated": 4035115,
+        "initial_generated": 15625,
+        "left_on_queue": 52398,
+        "reported_by_tlc": false
+      },
+      "stopped": null,
+      "phases_ms": {
+        "atoms": 14379.179578,
+        "attribution": 30.372296,
+        "product": 12462.64508
+      },
+      "word_length": 147,
+      "original_sha256": "d9c7fa8aa6c8efc926182212774be2a3d5220657eec886c8043848e4e6a82c03",
+      "genuine": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "cfg": "five-floor",
+      "arm": "manyan",
+      "rep": 3,
+      "rc": 13,
+      "wall_s": 39.13,
+      "peak_kib": 1056880,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stats": {
+        "generated": 6994267,
+        "distinct": 1051289,
+        "left_on_queue": 0,
+        "depth": 43
+      }
+    },
+    {
+      "cfg": "six-floor",
+      "arm": "components",
+      "rep": 1,
+      "rc": 13,
+      "wall_s": 73.33,
+      "peak_kib": 553844,
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stats": {
+        "depth": 17,
+        "distinct": 1150990,
+        "generated": 7767089,
+        "initial_generated": 46656,
+        "left_on_queue": 64340,
+        "reported_by_tlc": false
+      },
+      "stopped": null,
+      "phases_ms": {
+        "atoms": 26264.766215000003,
+        "attribution": 54.000243000000005,
+        "product": 27697.674848
+      },
+      "word_length": 263,
+      "original_sha256": "f3c7024de56d1f80dace44706c57e47d17fa64c8db3d544a6a2095d95bc443c0",
+      "genuine": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "cfg": "six-floor",
+      "arm": "manyan",
+      "rep": 1,
+      "rc": 13,
+      "wall_s": 162.48,
+      "peak_kib": 3686380,
+      "word_length": 329,
+      "original_sha256": "0fa6cebcb103bfc9809b4abb56c45122b406177ca8f9be741ff31447e6aa358b",
+      "genuine": "valid",
+      "damaged": "invalid",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stats": {
+        "generated": 23538984,
+        "distinct": 3065338,
+        "left_on_queue": 0,
+        "depth": 45
+      }
+    }
+  ],
+  "small_workspace_controls": [
+    {
+      "arm": "components",
+      "cfg": "ElevatorLivenessLarge",
+      "cap": "256m",
+      "verdict": "success",
+      "property": null,
+      "stopped": null,
+      "wall_s": 2.09,
+      "rss_kib": 71924,
+      "stats": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 1068.8074729999998,
+        "product": 323.91311299999995
+      },
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "enabled": null
+    },
+    {
+      "arm": "components",
+      "cfg": "ElevatorLivenessLarge",
+      "cap": "32m",
+      "verdict": "stopped",
+      "property": null,
+      "stopped": {
+        "elapsed_ms": 100,
+        "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+        "limit": 33554432,
+        "observed": 70705152,
+        "phase": "graph-capture",
+        "resource": "memory",
+        "unit": "bytes"
+      },
+      "wall_s": 0.1,
+      "rss_kib": 69384,
+      "stats": {
+        "depth": 5,
+        "distinct": 4005,
+        "exhaustive": false,
+        "generated": 14851,
+        "initial_generated": 729,
+        "left_on_queue": 883,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {},
+      "batch": {
+        "plans": 20,
+        "rows": 0
+      },
+      "enabled": null
+    }
+  ],
+  "small_model_controls": [
+    {
+      "arm": "components",
+      "cfg": "ElevatorLivenessLarge",
+      "cap": "8g",
+      "verdict": "success",
+      "property": null,
+      "stopped": null,
+      "wall_s": 2.15,
+      "rss_kib": 73964,
+      "stats": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 1110.6469260000001,
+        "product": 305.099736
+      },
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "enabled": null
+    },
+    {
+      "arm": "components",
+      "cfg": "ElevatorLivenessLarge",
+      "cap": "8g",
+      "verdict": "success",
+      "property": null,
+      "stopped": null,
+      "wall_s": 2.08,
+      "rss_kib": 75684,
+      "stats": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 1075.777264,
+        "product": 292.136027
+      },
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "enabled": null
+    },
+    {
+      "arm": "components",
+      "cfg": "ElevatorLivenessLarge",
+      "cap": "8g",
+      "verdict": "success",
+      "property": null,
+      "stopped": null,
+      "wall_s": 2.1,
+      "rss_kib": 73788,
+      "stats": {
+        "depth": 39,
+        "distinct": 50653,
+        "generated": 230899,
+        "initial_generated": 729,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 1094.14352,
+        "product": 295.118738
+      },
+      "batch": {
+        "plans": 20,
+        "rows": 217370
+      },
+      "enabled": null
+    },
+    {
+      "arm": "components",
+      "cfg": "four-floor",
+      "cap": "8g",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stopped": null,
+      "wall_s": 6.91,
+      "rss_kib": 175836,
+      "stats": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 3206.147549,
+        "attribution": 19.475167000000003,
+        "product": 1467.551223
+      },
+      "batch": {
+        "plans": 22,
+        "rows": 593260
+      },
+      "enabled": null,
+      "good": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "arm": "components",
+      "cfg": "four-floor",
+      "cap": "8g",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stopped": null,
+      "wall_s": 6.69,
+      "rss_kib": 176036,
+      "stats": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 3117.832801,
+        "attribution": 19.150014,
+        "product": 1417.273945
+      },
+      "batch": {
+        "plans": 22,
+        "rows": 593260
+      },
+      "enabled": null,
+      "good": "valid",
+      "damaged": "invalid"
+    },
+    {
+      "arm": "components",
+      "cfg": "four-floor",
+      "cap": "8g",
+      "verdict": "liveness-violation",
+      "property": "TemporalInvariant",
+      "stopped": null,
+      "wall_s": 6.69,
+      "rss_kib": 196456,
+      "stats": {
+        "depth": 20,
+        "distinct": 150372,
+        "generated": 717693,
+        "initial_generated": 4096,
+        "left_on_queue": 12168,
+        "reported_by_tlc": false
+      },
+      "phase_ms": {
+        "atoms": 3111.108314,
+        "attribution": 18.960518,
+        "product": 1424.202589
+      },
+      "batch": {
+        "plans": 22,
+        "rows": 593260
+      },
+      "enabled": null,
+      "good": "valid",
+      "damaged": "invalid"
+    }
+  ]
+}

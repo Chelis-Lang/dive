@@ -690,5 +690,22 @@ fn an_absent_grant_can_force_a_second_persistence_filter() {
             (has_loop, verdict),
             (true, ComponentVerdict::Accept(0)) | (false, ComponentVerdict::Empty)
         ));
+
+        // Neither the condition words nor cached rows fit. Both the rejecting
+        // and accepting graphs must still get a complete answer.
+        let budget = dive_runtime::budget::Budget::new(None, Some(0));
+        let _scope = crate::budget::enter(&budget);
+        let words = super::StreettWords::new(
+            (&csr).into(),
+            &labels,
+            &plan.pairs,
+            group.alternatives.iter(),
+        )
+        .expect("optional allocation");
+        assert!(words.is_none());
+        let fallback = product
+            .find_lasso_with_streett(&labels, &group.alternatives, &plan.pairs, words.as_ref())
+            .expect("exact search without optional storage");
+        assert_eq!(fallback.is_some(), has_loop);
     }
 }

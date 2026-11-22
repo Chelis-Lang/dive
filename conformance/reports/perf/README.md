@@ -18,6 +18,8 @@ The scripts that produced the records are in
 
 [The 46 bounded peer configurations](2026-11-22-bounded-peers.json), [Core's explicit prefix on the same inputs](2026-11-22-explicit-prefix.json), [Elevator fairness controls](2026-11-22-elevator-fairness.json) and [the published Recomp-Verify and Scimitar artifacts](2026-11-22-published-peer-artifacts.json) have a shared [reproduction guide and interpretation](../../../docs/internal/survey/verification-workloads.md#bounded-checking-fairness-and-proofs).
 
+[Five- and six-floor Fairness workspace](2026-11-22-streett-workspace.json) records matched Manyan trials, replayed witnesses, peak RSS and a memory-stop control. The larger shared allowance cut five-floor product search from 124.56 s to about 12.4 s.
+
 [Streett component search](2026-11-22-streett-component-search.json) compares the exact factored fairness searches on four-floor Elevator and a constrained public allocator. It includes elapsed time, peak RSS, phase timings, concrete word replay and source configuration.
 
 [Projected native fairness and periodic graph labels](2026-11-22-projected-fairness.json) records every measured arm, three Elevator sizes against Manyan, peak RSS, label evaluations, a second fair model, and independent replays of both tools’ words. Four-floor medians were 19.08 s before the label and SCC changes, 9.62 s with both, and 7.46 s for Manyan.
