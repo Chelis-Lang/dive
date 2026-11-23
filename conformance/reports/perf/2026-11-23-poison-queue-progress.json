@@ -208,5 +208,46 @@
       }
     }
   },
-  "scope": "Complete original five-property assessment with deadlock checking disabled after a separately replayed terminal witness. Common progress proof and terminal replay times are separate. Only the pinned source and literal actor/capacity configurations are admitted. No graph cardinality follows from an arithmetic proof."
+  "scope": "Complete original five-property assessment with deadlock checking disabled after a separately replayed terminal witness. Common progress proof and terminal replay times are separate. Only the pinned source and literal actor/capacity configurations are admitted. No graph cardinality follows from an arithmetic proof.",
+  "two_slice_quota_variant": {
+    "module_sha256": "cbe27280584d639c1dfb031ed3f2fa7890b5ea42bb5d5a77a7a73ece88353156",
+    "cfg_sha256": "fdfaa9174031e02a43d38258801e32417db20fa3d53052795fe548f17b1b4b4b",
+    "bounds": [
+      2,
+      2,
+      2
+    ],
+    "quota_scale": 2,
+    "solver": "Z3 version 4.15.5 - 64 bit",
+    "checked_properties": {
+      "TypeInv": "holds",
+      "NoDeadlock": "holds",
+      "Terminates": "holds",
+      "QueueEmpty": "holds",
+      "GlobalTermination": "holds"
+    },
+    "terminal": {
+      "result": "deadlock",
+      "independent_validation": "valid",
+      "states": 17,
+      "wall_ms": 6.638584949541837
+    },
+    "wall_ms": 15.351782960351557,
+    "closed_obligations": 15,
+    "source_edit": "Double each initial actor quota and its declared TypeInv upper bound by multiplying both occurrences of Cardinality(Consumers) and of Cardinality(Producers) by 2.",
+    "oracle": {
+      "distinct": 3220,
+      "generated": 11693,
+      "depth": 18,
+      "pending": 0,
+      "wall_s": 1.3,
+      "peak_rss_kib": 648364
+    },
+    "labeled_edge_audit": {
+      "states": 3220,
+      "edges": 11692,
+      "taken_fairness_labels": 7924,
+      "enabled_actor_labels": 7016
+    }
+  }
 }
