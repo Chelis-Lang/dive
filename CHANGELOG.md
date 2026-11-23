@@ -10,6 +10,8 @@ are in git history.
 
 - [Check the original AsyncRaft log invariant](docs/user/symbolic.md#check-the-asyncraft-log-invariant) with a compact source-bound induction proof at two and three servers. The [extensional message-set encoding](docs/user/symbolic.md#use-the-published-term-log-and-channel-bounds) also covers the published limit of 1,000 messages per channel.
 
+- The optional [source-built worker](docs/user/checking.md#build-a-source-bound-native-successor-worker) groups actor choices and updates only changed cells in eligible tables of sets. On the Flint guard edit, full search time fell from 41.82 to 36.02 seconds. [Benchmark and edit-cycle data](conformance/reports/perf/2026-11-22-source-value-blocks.json).
+
 - Core lowers disjoint updates to a shared [actor record](docs/developer/core/06-memoization.md#26-disjoint-updates-to-one-actor-row). The original Flint growth edit fell from 57.99 s to 48.89 s with all ten configured properties checked. [Performance record](conformance/reports/perf/2026-11-22-actor-table-rows.json).
 
 - The source checkout can [build a native successor worker](docs/user/checking.md#build-a-source-bound-native-successor-worker) from unmodified TLA+ and reuse its compiled control flow after a property or guard edit.

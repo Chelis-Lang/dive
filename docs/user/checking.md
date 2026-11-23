@@ -910,6 +910,11 @@ Flint's property edit completed in 3.30 s including preparation, against 23.10 s
 
 Ordinary `dive check` recognizes repeated updates to distinct fields of the same finite actor record, such as `[w EXCEPT ![a].pc = next, ![a].seen = stamp]`. It preserves source order, nested paths and the old value bound to `@`. A missing key, a repeated field or a different runtime shape uses ordinary evaluation. The original Flint check took 2.94–3.02 s with this lowering, and the optional compiled worker took 2.62–2.63 s plus its binding check. Compiled tla-mc remained faster on unchanged warm checks. [Full equality, growing models and edit-cycle measurements](../../conformance/reports/perf/2026-11-22-actor-table-rows.json).
 
+The prepared worker can read one actor label for several action alternatives, pass the checked position into an update, iterate small closed scalar domains, and update only the changed cells of a guarded table of sets. Each new process binds those operations to its current source and configuration. A missing field, different domain or unrecognized value operation uses the ordinary evaluator. The Flint guard edit took 36.25 s including preparation and search against 43.28 s for the peer's edited source, with both checking all 7,387,957 states. The already compiled peer completed the same check in 22.78 s. [Matching cold and warm runs and exact-store comparisons](../../conformance/reports/perf/2026-11-22-source-value-blocks.json).
+
+To see which operations run, set `DIVE_NATIVE_BLOCK_METER` to a new writable file when invoking the prepared binary. It records a lower bound for each operation at powers of two. For a same-worker comparison, set `DIVE_DISABLE_NATIVE_BLOCKS=1` to use the previous generated continuations, or `DIVE_DISABLE_NATIVE_SUCCESSORS=1` to use the ordinary Core generator.
+
+
 ## Embedding notes
 
 These apply to Rust callers below `check_file`:
