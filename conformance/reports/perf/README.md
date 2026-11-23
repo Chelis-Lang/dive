@@ -149,6 +149,8 @@ The [population edit-session measurements](2026-11-21-occupancy-edits.json) pair
 
 [MongoLoglessDynamicRaft reconfiguration induction](2026-11-22-mongo-reconfiguration-induction.json) checks the published three-server election property through reconfiguration and records all constraint crossings, replay controls and proof costs.
 
+[Source induction reuse](2026-11-23-source-induction-reuse.json) records fresh-process action, lemma, property and assumption edits, competing revisions, identity controls and independently replayed unsafe revisions.
+
 [Bounded AsyncRaft election induction](2026-11-22-asyncraft-election-induction.json) records original-action closure, boundary checks, genuine voting histories, and both reachable double-election mutations.
 
 [Portable finite induction](2026-11-22-portable-finite-induction.json) records complete TwoPhase and AsyncRaft certificates through separate Dive and Sail processes, including edits, authentication, refusals and matched cold checks.

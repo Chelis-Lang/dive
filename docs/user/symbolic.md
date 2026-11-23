@@ -754,3 +754,52 @@ request. An action group can be reused when its complete finite obligation
 inputs and the proof graph agree. Other revisions require explicit source
 admission. The wrapper reports the named proof, retained work, or an
 inconclusive result. A missing or invalid local receipt is a cold run.
+
+#### Reproduce an action edit and undo
+
+Fetch the pinned I3DP checkout named in the [Mongo proof record](../../conformance/reports/perf/2026-11-22-mongo-reconfiguration-induction.json).
+Use Python 3.12 or newer with `dd==0.6.0`, and build the `symbolic_input`
+example. Point `I3DP` to its MongoLoglessDynamicRaft benchmark directory
+and use a new directory for `WORK`.
+
+```sh
+PYTHONPATH=scripts/perf/scale python3 - "$I3DP" "$WORK" <<'PY'
+import json
+from pathlib import Path
+import sys
+from certify_reconfiguration import MODEL, PINS, sha, write_input
+
+source, work = map(Path, sys.argv[1:])
+assert all(sha(source / name) == pin for name, pin in PINS.items())
+work.mkdir()
+settings = json.loads((source / (MODEL + ".config.json")).read_text())
+write_input(source, settings, work, 3)
+PY
+```
+
+Use `"$WORK/ProofTrial.tla"` and `"$WORK/ProofTrial.cfg"` in the BDD
+command above. After its first run, edit the generated directory's
+`MongoLoglessDynamicRaft.tla`. Change the beginning of the action line
+from `ReconfigAction == \E` to `ReconfigAction == FALSE /\ \E`. Run again
+with the same cache, then restore the action and rerun. The strengthened
+premises for the other three actions remain identical under this edit.
+
+For AsyncRaft, copy the pinned published `AsyncRaft.tla`, `AsyncRaft.cfg`
+and proof graph into a scratch directory. Use the outer worker's `z3` backend
+with `z3-solver==4.15.4.0`. Create the effective CFG from the published
+one with `MaxTerm = 2`, `MaxLogLen = 2` and `MaxMsgCount = 3`, and keep the
+three original server values. Use the original `Init`, `Next` and
+`StateConstraint`, select invariant `H_PrimaryHasEntriesItCreated` and
+set `CHECK_DEADLOCK FALSE`. Run the source worker with the same cache on
+both revisions. In the edited revision, change only the first `TRUE`
+in `ClientRequestAction` to `FALSE`.
+
+On one native c7i.2xlarge host, the first cached AsyncRaft action edit
+retained ten action groups and took 2.21 s. Rechecking the same edited
+source cold took 62.51 s. The Mongo action edit retained 240 obligations
+and took 19.07 s versus 60.64 s cold. The measured time recovered the seed
+cost by the first edit in both sequences. Mongo's lower wall time came with
+higher peak resident memory. A weakened Mongo strengthening or a changed
+assumption required all 360 obligations again. Restoring the source
+recovered the previously checked results.
+[Native measurements and checked controls](../../conformance/reports/perf/2026-11-23-source-induction-reuse.json).
