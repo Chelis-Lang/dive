@@ -1,0 +1,233 @@
+{
+  "issue": 1382,
+  "source_pin": "4ef031c6fb844e58baa820937bc1b65b4533a062",
+  "source_sha256": {
+    "TraceMultiNodeReads.tla": "4c333d9ea385a308bbe74894e6838db7aea92a0cd760c640b38c5ac3b8fcb42a",
+    "TraceMultiNodeReads.cfg": "41415359ff02859e705bb24e89a7ec762ed43413dccae44d080e62bd0e0f2697",
+    "MultiNodeReads.tla": "efa7b9213f61534bbb826719e48643c8ef1750829fd355b724a7dd5e919546e1",
+    "MultiNode.tla": "dfae3b4e0cc47c743365e1fe00495437c1324bb657266572ccab799e8bf589cf",
+    "SingleNode.tla": "76d89beda180945967369a2e42d6e6aed5303dd6315afd881b8b1f2d598767c8",
+    "SingleNodeReads.tla": "064a1a7499f50f672133eafd255200e145781fab0d7a3934349889c3488f3b88",
+    "ExternalHistory.tla": "8ff72d4bc2b1d43e346a8fe0df0ff8430b72da8010228199a46b8b0c938e8334",
+    "ExternalHistoryInvars.tla": "eb43f21778ab16b4f689a37fed7aae06044e858ff4f746535111cc6164505ec5"
+  },
+  "scope": "Exact observation roots and all original log/backfill successors until the cursor exceeds the log length. Implicit full-state stuttering projects to protocol stuttering. Standalone validation checks a failed projected prefix against the exact protocol Init and Next with stuttering.",
+  "commands": {
+    "histories": "python3 scripts/match-ccf-trace.py SOURCE SOURCE/traces/HISTORY.ndjson --dive DIVE --refinement",
+    "controls": "python3 scripts/test-match-ccf-trace.py SOURCE --dive DIVE --refinement",
+    "etcd": "python3 scripts/match-etcd-trace.py ETCD ETCD/example.ndjson --dive DIVE --prefix 512 --seconds 60"
+  },
+  "environment": "Fedora Linux 43, AMD Ryzen AI MAX+ 395. Timings include both checks and the existential independent replays.",
+  "upstream": "Pinned TLC observations are from 2026-11-22-ccf-histories.json. Its configured exit and postcondition ran with queued states.",
+  "histories": [
+    {
+      "history": "election_no_rollback",
+      "result": "matched",
+      "events": 8,
+      "search": "invariant-violation",
+      "search_statistics": {
+        "depth": 19,
+        "distinct": 20,
+        "generated": 20,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "matched_observations": 8,
+      "witness_states": 19,
+      "observation_replay": "valid",
+      "protocol_replay": "valid",
+      "refinement": {
+        "search": "success",
+        "statistics": {
+          "depth": 19,
+          "distinct": 20,
+          "generated": 20,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "observation_transition_occurrences": 19,
+        "result": "refines"
+      },
+      "input_sha256": "305531479af499e5c654dfecde944fd8db0a138d4f950c55bba0e903378eef5e",
+      "wall_s": 0.12,
+      "peak_rss_kib": 28660,
+      "upstream_tlc": {
+        "configured_violation": false,
+        "early_exit": true,
+        "states_left_on_queue": 2
+      }
+    },
+    {
+      "history": "election_non_contiguous_view",
+      "result": "matched",
+      "events": 8,
+      "search": "invariant-violation",
+      "search_statistics": {
+        "depth": 21,
+        "distinct": 24,
+        "generated": 24,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "matched_observations": 8,
+      "witness_states": 21,
+      "observation_replay": "valid",
+      "protocol_replay": "valid",
+      "refinement": {
+        "search": "success",
+        "statistics": {
+          "depth": 21,
+          "distinct": 24,
+          "generated": 24,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "observation_transition_occurrences": 23,
+        "result": "refines"
+      },
+      "input_sha256": "f21fdfafc1c6e817f219357f76c8f89767d0b307d3964806093ae5eb2239062c",
+      "wall_s": 0.12,
+      "peak_rss_kib": 28760,
+      "upstream_tlc": {
+        "configured_violation": false,
+        "early_exit": true,
+        "states_left_on_queue": 4
+      }
+    },
+    {
+      "history": "rollback_same_seqno",
+      "result": "matched",
+      "events": 11,
+      "search": "invariant-violation",
+      "search_statistics": {
+        "depth": 22,
+        "distinct": 23,
+        "generated": 23,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "matched_observations": 11,
+      "witness_states": 22,
+      "observation_replay": "valid",
+      "protocol_replay": "valid",
+      "refinement": {
+        "search": "success",
+        "statistics": {
+          "depth": 22,
+          "distinct": 23,
+          "generated": 23,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "observation_transition_occurrences": 22,
+        "result": "refines"
+      },
+      "input_sha256": "a621b061aad47604a0ca7334d784158bac7e18e94bed033bb4c6eedb0eaa02e9",
+      "wall_s": 0.12,
+      "peak_rss_kib": 29224,
+      "upstream_tlc": {
+        "configured_violation": false,
+        "early_exit": true,
+        "states_left_on_queue": 2
+      }
+    },
+    {
+      "history": "rollback_two_transactions",
+      "result": "matched",
+      "events": 16,
+      "search": "invariant-violation",
+      "search_statistics": {
+        "depth": 27,
+        "distinct": 28,
+        "generated": 28,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "matched_observations": 16,
+      "witness_states": 27,
+      "observation_replay": "valid",
+      "protocol_replay": "valid",
+      "refinement": {
+        "search": "success",
+        "statistics": {
+          "depth": 27,
+          "distinct": 28,
+          "generated": 28,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "observation_transition_occurrences": 27,
+        "result": "refines"
+      },
+      "input_sha256": "3bb5bdcdc3684e4c77b0462c4dd695333a670e16b2781e28dade6e0d86da1b5d",
+      "wall_s": 0.12,
+      "peak_rss_kib": 29040,
+      "upstream_tlc": {
+        "configured_violation": false,
+        "early_exit": true,
+        "states_left_on_queue": 2
+      }
+    }
+  ],
+  "controls": [
+    {
+      "fixture": "{1, 2}",
+      "existential": "matched",
+      "refinement": {
+        "search": "action-property-violation",
+        "statistics": {
+          "depth": 2,
+          "distinct": 3,
+          "generated": 3,
+          "initial_generated": 1,
+          "left_on_queue": 1,
+          "reported_by_tlc": true
+        },
+        "observation_transition_occurrences": 2,
+        "result": "violation",
+        "property": "MNRSpec",
+        "observation_replay": "valid",
+        "protocol_replay": "invalid",
+        "failing_step": {
+          "check": "next",
+          "detail": "the step into this state does not satisfy the next-state relation line 7, col 17 to line 7, col 35 of module Protocol",
+          "state": 1
+        },
+        "cursor": 2,
+        "source_cursor": 1,
+        "witness_states": 2
+      }
+    },
+    {
+      "fixture": "{1}",
+      "existential": "matched",
+      "refinement": {
+        "search": "success",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "observation_transition_occurrences": 1,
+        "result": "refines"
+      }
+    }
+  ],
+  "etcd_512": {
+    "events": 512,
+    "result": "matched",
+    "event_replay": "valid",
+    "raft_replay": "valid"
+  }
+}

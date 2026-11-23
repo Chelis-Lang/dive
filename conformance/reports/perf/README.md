@@ -593,3 +593,5 @@ field before quoting a number.
 [All 34 original Recomp-Verify configurations](2026-11-22-recomp-originals.json) compare named safety results and 30-second whole-process timings with the upstream portfolio.
 
 [Saved temporal counterexample repair](2026-11-22-temporal-repair.json) records source-driven gap searches on the published Elevator and real-time clock, fresh replay, stale properties, changed fairness and ordinary fallback.
+
+[CCF universal observation refinement](2026-11-22-ccf-observation-refinement.json) checks every reached observation edge of four pinned histories and distinguishes its verdict from existential matching and TLC’s configured early exit.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Find and independently replay a full match for a pinned CCF consistency history."""
+"""Find complete CCF history matches and check the original refinement property."""
 
 import argparse
 import hashlib
@@ -42,11 +42,13 @@ STATUSES = {"CommittedStatus", "InvalidStatus"}
 def read_events(log):
     events = []
     size = 0
+    digest = hashlib.sha256()
     with log.open("rb") as stream:
         while line := stream.readline(65537):
             size += len(line)
             if len(line) > 65536 or size > 4 * 1024 * 1024 or len(events) >= 512:
                 raise Unsupported("CCF trace input limit exceeded")
+            digest.update(line)
             event = json.loads(line, object_pairs_hook=unique_fields)
             position = len(events) + 1
             action = event.get("action") if isinstance(event, dict) else None
@@ -66,7 +68,7 @@ def read_events(log):
             events.append(event)
     if not events:
         raise Unsupported("empty CCF trace")
-    return events
+    return events, digest.hexdigest()
 
 
 def prepare(directory, source, events):
@@ -97,6 +99,12 @@ def prepare(directory, source, events):
         "INIT TraceInit\nNEXT ObservedNext\nINVARIANT LogPending\nCHECK_DEADLOCK FALSE\n" + constants
     )
     (directory / "Observation.tla").write_text("---- MODULE Observation ----\n" + common + pending + "====\n")
+    # Retain the original qualified property definition from the pinned module.
+    binding = upstream[upstream.index("MNR == INSTANCE"):upstream.index("ClientTxnsOnlyAlias ==")]
+    (directory / "Refinement.tla").write_text("---- MODULE Refinement ----\n" + common + binding + "====\n")
+    (directory / "Refinement.cfg").write_text(
+        "INIT TraceInit\nNEXT ObservedNext\nPROPERTY MNRSpec\nCHECK_DEADLOCK FALSE\n" + constants
+    )
     (directory / "Protocol.tla").write_text(
         "---- MODULE Protocol ----\nEXTENDS MultiNodeReads\n" + behavior + "====\n"
     )
@@ -131,12 +139,28 @@ def match(args, directory):
             raise subprocess.TimeoutExpired("CCF full-history check and replay", args.seconds)
         return duration
 
-    events = read_events(args.log)
+    events, input_sha256 = read_events(args.log)
     source = prepare(directory, args.source, events)
     options = ["--engine", "core", "--store", "exact", "--workers", "1",
                "--exit-codes", "tlc", "--max-memory", "1g"]
     if args.max_states is not None:
         options.extend(["--max-states", str(args.max_states)])
+    out = existential(args, directory, events, source, options, remaining)
+    if args.refinement:
+        try:
+            out["refinement"] = refinement(args, directory, options, remaining)
+        except subprocess.TimeoutExpired:
+            out["refinement"] = {"result": "inconclusive", "reason": "refinement or independent replay timed out"}
+        except Unsupported as exc:
+            out["refinement"] = {"result": "unsupported", "reason": str(exc)}
+        out["input_sha256"] = input_sha256
+        out["source_sha256"] = PINS
+    if args.out and (out["result"] == "matched" or out.get("refinement", {}).get("result") == "violation"):
+        shutil.copytree(directory, args.out)
+    return out
+
+
+def existential(args, directory, events, source, options, remaining):
     status, report = search_prefix(args.dive, directory, source, len(events), options, remaining())
     out = {"result": status, "events": len(events), "search": report["verdict"],
            "search_statistics": report.get("statistics")}
@@ -172,10 +196,66 @@ def match(args, directory):
     for state in trace["states"]:
         del state["values"]["l"]
     replay(args.dive, directory, "Protocol", "protocol.json", trace, remaining())
-    if args.out:
-        shutil.copytree(directory, args.out)
     return {**out, "matched_observations": len(events), "witness_states": len(cursors),
             "observation_replay": "valid", "protocol_replay": "valid"}
+
+
+def project(word):
+    names = word["variables"]
+    if names.count("l") != 1 or len(set(names)) != len(names):
+        raise Unsupported("observation word has an invalid cursor projection")
+    projected = {**word, "variables": [name for name in names if name != "l"],
+                 "ending": {"kind": "behavior"}}
+    projected["states"] = []
+    for row in word["states"]:
+        if set(row["values"]) != set(names):
+            raise Unsupported("observation word has an invalid state layout")
+        projected["states"].append({"action": None, "values": {
+            name: row["values"][name] for name in projected["variables"]
+        }})
+    return projected
+
+
+def refinement(args, directory, options, remaining):
+    seconds = remaining()
+    code, row = run(args.dive, directory, "check", "Refinement",
+                    [*options, "--time-limit", f"{int(seconds * 1000)}ms"], seconds)
+    stats = row.get("statistics") or {}
+    generated, initial = stats.get("generated"), stats.get("initial_generated")
+    out = {"search": row.get("verdict"), "statistics": stats,
+           "observation_transition_occurrences": generated - initial
+           if isinstance(generated, int) and isinstance(initial, int) else None}
+    if code == 0 and row.get("verdict") == "success" \
+            and stats.get("left_on_queue") == 0 and row["options"].get("store") == "exact":
+        return {**out, "result": "refines"}
+    if code == 5 or row.get("verdict") in {"stopped", "resource-limit"}:
+        return {**out, "result": "inconclusive", "reason": row.get("message") or row["verdict"]}
+    # There is exactly one configured property. Core can name a split clause
+    # by its original source location instead of the enclosing CFG name.
+    if row.get("verdict") not in ("action-property-violation", "property-violation"):
+        raise Unsupported(row.get("message") or f"unexpected refinement verdict {row.get('verdict')}")
+    word = (row.get("counterexample") or {}).get("trace") or {}
+    if not row.get("property") or word.get("ending", {}).get("name") != row["property"]:
+        raise Unsupported("refinement failed without a matching original property word")
+    word["ending"] = {"kind": "behavior"}
+    for state in word["states"]:
+        state["action"] = None
+    cursors = [state["values"]["l"] for state in word["states"]]
+    if cursors[0] != 1 or any(y - x not in (0, 1) for x, y in zip(cursors, cursors[1:])):
+        raise Unsupported("refinement failure lacks an original observation prefix")
+    replay(args.dive, directory, "Observation", "refinement-observation.json", word, remaining())
+    protocol = project(word)
+    name = "refinement-protocol.json"
+    (directory / name).write_text(json.dumps(protocol, separators=(",", ":")) + "\n")
+    status, checked = run(args.dive, directory, "validate-trace", "Protocol", ["--trace", name], remaining())
+    kind = "init" if len(cursors) == 1 else "next"
+    position = len(cursors) - 1
+    failed = checked.get("failure") or {}
+    if status == 0 or checked.get("result") != "invalid" or failed.get("check") != kind or failed.get("state") != position:
+        raise Unsupported(f"independent replay did not confirm {kind} at {position}: {failed}")
+    return {**out, "result": "violation", "property": "MNRSpec", "observation_replay": "valid",
+            "protocol_replay": "invalid", "failing_step": failed, "cursor": cursors[-1],
+            "source_cursor": cursors[-2] if len(cursors) > 1 else None, "witness_states": len(cursors)}
 
 
 def main():
@@ -185,7 +265,8 @@ def main():
     parser.add_argument("--dive", default="dive", help="ordinary Dive executable")
     parser.add_argument("--seconds", type=int, default=30, help="total search and validation time budget")
     parser.add_argument("--max-states", type=int, help="discovered-state cap per exact search")
-    parser.add_argument("--out", type=Path, help="new directory for both words and their replay models")
+    parser.add_argument("--out", type=Path, help="new directory for words and replay models")
+    parser.add_argument("--refinement", action="store_true", help="also check MNRSpec on all observation completions")
     args = parser.parse_args()
     if args.seconds <= 0 or (args.max_states is not None and args.max_states < 1):
         parser.error("budgets must be positive")
@@ -203,7 +284,9 @@ def main():
     except (ValueError, TypeError, KeyError, IndexError, RecursionError, OSError) as exc:
         result = {"result": "unsupported", "reason": str(exc)}
     print(json.dumps(result))
-    return {"matched": 0, "no-completion": 1, "unsupported": 3, "inconclusive": 5}[result["result"]]
+    status = {"matched": 0, "no-completion": 1, "unsupported": 3, "inconclusive": 5}[result["result"]]
+    refined = result.get("refinement", {}).get("result")
+    return max(status, {None: 0, "refines": 0, "violation": 1, "unsupported": 3, "inconclusive": 5}[refined])
 
 
 if __name__ == "__main__":
