@@ -20,6 +20,8 @@ The scripts that produced the records are in
 
 [APtcp through five Next transitions](2026-11-22-aptcp-bounded-paths.json) records the original invariant and the edited assertion, with two peer outcomes and fresh witness replay.
 
+[Sparse membership on a supplied periodic word](2026-11-22-sparse-word-membership.json) compares original Elevator replay at 181, 241 and 251 floors and identifies the next formula to exhaust its budget. It includes changed fairness and damaged closing-edge controls.
+
 [Windowed enabledness above one million closed states](2026-11-22-windowed-enabled.json) records the six-floor production comparison, two further matched engineering pairs and seven-floor limits. The production pair took 77.40 and 72.40 seconds with the same validated 263-state counterexample. The previous six-floor Manyan run took 162.48 seconds and found a different validated 329-state word.
 
 [Five- and six-floor Fairness workspace](2026-11-22-streett-workspace.json) records matched Manyan trials, replayed witnesses, peak RSS and a memory-stop control. The larger shared allowance cut five-floor product search from 124.56 s to about 12.4 s.

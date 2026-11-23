@@ -17,6 +17,7 @@ use dive_value::Value;
 use crate::State;
 use crate::enabled::enabled;
 
+mod membership;
 mod prefix;
 mod truth;
 pub use prefix::refutes_prefix;
@@ -142,6 +143,7 @@ pub fn evaluate_lasso(
         back_to,
         cells: 0,
         stutters: None,
+        membership: membership::Membership::default(),
         levels: WalkMemo::default(),
         contexts: WalkMemo::default(),
     };
@@ -193,6 +195,7 @@ pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), T
         back_to: 0,
         cells: 0,
         stutters: None,
+        membership: membership::Membership::default(),
         levels: WalkMemo::default(),
         contexts: WalkMemo::default(),
     }
@@ -282,6 +285,7 @@ struct Word<'a> {
     back_to: usize,
     cells: usize,
     stutters: Option<(ExprId, Truth)>,
+    membership: membership::Membership,
     levels: WalkMemo<Level>,
     contexts: WalkMemo<()>,
 }
@@ -304,6 +308,20 @@ impl Word<'_> {
     }
 
     fn leaf(&mut self, expr: ExprId, scope: &Scope) -> Result<Truth, TemporalError> {
+        if let Some((var, key)) = self.first_membership(expr, scope, false)
+            && let Some(positions) = self.members(var, &key)
+        {
+            self.check_atom_context(expr, scope)?;
+            self.charge(self.states.len().div_ceil(64) + positions.len())?;
+            let mut values = Truth::constant(self.states.len(), false);
+            for (j, &i) in positions.iter().enumerate() {
+                if j % 256 == 0 {
+                    self.model.evaluator.poll_host_control()?;
+                }
+                values.set(i);
+            }
+            return Ok(values);
+        }
         self.charge(self.states.len())?;
         Ok(Truth::pack(&self.atom(expr, scope)?))
     }
@@ -459,6 +477,7 @@ impl Word<'_> {
             }
             Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
                 let scopes = self.finite_scopes(expr, scope, child, &mut 0)?;
+                let setup = self.prepare_memberships(*body, &scopes)?;
                 let and = *kind == QuantKind::Forall;
                 self.charge(words)?;
                 let mut values = Truth::constant(n, and);
@@ -466,6 +485,12 @@ impl Word<'_> {
                     let rhs = self.eval(*body, &bound, child)?;
                     self.charge(words)?;
                     values = values.combine(&rhs, |l, r| if and { l & r } else { l | r });
+                }
+                // Only a completed batch earns its setup cost. Charging it
+                // before evaluating the bodies can mask a reachable source
+                // error in an early binding with a resource refusal.
+                if setup != 0 {
+                    self.charge(setup)?;
                 }
                 Ok(values)
             }
@@ -520,31 +545,45 @@ impl Word<'_> {
         scope: &Scope,
         strong: bool,
     ) -> Result<Truth, TemporalError> {
+        if let Some(result) = self.sparse_fairness(action, sub, scope, strong)? {
+            return Ok(result);
+        }
         self.charge(self.states.len())?;
         let occurrences = self.temporal_action(action, sub, scope, false, true)?;
         let recurrent = occurrences[self.back_to..].iter().any(|occurs| *occurs);
         if recurrent {
             Ok(Truth::constant(self.states.len(), true))
         } else {
-            self.charge(self.states.len() - self.back_to)?;
-            let action = Pred::new(action, scope.clone());
-            // Evaluate every cycle position in source order. A later reached
-            // error still decides validation after the Boolean fold is known.
-            let mut holds = strong;
-            for (i, state) in self.states[self.back_to..].iter().enumerate() {
-                if i % 256 == 0 {
-                    self.model.evaluator.poll_host_control()?;
-                }
-                let disabled = !enabled(self.model, &action, Some(sub), state)
-                    .map_err(|e| enabled_refusal(&e, "fairness "))?;
-                holds = if strong {
-                    holds && disabled
-                } else {
-                    holds || disabled
-                };
-            }
-            Ok(Truth::constant(self.states.len(), holds))
+            self.fair_enabled(action, sub, scope, strong, self.back_to..self.states.len())
         }
+    }
+
+    fn fair_enabled(
+        &mut self,
+        action: ExprId,
+        sub: ExprId,
+        scope: &Scope,
+        strong: bool,
+        positions: impl ExactSizeIterator<Item = usize>,
+    ) -> Result<Truth, TemporalError> {
+        self.charge(positions.len())?;
+        // An omitted cycle position is proved disabled. Evaluate every remaining
+        // position in source order even after the Boolean answer is known.
+        let mut holds = strong || positions.len() < self.states.len() - self.back_to;
+        let pred = Pred::new(action, scope.clone());
+        for (j, i) in positions.enumerate() {
+            if j % 256 == 0 {
+                self.model.evaluator.poll_host_control()?;
+            }
+            let disabled = !enabled(self.model, &pred, Some(sub), &self.states[i])
+                .map_err(|e| enabled_refusal(&e, "fairness "))?;
+            holds = if strong {
+                holds && disabled
+            } else {
+                holds || disabled
+            };
+        }
+        Ok(Truth::constant(self.states.len(), holds))
     }
 
     // Only root variable reads and literal tuples of them are independent of
@@ -605,7 +644,7 @@ impl Word<'_> {
             .filter(|_| saved.is_none())
             .map(|_| Truth::constant(self.states.len(), false));
         let mut out = Vec::with_capacity(self.states.len());
-        for (i, state) in self.states.iter().enumerate() {
+        for i in 0..self.states.len() {
             if i % 256 == 0 {
                 self.model.evaluator.poll_host_control()?;
             }
@@ -635,27 +674,33 @@ impl Word<'_> {
                 out.push(boxed);
                 continue;
             }
-            let st = St::action(state.clone(), self.states[next].clone());
-            match ev.eval_scoped(scope, action, &st) {
-                Ok(Value::Bool(b)) => out.push(b),
-                Ok(v) => {
-                    return Err(TemporalError::Invalid(format!(
-                        "temporal action at position {i} is {}, not boolean",
-                        v.kind_name()
-                    )));
-                }
-                Err(e) => {
-                    return Err(TemporalError::evaluation(
-                        e,
-                        &format!("temporal action at position {i}: "),
-                    ));
-                }
-            }
+            out.push(self.action_at(i, next, action, scope)?);
         }
         if let Some(pair) = key.zip(recording) {
             self.stutters = Some(pair);
         }
         Ok(out)
+    }
+
+    fn action_at(
+        &self,
+        i: usize,
+        next: usize,
+        action: ExprId,
+        scope: &Scope,
+    ) -> Result<bool, TemporalError> {
+        let st = St::action(self.states[i].clone(), self.states[next].clone());
+        match self.model.evaluator.eval_scoped(scope, action, &st) {
+            Ok(Value::Bool(b)) => Ok(b),
+            Ok(v) => Err(TemporalError::Invalid(format!(
+                "temporal action at position {i} is {}, not boolean",
+                v.kind_name()
+            ))),
+            Err(e) => Err(TemporalError::evaluation(
+                e,
+                &format!("temporal action at position {i}: "),
+            )),
+        }
     }
 
     fn atom(&self, expr: ExprId, scope: &Scope) -> Result<Vec<bool>, TemporalError> {

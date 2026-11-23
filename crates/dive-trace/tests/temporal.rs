@@ -558,3 +558,169 @@ fn supplied_lasso_propagates_an_installed_control() {
         Err(TemporalError::Interrupted(_))
     ));
 }
+
+#[test]
+fn indexed_fairness_matches_ordinary_action_demand_at_each_loop_entry() {
+    let model = bound(
+        r"---- MODULE Dispatch ----
+EXTENDS Naturals
+VARIABLE x, active
+Init == x = FALSE /\ active = {}
+Next == UNCHANGED <<x,active>>
+Vars == x
+Act(k) == LET on == ~x IN /\ k \in active /\ x' = on /\ UNCHANGED active
+Plain(k) == /\ TRUE /\ Act(k)
+Warm == WF_Vars(x' = ~x)
+SF1 == (Warm \/ ~Warm) /\ \A k \in 1..32 : SF_Vars(Act(k))
+SF2 == (Warm \/ ~Warm) /\ \A k \in 1..32 : SF_Vars(Plain(k))
+WF1 == (Warm \/ ~Warm) /\ \A k \in 1..32 : WF_Vars(Act(k))
+WF2 == (Warm \/ ~Warm) /\ \A k \in 1..32 : WF_Vars(Plain(k))
+Member == \A k \in 1..32 : (k \in active) ~> x
+Other == \A k \in 1..32 : (~(k \notin active)) ~> x
+Bad(k) == /\ k \in active /\ x' = (1 \div 0) /\ UNCHANGED active
+Fault == (Warm \/ ~Warm) /\ \A k \in 1..32 : SF_Vars(Bad(k))
+Before(k) == /\ (1 \div 0) = 4 /\ k \in active /\ x' = ~x /\ UNCHANGED active
+Order == (Warm \/ ~Warm) /\ \A k \in 1..32 : SF_Vars(Before(k))
+====",
+        "INIT Init\nNEXT Next\n",
+    );
+    let make = |x, keys: &[i64]| -> State {
+        let values = keys.iter().map(|n| Value::Int(*n)).collect();
+        let set = Value::set_canonical(values, dive_value::Ctx::tlc()).expect("finite set");
+        Arc::from([Some(Value::Bool(x)), Some(set)])
+    };
+    // Duplicate source members, overlapping memberships, absent and dense
+    // bindings, changing first and last states, and a nonzero closing edge.
+    for flags in 0..8 {
+        let word = [
+            make(flags & 1 != 0, &[1, 1]),
+            make(flags & 2 != 0, &[1, 2]),
+            make(flags & 4 != 0, &[2]),
+        ];
+        for back in 0..word.len() {
+            for (fast, slow) in [("WF1", "WF2"), ("SF1", "SF2"), ("Member", "Other")] {
+                let run = |name| {
+                    evaluate_lasso(&model, &predicate(&model, name), &word, back).expect(name)
+                };
+                assert_eq!(run(fast), run(slow), "{fast}, flags {flags}, loop {back}");
+            }
+        }
+    }
+    let empty = [make(false, &[]), make(false, &[])];
+    assert!(evaluate_lasso(&model, &predicate(&model, "Fault"), &empty, 0).is_ok());
+    assert!(evaluate_lasso(&model, &predicate(&model, "Order"), &empty, 0).is_err());
+    let active = [make(false, &[]), make(true, &[2]), make(false, &[])];
+    assert!(evaluate_lasso(&model, &predicate(&model, "Fault"), &active, 0).is_err());
+}
+
+#[test]
+fn sparse_guard_preserves_demand_for_a_strict_let_in_a_supplied_scope() {
+    let model = bound(
+        r"---- MODULE Demand ----
+VARIABLE x, active
+Init == x = FALSE /\ active = {}
+Next == x' = ~x /\ UNCHANGED active
+V == x
+Warm == WF_V(x' = ~x)
+P == \A u \in {1} : (Warm \/ ~Warm) /\ \A k \in {1} :
+     SF_V(LET unused == <<u>> IN k \in active /\ x' = ~x)
+====",
+        "INIT Init\nNEXT Next\n",
+    );
+    let root = predicate(&model, "P");
+    let dive_ir::Expr::Quant { body, .. } = model.ir.expr(root.expr) else {
+        panic!("P must start with a quantifier")
+    };
+    // The library caller supplies a root frame without binding u. Building
+    // the strict tuple forces u before the first membership guard.
+    let inner = Pred::new(*body, root.scope);
+    let empty = Value::set(vec![], dive_value::Ctx::tlc()).expect("empty set");
+    let states: Vec<State> = [false, true]
+        .into_iter()
+        .map(|x| Arc::from([Some(Value::Bool(x)), Some(empty.clone())]))
+        .collect();
+    let err =
+        evaluate_lasso(&model, &inner, &states, 0).expect_err("strict value must be evaluated");
+    assert!(err.to_string().contains("unbound slot"), "{err}");
+}
+
+#[test]
+fn supplied_foreign_atom_keeps_the_ordinary_membership_comparison() {
+    let model = bound(
+        r#"---- MODULE Foreign ----
+VARIABLE x, active
+Init == x = FALSE /\ active = {"hello"}
+Next == UNCHANGED <<x,active>>
+Member(key) == (key \in active) ~> x
+Plain(key) == (~(key \notin active)) ~> x
+===="#,
+        "INIT Init\nNEXT Next\n",
+    );
+    let local = model.names.intern("hello");
+    let foreign = dive_value::Interner::new();
+    let _padding = foreign.intern("padding");
+    let mut external = foreign.intern("hello");
+    // Distinguish text-based hashing from the encounter-order comparison.
+    if external.tok() == local.tok() {
+        let other = dive_value::Interner::new();
+        external = other.intern("hello");
+    }
+    assert_ne!(external.tok(), local.tok());
+    let set = Value::set(vec![Value::Str(local)], dive_value::Ctx::tlc()).expect("word set");
+    let states: Vec<State> = vec![Arc::from([Some(Value::FALSE), Some(set)])];
+    for name in ["Member", "Plain"] {
+        let root = predicate(&model, name);
+        let scope = model
+            .evaluator
+            .scope_bind(&root.scope, dive_ir::Slot(0), Value::Str(external.clone()))
+            .expect("supplied frame");
+        let got = evaluate_lasso(&model, &Pred::new(root.expr, scope), &states, 0)
+            .expect("ordinary query");
+        assert_eq!(got, [true], "{name}");
+    }
+}
+
+#[test]
+fn one_dense_query_keeps_its_previous_word_budget() {
+    let src = format!(
+        r"---- MODULE Dense ----
+VARIABLE x, active
+Init == x = FALSE /\ active = {{1,2,3,4}}
+Next == UNCHANGED <<x,active>>
+P == (\A k \in {{1}} : (k \in active) ~> x){}
+====",
+        " /\\ <>x".repeat(55)
+    );
+    let model = bound(&src, "INIT Init\nNEXT Next\n");
+    let set =
+        Value::set((1..=4).map(Value::Int).collect(), dive_value::Ctx::tlc()).expect("dense set");
+    let row: State = Arc::from([Some(Value::FALSE), Some(set)]);
+    let word = vec![row; 16_000];
+    let answer =
+        evaluate_lasso(&model, &predicate(&model, "P"), &word, 0).expect("dense baseline fits");
+    assert!(answer.into_iter().all(|v| !v));
+}
+
+#[test]
+fn late_dense_binding_reaches_its_error_before_batch_setup_is_charged() {
+    let src = format!(
+        r"---- MODULE Late ----
+EXTENDS Naturals
+VARIABLE x, active
+Init == x = FALSE /\ active = {{1,2,3,4}}
+Next == UNCHANGED <<x,active>>
+P == {}(\A k \in 1..16 : (k \in active) ~> (x = ((1 \div 0) = 0)))
+====",
+        "<>x /\\ ".repeat(55)
+    );
+    let model = bound(&src, "INIT Init\nNEXT Next\n");
+    let set =
+        Value::set((1..=4).map(Value::Int).collect(), dive_value::Ctx::tlc()).expect("dense set");
+    let row: State = Arc::from([Some(Value::FALSE), Some(set)]);
+    let word = vec![row; 16_000];
+    let err = evaluate_lasso(&model, &predicate(&model, "P"), &word, 0).expect_err("zero divisor");
+    assert!(
+        err.to_string().contains("TLC_MODULE_DIVISION_BY_ZERO"),
+        "{err}"
+    );
+}
