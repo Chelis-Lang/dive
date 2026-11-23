@@ -62,3 +62,17 @@ class ThroughputTests(unittest.TestCase):
                 prepare.throughput_build(root, root, root, binary, 2, [], {"root": "M.tla"}, root / "llvm-profdata", 2)
             self.assertEqual(build.call_count, 1)
             self.assertFalse(binary.exists())
+
+    def test_internal_failure_with_counters_cannot_publish(self):
+        def failed(_exe, _args, _cwd, env):
+            Path(env["LLVM_PROFILE_FILE"].replace("%m-%p", "partial")).write_bytes(b"partial")
+            return 4, {"verdict": "internal-error", "statistics": {"generated": 3}}
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch.object(prepare, "build") as build, patch.object(prepare, "cli", failed), \
+                 self.assertRaisesRegex(ValueError, "internal-error"):
+                prepare.throughput_build(root, root, root, root / "worker", 2, [], {"root": "M.tla"},
+                                         root / "llvm-profdata", 2)
+            self.assertEqual(build.call_count, 1)
+            self.assertEqual(list(root.iterdir()), [])

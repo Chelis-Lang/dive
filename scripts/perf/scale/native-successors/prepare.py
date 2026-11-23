@@ -143,12 +143,16 @@ def throughput_build(source, target, folder, binary, jobs, flags, inputs, tool, 
                "LLVM_PROFILE_FILE": str(raw / "%m-%p.profraw")}
         started = time.monotonic()
         status, report = cli(training_binary, ["check", inputs["root"], "--config", "native-study.cfg",
-                            *flags, "--workers", str(workers), "--seed", "0", "--fp", "0",
+                            *flags, "--exit-codes", "native", "--workers", str(workers), "--seed", "0", "--fp", "0",
                             "--max-states", "75000", "--max-depth", "14", "--time-limit", "15s",
                             "--max-memory", "2g"], folder, env)
         stats = report.get("statistics") or {}
         profiles = sorted(raw.glob("*.profraw"))
-        if status < 0 or not profiles or not isinstance(stats.get("generated"), int) or not stats["generated"]:
+        outcomes = {"success": 0, "stopped": 5, "invariant-violation": 10, "property-violation": 10,
+                    "action-property-violation": 10, "postcondition-failure": 10, "deadlock": 11}
+        generated = stats.get("generated")
+        if (outcomes.get(report.get("verdict")) != status or not profiles
+                or type(generated) is not int or generated <= 0):
             raise ValueError(f"no native checker training sample: exit {status}, {report.get('verdict')}")
         elapsed = time.monotonic() - started
         profile = work / "worker.profdata"
