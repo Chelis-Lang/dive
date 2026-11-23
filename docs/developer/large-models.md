@@ -2297,5 +2297,19 @@ The small oracle controls compare each original actor-labelled successor and
 its fairness enablement, including layouts with two and three active
 producers. The wakeup mutant gives a valid concrete liveness counterexample.
 Stuttering at the original initial state fails fairness. Changes to the
-pinned source, configured fairness, or observed property refuse admission.
+configured fairness or observed property refuse admission. A property that
+examines the original producer payload is outside this proof's projection.
+At 2/2/2, native Core independently replayed a counterexample for the
+added assertion that producer p2 never appears in the buffer.
+
+A second source doubles the initial quota of every actor and its declared
+upper bound. To reproduce it, use a 2/2/2 CFG and change both occurrences of
+`Cardinality(Consumers)` and both occurrences of `Cardinality(Producers)`
+to twice that cardinality in the released module. Proof admission reverses
+those four changes and checks the released source hash. The same progress
+proof discharges all 15 obligations, and independent replay reaches normal
+termination in 17 states. Pinned TLC exhausted 3,220 states at depth 18
+and generated 11,693 states including Init. With `--module` set to the
+edited source, the graph audit checked all 11,692 transitions and their
+actor fairness labels.
 [Proof obligations, scope, terminal replay and controls](../../conformance/reports/perf/2026-11-23-poison-queue-progress.json).

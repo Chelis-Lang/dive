@@ -8,7 +8,7 @@ import re
 import json
 
 from poison_queue_graph import read_graph
-from poison_queue_progress import configuration
+from poison_queue_progress import admitted_source, configuration
 
 
 @dataclass(frozen=True)
@@ -107,15 +107,15 @@ def fairness_labels(source, edges):
     }
 
 
-def audit(graph, cfg):
+def audit(graph, cfg, quota_scale=1):
     p, c, capacity, deadlock_disabled = configuration(cfg.read_text())
     if not deadlock_disabled:
         raise ValueError("the audit requires a complete deadlock-disabled oracle graph")
     labels, occurrence, root = read_graph(graph)
     states = {key: value(label) for key, label in labels.items()}
     initial = State(
-        tuple((actor, len(c)) for actor in sorted(p)),
-        tuple((actor, len(p)) for actor in sorted(c)),
+        tuple((actor, len(c) * quota_scale) for actor in sorted(p)),
+        tuple((actor, len(p) * quota_scale) for actor in sorted(c)),
         (),
         frozenset(),
     )
@@ -158,8 +158,19 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("graph", type=Path)
     parser.add_argument("config", type=Path)
+    parser.add_argument(
+        "--module", type=Path, help="source for the quota-scaled control"
+    )
     args = parser.parse_args()
-    print(json.dumps(audit(args.graph, args.config)))
+    print(
+        json.dumps(
+            audit(
+                args.graph,
+                args.config,
+                admitted_source(args.module)[1] if args.module else 1,
+            )
+        )
+    )
 
 
 if __name__ == "__main__":

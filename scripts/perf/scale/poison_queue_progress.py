@@ -12,7 +12,7 @@ import subprocess
 import time
 from dataclasses import dataclass, fields
 
-from poison_queue import MODULE, SOURCE_HASH, pinned
+from poison_queue import MODULE, SOURCE_HASH
 
 
 def and_(*terms):
@@ -61,12 +61,29 @@ def state(prefix):
     return State(*(f"{prefix}{k.name}" for k in fields(State)))
 
 
-def limits(s, producers, consumers, cap):
+def admitted_source(path):
+    """Admit the pinned model and its uniform two-slice quota variant."""
+    data = path.read_bytes()
+    source_hash = hashlib.sha256(data).hexdigest()
+    if source_hash == SOURCE_HASH:
+        return data.decode("utf-8"), 1, source_hash
+    text = data.decode("utf-8")
+    original = text
+    for cardinality in ("Cardinality(Consumers)", "Cardinality(Producers)"):
+        if original.count("2 * " + cardinality) != 2:
+            raise ValueError("source is outside the checked poison-queue quota forms")
+        original = original.replace("2 * " + cardinality, cardinality)
+    if hashlib.sha256(original.encode()).hexdigest() != SOURCE_HASH:
+        raise ValueError("source is outside the checked poison-queue quota forms")
+    return text, 2, source_hash
+
+
+def limits(s, producers, consumers, cap, quota_scale):
     a = and_(
         call("<=", 0, s.p, producers),
         call("<=", 0, s.c, consumers),
-        call("<=", s.p, s.pq, call("*", s.p, consumers)),
-        call("<=", s.c, s.cq, call("*", s.c, producers)),
+        call("<=", s.p, s.pq, call("*", s.p, consumers * quota_scale)),
+        call("<=", s.c, s.cq, call("*", s.c, producers * quota_scale)),
         call("<=", 0, s.pa, s.p),
         call("<=", 0, s.ca, s.c),
         call("<=", 0, s.length, cap),
@@ -152,10 +169,10 @@ def transitions(s, t, cap):
     return actions
 
 
-def proof(producers, consumers, cap, solver):
+def proof(producers, consumers, cap, solver, quota_scale=1):
     s, t = state("s_"), state("t_")
-    legal, inv = limits(s, producers, consumers, cap)
-    after_legal, after_inv = limits(t, producers, consumers, cap)
+    legal, inv = limits(s, producers, consumers, cap, quota_scale)
+    after_legal, after_inv = limits(t, producers, consumers, cap, quota_scale)
     both = and_(legal, inv)
     active = or_(call("<", 0, s.ca), call("<", 0, s.pa))
     full = getattr(s, "length")
@@ -183,8 +200,8 @@ def proof(producers, consumers, cap, solver):
         both, call("=", s.pq, 0), call("=", s.cq, 0), call("<", 0, full)
     )
     start = {
-        "pq": str(producers * consumers),
-        "cq": str(producers * consumers),
+        "pq": str(producers * consumers * quota_scale),
+        "cq": str(producers * consumers * quota_scale),
         "p": str(producers),
         "c": str(consumers),
         "pa": str(producers),
@@ -255,10 +272,10 @@ def configuration(config):
     return *names, int(capacity), disabled is not None
 
 
-def terminal_word(producers, consumers):
+def terminal_word(producers, consumers, quota_scale):
     counters = {
-        "prod": dict.fromkeys(producers, len(consumers)),
-        "cons": dict.fromkeys(consumers, len(producers)),
+        "prod": dict.fromkeys(producers, len(consumers) * quota_scale),
+        "cons": dict.fromkeys(consumers, len(producers) * quota_scale),
     }
     rows = []
 
@@ -277,10 +294,11 @@ def terminal_word(producers, consumers):
     # names an actual producer and consumer at each pair of steps.
     for producer in producers:
         for consumer in consumers:
-            counters["prod"][producer] -= 1
-            row(True)
-            counters["cons"][consumer] -= 1
-            row(False)
+            for _ in range(quota_scale):
+                counters["prod"][producer] -= 1
+                row(True)
+                counters["cons"][consumer] -= 1
+                row(False)
     return {
         "format": "dive-trace",
         "version": 1,
@@ -327,7 +345,7 @@ def validate(dive, module, config, trace, word):
 
 
 def run(args):
-    source = pinned(args.module, SOURCE_HASH)
+    source, quota_scale, source_hash = admitted_source(args.module)
     cfg = args.config.read_bytes()
     p, c, capacity, deadlock_disabled = configuration(cfg.decode("utf-8"))
     if not deadlock_disabled:
@@ -339,14 +357,14 @@ def run(args):
         timeout=2,
         check=True,
     ).stdout.strip()
-    obligations = proof(len(p), len(c), capacity, args.solver)
+    obligations = proof(len(p), len(c), capacity, args.solver, quota_scale)
     if not obligations["proved"]:
         return 5, {
             "result": "inconclusive",
             "reason": "progress obligations did not close",
             **obligations,
         }
-    terminal = terminal_word(p, c)
+    terminal = terminal_word(p, c, quota_scale)
     with TemporaryDirectory(prefix="dive-poison-queue-proof-") as tmp:
         staging = Path(tmp)
         # Resolve only the standard modules bundled with the trusted validator.
@@ -378,7 +396,8 @@ def run(args):
         "format": "dive-poison-queue-progress-v1",
         "result": "proved",
         **obligations,
-        "module_sha256": SOURCE_HASH,
+        "module_sha256": source_hash,
+        "quota_scale": quota_scale,
         "cfg_sha256": hashlib.sha256(cfg).hexdigest(),
         "solver": solver_identity,
         "checked_properties": dict.fromkeys(
