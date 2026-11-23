@@ -2241,3 +2241,61 @@ five-second, one-worker default-profile check, `MCetcdraft.cfg` reached
 workstation using a debug build. Neither configuration has a completed
 TLC golden. The nominal TLC profile still refuses the multikey fold when
 the original order is unknown. See [bag fold order](../tlc-differences.md#d-031-bag-fold-order).
+
+## Prove termination of the finite poison-apple queue
+
+The released `BlockingQueuePoisonApple` source admits a progress proof at
+five producers, five consumers and capacity five. The proof also checked
+8/8/8 and 20/20/20. It checks `TypeInv`, `NoDeadlock`, `Terminates`,
+`QueueEmpty` and `GlobalTermination`. Its source admission pins the released
+module and accepts literal positive carrier sizes and capacity. The command
+uses the bundled standard modules and checks the original five properties.
+It requires `CHECK_DEADLOCK FALSE` in the fair configuration and separately
+replays a concrete terminal deadlock with the original setting.
+
+```sh
+python3 scripts/perf/scale/poison_queue.py SOURCE WORK \
+  --producers 5 --consumers 5 --capacity 5
+printf '\nCHECK_DEADLOCK FALSE\n' >> WORK/BlockingQueuePoisonApple.cfg
+python3 scripts/perf/scale/poison_queue_progress.py \
+  WORK/BlockingQueuePoisonApple.tla WORK/BlockingQueuePoisonApple.cfg \
+  --dive /path/to/dive --solver z3
+```
+
+Each original action preserves the declared types. Successful puts respect
+capacity and append an ordinary producer or a poison payload. A successful
+get removes the first payload and decrements the consumer quota only on
+poison. Each quota decrement concerns a nonwaiting actor with positive quota.
+A wait adds an active actor, and notifications can only remove actors from
+the wait set. These facts preserve domain, range and the exclusion of
+inactive actors from the wait set. The arithmetic obligations use the
+projection of these concrete actions with all original actor domains.
+
+The sum of remaining consumer quotas minus the sum of remaining producer
+quotas equals the number of poison entries in the buffer. The number of
+awake active producers is at least the smaller of the number of free slots
+and the number of active producers. The dual lower bound for consumers uses
+the occupied slots. A push or removal can wake one opposite waiter. When
+an actor terminates on that step, both its own active and awake counts fall
+by one. These bounds guarantee an awake actor whenever any quota remains.
+After the last producer finishes, any nonempty buffer has poison at its tail.
+With both quota sums zero, the buffer is empty. The tool evaluates the
+original parenthesization of `QueueEmpty` through this stronger terminal
+invariant.
+
+Suppose the producer quota sum stabilizes above zero. If the buffer has room
+infinitely often, some fixed producer is awake with room infinitely often.
+That concrete producer's strong fairness forces a quota decrease. If the
+buffer is eventually always full, a fixed awake consumer is enabled until a
+get succeeds. Its weak fairness forces a removal. Both contradict the
+assumed suffix. After the producers finish, each remaining consumer quota
+means there is poison in the buffer. An awake consumer stays enabled until a
+get, and each get shortens the finite queue. This establishes
+`GlobalTermination` with the original per-actor fairness.
+
+The small oracle controls compare each original actor-labelled successor and
+its fairness enablement, including layouts with two and three active
+producers. The wakeup mutant gives a valid concrete liveness counterexample.
+Stuttering at the original initial state fails fairness. Changes to the
+pinned source, configured fairness, or observed property refuse admission.
+[Proof obligations, scope, terminal replay and controls](../../conformance/reports/perf/2026-11-23-poison-queue-progress.json).
