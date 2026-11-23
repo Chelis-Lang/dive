@@ -19,6 +19,7 @@ from emitter import HERE, lower
 REPO = HERE.parents[3]
 GEN = Path("crates/dive-core/src/generate/native_study.rs")
 STUB = """use super::{Code, Error, Machine, Sink};
+pub(crate) fn operator(_: &str) -> Option<crate::eval::operators::Body> { None }
 pub(crate) fn matches(_: &Code) -> bool { false }
 pub(super) fn run(m:&mut Machine,c:&Code,g:u32,s:&mut dyn Sink)->Result<(),Error>{m.run_action(c,g,s)}
 """
@@ -59,6 +60,16 @@ def extract(tree, destination):
         if source.wait():
             raise ValueError("could not extract the committed Dive tree")
     core = destination / "crates/dive-core/src"
+    (core / "native_operators.rs").write_text((HERE / "operators.rs").read_text())
+    replace_once(core / "eval.rs", "mod product;", 'mod product;\n#[path = "native_operators.rs"] pub(crate) mod operators;')
+    replace_once(core / "eval.rs", "        let v = self.eval(code, p)?;\n        bool_of(v)", """        if let Some(v) = code.operators.run(self,code,p) {
+            return bool_of(v?);
+        }
+        let v = self.eval(code, p)?;
+        bool_of(v)""")
+    replace_once(core / "compile.rs", "        let b = self.p(body, inner, mode)?;\n        if reset.is_empty()", """        let b = self.p(body, inner, mode)?;
+        self.code.operator_roots.push((b,d.index() as u32));
+        if reset.is_empty()""")
     replace_once(core / "label_guard.rs", "    fn bucket(self)", "    pub(crate) fn bucket(self)")
     (core / "native_binders.rs").write_text((HERE / "binders.rs").read_text())
     (core / "native_history.rs").write_text((HERE / "history.rs").read_text())
@@ -81,7 +92,7 @@ def extract(tree, destination):
     replace_once(core / "eval.rs", "        let r = self.eval(code, body)?;\n        let added = self.heap.cache.added;", """        let r = if self.fuel==u64::MAX && self.debugger.is_none() && self.transient_bound==usize::MAX && let Some(h)=code.native_blocks.history(self,site) {
             self.charge(1)?;
             h
-        } else { self.eval(code,body)? };
+        } else if let Some(v) = code.operators.run(self,code,body) { v? } else { self.eval(code,body)? };
         let added = self.heap.cache.added;""")
     replace_once(core / "eval.rs", "Node::Quant { kind, binds, body } => self.quant(code, *kind, binds, *body),", """Node::Quant {kind,binds,body} => {
         if self.fuel==u64::MAX && self.debugger.is_none() && self.transient_bound==usize::MAX && !self.heap.speculative && let Some(domain)=code.native_blocks.quant(p){
@@ -89,7 +100,7 @@ def extract(tree, destination):
             domain.quant(self,code,*kind,*body)
         } else {self.quant(code,*kind,binds,*body)}
     },""")
-    replace_once(core / "plan.rs", "pub struct Code {", "pub struct Code {\n    /// Shape-bound native successor study worker.\n    pub native_worker: bool,\n    /// Bound source value operands.\n    pub native_blocks: crate::native_blocks::Blocks,")
+    replace_once(core / "plan.rs", "pub struct Code {", "pub struct Code {\n    /// Shape-bound native successor study worker.\n    pub native_worker: bool,\n    pub(crate) operator_roots: Vec<(P,u32)>,\n    pub(crate) operators: crate::eval::operators::Operators,\n    /// Bound source value operands.\n    pub native_blocks: crate::native_blocks::Blocks,")
     replace_once(core / "compile.rs", "    let mut plan = Plan {", (HERE / "export.rs").read_text() + "\n    let mut plan = Plan {")
     replace_once(core / "generate.rs", "mod composition;", "mod composition;\npub(crate) mod native_study;")
     replace_once(core / "generate.rs", "        let result = self.run_action(code, action.g, sink);", """

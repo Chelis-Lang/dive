@@ -30,11 +30,14 @@ def continuations(values):
 
 
 def lower(plan):
-    roots, nodes = [], []
+    from value_emitter import emit
+    roots, nodes, shapes = [], [], []
     for line in plan.splitlines():
         tag, value = line.split(" ", 1)
         if tag == "root":
             roots.append(natural(int(value)))
+        elif tag == "operator":
+            shapes.append(value)
         elif tag == "node":
             nodes.append(value)
         else:
@@ -213,5 +216,6 @@ def lower(plan):
     bodies = [f"fn {name}(m:&mut Machine,c:&Code,s:&mut dyn Sink,r:&mut Register)->Result<(),Error>{{{body}}}"
               for name, body in functions.items() if name in used]
     prefix = (HERE / "runtime.rs").read_text()
-    source = "\n".join([prefix, (HERE / "binding.rs").read_text(), *bodies, dispatch])
-    return source, "".join(node + "\n" for node in nodes), {"roots": len(set(roots)), "generator_nodes": len(nodes), "continuations": len(bodies), "kinds": kinds}
+    values, unique = emit(shapes)
+    source = "\n".join([prefix, values, (HERE / "binding.rs").read_text(), *bodies, dispatch])
+    return source, "".join(node + "\n" for node in nodes), {"roots": len(set(roots)), "operator_bodies": unique, "generator_nodes": len(nodes), "continuations": len(bodies), "kinds": kinds}
