@@ -149,6 +149,7 @@ fn run(module: &Path, config: &Path, orbits: bool) -> Result<Value, String> {
     let mut document = json!({"format": "dive-symbolic-input-v2", "ir": &*ir, "constants": constants, "overrides": overrides,
         "assumptions": assumptions, "constraints": constraints, "init": init, "next": next, "invariants": invariants, "symmetry": permutations,
         "specification": cfg.specification.as_ref().map(|n| &n.text),
+        "explicit_deadlock": cfg.check_deadlock.as_ref().is_some_and(|flag| flag.value),
         "check_deadlock": m.settings.check_deadlock});
     if orbits {
         document["format"] = json!("dive-orbit-proof-input-v1");

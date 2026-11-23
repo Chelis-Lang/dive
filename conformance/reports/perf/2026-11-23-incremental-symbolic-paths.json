@@ -1,0 +1,614 @@
+{
+  "schema": "dive-incremental-symbolic-paths-v1",
+  "examples": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "host": "Linux-7.1.5-100.fc43.x86_64-x86_64-with-glibc2.42",
+  "measurement": "Local process-family wall and maximum RSS. Single process per cell. Published source configurations are unchanged except the separately labeled comparison inputs.",
+  "published_path_matrix": "2026-11-22-bounded-peers.json",
+  "models": [
+    {
+      "module": "KeyValueStore/MCKVS.tla",
+      "config": "KeyValueStore/MCKVSSafetySmall.cfg",
+      "module_sha256": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+      "config_sha256": "2360ddff6cac82d84a7077e35cd5e77e7acf81a5d37fc37bc10f335082854103",
+      "layout": "TypeInvariant",
+      "cold": {
+        "5": {
+          "verdict": "bounded-safe",
+          "model_proved": false,
+          "state_bits": 31,
+          "relation_actions": 27,
+          "active_properties": [
+            "TypeInvariant",
+            "TxLifecycle"
+          ],
+          "completed_bounds": [
+            {
+              "path_bound": 5,
+              "admitted_states": 613,
+              "bad_prefix": "unsat",
+              "executions": "sat"
+            }
+          ],
+          "depth_seconds": [
+            9.347e-06,
+            0.000299234,
+            0.000543555,
+            0.000848941,
+            0.00162703,
+            0.00323861
+          ],
+          "relation_build_seconds": 0.009499001025687903,
+          "query_seconds": 0.0066176350228488445,
+          "wall_s": 0.42,
+          "peak_rss_kib": 77428
+        },
+        "10": {
+          "verdict": "bounded-safe",
+          "model_proved": false,
+          "state_bits": 31,
+          "relation_actions": 27,
+          "active_properties": [
+            "TypeInvariant",
+            "TxLifecycle"
+          ],
+          "completed_bounds": [
+            {
+              "path_bound": 10,
+              "admitted_states": 82893,
+              "bad_prefix": "unsat",
+              "executions": "sat"
+            }
+          ],
+          "depth_seconds": [
+            9.027e-06,
+            0.000311237,
+            0.000536743,
+            0.000857548,
+            0.001653709,
+            0.002972137,
+            0.006060523,
+            0.013570342,
+            0.031925582,
+            0.045088825,
+            0.073599193
+          ],
+          "relation_build_seconds": 0.00975435203872621,
+          "query_seconds": 0.17688215797534212,
+          "wall_s": 0.57,
+          "peak_rss_kib": 77168
+        }
+      },
+      "nested": {
+        "verdict": "inductive-safety",
+        "model_proved": true,
+        "state_bits": 31,
+        "relation_actions": 27,
+        "active_properties": [
+          "TypeInvariant",
+          "TxLifecycle"
+        ],
+        "completed_bounds": [
+          {
+            "path_bound": 5,
+            "admitted_states": 613,
+            "bad_prefix": "unsat",
+            "executions": "sat"
+          },
+          {
+            "path_bound": 10,
+            "admitted_states": 82893,
+            "bad_prefix": "unsat",
+            "executions": "sat"
+          }
+        ],
+        "depth_seconds": [
+          9.989e-06,
+          0.000327538,
+          0.000526373,
+          0.000828854,
+          0.001638331,
+          0.003338238,
+          0.006789489,
+          0.014636343,
+          0.030515832,
+          0.041171004,
+          0.069042888
+        ],
+        "relation_build_seconds": 0.009776013030204922,
+        "query_seconds": 0.19853450800292194,
+        "induction": {
+          "bound": 2,
+          "base": "unsat",
+          "step": "unsat"
+        },
+        "wall_s": 0.61,
+        "peak_rss_kib": 77384
+      },
+      "original_peer_exits": {
+        "manyan": {
+          "5": 255,
+          "10": 255
+        },
+        "apalache": {
+          "5": 255,
+          "10": 255
+        }
+      }
+    },
+    {
+      "module": "transaction_commit/TCommit.tla",
+      "config": "transaction_commit/TCommit.cfg",
+      "module_sha256": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+      "config_sha256": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415",
+      "layout": "TCTypeOK",
+      "cold": {
+        "5": {
+          "verdict": "bounded-safe",
+          "model_proved": false,
+          "state_bits": 6,
+          "relation_actions": 9,
+          "active_properties": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "completed_bounds": [
+            {
+              "path_bound": 5,
+              "admitted_states": 7,
+              "bad_prefix": "unsat",
+              "executions": "sat"
+            }
+          ],
+          "depth_seconds": [
+            4.128e-06,
+            9.2214e-05,
+            6.4522e-05,
+            7.3309e-05,
+            6.3741e-05,
+            8.2786e-05
+          ],
+          "relation_build_seconds": 0.002791857987176627,
+          "query_seconds": 0.0004086009575985372,
+          "wall_s": 0.36,
+          "peak_rss_kib": 77052
+        },
+        "10": {
+          "verdict": "executions-too-short",
+          "model_proved": false,
+          "state_bits": 6,
+          "relation_actions": 9,
+          "active_properties": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "completed_bounds": [
+            {
+              "path_bound": 10,
+              "admitted_states": 0,
+              "bad_prefix": "unsat",
+              "executions": "unsat"
+            }
+          ],
+          "depth_seconds": [
+            4.188e-06,
+            8.6063e-05,
+            6.1867e-05,
+            6.907e-05,
+            5.9833e-05,
+            5.5836e-05,
+            3.9374e-05,
+            2.4546e-05,
+            2.1852e-05,
+            2.1361e-05,
+            3.2671e-05
+          ],
+          "relation_build_seconds": 0.002698010008316487,
+          "query_seconds": 0.0005047530285082757,
+          "wall_s": 0.36,
+          "peak_rss_kib": 76804
+        }
+      },
+      "nested": {
+        "verdict": "inductive-safety",
+        "model_proved": true,
+        "state_bits": 6,
+        "relation_actions": 9,
+        "active_properties": [
+          "TCTypeOK",
+          "TCConsistent"
+        ],
+        "completed_bounds": [
+          {
+            "path_bound": 5,
+            "admitted_states": 7,
+            "bad_prefix": "unsat",
+            "executions": "sat"
+          },
+          {
+            "path_bound": 10,
+            "admitted_states": 0,
+            "bad_prefix": "unsat",
+            "executions": "unsat"
+          }
+        ],
+        "depth_seconds": [
+          3.977e-06,
+          8.6052e-05,
+          6.2377e-05,
+          6.9862e-05,
+          6.2568e-05,
+          7.7866e-05,
+          4.2279e-05,
+          2.5949e-05,
+          2.3465e-05,
+          2.1741e-05,
+          2.3635e-05
+        ],
+        "relation_build_seconds": 0.00277750997338444,
+        "query_seconds": 0.0006869560456834733,
+        "induction": {
+          "bound": 2,
+          "base": "unsat",
+          "step": "unsat"
+        },
+        "wall_s": 0.36,
+        "peak_rss_kib": 76652
+      },
+      "original_peer_exits": {
+        "manyan": {
+          "5": 255,
+          "10": 255
+        },
+        "apalache": {
+          "5": 255,
+          "10": 255
+        }
+      }
+    },
+    {
+      "module": "locks_auxiliary_vars/Lock.tla",
+      "config": "locks_auxiliary_vars/Lock.cfg",
+      "module_sha256": "f10562642cb5d9cb6a3d3912d93917fa692a97ab9a879fa3b3f2c7989098765f",
+      "config_sha256": "1fa7fbd2d3841eb52c2e787ae8cef56d734ec5b69d73382f0005bdf2e80c2c98",
+      "layout": "TypeOK",
+      "cold": {
+        "5": {
+          "verdict": "bounded-safe",
+          "model_proved": false,
+          "state_bits": 5,
+          "relation_actions": 8,
+          "active_properties": [
+            "TypeOK",
+            "LockInv"
+          ],
+          "completed_bounds": [
+            {
+              "path_bound": 5,
+              "admitted_states": 2,
+              "bad_prefix": "unsat",
+              "executions": "sat"
+            }
+          ],
+          "depth_seconds": [
+            4.348e-06,
+            6.9812e-05,
+            5.7809e-05,
+            5.1206e-05,
+            4.4364e-05,
+            5.7569e-05
+          ],
+          "relation_build_seconds": 0.003705620998516679,
+          "query_seconds": 0.0003049549995921552,
+          "wall_s": 0.36,
+          "peak_rss_kib": 77188
+        },
+        "10": {
+          "verdict": "bounded-safe",
+          "model_proved": false,
+          "state_bits": 5,
+          "relation_actions": 8,
+          "active_properties": [
+            "TypeOK",
+            "LockInv"
+          ],
+          "completed_bounds": [
+            {
+              "path_bound": 10,
+              "admitted_states": 3,
+              "bad_prefix": "unsat",
+              "executions": "sat"
+            }
+          ],
+          "depth_seconds": [
+            3.867e-06,
+            6.9852e-05,
+            4.82e-05,
+            4.6888e-05,
+            4.0697e-05,
+            3.6409e-05,
+            2.5137e-05,
+            2.7362e-05,
+            2.9065e-05,
+            2.5588e-05,
+            4.3071e-05
+          ],
+          "relation_build_seconds": 0.00602959597017616,
+          "query_seconds": 0.0004180180258117616,
+          "wall_s": 0.36,
+          "peak_rss_kib": 77620
+        }
+      },
+      "nested": {
+        "verdict": "inductive-safety",
+        "model_proved": true,
+        "state_bits": 5,
+        "relation_actions": 8,
+        "active_properties": [
+          "TypeOK",
+          "LockInv"
+        ],
+        "completed_bounds": [
+          {
+            "path_bound": 5,
+            "admitted_states": 2,
+            "bad_prefix": "unsat",
+            "executions": "sat"
+          },
+          {
+            "path_bound": 10,
+            "admitted_states": 3,
+            "bad_prefix": "unsat",
+            "executions": "sat"
+          }
+        ],
+        "depth_seconds": [
+          4.609e-06,
+          6.7868e-05,
+          4.8291e-05,
+          4.7219e-05,
+          4.2691e-05,
+          6.1235e-05,
+          2.9887e-05,
+          3.155e-05,
+          3.4264e-05,
+          2.8954e-05,
+          3.8412e-05
+        ],
+        "relation_build_seconds": 0.003670183999929577,
+        "query_seconds": 0.0006093700067140162,
+        "induction": {
+          "bound": 2,
+          "base": "unsat",
+          "step": "unsat"
+        },
+        "wall_s": 0.36,
+        "peak_rss_kib": 77724
+      },
+      "original_peer_exits": {
+        "manyan": {
+          "5": 150,
+          "10": 150
+        },
+        "apalache": {
+          "5": 255,
+          "10": 255
+        }
+      }
+    },
+    {
+      "module": "DieHard/DieHard.tla",
+      "config": "DieHard/DieHard.cfg",
+      "module_sha256": "295495de6509d86a82b88757835b95e3f91fad8691d764ece4d98886dcf42b66",
+      "config_sha256": "59fca38d703a0b17f967b35267fad8581e305b442c72147f1b2a530ea0ba6547",
+      "layout": "TypeOK",
+      "cold": {
+        "5": {
+          "verdict": "bounded-safe",
+          "model_proved": false,
+          "state_bits": 5,
+          "relation_actions": 6,
+          "active_properties": [
+            "TypeOK",
+            "NotSolved"
+          ],
+          "completed_bounds": [
+            {
+              "path_bound": 5,
+              "admitted_states": 12,
+              "bad_prefix": "unsat",
+              "executions": "sat"
+            }
+          ],
+          "depth_seconds": [
+            3.307e-06,
+            7.389e-05,
+            5.6737e-05,
+            5.3772e-05,
+            4.1639e-05,
+            6.914e-05
+          ],
+          "relation_build_seconds": 0.0018604499637149274,
+          "query_seconds": 0.00032035401090979576,
+          "wall_s": 0.41,
+          "peak_rss_kib": 77048
+        },
+        "10": {
+          "verdict": "invariant-violation",
+          "model_proved": false,
+          "state_bits": 5,
+          "relation_actions": 6,
+          "active_properties": [
+            "TypeOK",
+            "NotSolved"
+          ],
+          "completed_bounds": [],
+          "depth_seconds": [
+            2.885e-06,
+            6.4392e-05,
+            5.337e-05,
+            5.35e-05,
+            4.0226e-05,
+            4.9163e-05
+          ],
+          "relation_build_seconds": 0.001678636996075511,
+          "query_seconds": 0.0006923960172571242,
+          "ending": {
+            "kind": "invariant",
+            "name": "NotSolved"
+          },
+          "trace_validated": true,
+          "path_depth": 6,
+          "wall_s": 0.36,
+          "peak_rss_kib": 77096
+        }
+      },
+      "nested": {
+        "verdict": "invariant-violation",
+        "model_proved": false,
+        "state_bits": 5,
+        "relation_actions": 6,
+        "active_properties": [
+          "TypeOK",
+          "NotSolved"
+        ],
+        "completed_bounds": [
+          {
+            "path_bound": 5,
+            "admitted_states": 12,
+            "bad_prefix": "unsat",
+            "executions": "sat"
+          }
+        ],
+        "depth_seconds": [
+          3.907e-06,
+          7.2627e-05,
+          5.6306e-05,
+          5.6667e-05,
+          4.3121e-05,
+          6.9621e-05
+        ],
+        "relation_build_seconds": 0.001780349004548043,
+        "query_seconds": 0.000757098023314029,
+        "ending": {
+          "kind": "invariant",
+          "name": "NotSolved"
+        },
+        "trace_validated": true,
+        "path_depth": 6,
+        "wall_s": 0.41,
+        "peak_rss_kib": 77196
+      },
+      "original_peer_exits": {
+        "manyan": {
+          "5": 255,
+          "10": 255
+        },
+        "apalache": {
+          "5": 255,
+          "10": 255
+        }
+      }
+    }
+  ],
+  "long_key_value_store": {
+    "explicit": {
+      "verdict": "stopped",
+      "layers": [
+        1,
+        3,
+        16,
+        63,
+        201,
+        613,
+        1797,
+        5119,
+        13912,
+        35246,
+        82893,
+        180063,
+        358837
+      ],
+      "detail": "stopped during safety-search after 18032 ms: the time limit is 18000 ms",
+      "wall_s": 18.05,
+      "peak_rss_kib": 133032
+    },
+    "symbolic": {
+      "verdict": "inductive-safety",
+      "bounds": [
+        {
+          "path_bound": 5,
+          "admitted_states": 613,
+          "bad_prefix": "unsat",
+          "executions": "sat"
+        },
+        {
+          "path_bound": 10,
+          "admitted_states": 82893,
+          "bad_prefix": "unsat",
+          "executions": "sat"
+        },
+        {
+          "path_bound": 15,
+          "admitted_states": 1643430,
+          "bad_prefix": "unsat",
+          "executions": "sat"
+        }
+      ],
+      "induction": {
+        "bound": 2,
+        "base": "unsat",
+        "step": "unsat"
+      },
+      "wall_s": 0.79,
+      "peak_rss_kib": 77364
+    },
+    "core_cfg_edit": "Replace SPECIFICATION Spec with INIT Init and NEXT Next; every path count is over the explicit source Next. Both runs have 18 seconds and 2 GiB."
+  },
+  "matched_diehard": {
+    "module_sha256": "902723f759bb67a2f1525f2c46096bd652e2e16bc0f8b44b6e6ba518f6e1838f",
+    "config_sha256": "59fca38d703a0b17f967b35267fad8581e305b442c72147f1b2a530ea0ba6547",
+    "source_edit": "Add Int annotations on big and small; name the unchanged <<big, small>> tuple Vars and annotate it <<Int, Int>>. SPECIFICATION references the same tuple.",
+    "manyan_version": "0.16.0",
+    "apalache_version": "0.63.0",
+    "samples": {
+      "dive": {
+        "5": {
+          "exit": 0,
+          "wall_s": 0.16,
+          "peak_rss_kib": 67688
+        },
+        "10": {
+          "exit": 1,
+          "wall_s": 0.15,
+          "peak_rss_kib": 68232
+        }
+      },
+      "manyan": {
+        "5": {
+          "exit": 0,
+          "wall_s": 0.01,
+          "peak_rss_kib": 8108
+        },
+        "10": {
+          "exit": 12,
+          "wall_s": 0.01,
+          "peak_rss_kib": 8864
+        }
+      },
+      "apalache": {
+        "5": {
+          "exit": 0,
+          "wall_s": 1.28,
+          "peak_rss_kib": 263552
+        },
+        "10": {
+          "exit": 12,
+          "wall_s": 1.49,
+          "peak_rss_kib": 263488
+        }
+      }
+    },
+    "agreement": "All report no violation through five and NotSolved violated at six."
+  },
+  "controls": "scripts/symbolic/test_bounded_path.py"
+}

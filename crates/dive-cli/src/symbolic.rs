@@ -35,8 +35,17 @@ fn options(args: &[String], command: &mut Command) -> Result<(), String> {
                     return Err("--config given twice".to_owned());
                 }
             }
-            "--property-proof" | "--type-invariant" | "--write-predicate"
-            | "--verify-predicate" | "--trace" | "--max-orbits" | "--workers" => {
+            "--property-proof"
+            | "--type-invariant"
+            | "--write-predicate"
+            | "--verify-predicate"
+            | "--trace"
+            | "--max-orbits"
+            | "--workers"
+            | "--path-bound"
+            | "--k-induction"
+            | "--write-path-receipt"
+            | "--verify-path-receipt" => {
                 command.arg(key).arg(value()?);
             }
             "--recheck" if inline.is_none() => {
@@ -78,12 +87,15 @@ fn options(args: &[String], command: &mut Command) -> Result<(), String> {
         Some("compiled") => {
             command.arg("--compiled");
         }
+        Some("symbolic-path") => {
+            command.arg("--symbolic-path");
+        }
         Some("finite-induction") => {
             command.arg("--finite-induction");
         }
         _ => {
             return Err(
-                "--strategy expects auto, symbolic, occupancy, compiled or finite-induction"
+                "--strategy expects auto, symbolic, occupancy, compiled, finite-induction or symbolic-path"
                     .to_owned(),
             );
         }

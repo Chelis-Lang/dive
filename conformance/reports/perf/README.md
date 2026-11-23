@@ -605,3 +605,5 @@ field before quoting a number.
 [Saved temporal counterexample repair](2026-11-22-temporal-repair.json) records source-driven gap searches on the published Elevator and real-time clock, fresh replay, stale properties, changed fairness and ordinary fallback.
 
 [CCF universal observation refinement](2026-11-22-ccf-observation-refinement.json) checks every reached observation edge of four pinned histories and distinguishes its verdict from existential matching and TLC’s configured early exit.
+
+[Incremental symbolic paths](2026-11-23-incremental-symbolic-paths.json) records exact depth layers, two-step induction and source-bound receipt controls. It includes an explicit KeyValueStore stop and matched Manyan and Apalache runs on annotated DieHard.
