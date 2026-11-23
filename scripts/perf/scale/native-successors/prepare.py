@@ -136,7 +136,9 @@ def throughput_build(source, target, folder, binary, jobs, flags, inputs, tool, 
         # model process contributes counters to the profile used for the worker.
         instrument = {**settings, "CARGO_ENCODED_RUSTFLAGS": "-Cprofile-generate",
                       "LLVM_PROFILE_FILE": str(work / "build-%m-%p.profraw")}
+        started = time.monotonic()
         build(source, target, training_binary, jobs, instrument)
+        instrument_s = time.monotonic() - started
         env = {"HOME": str(work), "PATH": os.environ["PATH"], "LC_ALL": "C",
                "LLVM_PROFILE_FILE": str(raw / "%m-%p.profraw")}
         started = time.monotonic()
@@ -156,9 +158,12 @@ def throughput_build(source, target, folder, binary, jobs, flags, inputs, tool, 
         checksum = file_digest(profile)
         selected = work / f"{checksum}.profdata"
         profile.rename(selected)
+        started = time.monotonic()
         build(source, target, binary, jobs, {**settings,
               "CARGO_ENCODED_RUSTFLAGS": f"-Cprofile-use={selected}"})
-        return {"kind": "profile-guided", "training_inputs": inputs, "training_workers": workers,
+        optimized_s = time.monotonic() - started
+        return {"kind": "profile-guided", "instrument_build_s": round(instrument_s, 6),
+                "optimized_build_s": round(optimized_s, 6), "training_inputs": inputs, "training_workers": workers,
                 "max_states": 75000, "max_depth": 14, "time_limit_seconds": 15, "max_memory": "2g",
                 "seed": 0, "fp": 0, "training_s": round(elapsed, 6), "training_exit": status,
                 "training_verdict": report.get("verdict"), "training_statistics": stats,
@@ -285,7 +290,8 @@ def prepare(args):
                                                 args.jobs, flags, inputs, tool, workers)
                 else:
                     build(src, target, path / "dive", args.jobs)
-                compile_seconds = time.monotonic() - t
+                compile_seconds = (training["instrument_build_s"] + training["optimized_build_s"]
+                                   if training else time.monotonic() - t)
                 record(path / "build.json", {"binary_sha256": file_digest(path / "dive"), "control_shape_sha256": digest(shape.encode()), "code_sha256": digest(rust.encode()), "compiler": identity, "lowered": counts, "build_policy": policy, "training": training})
                 path.rename(installed)
         binary = cached_binary(installed)
