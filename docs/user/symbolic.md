@@ -712,3 +712,45 @@ and checked the certificate in 57.34 s. Independent replay accepted an eight-sta
 two elections, a membership change and propagation to other servers. Removing
 one voting guard allowed two primaries in term 1 after two steps.
 [Source, reproduction, controls and timings](../../conformance/reports/perf/2026-11-22-mongo-reconfiguration-induction.json)
+
+### Retain authenticated source obligations across edits
+
+A trusted local source worker can retain results for the exact obligations it
+previously discharged. Set `DIVE_SYMBOLIC_PROOF_KEY` to the path of a private
+32-byte file owned by the running user, with mode `0600` or `0400`. Keep that
+key local to the processes allowed to establish proofs.
+
+```sh
+umask 077
+python3 -c 'import secrets, sys; sys.stdout.buffer.write(secrets.token_bytes(32))' > proof.key
+export DIVE_SYMBOLIC_PROOF_KEY="$PWD/proof.key"
+python3 scripts/symbolic/source_obligations.py --backend bdd \
+  --exporter target/release/examples/symbolic_input --layout Layout \
+  --candidate IndAuto --property Safety ProofTrial.tla ProofTrial.cfg \
+  --obligation-cache obligations.json
+```
+
+Run the same command in a new process after editing the original protocol
+module imported by `ProofTrial.tla`. For example, disable the original
+`Reconfig` branch of `Next` with a false conjunct and keep its other
+branches and the CFG as published. Use the same receipt path, then restore
+the module and repeat to check undo. Omit the cache argument for a cold
+check. The [reproduction procedure](../../conformance/reports/perf/2026-11-22-mongo-reconfiguration-induction.json)
+supplies the original Mongo trial and pins its source.
+
+The BDD worker independently exports the current module closure and layout,
+then checks Init, the safety implication and the constraint boundary. Each
+retained conclusion binds the complete admitted premise and constrained
+transition test along with the finite representation. An assumption or
+strengthening change can invalidate an entire family of obligations. A
+changed action can leave the obligations of other actions reusable.
+
+For finite AsyncRaft, use the published log-invariant model and configuration
+from the first section of this guide, with `--backend z3` and the same exporter
+and optional cache argument. Its source worker recognizes the pinned protocol,
+a comment-only revision and the documented edit disabling
+`ClientRequestAction`. It rebinds the source and proves ground Init on each
+request. An action group can be reused when its complete finite obligation
+inputs and the proof graph agree. Other revisions require explicit source
+admission. The wrapper reports the named proof, retained work, or an
+inconclusive result. A missing or invalid local receipt is a cold run.

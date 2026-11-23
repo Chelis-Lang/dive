@@ -5,6 +5,8 @@ are in git history.
 
 ## Unreleased
 
+- The source-built [induction workers](docs/user/symbolic.md#retain-authenticated-source-obligations-across-edits) can recheck named safety proofs across edits using authenticated results for identical finite obligations.
+
 - The Linux symbolic worker can check multiple transition bounds in one invocation and distinguish bounded safety from a checked k-induction proof.
 
 - The source-checkout [named induction checker](docs/user/symbolic.md#check-a-named-inductive-predicate) verifies a compact safety predicate through original TLA+ actions, including MongoLoglessDynamicRaft membership changes.

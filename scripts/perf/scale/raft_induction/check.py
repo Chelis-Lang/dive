@@ -2,10 +2,10 @@
 """Independently discharge the original AsyncRaft finite log induction obligations."""
 
 import argparse
+from functools import cache
 import hashlib
 import json
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -102,7 +102,8 @@ def bind(
     supplied_cfg=None,
 ):
     graph = graph_path(source)
-    pairs = json.loads(graph.read_bytes())["strengthening_conjuncts"]
+    graph_bytes = graph.read_bytes()
+    pairs = json.loads(graph_bytes)["strengthening_conjuncts"]
     names = [name for name, _, _ in pairs]
     require(
         names and len(set([TARGET, *names])) == 1 + len(names),
@@ -112,7 +113,8 @@ def bind(
         all(name.isidentifier() and name.isascii() for name in names),
         "invalid formula name",
     )
-    shutil.copy(source / "AsyncRaft.tla", stage / "AsyncRaft.tla")
+    source_bytes = (source / "AsyncRaft.tla").read_bytes()
+    (stage / "AsyncRaft.tla").write_bytes(source_bytes)
     trial = stage / "RaftTrial.tla"
     trial.write_text(
         "---- MODULE RaftTrial ----\nEXTENDS AsyncRaft\n"
@@ -131,6 +133,13 @@ def bind(
     run = subprocess.run([exporter, trial, cfg], capture_output=True, timeout=30)
     require(run.returncode == 0, run.stderr.decode()[-1200:])
     doc = json.loads(run.stdout)
+    custom = {module["name"] for module in doc["ir"]["modules"] if not module["standard"]}
+    require(custom == {"RaftTrial", "AsyncRaft"}, "unexpected module in the bound finite proof")
+    for module in doc["ir"]["modules"]:
+        if module["standard"]:
+            local = source / (module["name"] + ".tla")
+            require(not local.exists() and not local.is_symlink(),
+                    "finite AsyncRaft proof refuses a local shadow of " + module["name"])
     require(
         len(doc["constraints"]) == 1
         and len(doc["invariants"]) == 1
@@ -166,13 +175,14 @@ def bind(
     max_messages = constants["MaxMsgCount"]
     identity = dict(
         bound_ir=digest(canonical(bound)),
-        graph=digest(graph.read_bytes()),
+        graph=digest(graph_bytes),
         upstream_cfg=digest((source / "AsyncRaft.cfg").read_bytes()),
         config=digest(cfg.read_bytes()),
-        source=digest((stage / "AsyncRaft.tla").read_bytes()),
+        source=digest(source_bytes),
         servers=size,
         max_messages=max_messages,
     )
+    doc["checked_source_action_edits"] = action_source(source_bytes)
     return doc, [TARGET, *names], identity
 
 
@@ -180,26 +190,55 @@ def simplified(value):
     return z3.simplify(z3.BoolVal(value) if isinstance(value, bool) else value)
 
 
-def satisfiable(solver, condition):
+@cache
+def term_identity(term):
+    # Only this finite worker's first-order Int/Bool terms are admitted.
+    # Shared-expression names emitted by sexpr() and fresh AST allocation
+    # order are irrelevant. Reordering children is allowed only for the
+    # indicated commutative operators over these exact sorts.
+    require(z3.is_app(term) and term.sort().kind() in (z3.Z3_BOOL_SORT, z3.Z3_INT_SORT),
+            "unsupported Z3 receipt atom")
+    decl = term.decl()
+    children = [term_identity(child) for child in term.children()]
+    if decl.kind() in (z3.Z3_OP_AND, z3.Z3_OP_OR, z3.Z3_OP_EQ, z3.Z3_OP_ADD, z3.Z3_OP_MUL):
+        children.sort()
+    domain = [decl.domain(i).sexpr() for i in range(decl.arity())]
+    native = z3.z3core
+    symbol = native.Z3_get_decl_name(decl.ctx_ref(), decl.ast)
+    kind = native.Z3_get_symbol_kind(decl.ctx_ref(), symbol)
+    name = (native.Z3_get_symbol_int(decl.ctx_ref(), symbol) if kind == z3.Z3_INT_SYMBOL else
+            native.Z3_get_symbol_string(decl.ctx_ref(), symbol))
+    # Some internal names are reused for other signatures. Bind declarations,
+    # argument and result sorts, and all native declaration parameters.
+    return digest(canonical([decl.kind(), kind, name, domain, term.sort().sexpr(),
+                             [str(param) for param in decl.params()], children,
+                             str(term.as_long()) if z3.is_int_value(term) else None]))
+
+
+def satisfiable(solver, condition, obligations=None, scopes=()):
     condition = simplified(condition)
     if z3.is_false(condition):
         return False
-    solver.push()
-    try:
-        solver.add(condition)
-        verdict = solver.check()
-        if verdict == z3.unknown:
-            raise ValueError("solver returned unknown: " + solver.reason_unknown())
-        return verdict == z3.sat
-    finally:
-        solver.pop()
+    def solve():
+        solver.push()
+        try:
+            solver.add(condition)
+            verdict = solver.check()
+            if verdict == z3.unknown:
+                raise ValueError("solver returned unknown: " + solver.reason_unknown())
+            return verdict == z3.unsat
+        finally:
+            solver.pop()
+    if obligations is None:
+        return not solve()
+    return not obligations.unsat([*scopes, term_identity(condition)], solve, remember_sat=True)
 
 
-def discharge(solver, failure, description):
-    require(not satisfiable(solver, failure), description)
+def discharge(solver, failure, description, obligations=None, scopes=()):
+    require(not satisfiable(solver, failure, obligations, scopes), description)
 
 
-def prove(doc, names):
+def prove(doc, names, obligations=None, action_edits=None):
     model = Model(doc)
     before, domain = representation(model)
     defs = {
@@ -231,6 +270,7 @@ def prove(doc, names):
     # Definedness is a conjunct of the inductive strengthening. Initiation and
     # all retained images below must establish it, independent of this assumption.
     solver.add(domain(before), keep, neg(dis(*model.errors)), *predicates.values())
+    base = digest(canonical([term_identity(term) for term in solver.assertions()])) if obligations else None
     require(satisfiable(solver, True), "empty constrained induction hypothesis")
     model.state = {}
     model.errors = []
@@ -262,50 +302,83 @@ def prove(doc, names):
     )
     rows = []
     for action, index in actions:
+        key = [action, action_edits.get(action), base] if action_edits is not None and obligations else None
+        evidence = obligations.group(key) if key is not None else None
+        if evidence is not None:
+            require(evidence.get('action') == action, 'cached action row names a different bound role')
+            rows.append(evidence)
+            continue
         model.state = before
         model.errors = []
         branches = list(model.branches(index, {}))
-        discharge(solver, dis(*model.errors), action + " undefined source evaluation")
+        discharge(solver, dis(*model.errors), action + " undefined source evaluation", obligations, (base,))
         feasible = boundary = 0
         for branch, (guard, after) in enumerate(branches):
-            if not satisfiable(solver, guard):
+            if not satisfiable(solver, guard, obligations, (base,)):
                 continue
             feasible += 1
             require(after.keys() == before.keys(), action + " incomplete destination")
             solver.push()
             solver.add(guard)
+            scope = (base, term_identity(guard)) if obligations else ()
             model.state = after
             model.errors = []
             keep = model.eval(constraint, {})
-            boundary += int(satisfiable(solver, neg(keep)))
+            boundary += int(satisfiable(solver, neg(keep), obligations, scope))
             label = f"{action} alternative {branch}"
             discharge(
                 solver,
                 neg(model.eval(defs[names[0]], {})),
-                label + " destination safety",
+                label + " destination safety", obligations, scope,
             )
             discharge(
-                solver, con(keep, neg(domain(after))), label + " finite representation"
+                solver, con(keep, neg(domain(after))), label + " finite representation", obligations, scope,
             )
             for name in names[1:]:
                 dest = simplified(model.eval(defs[name], {}))
                 if not predicates[name].eq(dest):
-                    discharge(solver, con(keep, neg(dest)), label + " fails " + name)
+                    discharge(solver, con(keep, neg(dest)), label + " fails " + name, obligations, scope)
             discharge(
-                solver, dis(*model.errors), label + " undefined destination evaluation"
+                solver, dis(*model.errors), label + " undefined destination evaluation", obligations, scope,
             )
             solver.pop()
-        rows.append(
-            dict(
-                action=action,
-                alternatives=len(branches),
-                feasible=feasible,
-                crossing_constraint=boundary,
-            )
-        )
+        evidence = dict(action=action, alternatives=len(branches), feasible=feasible,
+                        crossing_constraint=boundary)
+        rows.append(evidence)
+        if key is not None:
+            obligations.group_proved(key, evidence)
+    term_identity.cache_clear()
     return dict(
         property=TARGET, predicates=len(names), initial=len(initial), actions=rows
     )
+
+
+def action_source(source):
+    """Recognize the prior type-audited source and one guarded-action edit."""
+    original = b'ClientRequestAction == TRUE /\\ \\E i \\in Server : ClientRequest(i)'
+    edited = original.replace(b'TRUE', b'FALSE', 1)
+    physical = digest(source)
+    if physical == ORIGINAL_SOURCE:
+        return {}
+    prefix, marker, comment = source.rpartition(b'\n\\*')
+    if marker and b'\n' not in comment.rstrip(b'\r\n') and ORIGINAL_SOURCE in (digest(prefix), digest(prefix + b'\n')):
+        return {}
+    if source.count(edited) == 1 and digest(source.replace(edited, original, 1)) == ORIGINAL_SOURCE:
+        return {'ClientRequestAction': 'disabled'}
+    return None
+
+
+def native_z3():
+    """Locate the library mapped by this Python binding, or decline reuse."""
+    try:
+        pointer = z3.z3core.Z3_get_full_version.__defaults__[0].f
+        libraries = [Path(value._name) for value in pointer._objects.values()
+                     if hasattr(value, '_name')]
+        if len(libraries) == 1 and libraries[0].is_absolute() and libraries[0].is_file():
+            return libraries[0].resolve()
+    except (AttributeError, IndexError, TypeError, OSError):
+        pass
+    return None
 
 
 def main():
@@ -335,13 +408,15 @@ def main():
     mode = p.add_mutually_exclusive_group(required=True)
     mode.add_argument("--save", type=Path)
     mode.add_argument("--verify", type=Path)
+    p.add_argument("--obligation-cache", type=Path)
+    p.add_argument("--rebind", action="store_true", help=argparse.SUPPRESS)
     args = p.parse_args()
     try:
         bounds = (args.servers, args.max_messages, args.max_term, args.max_log_length)
         require(
             args.config is None
-            or (args.message_sets and all(v is None for v in bounds)),
-            "an explicit CFG takes the place of generated bounds and requires --message-sets",
+            or all(v is None for v in bounds),
+            "an explicit CFG takes the place of generated bounds",
         )
         require(
             args.config is not None or args.servers is not None,
@@ -367,6 +442,8 @@ def main():
                 args.max_log_length or 2,
                 args.config,
             )
+            if not args.message_sets:
+                require(identity["max_messages"] in (2, 3), "unsupported message capacity")
             if args.verify:
                 require(args.verify.stat().st_size <= 1 << 20, "oversize certificate")
                 prior = json.loads(args.verify.read_bytes())
@@ -376,15 +453,26 @@ def main():
                     canonical(prior.get("input")) == canonical(identity),
                     "different source, configuration, or proof graph",
                 )
+            edits = doc["checked_source_action_edits"]
             # Model atoms use negative integer tags. Only the reviewed, source-typed
             # expressions may use this translation. New input needs a type audit.
             require(
-                identity["source"]
-                in (ORIGINAL_SOURCE, FOLLOWER_MUTANT, THREE_PENDING_MUTANT)
+                (edits is not None or identity["source"] in (FOLLOWER_MUTANT, THREE_PENDING_MUTANT))
                 and identity["graph"] == GRAPH_SHA
                 and identity["upstream_cfg"] == UPSTREAM_CFG,
                 "unsupported source, configuration or proof graph for this finite representation",
             )
+            obligations = None
+            if args.obligation_cache:
+                require(not args.message_sets, "obligation cache uses the finite Z3 representation")
+                from verified_obligations import VerifiedObligations
+                library = native_z3()
+                bindings = [doc["constants"], doc["overrides"], doc["assumptions"]]
+                obligations = VerifiedObligations(args.obligation_cache,
+                    ["asyncraft-z3-v1", ORIGINAL_SOURCE, identity["config"], identity["upstream_cfg"],
+                     identity["graph"], bindings, z3.get_full_version()],
+                    [args.exporter, *sorted(Path(__file__).parent.glob("*.py")),
+                     *sorted(Path(z3.__file__).parent.glob("*.py")), library]) if library is not None else None
             if args.message_sets:
                 from channel_proof import prove_channels
 
@@ -398,7 +486,7 @@ def main():
                 result = dict(
                     format="asyncraft-source-induction-v1",
                     input=identity,
-                    **prove(doc, names),
+                    **prove(doc, names, obligations, edits),
                     result="proved",
                 )
             metrics = {}
@@ -411,6 +499,12 @@ def main():
                     row["action"]: row.pop("solver_queries")
                     for row in result["actions"]
                 }
+            if args.obligation_cache or args.rebind:
+                with tempfile.TemporaryDirectory() as repeat:
+                    _, _, rebound = bind(args.source, args.exporter.resolve(), args.servers,
+                                         Path(repeat), capacity, args.max_term or 2,
+                                         args.max_log_length or 2, args.config)
+                require(identity == rebound, "bound source closure or CFG changed during induction")
             if args.verify:
                 require(
                     canonical(prior) == canonical(result),
@@ -418,6 +512,8 @@ def main():
                 )
             else:
                 write_atomic(args.save, canonical(result) + b"\n")
+            if obligations:
+                metrics["obligation_reuse"] = obligations.finish()
             print(
                 json.dumps({**result, "solver_metrics": metrics} if metrics else result)
             )
