@@ -32,6 +32,8 @@ The scripts that produced the records are in
 
 [Actor-table reads and row updates](2026-11-22-actor-table-rows.json) records ordinary and emitted checks against pinned tla-mc, warm growth, exact-store runs, memory, edit/undo, two Lamport transfers and witness replay.
 
+[Profile-guided source workers](2026-11-23-trained-source-workers.json) compares quick and trained builds with compiled tla-mc on unchanged Flint and a 7.39-million-state edit. It records setup cost, warm reuse, process-family memory, Lamport transfers and the shared-operator experiment.
+
 [Source-built native successor workers](2026-11-22-source-native-successors.json) records original-source Flint edit and undo runs against compiled tla-mc, actual dispatch on both Lamport models and Elevator, witness replay, Sail transfers and the rejected whole-action cache experiments.
 
 [Computed successor components](2026-11-22-projected-successor-values.json) compares fresh ordinary Flint searches before and after component memoization, the guard-growth edit, two transaction-commit controls and a compiled tla-mc process on the original source.
