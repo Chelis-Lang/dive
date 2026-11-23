@@ -1982,6 +1982,50 @@ election experiment used different capacities and checked a different
 invariant. [Run the checker](../user/symbolic.md#check-the-asyncraft-log-invariant).
 [Evidence and peer runs](../../conformance/reports/perf/2026-11-22-asyncraft-log-induction.json).
 
+### Prove AsyncRaft log safety over arbitrary finite message sets
+
+Each of the four channels is a membership predicate on a finite carrier.
+The key contains every dynamic field in the channel's wire format. An empty
+append payload uses one canonical key regardless of padding. Insertion adds
+an equality to the membership formula. Deletion excludes that record. A
+quantified original action selects an arbitrary member and carries its guard
+through every write, including writes to other channels.
+
+The checker verifies the shape of the original six-conjunct state constraint.
+Dropping the four channel cardinality conjuncts leaves the original term and
+log bounds and permits more states. The new induction hypothesis covers those
+states. Original Init establishes the candidate, raw images satisfy log safety
+and have representable wire records, and images inside the term/log bounds
+preserve all 29 strengthening formulas. Definedness of source and destination
+reads is checked separately. A proof over this stronger relation covers the
+configured finite channels, including a limit of 1,000. Term, log and server
+bounds remain part of the proof.
+
+To check each obligation, the solver searches for a possible failure.
+Existential message variables get fresh witnesses that depend on any enclosing
+universally quantified variables. The checker instantiates positive universal
+predicates at complete record keys occurring in the failure or hypothesis.
+Every full model would satisfy these instances, so unsatisfiability rules out
+the full failure. A satisfying instance can leave induction inconclusive.
+This reasoning uses only keys needed by each solver query and still admits
+unrelated pending messages. The original three-live-message word and its
+capacity-gated follower mutant exercise this distinction.
+
+On three servers with terms and log lengths through 2, a channel bound of
+1,000 took 17.33 s to prove and 17.32 s to verify after relocation on six
+action workers. At a 30 s limit, six-worker exhaustive Core still had
+2,476,730 states queued after discovering 5,965,526 distinct states.
+
+At the published term/log limits of 3, the six-worker proof completed in
+18.19 s, at 587 MiB summed resident memory across processes. It checked
+812 simultaneous strengthening obligations and raw safety on all 28 images.
+Six-worker Core discovered 8,878,296 distinct states in 30 s with 5,989,499
+queued. Fresh receipt verification took 18.33 s with six workers and 52.67 s
+with one. The 18-state two-index replication and both reachable client-request
+mutants replayed independently.
+[Command](../user/symbolic.md#use-the-published-term-log-and-channel-bounds).
+[Matched measurements and controls](../../conformance/reports/perf/2026-11-22-asyncraft-channel-sets.json).
+
 ### Certify bounded AsyncRaft elections
 
 The [AsyncRaft driver](../../scripts/perf/scale/certify_asyncraft.py) uses the
