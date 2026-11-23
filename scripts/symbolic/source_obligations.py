@@ -57,6 +57,10 @@ def main():
     row = dict(format='dive-source-obligations-v1', backend=args.backend,
                module_sha256=before[0], config_sha256=before[1])
     try:
+        if args.obligation_cache:
+            receipt = args.obligation_cache.resolve()
+            if receipt in [path.resolve() for path in [*files, args.exporter]]:
+                raise ValueError('source obligation receipt aliases an input')
         with TemporaryDirectory(prefix='dive-source-obligations-') as temp:
             code, data = run(args, temp)
         if [sha(path) for path in files] != before:

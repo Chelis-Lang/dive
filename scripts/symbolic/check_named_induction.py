@@ -106,7 +106,6 @@ def verify(document, layout, candidate, property_name, manager, *, cache=None, e
     discharge(admitted & model.invalid_sources, "complete finite destination layout")
     proof = VerifiedObligations(cache, ['bdd-v1', lineage, config_digest, layout, candidate, property_name,
                                        document['constants'], document['overrides'],
-                                       digest(document) if document['assumptions'] else None,
                                        [(path, [bit.var for bit in bits], options)
                                         for path, (bits, options) in model.layout.items()]],
                                 [exporter, cudd.__file__, Path(__file__), *[
@@ -126,7 +125,10 @@ def verify(document, layout, candidate, property_name, manager, *, cache=None, e
         if not proof.unsat(premises, cold):
             discharge(precondition & ~model.b.let(updated, term), obligation)
 
-    admitted_key = identity(admitted).hex() if proof.secret else None
+    # Keep distinct assumptions in the authenticated obligation key so an
+    # edit and its undo can retain their own results in the same receipt.
+    assumptions_key = digest(document) if document['assumptions'] else None
+    admitted_key = [identity(admitted).hex(), assumptions_key] if proof.secret else None
     rows = []
     for action, root in action_roots(model):
         row = dict(action=action, alternatives=0, occurrences=0, outside_constraint=0)
