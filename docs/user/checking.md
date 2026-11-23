@@ -151,6 +151,13 @@ dive validate-trace TestMCReachability.tla --config graph7.cfg --library-path mo
 A successful witness replay establishes the violation. A sampling run that finds
 no witness leaves the exhaustive question open. [Source hashes, commands and the separate TLC witness](../../conformance/reports/perf/2026-11-20-closed-graph-inputs.json).
 
+A Boolean CFG substitution can also replace a parameterized user operator.
+For example, `CONSTANT SetStableTimestamp <- FALSE` disables the original
+WiredTiger Storage action. The substitution returns the Boolean at each
+application without evaluating its arguments. Passing that substitute to a
+native higher-order operator reports an unsupported feature.
+[WiredTiger graph and test generation](../developer/large-models.md#generate-executable-tests-from-the-wiredtiger-storage-model).
+
 ## Search for a fair counterexample from a cold start
 
 ```sh

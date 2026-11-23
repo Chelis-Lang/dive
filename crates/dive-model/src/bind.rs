@@ -11,7 +11,7 @@ use sha2::{Digest, Sha256};
 
 use dive_config::{ConfigValue, ConstantEntry, ModelConfig, Spanned};
 use dive_eval::{ConstBinding, ErrorClass, Evaluator, Options};
-use dive_ir::{DeclId, DefId, Ir, ModuleId, StdOp, Symbol};
+use dive_ir::{DeclId, DefId, DefScope, Ir, ModuleId, StdOp, Symbol};
 use dive_value::{Ctx, Interner, Value};
 
 use crate::error::{BindError, Ec, ErrorKind, Message};
@@ -606,9 +606,17 @@ impl<'a> Binder<'a> {
                 Some(Look::Literal(_)) | None => None,
             };
         }
+        let mut configured_booleans = HashMap::new();
         for map in [&self.t.tool_obj, &self.t.body_obj] {
             for (d, l) in map {
                 match l {
+                    Look::Value(Value::Bool(value))
+                        if !ir.def(*d).params.is_empty()
+                            && ir.def(*d).std.is_none()
+                            && ir.def(*d).scope == DefScope::TopLevel =>
+                    {
+                        configured_booleans.entry(*d).or_insert(*value);
+                    }
                     Look::Value(v) => {
                         model.def_values.entry(*d).or_insert_with(|| v.clone());
                     }
@@ -620,8 +628,12 @@ impl<'a> Binder<'a> {
             }
         }
         // Construction returns ContextError, not an intrinsic EvalError.
-        let ev = Evaluator::new(model, self.opts.eval)
-            .map_err(|e| BindError::unsupported(e.to_string()))?;
+        let ev = Evaluator::with_configured_boolean_operators(
+            model,
+            self.opts.eval,
+            configured_booleans,
+        )
+        .map_err(|e| BindError::unsupported(e.to_string()))?;
         if let Some(h) = &self.opts.host {
             ev.set_host(h.clone());
         }

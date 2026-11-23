@@ -1280,6 +1280,49 @@ record 46,596,096 scheduled candidates across 474 states, down from
 seconds for stock Core and 61.64 seconds for pinned TLC.
 `DIVE_CORE_OPT=-action-index` disables the index for comparisons.
 
+### Generate executable tests from the WiredTiger Storage model
+
+The authors' release has a concrete graph of 490,360 states and 1,686,684
+labeled edges, including 132,981 symmetry classes. The Core exporter writes
+the full concrete graph and identifies one reachable representative of each
+class. Graph discovery IDs stay local to the run. Each edge carries its
+original bound action, arguments and source ordinal. Parallel edges with
+the same endpoints remain separate. Generating implementation tests uses
+only concrete rooted paths.
+
+Prepare the effective configuration from the authors' `StorageSmall.cfg`.
+Choose two keys, two transaction IDs and three timestamps, and append
+`SYMMETRY Symmetry`. Use the original `Storage.tla`, source modules and the
+pinned CommunityModules library. The authors' shipped `Storage.cfg` has
+different action switches from their test generator's effective CFG.
+[Authors' reproduction](https://github.com/mongodb-labs/vldb25-dist-txns/blob/74526c1201109405172eb845413154f547a815ee/README.md#model-based-testing-of-the-storage-layer).
+
+```sh
+cargo build --locked --release -p dive-api --example labeled_graph
+target/release/examples/labeled_graph "$AUTHORS/Storage.tla" StoragePublishedSymmetric.cfg \
+  graph "$COMMUNITY_MODULES" 135 600000 2000000 4 oldestTs txnStatus allDurableTs stableTs
+python3 scripts/perf/scale/labeled_path_cover.py select --states graph/states.json \
+  --edges graph/edges.json --representatives graph/representatives.json --root 0 --paths words.jsonl
+python3 scripts/perf/scale/wiredtiger_paths.py --graph graph --paths words.jsonl \
+  --authors "$AUTHORS" --output model-tests
+```
+
+Use the root IDs recorded in `graph/complete.json` for other inputs. Repeat
+`--root` if there are several. `labeled_path_cover.py verify` takes the
+same arguments as `select` and independently checks every rooted step and
+required representative. Omit `--representatives` to require all concrete
+states. The selector retains one search forest and emits only the selected
+paths. The verifier reports concrete state, class, action and path coverage
+separately. `wiredtiger_paths.py` verifies the words and uses the authors'
+pinned template to write batches as ordinary WiredTiger tests.
+
+Build WiredTiger 11.3.1 and its Python bindings, add the generated
+`test_dive_paths_*.py` files to that build's `test/suite`, then run them
+from the build directory with `python ../test/suite/run.py -j 4` and the
+generated module names. The measurements record the exact source pins,
+checked template, complete run and damaged read assertion.
+[WiredTiger capture and test measurements](../../conformance/reports/perf/2026-11-23-wiredtiger-labeled-paths.json).
+
 ### Reproduce the ZooKeeper protocol specification
 
 Three completed no-restart configurations reproduce the state counts and diameters in Ouyang et al., Table 1. The paper’s count matches **generated** states in each. With four servers, two transactions and one timeout, Core and pinned TLC exhausted the queue at 6,634,696 distinct states, 21,393,294 generated and depth 64. Core took 623.70 s and 452 MiB peak RSS. TLC took 136.24 s and 46.3 GiB on the same host. Core used one of the 32 requested workers because the released specification contains twelve diagnostic `PrintT` calls. The completed Core run emitted no lines. With two timeouts the paper reports 1,599,588,210 states at its 24-hour cutoff. [Paper, Table 1](https://arxiv.org/pdf/2302.02703#page=7).

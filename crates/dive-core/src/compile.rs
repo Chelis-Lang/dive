@@ -4471,6 +4471,9 @@ impl Compiler<'_> {
             OpRef::Def(d) => {
                 let d = self.redirect(*d);
                 let def = self.ir.def(d);
+                if self.h.overrides.contains(&d) {
+                    return self.def_use(d, env, mode);
+                }
                 if let Some(op) = def.std {
                     return self.std_apply(op, args, env, mode);
                 }
@@ -4618,7 +4621,7 @@ impl Compiler<'_> {
         };
         let d = self.redirect(d);
         let def = self.ir.def(d);
-        if def.std.is_some() || def.recursive || args.is_empty() {
+        if self.h.overrides.contains(&d) || def.std.is_some() || def.recursive || args.is_empty() {
             return self.guard_expr(e, env);
         }
         let def_env = if def.scope == DefScope::TopLevel {
@@ -4701,6 +4704,11 @@ impl Compiler<'_> {
             }
         }
         let def = self.ir.def(d);
+        if self.h.overrides.contains(&d) {
+            return Err(Error::unsupported(
+                "configured operator value passed to a native higher-order operator",
+            ));
+        }
         if def.std.is_some() || def.recursive {
             return Err(Error::unsupported(
                 "a std or recursive operator passed to a higher-order operator (M1 core)",
@@ -5781,7 +5789,11 @@ impl Compiler<'_> {
             } => {
                 let d = self.redirect(*d);
                 let def = self.ir.def(d);
-                if def.std.is_some() || def.recursive || args.is_empty() {
+                if self.h.overrides.contains(&d)
+                    || def.std.is_some()
+                    || def.recursive
+                    || args.is_empty()
+                {
                     if args.is_empty()
                         && def.std.is_none()
                         && !def.recursive

@@ -363,6 +363,27 @@ pub(crate) fn validate(model: &mut Model) -> CResult<()> {
     Ok(())
 }
 
+pub(crate) fn install_configured_booleans(
+    model: &mut Model,
+    configured: std::collections::HashMap<DefId, bool>,
+) -> CResult<()> {
+    for (id, value) in configured {
+        let def = model
+            .ir
+            .defs()
+            .get(id.index())
+            .ok_or_else(|| unknown("configured Boolean operator binding"))?;
+        if def.params.is_empty() || def.std.is_some() || def.scope != DefScope::TopLevel {
+            return Err(ContextError::new(
+                ContextErrorKind::Arity,
+                "configured Boolean must replace a parameterized user definition",
+            ));
+        }
+        model.def_values.insert(id, dive_value::Value::Bool(value));
+    }
+    Ok(())
+}
+
 impl Evaluator {
     pub(crate) fn admit_def(&self, d: DefId) -> crate::Result<&dive_ir::Def> {
         self.core
