@@ -63,6 +63,11 @@ def main():
     strategy.add_argument("--compiled", action="store_true", help="compile a packed exact safety search")
     strategy.add_argument("--finite-induction", action="store_true",
                           help="certify a finite predicate and optionally transfer its obligations")
+    strategy.add_argument("--symbolic-path", action="store_true", help="reuse a finite relation across path bounds")
+    parser.add_argument("--path-bound", type=int, action="append", default=[])
+    parser.add_argument("--k-induction", type=int)
+    parser.add_argument("--write-path-receipt", type=Path)
+    parser.add_argument("--verify-path-receipt", type=Path)
     strategy.add_argument("--auto-core-args", type=json.loads, help=argparse.SUPPRESS)
     parser.add_argument("--workers", type=int, choices=range(1, 9), help="maximum compiled search workers")
     parser.add_argument("--max-orbits", type=int, help="maximum reachable population vectors for the occupancy strategy")
@@ -83,6 +88,16 @@ def main():
     if args.finite_induction and any((args.type_invariant, args.recheck, args.refine_domains, args.prove_inductive,
                                       args.order_by_path, args.single_partition, args.workers, args.max_orbits)):
         parser.error("finite induction accepts only a fresh finite safety question or a portable predicate")
+    if args.symbolic_path:
+        if not args.path_bound or any(value < 0 for value in args.path_bound):
+            parser.error("symbolic-path requires a nonnegative --path-bound")
+        if args.k_induction is not None and args.k_induction < 1:
+            parser.error("--k-induction must be positive")
+        if any((args.recheck, args.refine_domains, args.prove_inductive, args.write_predicate,
+                args.verify_predicate, args.order_by_path, args.single_partition)):
+            parser.error("symbolic-path uses one source relation and its configured invariants")
+    elif any((args.path_bound, args.k_induction is not None, args.write_path_receipt, args.verify_path_receipt)):
+        parser.error("path bounds, k-induction and path receipts require symbolic-path")
     if args.type_invariant is None and not args.property_proof:
         args.type_invariant = "TypeInvariant"
     auto = args.auto_core_args is not None
@@ -116,13 +131,14 @@ def main():
         parser.error("compiled checking accepts one fresh finite safety check")
     if sys.platform != "linux":
         parser.error("the symbolic checker currently supports Linux")
-    if args.trace or args.write_predicate:
+    if args.trace or args.write_predicate or args.write_path_receipt:
         try:
-            outputs = [path.resolve() for path in (args.trace, args.write_predicate) if path]
+            outputs = [path.resolve() for path in (args.trace, args.write_predicate, args.write_path_receipt) if path]
             sources = {Path(path).resolve() for pair in [(args.module, args.config), *args.recheck]
                        for path in pair}
-            if args.verify_predicate:
-                sources.add(args.verify_predicate.resolve())
+            for path in (args.verify_predicate, args.verify_path_receipt):
+                if path:
+                    sources.add(path.resolve())
         except (OSError, RuntimeError) as error:
             parser.error(f"cannot resolve symbolic input or output path: {error}")
         if len(outputs) != len(set(outputs)) or any(path in sources for path in outputs):
@@ -146,6 +162,8 @@ def supervise(args):
         script = "auto.py"
     if args.finite_induction:
         script = "finite_certificate.py"
+    if args.symbolic_path:
+        script = "bounded_path.py"
     worker = Path(__file__).with_name(script)
     args.workers = args.workers or 1
     class Cancelled(Exception):
