@@ -609,3 +609,5 @@ field before quoting a number.
 [Incremental symbolic paths](2026-11-23-incremental-symbolic-paths.json) records exact depth layers, two-step induction and source-bound receipt controls. It includes an explicit KeyValueStore stop and matched Manyan and Apalache runs on annotated DieHard.
 
 [Ground action guard index](2026-11-23-guarded-action-index.json) records concrete action selection on LuPastry+, its growth stops, exact counts and an independent PoolEmpty trace control.
+
+[WiredTiger model-based tests](2026-11-23-wiredtiger-labeled-paths.json) records exact labeled graph coverage, the native generated suite and reader assertion controls.

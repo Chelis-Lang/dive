@@ -490,3 +490,10 @@ manifest = "conformance/holdout/holdout-kafka.json"
 path = "kraft/kip_996/model_liveness.cfg"
 reason = "pinned TLC does not finish in 600 s at one worker (8103 distinct states, 7946 on queue at the cap, 2026-11-08)"
 oracle_timeout = true
+
+# A configured Boolean can replace a parameterized action without demanding its arguments.
+[[corpus]]
+id = "configured-boolean-action"
+path = "conformance/corpus/configured-boolean-action"
+license = "MIT"
+layout = "examples-manifest"

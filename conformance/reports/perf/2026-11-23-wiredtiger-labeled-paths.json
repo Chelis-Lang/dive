@@ -1,0 +1,199 @@
+{
+  "schema": "dive-wiredtiger-labeled-paths-v1",
+  "authors": "74526c1201109405172eb845413154f547a815ee",
+  "pins": {
+    "Storage.tla": "dfab057d1647dd5ccb951a3e7fb0d0dd4af68f29857ae79450d857e6f2aba6e5",
+    "StorageSmall.cfg": "238ed85021ad658f8f6ac6b3aef03b0b81b04d42ae805ecb485014fd28853864",
+    "StoragePublished.cfg": "43cb19819a44c3e14806bc456e28186f96d7032613a08caa72e610e6b5464ca8",
+    "StoragePublishedSymmetric.cfg": "7e7191747274a48a7552986faa1f61843187ef701ef1e96f99037de6826a3498",
+    "testgen.py": "cff0ec841f76a6206b7cdafe4b57b360b374ff677b0d5093acdf20a20ce90409",
+    "test_txn_model_template.py": "75349f48df2bfa5a5ccfb6b6998088c27b071c14c6d900dba2128b680f6ec375",
+    "lib/tla2tools-json-test.jar": "005a3e458f25e401aa6fa8079fd6a8a255c29beea3fcb580186782377d30c7ea"
+  },
+  "published": {
+    "source": "https://www.vldb.org/pvldb/vol18/p5045-schultz.pdf",
+    "machine": "m6g.2xlarge",
+    "concrete_states": 490360,
+    "symmetry_classes": 132981,
+    "tests": 87143,
+    "graph_seconds": 71,
+    "selection_seconds": 1750,
+    "execution_seconds": 829
+  },
+  "local_machine": "Linux-7.1.5-100.fc43.x86_64-x86_64-with-glibc2.42",
+  "local_reference": {
+    "raw": {
+      "states": 490360,
+      "generated": 1686685,
+      "depth": 19,
+      "wall_s": 19.12,
+      "peak_rss_kib": 2365624
+    },
+    "symmetric": {
+      "states": 132981,
+      "generated": 455806,
+      "depth": 19,
+      "wall_s": 6.64,
+      "peak_rss_kib": 2243816
+    },
+    "selector": {
+      "graph_edge_occurrences": 1686684,
+      "reached": 490360,
+      "seconds": 10.130055,
+      "selected_edge_occurrences": 142736,
+      "selected_paths": 84439,
+      "vertices": 490360,
+      "wall_s": 10.17,
+      "peak_rss_kib": 289728
+    },
+    "verifier": {
+      "action_steps": {
+        "AbortTransaction": 74380,
+        "CommitPreparedTransaction": 48671,
+        "CommitTransaction": 20167,
+        "PrepareTransaction": 89015,
+        "StartTransaction": 168878,
+        "TransactionRead": 118806,
+        "TransactionRemove": 97616,
+        "TransactionWrite": 212521
+      },
+      "classes_covered": 132981,
+      "classes_required": 132981,
+      "concrete_states_covered": 142737,
+      "graph_action_occurrences": {
+        "AbortTransaction": 294766,
+        "CommitPreparedTransaction": 131744,
+        "CommitTransaction": 76632,
+        "PrepareTransaction": 131184,
+        "StartTransaction": 13446,
+        "TransactionRead": 459736,
+        "TransactionRemove": 246680,
+        "TransactionWrite": 332496
+      },
+      "path_count": 84439,
+      "path_steps": 830054,
+      "result": "verified",
+      "seconds": 4.680735,
+      "wall_s": 4.71,
+      "peak_rss_kib": 228696
+    },
+    "generated": {
+      "paths": 84439,
+      "steps": 830054,
+      "files": 85,
+      "bytes": 84977932
+    },
+    "suite": {
+      "tests": 84524,
+      "passed": true,
+      "wall_s": 1060.9,
+      "peak_rss_kib": 496180
+    }
+  },
+  "core": {
+    "ordinary": {
+      "StoragePublished": {
+        "statistics": {
+          "depth": 19,
+          "distinct": 490360,
+          "generated": 1686685,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "wall_s": 4.66,
+        "peak_rss_kib": 251056
+      },
+      "StoragePublishedSymmetric": {
+        "statistics": {
+          "depth": 19,
+          "distinct": 132981,
+          "generated": 455806,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "wall_s": 1.59,
+        "peak_rss_kib": 220248
+      }
+    },
+    "capture": {
+      "classes": 132981,
+      "depth": 19,
+      "edges": 1686684,
+      "format": "dive-labeled-concrete-graph-v1",
+      "generated": 1686685,
+      "requested_workers": 4,
+      "roots": [
+        0
+      ],
+      "seconds": 20.025854077,
+      "states": 490360,
+      "wall_s": 20.13,
+      "peak_rss_kib": 512408,
+      "files_sha256": {
+        "states.json": "0bc56661fa6bc25aac0f9b7394384447fae94f35cbfa2c8abab03c99f38b109d",
+        "edges.json": "7c5cf4a5c549257e7db2b7de6a519ad62933f025620d1644af076b568e6dea02",
+        "representatives.json": "c871fc4d44b306d43414d3a52002efe5f21114ffad6a4bf3ffb2292cd878138a"
+      }
+    },
+    "path_selection": {
+      "graph_edge_occurrences": 1686684,
+      "reached": 490360,
+      "seconds": 13.720408,
+      "selected_edge_occurrences": 145442,
+      "selected_paths": 84594,
+      "vertices": 490360,
+      "wall_s": 13.76,
+      "peak_rss_kib": 360872
+    },
+    "render_with_independent_verification": {
+      "batches": 85,
+      "output_bytes": 85505861,
+      "paths": 84594,
+      "result": "rendered",
+      "steps": 830279,
+      "wall_s": 24.75,
+      "peak_rss_kib": 904828
+    },
+    "suite": {
+      "tests": 84679,
+      "paths": 84594,
+      "passed": true,
+      "workers": 4,
+      "wall_s": 1067.42,
+      "peak_rss_kib": 503480
+    }
+  },
+  "exact_small_diff": {
+    "states": 83,
+    "edges": 160,
+    "edge_labels": 14,
+    "parallel_endpoint_pairs": 26,
+    "exact_labeled_isomorphism": true
+  },
+  "wiredtiger": {
+    "version": "11.3.1",
+    "distribution_sha256": "95052d1b6fc06921dd617aafa1ba2a773d8dbbbf2eb74f77147290a630e598d0",
+    "swig": "4.1.1.post1",
+    "python": "3.11",
+    "damaged_read": "Pinned template expected t2; changing just the expected value yielded AssertionError: t2 != wrong_expected_value."
+  },
+  "growth_three_keys": {
+    "statistics": {
+      "depth": 9,
+      "distinct": 550000,
+      "exhaustive": false,
+      "generated": 2146608,
+      "initial_generated": 1,
+      "left_on_queue": 303090,
+      "reported_by_tlc": false
+    },
+    "verdict": "stopped",
+    "wall_s": 5.1,
+    "peak_rss_kib": 277460
+  },
+  "cfg_preparation": "From the pinned StorageSmall.cfg, set Keys={k1,k2}, MTxId={t1,t2} and Timestamps={1,2,3}. Retain the authored action overrides and deadlock setting. Add SYMMETRY Symmetry for class coverage.",
+  "reference_initial_note": "The authors\u2019 JSON hook marks all rows as initial. The reference root was independently obtained from the filled Init node in the authors\u2019 DOT dump. Native capture records Init roots directly.",
+  "replay_commands": "docs/developer/large-models.md#generate-executable-tests-from-the-wiredtiger-storage-model"
+}

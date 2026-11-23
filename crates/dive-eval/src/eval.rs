@@ -1200,6 +1200,13 @@ impl Core {
         args: &[Arg],
         e: ExprId,
     ) -> Result<Ev> {
+        // A configured Boolean replaces an operator application as a value.
+        // Neither its original body nor its arguments are demanded.
+        if !args.is_empty()
+            && let Some(value) = self.def_values.get(&d)
+        {
+            return Ok(Ev::V(value.clone()));
+        }
         if let Some(r) = self.startup_call(caller, st, d, args, e) {
             return r;
         }

@@ -5,7 +5,7 @@ use std::fmt;
 use std::sync::Arc;
 
 use dive_ir::{Arg, DefId, DefScope, Expr, ExprId, OpRef};
-use dive_value::Interner;
+use dive_value::{Interner, Value};
 
 use crate::{ConstBinding, EvalError, Evaluator, Model, Scope};
 
@@ -347,12 +347,14 @@ pub(crate) fn validate(model: &mut Model) -> CResult<()> {
             Some(ConstBinding::Value(_)) | None => {}
         }
     }
-    for &d in model.def_values.keys() {
+    for (&d, value) in &model.def_values {
         let def = ir
             .defs()
             .get(d.index())
             .ok_or_else(|| unknown("definition value binding"))?;
-        if !def.params.is_empty() {
+        let plain_boolean_override =
+            matches!(value, Value::Bool(_)) && def.std.is_none() && def.scope == DefScope::TopLevel;
+        if !(def.params.is_empty() || plain_boolean_override) {
             return Err(ContextError::new(
                 ContextErrorKind::Arity,
                 "parameterized definition bound to a value",
