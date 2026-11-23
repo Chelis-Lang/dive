@@ -1,0 +1,387 @@
+{
+  "issue": 1380,
+  "examples": "ca168055339d5cbcee95b7eefcb97c1ee59f9914",
+  "manyan": "a39816a873a2c2aabc00dbcef50908e996f3d44b",
+  "apalache": "0.63.0",
+  "inputs": {
+    "Einstein.tla": "3831e713ca0e61f9917a334c4bf7797dc51f2ad1dfdbe9418ff086d18ccf62ef",
+    "Einstein.cfg": "6bece524ff8b28c0a33791ee4c9a364e40b482647820605572b3f38e42be5dc7",
+    "Apalache.tla": "a9115b404e72c58fd085f81bc59cc918f8adac49feabfb57f8e285bc7ab5cfac"
+  },
+  "environment": "Dedicated c7i.4xlarge, Ubuntu 24.04 Linux x86_64, Java 21.0.13.1, three fresh processes per cell. GNU time peak RSS in KiB. Independent replay is included in Dive wall time and repeated outside each measured run.",
+  "commands": {
+    "dive": "dive check Einstein.tla --config Einstein.cfg --strategy bounded-path --path-bound K --time-limit 10s --max-memory 2g --output json",
+    "manyan": "manyan -symbolic -length K -config Einstein.cfg Einstein",
+    "apalache": "apalache-mc check --length=K --config=Einstein.cfg --out-dir=DIR Einstein.tla",
+    "controls": "cargo test -p dive-cli --test bounded_initial"
+  },
+  "scope": "Finite independently assigned domains and one configured negation of a conjunction. A clean result covers Init at bound zero. Positive depth-zero findings terminate any requested bound. Independent replay uses source-value membership, not the joined assignment plan.",
+  "prior": "2026-11-22-explicit-prefix.json records the ordinary Core 5 s stop with the original dependency, and 2026-11-22-bounded-peers.json records the 46-row length-five matrix.",
+  "summary": [
+    {
+      "tool": "dive",
+      "bound": 0,
+      "median_wall_ms": 116.092072,
+      "max_peak_rss_kib": 24804
+    },
+    {
+      "tool": "manyan",
+      "bound": 0,
+      "median_wall_ms": 12.520903,
+      "max_peak_rss_kib": 8724
+    },
+    {
+      "tool": "apalache",
+      "bound": 0,
+      "median_wall_ms": 2374.833338,
+      "max_peak_rss_kib": 345384
+    },
+    {
+      "tool": "dive",
+      "bound": 5,
+      "median_wall_ms": 116.050742,
+      "max_peak_rss_kib": 24836
+    },
+    {
+      "tool": "manyan",
+      "bound": 5,
+      "median_wall_ms": 12.474292,
+      "max_peak_rss_kib": 8732
+    },
+    {
+      "tool": "apalache",
+      "bound": 5,
+      "median_wall_ms": 2362.548268,
+      "max_peak_rss_kib": 355004
+    }
+  ],
+  "runs": [
+    {
+      "tool": "dive",
+      "bound": 0,
+      "repeat": 0,
+      "exit": 10,
+      "wall_ms": 118.568244,
+      "peak_rss_kib": 24644,
+      "result": "invariant-violation",
+      "property": "FindSolution",
+      "initial_query": {
+        "status": "sat",
+        "work": {
+          "definedness_cells": 59424,
+          "domain_sizes": [
+            24,
+            24,
+            120,
+            120,
+            24
+          ],
+          "extensions": 5836,
+          "preparation_ms": 26.874694,
+          "search_ms": 0.038776000000000005,
+          "tested_clauses": 7242
+        }
+      },
+      "replay": "valid"
+    },
+    {
+      "tool": "dive",
+      "bound": 0,
+      "repeat": 1,
+      "exit": 10,
+      "wall_ms": 116.092072,
+      "peak_rss_kib": 24572,
+      "result": "invariant-violation",
+      "property": "FindSolution",
+      "initial_query": {
+        "status": "sat",
+        "work": {
+          "definedness_cells": 59424,
+          "domain_sizes": [
+            24,
+            24,
+            120,
+            120,
+            24
+          ],
+          "extensions": 5836,
+          "preparation_ms": 26.520976,
+          "search_ms": 0.038567,
+          "tested_clauses": 7242
+        }
+      },
+      "replay": "valid"
+    },
+    {
+      "tool": "dive",
+      "bound": 0,
+      "repeat": 2,
+      "exit": 10,
+      "wall_ms": 115.175387,
+      "peak_rss_kib": 24804,
+      "result": "invariant-violation",
+      "property": "FindSolution",
+      "initial_query": {
+        "status": "sat",
+        "work": {
+          "definedness_cells": 59424,
+          "domain_sizes": [
+            24,
+            24,
+            120,
+            120,
+            24
+          ],
+          "extensions": 5836,
+          "preparation_ms": 26.589891,
+          "search_ms": 0.038715,
+          "tested_clauses": 7242
+        }
+      },
+      "replay": "valid"
+    },
+    {
+      "tool": "manyan",
+      "bound": 0,
+      "repeat": 0,
+      "exit": 12,
+      "wall_ms": 12.513414,
+      "peak_rss_kib": 8724
+    },
+    {
+      "tool": "manyan",
+      "bound": 0,
+      "repeat": 1,
+      "exit": 12,
+      "wall_ms": 12.520903,
+      "peak_rss_kib": 8704
+    },
+    {
+      "tool": "manyan",
+      "bound": 0,
+      "repeat": 2,
+      "exit": 12,
+      "wall_ms": 12.631937,
+      "peak_rss_kib": 8716
+    },
+    {
+      "tool": "apalache",
+      "bound": 0,
+      "repeat": 0,
+      "exit": 12,
+      "wall_ms": 2301.031475,
+      "peak_rss_kib": 345384
+    },
+    {
+      "tool": "apalache",
+      "bound": 0,
+      "repeat": 1,
+      "exit": 12,
+      "wall_ms": 2376.831847,
+      "peak_rss_kib": 339680
+    },
+    {
+      "tool": "apalache",
+      "bound": 0,
+      "repeat": 2,
+      "exit": 12,
+      "wall_ms": 2374.833338,
+      "peak_rss_kib": 341372
+    },
+    {
+      "tool": "dive",
+      "bound": 5,
+      "repeat": 0,
+      "exit": 10,
+      "wall_ms": 117.589168,
+      "peak_rss_kib": 24836,
+      "result": "invariant-violation",
+      "property": "FindSolution",
+      "initial_query": {
+        "status": "sat",
+        "work": {
+          "definedness_cells": 59424,
+          "domain_sizes": [
+            24,
+            24,
+            120,
+            120,
+            24
+          ],
+          "extensions": 5836,
+          "preparation_ms": 26.578035,
+          "search_ms": 0.044752,
+          "tested_clauses": 7242
+        }
+      },
+      "replay": "valid"
+    },
+    {
+      "tool": "dive",
+      "bound": 5,
+      "repeat": 1,
+      "exit": 10,
+      "wall_ms": 116.050742,
+      "peak_rss_kib": 24648,
+      "result": "invariant-violation",
+      "property": "FindSolution",
+      "initial_query": {
+        "status": "sat",
+        "work": {
+          "definedness_cells": 59424,
+          "domain_sizes": [
+            24,
+            24,
+            120,
+            120,
+            24
+          ],
+          "extensions": 5836,
+          "preparation_ms": 26.603288,
+          "search_ms": 0.038447,
+          "tested_clauses": 7242
+        }
+      },
+      "replay": "valid"
+    },
+    {
+      "tool": "dive",
+      "bound": 5,
+      "repeat": 2,
+      "exit": 10,
+      "wall_ms": 115.13977,
+      "peak_rss_kib": 24828,
+      "result": "invariant-violation",
+      "property": "FindSolution",
+      "initial_query": {
+        "status": "sat",
+        "work": {
+          "definedness_cells": 59424,
+          "domain_sizes": [
+            24,
+            24,
+            120,
+            120,
+            24
+          ],
+          "extensions": 5836,
+          "preparation_ms": 26.525155,
+          "search_ms": 0.038045,
+          "tested_clauses": 7242
+        }
+      },
+      "replay": "valid"
+    },
+    {
+      "tool": "manyan",
+      "bound": 5,
+      "repeat": 0,
+      "exit": 12,
+      "wall_ms": 12.77114,
+      "peak_rss_kib": 8732
+    },
+    {
+      "tool": "manyan",
+      "bound": 5,
+      "repeat": 1,
+      "exit": 12,
+      "wall_ms": 12.474292,
+      "peak_rss_kib": 8704
+    },
+    {
+      "tool": "manyan",
+      "bound": 5,
+      "repeat": 2,
+      "exit": 12,
+      "wall_ms": 12.04896,
+      "peak_rss_kib": 8704
+    },
+    {
+      "tool": "apalache",
+      "bound": 5,
+      "repeat": 0,
+      "exit": 12,
+      "wall_ms": 2362.548268,
+      "peak_rss_kib": 329300
+    },
+    {
+      "tool": "apalache",
+      "bound": 5,
+      "repeat": 1,
+      "exit": 12,
+      "wall_ms": 2341.460405,
+      "peak_rss_kib": 344896
+    },
+    {
+      "tool": "apalache",
+      "bound": 5,
+      "repeat": 2,
+      "exit": 12,
+      "wall_ms": 2366.106592,
+      "peak_rss_kib": 355004
+    }
+  ],
+  "controls": {
+    "changed-clue": {
+      "result": "invariant-violation",
+      "property": "FindSolution",
+      "initial_query": {
+        "status": "sat",
+        "work": {
+          "definedness_cells": 59424,
+          "domain_sizes": [
+            24,
+            24,
+            120,
+            120,
+            24
+          ],
+          "extensions": 2316,
+          "preparation_ms": 18.336312,
+          "search_ms": 0.010971,
+          "tested_clauses": 2868
+        }
+      },
+      "statistics": {
+        "checked_layers": [],
+        "generated": 0,
+        "terminal_sources": 0
+      },
+      "violation_validated": true
+    },
+    "impossible": {
+      "result": "bounded-safe",
+      "property": null,
+      "initial_query": {
+        "status": "unsat",
+        "work": {
+          "definedness_cells": 59448,
+          "domain_sizes": [
+            24,
+            24,
+            120,
+            120,
+            24
+          ],
+          "extensions": 24,
+          "preparation_ms": 17.139845,
+          "search_ms": 0.000281,
+          "tested_clauses": 24
+        }
+      },
+      "statistics": {
+        "checked_layers": [
+          199065600
+        ],
+        "generated": 199065600,
+        "terminal_sources": 0
+      },
+      "violation_validated": false
+    },
+    "corrupted": {
+      "check": "init",
+      "detail": "the first state is outside the independent Init relation",
+      "state": 0
+    }
+  }
+}

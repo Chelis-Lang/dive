@@ -18,6 +18,8 @@ The scripts that produced the records are in
 
 [The 46 bounded peer configurations](2026-11-22-bounded-peers.json), [Core's explicit prefix on the same inputs](2026-11-22-explicit-prefix.json), [Elevator fairness controls](2026-11-22-elevator-fairness.json) and [the published Recomp-Verify and Scimitar artifacts](2026-11-22-published-peer-artifacts.json) have a shared [reproduction guide and interpretation](../../../docs/internal/survey/verification-workloads.md#bounded-checking-fairness-and-proofs).
 
+[Initial-assignment constraints](2026-11-23-bounded-initial-assignments.json) compare bound-zero and bound-five Einstein against pinned Manyan and Apalache, with exhaustive small permutation and changed-clue controls.
+
 [APtcp through five Next transitions](2026-11-22-aptcp-bounded-paths.json) records the original invariant and the edited assertion, with two peer outcomes and fresh witness replay.
 
 [Sparse membership on a supplied periodic word](2026-11-22-sparse-word-membership.json) compares original Elevator replay at 181, 241 and 251 floors and identifies the next formula to exhaust its budget. It includes changed fairness and damaged closing-edge controls.

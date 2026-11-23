@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use dive_eval::next::Flow;
 use dive_eval::{ErrorClass, EvalError, HostControl, Scope, SlotView, St};
-use dive_ir::{BuiltinOp, Effects, Expr, ExprId, JunctionKind, OpRef, VarId};
+use dive_ir::{BuiltinOp, Effects, Expr, ExprId, JunctionKind, Level, OpRef, VarId};
 use dive_model::Model;
 use dive_value::Value;
 
@@ -76,6 +76,12 @@ pub(crate) fn check(
         target: Some(witness),
         choices,
     };
+    if choices.is_none()
+        && model.evaluator.options().ctx == dive_value::Ctx::dive()
+        && let Some(member) = closed_product(&operation, witness, control)
+    {
+        return Ok(Some(member));
+    }
     for init in &model.init {
         match operation.predicate(&init.pred.scope, init.pred.expr, 0) {
             Ok(true) => {}
@@ -94,6 +100,129 @@ pub(crate) fn check(
         // data, not an exception raised by the source construction above.
         Err(error) if error.class() == ErrorClass::Eval => Ok(None),
         Err(error) => Err(error),
+    }
+}
+
+struct Axis {
+    scope: Scope,
+    domain: ExprId,
+    membership: bool,
+}
+
+/// Decide membership in a complete product of independently generated axes.
+/// Source IR and the independent evaluator establish each axis; Core's
+/// compiled query and its retained domains play no part in validation.
+fn closed_product(
+    operation: &Initial<'_>,
+    witness: &State,
+    control: Option<&dyn HostControl>,
+) -> Option<bool> {
+    let model = operation.model;
+    let ev = &model.evaluator;
+    let mut axes = (0..model.ir.vars().len()).map(|_| None).collect::<Vec<_>>();
+    for init in &model.init {
+        product_shape(operation, &init.pred.scope, init.pred.expr, &mut axes, 0)?;
+    }
+    if axes.is_empty() || axes.iter().any(Option::is_none) || axes.len() != witness.len() {
+        return None;
+    }
+    let mut matches = true;
+    let empty = operation.st();
+    for (axis, expected) in axes.into_iter().zip(witness.iter()) {
+        control.map_or(Ok(()), HostControl::check).ok()?;
+        let Axis {
+            scope,
+            domain,
+            membership,
+        } = axis?;
+        let expected = expected.as_ref()?;
+        let actual = ev.eval_scoped(&scope, domain, &empty).ok()?;
+        matches &= if membership {
+            let Value::Set(set) = actual else {
+                return None;
+            };
+            if set.is_infinite() || set.size(ev.options().ctx).ok()? > 4096 {
+                return None;
+            }
+            // Force this finite domain in isolation, including its own errors.
+            // A provider failure declines to normal ordered source validation.
+            let elements = set.elements(ev.options().ctx).ok()?;
+            let mut present = false;
+            for actual in elements.iter() {
+                if ev.equal_values(actual, expected).ok()? {
+                    present = true;
+                    break;
+                }
+            }
+            present
+        } else {
+            ev.equal_values(&actual, expected).ok()?
+        };
+    }
+    Some(matches)
+}
+
+fn product_shape(
+    operation: &Initial<'_>,
+    scope: &Scope,
+    expr: ExprId,
+    axes: &mut [Option<Axis>],
+    depth: u8,
+) -> Option<()> {
+    let model = operation.model;
+    let ev = &model.evaluator;
+    let forbidden = Effects::IMPURE | Effects::LIVE_TLCGET | Effects::OPEN | Effects::TEMPORAL;
+    if depth >= 32
+        || model.ir.node(expr).effects.intersects(forbidden)
+        || ev.scope_has_effects(scope)
+    {
+        return None;
+    }
+    match model.ir.expr(expr) {
+        Expr::Junction {
+            kind: JunctionKind::And,
+            items,
+            ..
+        } => items
+            .iter()
+            .try_for_each(|&item| product_shape(operation, scope, item, axes, depth + 1)),
+        Expr::Def(_)
+        | Expr::Apply {
+            callee: OpRef::Def(_),
+            ..
+        } => {
+            let (inner, def) = ev.scope_call(scope, expr).ok()?;
+            if ev.is_value_override(def)
+                || ev.precomputed(def).is_some()
+                || model.ir.def(def).std.is_some()
+            {
+                return None;
+            }
+            product_shape(operation, &inner, model.ir.def(def).body, axes, depth + 1)
+        }
+        Expr::Selected(body) | Expr::Label { body, .. } => {
+            product_shape(operation, scope, *body, axes, depth + 1)
+        }
+        Expr::Builtin { op, args }
+            if matches!(op, BuiltinOp::Eq | BuiltinOp::In) && args.len() == 2 =>
+        {
+            let var = operation.variable(scope, args[0], 0).ok()??;
+            let domain = args[1];
+            if model.ir.node(domain).level != Level::Constant {
+                return None;
+            }
+            let binding = axes.get_mut(var.index())?;
+            if binding.is_some() {
+                return None;
+            }
+            *binding = Some(Axis {
+                scope: scope.clone(),
+                domain,
+                membership: *op == BuiltinOp::In,
+            });
+            Some(())
+        }
+        _ => None,
     }
 }
 
