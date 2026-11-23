@@ -1,0 +1,212 @@
+{
+  "issue": 1386,
+  "source_pin": "68715979666344cbcc66fa621b27039f281bdd5c",
+  "host": "Linux x86_64, Fedora 43, Ryzen AI MAX+ 395",
+  "historical_explicit": "Stopped with 1,073,741,425 distinct, 6,531,433,021 generated and 561,037,884 queued. See 2026-11-21-poison-queue.json.",
+  "commands": {
+    "prepare": "python3 scripts/perf/scale/poison_queue.py SOURCE WORK --producers P --consumers C --capacity B; append CHECK_DEADLOCK FALSE",
+    "check": "python3 scripts/perf/scale/poison_queue_progress.py WORK/BlockingQueuePoisonApple.tla WORK/BlockingQueuePoisonApple.cfg --dive DIVE --solver z3",
+    "control": "java -cp TLC_JAR tlc2.TLC -workers 1 -seed 0 -fp 0 -dump dot,actionlabels all.dot -config CFG BlockingQueuePoisonApple.tla; python3 scripts/perf/scale/poison_queue_progress_audit.py all.dot CFG"
+  },
+  "proofs": [
+    {
+      "format": "dive-poison-queue-progress-v1",
+      "result": "proved",
+      "bounds": [
+        5,
+        5,
+        5
+      ],
+      "obligations": {
+        "stutter-preserves": "unsat",
+        "producer-wait-preserves": "unsat",
+        "consumer-wait-preserves": "unsat",
+        "put-0-0-preserves": "unsat",
+        "get-0-0-preserves": "unsat",
+        "put-1-0-preserves": "unsat",
+        "get-1-0-preserves": "unsat",
+        "put-1-1-preserves": "unsat",
+        "get-1-1-preserves": "unsat",
+        "awake-if-actors-active": "unsat",
+        "full-with-producer-has-awake-reader": "unsat",
+        "space-with-producer-has-awake-writer": "unsat",
+        "no-producers-active-consumer-can-read": "unsat",
+        "terminated-buffer-empty": "unsat",
+        "initial": "unsat"
+      },
+      "wall_ms": 13.692891981918365,
+      "proved": true,
+      "module_sha256": "1695bd49adcc3414ed7f1c5feb23eed29c36d8cca1ee106fb75d7d59c7ccea09",
+      "cfg_sha256": "5d67408b5f93170131fdd7ef298c5cab4a10c027a8b62da816c8b43d9240d33d",
+      "solver": "Z3 version 4.15.5 - 64 bit",
+      "checked_properties": {
+        "TypeInv": "holds",
+        "NoDeadlock": "holds",
+        "Terminates": "holds",
+        "QueueEmpty": "holds",
+        "GlobalTermination": "holds"
+      },
+      "stronger_terminal_empty_invariant": true,
+      "terminal": {
+        "result": "deadlock",
+        "independent_validation": "valid",
+        "states": 51,
+        "wall_ms": 8.444981998763978
+      },
+      "fairness": "WF on each original Get; SF on each original quota-decreasing Put",
+      "process_family_wall_s": 0.05,
+      "max_child_peak_rss_kib": 31452
+    },
+    {
+      "format": "dive-poison-queue-progress-v1",
+      "result": "proved",
+      "bounds": [
+        8,
+        8,
+        8
+      ],
+      "obligations": {
+        "stutter-preserves": "unsat",
+        "producer-wait-preserves": "unsat",
+        "consumer-wait-preserves": "unsat",
+        "put-0-0-preserves": "unsat",
+        "get-0-0-preserves": "unsat",
+        "put-1-0-preserves": "unsat",
+        "get-1-0-preserves": "unsat",
+        "put-1-1-preserves": "unsat",
+        "get-1-1-preserves": "unsat",
+        "awake-if-actors-active": "unsat",
+        "full-with-producer-has-awake-reader": "unsat",
+        "space-with-producer-has-awake-writer": "unsat",
+        "no-producers-active-consumer-can-read": "unsat",
+        "terminated-buffer-empty": "unsat",
+        "initial": "unsat"
+      },
+      "wall_ms": 14.872959000058472,
+      "proved": true,
+      "module_sha256": "1695bd49adcc3414ed7f1c5feb23eed29c36d8cca1ee106fb75d7d59c7ccea09",
+      "cfg_sha256": "2638dd3d4eb44a6c4e420d178c31fe986c96ece18de1b27669665f297ed76ad7",
+      "solver": "Z3 version 4.15.5 - 64 bit",
+      "checked_properties": {
+        "TypeInv": "holds",
+        "NoDeadlock": "holds",
+        "Terminates": "holds",
+        "QueueEmpty": "holds",
+        "GlobalTermination": "holds"
+      },
+      "stronger_terminal_empty_invariant": true,
+      "terminal": {
+        "result": "deadlock",
+        "independent_validation": "valid",
+        "states": 129,
+        "wall_ms": 11.001706006936729
+      },
+      "fairness": "WF on each original Get; SF on each original quota-decreasing Put",
+      "process_family_wall_s": 0.06,
+      "max_child_peak_rss_kib": 30672
+    },
+    {
+      "format": "dive-poison-queue-progress-v1",
+      "result": "proved",
+      "bounds": [
+        20,
+        20,
+        20
+      ],
+      "obligations": {
+        "stutter-preserves": "unsat",
+        "producer-wait-preserves": "unsat",
+        "consumer-wait-preserves": "unsat",
+        "put-0-0-preserves": "unsat",
+        "get-0-0-preserves": "unsat",
+        "put-1-0-preserves": "unsat",
+        "get-1-0-preserves": "unsat",
+        "put-1-1-preserves": "unsat",
+        "get-1-1-preserves": "unsat",
+        "awake-if-actors-active": "unsat",
+        "full-with-producer-has-awake-reader": "unsat",
+        "space-with-producer-has-awake-writer": "unsat",
+        "no-producers-active-consumer-can-read": "unsat",
+        "terminated-buffer-empty": "unsat",
+        "initial": "unsat"
+      },
+      "wall_ms": 13.366315979510546,
+      "proved": true,
+      "module_sha256": "1695bd49adcc3414ed7f1c5feb23eed29c36d8cca1ee106fb75d7d59c7ccea09",
+      "cfg_sha256": "e7a435e0c02b2d52c4abd45de18c20e9df4bc181af87aed33fd2a2cf3303853a",
+      "solver": "Z3 version 4.15.5 - 64 bit",
+      "checked_properties": {
+        "TypeInv": "holds",
+        "NoDeadlock": "holds",
+        "Terminates": "holds",
+        "QueueEmpty": "holds",
+        "GlobalTermination": "holds"
+      },
+      "stronger_terminal_empty_invariant": true,
+      "terminal": {
+        "result": "deadlock",
+        "independent_validation": "valid",
+        "states": 801,
+        "wall_ms": 83.04875699104741
+      },
+      "fairness": "WF on each original Get; SF on each original quota-decreasing Put",
+      "process_family_wall_s": 0.14,
+      "max_child_peak_rss_kib": 110348
+    }
+  ],
+  "small_original_graphs": {
+    "111": {
+      "states": 6,
+      "edges": 9,
+      "taken_fairness_labels": 6,
+      "enabled_actor_labels": 6
+    },
+    "222": {
+      "states": 478,
+      "edges": 1620,
+      "taken_fairness_labels": 1104,
+      "enabled_actor_labels": 1000
+    },
+    "322": {
+      "states": 5882,
+      "edges": 25866,
+      "taken_fairness_labels": 17181,
+      "enabled_actor_labels": 13432
+    }
+  },
+  "negative": {
+    "wakeup_mutant": {
+      "result": "liveness-violation",
+      "properties": [
+        "Terminates"
+      ],
+      "ending": {
+        "back_to": 2,
+        "kind": "lasso"
+      },
+      "states": 3,
+      "standalone": "valid",
+      "scope": "Removed the wakeup and omitted NoDeadlock only to reach the temporal check; with NoDeadlock enabled the mutant fails safety first."
+    },
+    "unfair_original": {
+      "check": "fairness",
+      "detail": "behavior temporal conjunct line 148, col 8 to line 148, col 43 of module BlockingQueuePoisonApple is false on this word",
+      "state": 0
+    },
+    "refusal": {
+      "source": {
+        "result": "unsupported",
+        "reason": "BlockingQueuePoisonApple.tla differs from the pinned holdout"
+      },
+      "fairness": {
+        "result": "unsupported",
+        "reason": "expected the original SSpec roles and finite literal queue parameters"
+      },
+      "payload": {
+        "result": "unsupported",
+        "reason": "expected the original SSpec roles and finite literal queue parameters"
+      }
+    }
+  },
+  "scope": "Complete original five-property assessment with deadlock checking disabled after a separately replayed terminal witness. Common progress proof and terminal replay times are separate. Only the pinned source and literal actor/capacity configurations are admitted. No graph cardinality follows from an arithmetic proof."
+}
