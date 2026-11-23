@@ -199,7 +199,8 @@ impl Operators {
                     .append(true)
                     .open(path)
             {
-                let _ = writeln!(f, "{} {p} {count}", site.origin);
+                let line = format!("{} {p} {count}\n", site.origin);
+                let _ = f.write_all(line.as_bytes());
             }
         }
         Some((site.body)(m, c, &site.args))
