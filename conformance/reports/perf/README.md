@@ -607,3 +607,5 @@ field before quoting a number.
 [CCF universal observation refinement](2026-11-22-ccf-observation-refinement.json) checks every reached observation edge of four pinned histories and distinguishes its verdict from existential matching and TLC’s configured early exit.
 
 [Incremental symbolic paths](2026-11-23-incremental-symbolic-paths.json) records exact depth layers, two-step induction and source-bound receipt controls. It includes an explicit KeyValueStore stop and matched Manyan and Apalache runs on annotated DieHard.
+
+[Ground action guard index](2026-11-23-guarded-action-index.json) records concrete action selection on LuPastry+, its growth stops, exact counts and an independent PoolEmpty trace control.

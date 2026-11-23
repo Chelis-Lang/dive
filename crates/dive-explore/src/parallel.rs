@@ -522,6 +522,7 @@ fn expand_one(
     claims: &Claims,
     k: usize,
     opts: Opts,
+    action_index: Option<&dive_core::BoundActionIndex>,
     preserve_originals: bool,
     capture_limit: Option<u64>,
     candidates: Option<(&crate::storage::Storage, &crate::candidate::Account)>,
@@ -584,15 +585,23 @@ fn expand_one(
         remote,
     };
     let code = &plan.code;
-    for (i, a) in plan.next.iter().enumerate() {
+    let selected = action_index.and_then(|index| index.candidates(m));
+    let count = selected.as_ref().map_or(plan.next.len(), Vec::len);
+    metrics.action_slots += plan.next.len() as u64;
+    metrics.action_candidates += count as u64;
+    for position in 0..count {
+        let ordinal = selected
+            .as_ref()
+            .map_or(position, |indices| indices[position]);
+        let action = &plan.next[ordinal];
         if let Some(error) = &setup_error {
             sink.out.end = Ending::RetentionError(error.clone());
             break;
         }
-        sink.action = i;
+        sink.action = ordinal;
         let start = sink.emitted;
-        let r = m.run_bound_action(code, a, &mut sink);
-        match r {
+        let result = m.run_bound_action(code, action, &mut sink);
+        match result {
             Ok(()) => {}
             // The last successor recorded ends the search.
             Err(e) if e.kind() == ErrorKind::Stop => {
@@ -607,7 +616,7 @@ fn expand_one(
             }
             Err(error) => {
                 sink.out.end = Ending::GenError {
-                    action: i,
+                    action: ordinal,
                     emitted: sink.emitted - start,
                     error,
                 };
@@ -731,6 +740,7 @@ pub(crate) fn expand_level(
     nvars: usize,
     seen: &Seen,
     opts: Opts,
+    action_index: Option<&dive_core::BoundActionIndex>,
     preserve_originals: bool,
     capture_limit: Option<u64>,
     candidates: Option<(&crate::storage::Storage, &crate::candidate::Account)>,
@@ -786,6 +796,7 @@ pub(crate) fn expand_level(
                     claims,
                     k,
                     opts,
+                    action_index,
                     preserve_originals,
                     capture_limit,
                     candidates,
@@ -818,6 +829,8 @@ pub(crate) fn expand_level(
         let Some((done, local)) = r else {
             return Err(Error::internal("a core worker thread failed"));
         };
+        metrics.action_slots += local.action_slots;
+        metrics.action_candidates += local.action_candidates;
         metrics.conjuncts_total += local.conjuncts_total;
         metrics.conjuncts_skipped += local.conjuncts_skipped;
         metrics.probed += local.probed;
@@ -853,6 +866,7 @@ pub(crate) fn expand_remote(
         &claims,
         0,
         machine.opts,
+        None,
         true,
         Some(limit),
         None,
@@ -1213,6 +1227,7 @@ mod tests {
                 1,
                 &seen,
                 opts,
+                None,
                 false,
                 Some(128),
                 None,
@@ -1319,6 +1334,7 @@ mod tests {
                 &claims,
                 0,
                 opts,
+                None,
                 false,
                 None,
                 Some((&storage, &account)),

@@ -6,6 +6,7 @@ are in git history.
 ## Unreleased
 
 - The Linux symbolic worker can check multiple transition bounds in one invocation and distinguish bounded safety from a checked k-induction proof.
+- Core skips ground action occurrences whose leading source guard is known false while preserving their original order and diagnostics. [LuPastry+ measurements](conformance/reports/perf/2026-11-23-guarded-action-index.json).
 
 - The source-checkout [named induction checker](docs/user/symbolic.md#check-a-named-inductive-predicate) verifies a compact safety predicate through original TLA+ actions, including MongoLoglessDynamicRaft membership changes.
 - [Repair a saved temporal counterexample](docs/user/temporal.md#repair-a-saved-counterexample-after-an-edit) by searching short paths through the edited source and independently validating the complete replacement.

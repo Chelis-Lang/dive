@@ -2049,6 +2049,10 @@ pub(crate) fn metrics_json(
         "thunks": {"forced": m.thunks.0, "cached": m.thunks.1},
         "memo": memo,
     });
+    if let Some(shape) = m.action_index_shape {
+        report["action_schedule"] = json!({"slots": m.action_slots,
+            "candidates": m.action_candidates, "shape": shape});
+    }
     if let Some(roots) = &m.initial_roots {
         report["initial_roots"] = json!(roots);
     }
