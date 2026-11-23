@@ -5,6 +5,8 @@ are in git history.
 
 ## Unreleased
 
+- The source-built [induction workers](docs/user/symbolic.md#retain-authenticated-source-obligations-across-edits) can recheck named safety proofs across edits using authenticated results for identical finite obligations.
+
 - The Linux symbolic worker can check multiple transition bounds in one invocation and distinguish bounded safety from a checked k-induction proof.
 - Core skips ground action occurrences whose leading source guard is known false while preserving their original order and diagnostics. [LuPastry+ measurements](conformance/reports/perf/2026-11-23-guarded-action-index.json).
 

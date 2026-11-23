@@ -712,3 +712,94 @@ and checked the certificate in 57.34 s. Independent replay accepted an eight-sta
 two elections, a membership change and propagation to other servers. Removing
 one voting guard allowed two primaries in term 1 after two steps.
 [Source, reproduction, controls and timings](../../conformance/reports/perf/2026-11-22-mongo-reconfiguration-induction.json)
+
+### Retain authenticated source obligations across edits
+
+A trusted local source worker can retain results for the exact obligations it
+previously discharged. Set `DIVE_SYMBOLIC_PROOF_KEY` to the path of a private
+32-byte file owned by the running user, with mode `0600` or `0400`. Keep that
+key local to the processes allowed to establish proofs.
+
+```sh
+umask 077
+python3 -c 'import secrets, sys; sys.stdout.buffer.write(secrets.token_bytes(32))' > proof.key
+export DIVE_SYMBOLIC_PROOF_KEY="$PWD/proof.key"
+python3 scripts/symbolic/source_obligations.py --backend bdd \
+  --exporter target/release/examples/symbolic_input --layout Layout \
+  --candidate IndAuto --property Safety ProofTrial.tla ProofTrial.cfg \
+  --obligation-cache obligations.json
+```
+
+Run the same command in a new process after editing the original protocol
+module imported by `ProofTrial.tla`. For example, disable the original
+`Reconfig` branch of `Next` with a false conjunct and keep its other
+branches and the CFG as published. Use the same receipt path, then restore
+the module and repeat to check undo. Omit the cache argument for a cold
+check. The [reproduction procedure](../../conformance/reports/perf/2026-11-22-mongo-reconfiguration-induction.json)
+supplies the original Mongo trial and pins its source.
+
+The BDD worker independently exports the current module closure and layout,
+then checks Init, the safety implication and the constraint boundary. Each
+retained conclusion binds the complete admitted premise and constrained
+transition test along with the finite representation. An assumption or
+strengthening change can invalidate an entire family of obligations. A
+changed action can leave the obligations of other actions reusable.
+
+For finite AsyncRaft, use the published log-invariant model and configuration
+from the first section of this guide, with `--backend z3` and the same exporter
+and optional cache argument. Its source worker recognizes the pinned protocol,
+a comment-only revision and the documented edit disabling
+`ClientRequestAction`. It rebinds the source and proves ground Init on each
+request. An action group can be reused when its complete finite obligation
+inputs and the proof graph agree. Other revisions require explicit source
+admission. The wrapper reports the named proof, retained work, or an
+inconclusive result. A missing or invalid local receipt is a cold run.
+
+#### Reproduce an action edit and undo
+
+Fetch the pinned I3DP checkout named in the [Mongo proof record](../../conformance/reports/perf/2026-11-22-mongo-reconfiguration-induction.json).
+Use Python 3.12 or newer with `dd==0.6.0`, and build the `symbolic_input`
+example. Point `I3DP` to its MongoLoglessDynamicRaft benchmark directory
+and use a new directory for `WORK`.
+
+```sh
+PYTHONPATH=scripts/perf/scale python3 - "$I3DP" "$WORK" <<'PY'
+import json
+from pathlib import Path
+import sys
+from certify_reconfiguration import MODEL, PINS, sha, write_input
+
+source, work = map(Path, sys.argv[1:])
+assert all(sha(source / name) == pin for name, pin in PINS.items())
+work.mkdir()
+settings = json.loads((source / (MODEL + ".config.json")).read_text())
+write_input(source, settings, work, 3)
+PY
+```
+
+Use `"$WORK/ProofTrial.tla"` and `"$WORK/ProofTrial.cfg"` in the BDD
+command above. After its first run, edit the generated directory's
+`MongoLoglessDynamicRaft.tla`. Change the beginning of the action line
+from `ReconfigAction == \E` to `ReconfigAction == FALSE /\ \E`. Run again
+with the same cache, then restore the action and rerun. The strengthened
+premises for the other three actions remain identical under this edit.
+
+For AsyncRaft, copy the pinned published `AsyncRaft.tla`, `AsyncRaft.cfg`
+and proof graph into a scratch directory. Use the outer worker's `z3` backend
+with `z3-solver==4.15.4.0`. Create the effective CFG from the published
+one with `MaxTerm = 2`, `MaxLogLen = 2` and `MaxMsgCount = 3`, and keep the
+three original server values. Use the original `Init`, `Next` and
+`StateConstraint`, select invariant `H_PrimaryHasEntriesItCreated` and
+set `CHECK_DEADLOCK FALSE`. Run the source worker with the same cache on
+both revisions. In the edited revision, change only the first `TRUE`
+in `ClientRequestAction` to `FALSE`.
+
+On one native c7i.2xlarge host, the first cached AsyncRaft action edit
+retained ten action groups and took 2.21 s. Rechecking the same edited
+source cold took 62.51 s. The Mongo action edit retained 240 obligations
+and took 19.07 s versus 60.64 s cold. The measured time recovered the seed
+cost by the first edit in both sequences. Mongo's lower wall time came with
+higher peak resident memory. A weakened Mongo strengthening or a changed
+assumption required all 360 obligations again. Restoring the source
+recovered the previously checked results.
+[Native measurements and checked controls](../../conformance/reports/perf/2026-11-23-source-induction-reuse.json).

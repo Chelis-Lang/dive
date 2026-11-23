@@ -1,0 +1,691 @@
+{
+  "schema": "dive-source-induction-reuse-measurements-v1",
+  "issue": "https://github.com/Chelis-Lang/sail/issues/801",
+  "host": {
+    "instance": "c7i.2xlarge",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "vcpu": 8,
+    "os": "Ubuntu 24.04"
+  },
+  "timing_scope": "Fresh Sail processes and their proof workers. These are single observations. The initial backend panels overlapped. GNU time reports the peak RSS of a process in the family. The follow-up panel runs serially and samples the sum of per-process RSS, which can count shared pages more than once. Worker launch measures the source launcher with --help. Proof discovery is outside the measured work.",
+  "python_dependencies": [
+    "astutils==0.0.6",
+    "dd==0.6.0",
+    "networkx==3.7",
+    "ply==3.10",
+    "setuptools==84.2.1",
+    "z3-solver==4.15.4.0"
+  ],
+  "tools_sha256": {
+    "sail": "5e64b52e5271095a0410c703b4fa8534af12efe5bf237221f6f74aec05183eb1",
+    "symbolic_input": "45080fa75483661ae62435e2509205796f0e285211604448d47da2e4afee6e1a",
+    "dive": "d704593a360d87e4366d97b0ff6a592202c215bf89f7031c6a77cd446a8fb55a"
+  },
+  "families": {
+    "raft": {
+      "backend": "finite-z3",
+      "source": "https://github.com/will62794/scimitar/tree/f1b902dc0801cf435cb9dd6e6be495d5ed121787/benchmarks",
+      "action_edit": "In ClientRequestAction replace its leading TRUE with FALSE.",
+      "capacity_edit": "Reduce MaxMsgCount from 3 to 2 with three servers.",
+      "failed_edit": "In ClientRequest permit Follower alongside Leader.",
+      "rows": {
+        "fresh": {
+          "result": "proved",
+          "wall_s": 66.88,
+          "max_process_rss_kib": 97168,
+          "inputs": {
+            "AsyncRaft.cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+            "Property.cfg": "70e0022130933bfbc8bfdfedba4774ca783318e1d0eb63292560ce78da976bc3",
+            "Term2.cfg": "09b8403c0235331d96fdb518f23623e58c77019c0c5691940fee5a6708862c38",
+            "Three.cfg": "187e0d2d6f9dd5d13f0987b3b8f71e5eec50965c1a6d9a989411b54ec6c64251",
+            "AsyncRaft.tla": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322"
+          },
+          "retained": 0
+        },
+        "base": {
+          "result": "proved",
+          "wall_s": 72.06,
+          "max_process_rss_kib": 116824,
+          "inputs": {
+            "AsyncRaft.cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+            "Property.cfg": "70e0022130933bfbc8bfdfedba4774ca783318e1d0eb63292560ce78da976bc3",
+            "Term2.cfg": "09b8403c0235331d96fdb518f23623e58c77019c0c5691940fee5a6708862c38",
+            "Three.cfg": "187e0d2d6f9dd5d13f0987b3b8f71e5eec50965c1a6d9a989411b54ec6c64251",
+            "AsyncRaft.tla": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322"
+          },
+          "retained": 0,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 9,
+            "discharged": 861,
+            "input": "new",
+            "retained_groups": 0,
+            "discharged_groups": 11
+          }
+        },
+        "action": {
+          "result": "proved",
+          "wall_s": 2.21,
+          "max_process_rss_kib": 107760,
+          "inputs": {
+            "AsyncRaft.cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+            "Property.cfg": "70e0022130933bfbc8bfdfedba4774ca783318e1d0eb63292560ce78da976bc3",
+            "Term2.cfg": "09b8403c0235331d96fdb518f23623e58c77019c0c5691940fee5a6708862c38",
+            "Three.cfg": "187e0d2d6f9dd5d13f0987b3b8f71e5eec50965c1a6d9a989411b54ec6c64251",
+            "AsyncRaft.tla": "48139bf93d8bea280e16f02545516d9cba5102dd3fce4eb9dde0193a0bd71b38"
+          },
+          "retained": 10,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 10,
+            "discharged_groups": 1
+          }
+        },
+        "action-fresh": {
+          "result": "proved",
+          "wall_s": 62.51,
+          "max_process_rss_kib": 96960,
+          "inputs": {
+            "AsyncRaft.cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+            "Property.cfg": "70e0022130933bfbc8bfdfedba4774ca783318e1d0eb63292560ce78da976bc3",
+            "Term2.cfg": "09b8403c0235331d96fdb518f23623e58c77019c0c5691940fee5a6708862c38",
+            "Three.cfg": "187e0d2d6f9dd5d13f0987b3b8f71e5eec50965c1a6d9a989411b54ec6c64251",
+            "AsyncRaft.tla": "48139bf93d8bea280e16f02545516d9cba5102dd3fce4eb9dde0193a0bd71b38"
+          },
+          "retained": 0
+        },
+        "comment": {
+          "result": "proved",
+          "wall_s": 2.21,
+          "max_process_rss_kib": 107880,
+          "inputs": {
+            "AsyncRaft.cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+            "Property.cfg": "70e0022130933bfbc8bfdfedba4774ca783318e1d0eb63292560ce78da976bc3",
+            "Term2.cfg": "09b8403c0235331d96fdb518f23623e58c77019c0c5691940fee5a6708862c38",
+            "Three.cfg": "187e0d2d6f9dd5d13f0987b3b8f71e5eec50965c1a6d9a989411b54ec6c64251",
+            "AsyncRaft.tla": "6f5861e92e2d514cb7eebb85589b61825ba0c9f43ee4842e374e28d08d2d1cc6"
+          },
+          "retained": 11,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 11,
+            "discharged_groups": 0
+          }
+        },
+        "capacity": {
+          "result": "proved",
+          "wall_s": 44.79,
+          "max_process_rss_kib": 114532,
+          "inputs": {
+            "AsyncRaft.cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+            "Property.cfg": "70e0022130933bfbc8bfdfedba4774ca783318e1d0eb63292560ce78da976bc3",
+            "Term2.cfg": "09b8403c0235331d96fdb518f23623e58c77019c0c5691940fee5a6708862c38",
+            "Three.cfg": "9661886fcd8f4e111b7dbb1cb2011e74755a09e1f9e283ba96b905a45a7dfe95",
+            "AsyncRaft.tla": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322"
+          },
+          "retained": 0,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 9,
+            "discharged": 664,
+            "input": "new",
+            "retained_groups": 0,
+            "discharged_groups": 11
+          }
+        },
+        "broken": {
+          "result": "inconclusive",
+          "wall_s": 37.19,
+          "max_process_rss_kib": 102056,
+          "inputs": {
+            "AsyncRaft.cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+            "Mutant.cfg": "cf9de003b5c2c727fa1b1909a8198a0a9062d8feeb1d8a29592eb9ba6ade17e1",
+            "Property.cfg": "70e0022130933bfbc8bfdfedba4774ca783318e1d0eb63292560ce78da976bc3",
+            "Term2.cfg": "09b8403c0235331d96fdb518f23623e58c77019c0c5691940fee5a6708862c38",
+            "Three.cfg": "187e0d2d6f9dd5d13f0987b3b8f71e5eec50965c1a6d9a989411b54ec6c64251",
+            "AsyncRaft.tla": "5dc0736072b5e660a3b3a01dafa5f4052d37f5618397677cfe8e45ea15c56767"
+          },
+          "retained": 0
+        },
+        "undo": {
+          "result": "proved",
+          "wall_s": 2.22,
+          "max_process_rss_kib": 107924,
+          "inputs": {
+            "AsyncRaft.cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+            "Property.cfg": "70e0022130933bfbc8bfdfedba4774ca783318e1d0eb63292560ce78da976bc3",
+            "Term2.cfg": "09b8403c0235331d96fdb518f23623e58c77019c0c5691940fee5a6708862c38",
+            "Three.cfg": "187e0d2d6f9dd5d13f0987b3b8f71e5eec50965c1a6d9a989411b54ec6c64251",
+            "AsyncRaft.tla": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322"
+          },
+          "retained": 11,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 11,
+            "discharged_groups": 0
+          }
+        },
+        "competing-original": {
+          "result": "proved",
+          "wall_s": 2.28,
+          "max_process_rss_kib": 107812,
+          "inputs": {
+            "AsyncRaft.cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+            "Property.cfg": "70e0022130933bfbc8bfdfedba4774ca783318e1d0eb63292560ce78da976bc3",
+            "Term2.cfg": "09b8403c0235331d96fdb518f23623e58c77019c0c5691940fee5a6708862c38",
+            "Three.cfg": "187e0d2d6f9dd5d13f0987b3b8f71e5eec50965c1a6d9a989411b54ec6c64251",
+            "AsyncRaft.tla": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322"
+          },
+          "retained": 11,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 11,
+            "discharged_groups": 0
+          }
+        },
+        "competing-action": {
+          "result": "proved",
+          "wall_s": 2.26,
+          "max_process_rss_kib": 107496,
+          "inputs": {
+            "AsyncRaft.cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+            "Property.cfg": "70e0022130933bfbc8bfdfedba4774ca783318e1d0eb63292560ce78da976bc3",
+            "Term2.cfg": "09b8403c0235331d96fdb518f23623e58c77019c0c5691940fee5a6708862c38",
+            "Three.cfg": "187e0d2d6f9dd5d13f0987b3b8f71e5eec50965c1a6d9a989411b54ec6c64251",
+            "AsyncRaft.tla": "48139bf93d8bea280e16f02545516d9cba5102dd3fce4eb9dde0193a0bd71b38"
+          },
+          "retained": 11,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 11,
+            "discharged_groups": 0
+          }
+        },
+        "after-competition": {
+          "result": "proved",
+          "wall_s": 2.19,
+          "max_process_rss_kib": 108056,
+          "inputs": {
+            "AsyncRaft.cfg": "d1602e6bb793b9ea4968587e58ceedffffd6bd765a84b2eb349bf818ab0ad284",
+            "Property.cfg": "70e0022130933bfbc8bfdfedba4774ca783318e1d0eb63292560ce78da976bc3",
+            "Term2.cfg": "09b8403c0235331d96fdb518f23623e58c77019c0c5691940fee5a6708862c38",
+            "Three.cfg": "187e0d2d6f9dd5d13f0987b3b8f71e5eec50965c1a6d9a989411b54ec6c64251",
+            "AsyncRaft.tla": "7d739ad5f8637e974b57fabd83bd18f3b9a739c03c254af4fb087dd8ab5f2322"
+          },
+          "retained": 11,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 11,
+            "discharged_groups": 0
+          }
+        }
+      },
+      "independent_control": {
+        "property": "H_PrimaryHasEntriesItCreated",
+        "witness_states": 7,
+        "witness_sha256": "311bd6bb74ba3e7bdca851e2861592f3da9cb1739551ce3fa820452f96f81be5",
+        "genuine": "valid",
+        "damaged": "invalid"
+      },
+      "one_edit_crossover": {
+        "seed_plus_recheck_s": 74.27,
+        "cold_original_plus_cold_edit_s": 129.39
+      },
+      "process_family_sample": {
+        "edit-fresh": {
+          "wall_s": 61.382,
+          "peak_summed_rss_kib": 165288,
+          "sample_ms": 25,
+          "retained": 0
+        },
+        "edit-warm": {
+          "wall_s": 2.191,
+          "peak_summed_rss_kib": 177272,
+          "sample_ms": 25,
+          "retained": 11,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 11,
+            "discharged_groups": 0
+          }
+        },
+        "baseline-warm": {
+          "wall_s": 2.192,
+          "peak_summed_rss_kib": 176228,
+          "sample_ms": 25,
+          "retained": 11,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 11,
+            "discharged_groups": 0
+          }
+        },
+        "worker-launch": {
+          "wall_s": 0.051,
+          "peak_summed_rss_kib": 16644,
+          "sample_ms": 25
+        }
+      }
+    },
+    "mongo": {
+      "backend": "cudd-bdd",
+      "source": "https://github.com/SoftWiser-group/I3DP/tree/7ce4948fda3d558bc690c68ef01e2b620fa975fe/benchmarks/MongoLoglessDynamicRaft",
+      "action_edit": "Add a leading false conjunct to ReconfigAction.",
+      "lemma_edit": "Replace the body of StrConj_0 with TRUE.",
+      "property_edit": "Use Safety == OnePrimaryPerTerm \\/ (\\A s \\in Server : currentTerm[s] = 4).",
+      "assumption_edit": "Add ASSUME TRUE to ProofTrial.tla.",
+      "capacity_edit": "Reduce Server from three names to two names.",
+      "failed_edit": "In BecomeLeader replace currentTerm[i] < term with TRUE.",
+      "rows": {
+        "fresh": {
+          "result": "proved",
+          "wall_s": 77.68,
+          "max_process_rss_kib": 619680,
+          "inputs": {
+            "Original.cfg": "8ef5b011383ed19e84a93bc06a1ad1c6df7bf62303a231419c145365b2d243b4",
+            "ProofTrial.cfg": "e4f3a4f2ba5780643575beaaa397d334cf82c602c6ed050d1e060627c698a0d0",
+            "MongoLoglessDynamicRaft.tla": "d4a0a219c734ae3ae08173ae05d2123dea8367c068f4bc42d5f9311bd9ebaed6",
+            "ProofTrial.tla": "accd9e1a80e4082e8958bbb437f596f652a3d1f98bf81bf355fbb651a5056dbb",
+            "Randomization.tla": "69c8f4f4dbf1ec9725b71103cb3390832b7d57d7f41bfbbd5a761915fd4cac5e"
+          },
+          "retained": 0,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 360,
+            "input": "disabled",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "base": {
+          "result": "proved",
+          "wall_s": 101.56,
+          "max_process_rss_kib": 1750708,
+          "inputs": {
+            "Original.cfg": "8ef5b011383ed19e84a93bc06a1ad1c6df7bf62303a231419c145365b2d243b4",
+            "ProofTrial.cfg": "e4f3a4f2ba5780643575beaaa397d334cf82c602c6ed050d1e060627c698a0d0",
+            "MongoLoglessDynamicRaft.tla": "d4a0a219c734ae3ae08173ae05d2123dea8367c068f4bc42d5f9311bd9ebaed6",
+            "ProofTrial.tla": "accd9e1a80e4082e8958bbb437f596f652a3d1f98bf81bf355fbb651a5056dbb",
+            "Randomization.tla": "69c8f4f4dbf1ec9725b71103cb3390832b7d57d7f41bfbbd5a761915fd4cac5e"
+          },
+          "retained": 0,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 360,
+            "input": "new",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "action": {
+          "result": "proved",
+          "wall_s": 19.07,
+          "max_process_rss_kib": 1060952,
+          "inputs": {
+            "Original.cfg": "8ef5b011383ed19e84a93bc06a1ad1c6df7bf62303a231419c145365b2d243b4",
+            "ProofTrial.cfg": "e4f3a4f2ba5780643575beaaa397d334cf82c602c6ed050d1e060627c698a0d0",
+            "MongoLoglessDynamicRaft.tla": "a18000f6cf2f4838246ad953b5999aa313ffbc7d3145bc21c66b7e7601c561d4",
+            "ProofTrial.tla": "accd9e1a80e4082e8958bbb437f596f652a3d1f98bf81bf355fbb651a5056dbb",
+            "Randomization.tla": "69c8f4f4dbf1ec9725b71103cb3390832b7d57d7f41bfbbd5a761915fd4cac5e"
+          },
+          "retained": 240,
+          "reuse": {
+            "retained": 240,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "action-fresh": {
+          "result": "proved",
+          "wall_s": 60.64,
+          "max_process_rss_kib": 621500,
+          "inputs": {
+            "Original.cfg": "8ef5b011383ed19e84a93bc06a1ad1c6df7bf62303a231419c145365b2d243b4",
+            "ProofTrial.cfg": "e4f3a4f2ba5780643575beaaa397d334cf82c602c6ed050d1e060627c698a0d0",
+            "MongoLoglessDynamicRaft.tla": "a18000f6cf2f4838246ad953b5999aa313ffbc7d3145bc21c66b7e7601c561d4",
+            "ProofTrial.tla": "accd9e1a80e4082e8958bbb437f596f652a3d1f98bf81bf355fbb651a5056dbb",
+            "Randomization.tla": "69c8f4f4dbf1ec9725b71103cb3390832b7d57d7f41bfbbd5a761915fd4cac5e"
+          },
+          "retained": 0,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 240,
+            "input": "disabled",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "comment": {
+          "result": "proved",
+          "wall_s": 25.12,
+          "max_process_rss_kib": 1079672,
+          "inputs": {
+            "Original.cfg": "8ef5b011383ed19e84a93bc06a1ad1c6df7bf62303a231419c145365b2d243b4",
+            "ProofTrial.cfg": "e4f3a4f2ba5780643575beaaa397d334cf82c602c6ed050d1e060627c698a0d0",
+            "MongoLoglessDynamicRaft.tla": "7165032f21596787b8d605d3bbb568e18a914d4bac610321afea9f29d99f47f3",
+            "ProofTrial.tla": "accd9e1a80e4082e8958bbb437f596f652a3d1f98bf81bf355fbb651a5056dbb",
+            "Randomization.tla": "69c8f4f4dbf1ec9725b71103cb3390832b7d57d7f41bfbbd5a761915fd4cac5e"
+          },
+          "retained": 360,
+          "reuse": {
+            "retained": 360,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "weaken": {
+          "result": "proved",
+          "wall_s": 110.93,
+          "max_process_rss_kib": 1794800,
+          "inputs": {
+            "Original.cfg": "8ef5b011383ed19e84a93bc06a1ad1c6df7bf62303a231419c145365b2d243b4",
+            "ProofTrial.cfg": "e4f3a4f2ba5780643575beaaa397d334cf82c602c6ed050d1e060627c698a0d0",
+            "MongoLoglessDynamicRaft.tla": "d4a0a219c734ae3ae08173ae05d2123dea8367c068f4bc42d5f9311bd9ebaed6",
+            "ProofTrial.tla": "710141d5a425223be448003f49a0c21cdba39b890d73c5122c860136222500c0",
+            "Randomization.tla": "69c8f4f4dbf1ec9725b71103cb3390832b7d57d7f41bfbbd5a761915fd4cac5e"
+          },
+          "retained": 0,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 360,
+            "input": "authenticated",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "property": {
+          "result": "proved",
+          "wall_s": 24.84,
+          "max_process_rss_kib": 1079704,
+          "inputs": {
+            "Original.cfg": "8ef5b011383ed19e84a93bc06a1ad1c6df7bf62303a231419c145365b2d243b4",
+            "ProofTrial.cfg": "e4f3a4f2ba5780643575beaaa397d334cf82c602c6ed050d1e060627c698a0d0",
+            "MongoLoglessDynamicRaft.tla": "b17456db3fe0dc7a6ad947067b503e6939a7c3af4cdf24fd5f8f4e7fa9f6cebc",
+            "ProofTrial.tla": "accd9e1a80e4082e8958bbb437f596f652a3d1f98bf81bf355fbb651a5056dbb",
+            "Randomization.tla": "69c8f4f4dbf1ec9725b71103cb3390832b7d57d7f41bfbbd5a761915fd4cac5e"
+          },
+          "retained": 288,
+          "reuse": {
+            "retained": 288,
+            "local_hits": 0,
+            "discharged": 72,
+            "input": "authenticated",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "assume": {
+          "result": "proved",
+          "wall_s": 100.41,
+          "max_process_rss_kib": 1743060,
+          "inputs": {
+            "Original.cfg": "8ef5b011383ed19e84a93bc06a1ad1c6df7bf62303a231419c145365b2d243b4",
+            "ProofTrial.cfg": "e4f3a4f2ba5780643575beaaa397d334cf82c602c6ed050d1e060627c698a0d0",
+            "MongoLoglessDynamicRaft.tla": "d4a0a219c734ae3ae08173ae05d2123dea8367c068f4bc42d5f9311bd9ebaed6",
+            "ProofTrial.tla": "37ac68054de08fa0ca9d49ac0d5309ed259e186359b221556bb874790fe51415",
+            "Randomization.tla": "69c8f4f4dbf1ec9725b71103cb3390832b7d57d7f41bfbbd5a761915fd4cac5e"
+          },
+          "retained": 0,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 360,
+            "input": "authenticated",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "capacity": {
+          "result": "proved",
+          "wall_s": 0.44,
+          "max_process_rss_kib": 56860,
+          "inputs": {
+            "Original.cfg": "8ef5b011383ed19e84a93bc06a1ad1c6df7bf62303a231419c145365b2d243b4",
+            "ProofTrial.cfg": "d436f0decbf007331f0984cccd6f9a5b54bb2a15a6bd4ec6c1c1872499402bd7",
+            "MongoLoglessDynamicRaft.tla": "d4a0a219c734ae3ae08173ae05d2123dea8367c068f4bc42d5f9311bd9ebaed6",
+            "ProofTrial.tla": "accd9e1a80e4082e8958bbb437f596f652a3d1f98bf81bf355fbb651a5056dbb",
+            "Randomization.tla": "69c8f4f4dbf1ec9725b71103cb3390832b7d57d7f41bfbbd5a761915fd4cac5e"
+          },
+          "retained": 0,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 120,
+            "input": "new",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "broken": {
+          "result": "inconclusive",
+          "wall_s": 21.5,
+          "max_process_rss_kib": 1076768,
+          "inputs": {
+            "Original.cfg": "8ef5b011383ed19e84a93bc06a1ad1c6df7bf62303a231419c145365b2d243b4",
+            "ProofTrial.cfg": "e4f3a4f2ba5780643575beaaa397d334cf82c602c6ed050d1e060627c698a0d0",
+            "MongoLoglessDynamicRaft.tla": "c3c810b93cac3e16bf23ae0925a06bf415b8ea929ce159dd5d139dcdc6c59d5b",
+            "ProofTrial.tla": "accd9e1a80e4082e8958bbb437f596f652a3d1f98bf81bf355fbb651a5056dbb",
+            "Randomization.tla": "69c8f4f4dbf1ec9725b71103cb3390832b7d57d7f41bfbbd5a761915fd4cac5e"
+          },
+          "retained": 0
+        },
+        "undo": {
+          "result": "proved",
+          "wall_s": 24.57,
+          "max_process_rss_kib": 1079884,
+          "inputs": {
+            "Original.cfg": "8ef5b011383ed19e84a93bc06a1ad1c6df7bf62303a231419c145365b2d243b4",
+            "ProofTrial.cfg": "e4f3a4f2ba5780643575beaaa397d334cf82c602c6ed050d1e060627c698a0d0",
+            "MongoLoglessDynamicRaft.tla": "d4a0a219c734ae3ae08173ae05d2123dea8367c068f4bc42d5f9311bd9ebaed6",
+            "ProofTrial.tla": "accd9e1a80e4082e8958bbb437f596f652a3d1f98bf81bf355fbb651a5056dbb",
+            "Randomization.tla": "69c8f4f4dbf1ec9725b71103cb3390832b7d57d7f41bfbbd5a761915fd4cac5e"
+          },
+          "retained": 360,
+          "reuse": {
+            "retained": 360,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "competing-original": {
+          "result": "proved",
+          "wall_s": 24.85,
+          "max_process_rss_kib": 1079620,
+          "inputs": {
+            "Original.cfg": "8ef5b011383ed19e84a93bc06a1ad1c6df7bf62303a231419c145365b2d243b4",
+            "ProofTrial.cfg": "e4f3a4f2ba5780643575beaaa397d334cf82c602c6ed050d1e060627c698a0d0",
+            "MongoLoglessDynamicRaft.tla": "d4a0a219c734ae3ae08173ae05d2123dea8367c068f4bc42d5f9311bd9ebaed6",
+            "ProofTrial.tla": "accd9e1a80e4082e8958bbb437f596f652a3d1f98bf81bf355fbb651a5056dbb",
+            "Randomization.tla": "69c8f4f4dbf1ec9725b71103cb3390832b7d57d7f41bfbbd5a761915fd4cac5e"
+          },
+          "retained": 360,
+          "reuse": {
+            "retained": 360,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "competing-action": {
+          "result": "proved",
+          "wall_s": 19.15,
+          "max_process_rss_kib": 1061392,
+          "inputs": {
+            "Original.cfg": "8ef5b011383ed19e84a93bc06a1ad1c6df7bf62303a231419c145365b2d243b4",
+            "ProofTrial.cfg": "e4f3a4f2ba5780643575beaaa397d334cf82c602c6ed050d1e060627c698a0d0",
+            "MongoLoglessDynamicRaft.tla": "a18000f6cf2f4838246ad953b5999aa313ffbc7d3145bc21c66b7e7601c561d4",
+            "ProofTrial.tla": "accd9e1a80e4082e8958bbb437f596f652a3d1f98bf81bf355fbb651a5056dbb",
+            "Randomization.tla": "69c8f4f4dbf1ec9725b71103cb3390832b7d57d7f41bfbbd5a761915fd4cac5e"
+          },
+          "retained": 240,
+          "reuse": {
+            "retained": 240,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "after-competition": {
+          "result": "proved",
+          "wall_s": 23.78,
+          "max_process_rss_kib": 1079716,
+          "inputs": {
+            "Original.cfg": "8ef5b011383ed19e84a93bc06a1ad1c6df7bf62303a231419c145365b2d243b4",
+            "ProofTrial.cfg": "e4f3a4f2ba5780643575beaaa397d334cf82c602c6ed050d1e060627c698a0d0",
+            "MongoLoglessDynamicRaft.tla": "d4a0a219c734ae3ae08173ae05d2123dea8367c068f4bc42d5f9311bd9ebaed6",
+            "ProofTrial.tla": "accd9e1a80e4082e8958bbb437f596f652a3d1f98bf81bf355fbb651a5056dbb",
+            "Randomization.tla": "69c8f4f4dbf1ec9725b71103cb3390832b7d57d7f41bfbbd5a761915fd4cac5e"
+          },
+          "retained": 360,
+          "reuse": {
+            "retained": 360,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        }
+      },
+      "independent_control": {
+        "property": "Safety",
+        "witness_states": 3,
+        "witness_sha256": "7b9bd15c117a673466df99f5abc61d4085e91e917daad84d0bdcf6c5462cb205",
+        "genuine": "valid",
+        "damaged": "invalid"
+      },
+      "one_edit_crossover": {
+        "seed_plus_recheck_s": 120.63,
+        "cold_original_plus_cold_edit_s": 138.32
+      },
+      "process_family_sample": {
+        "edit-fresh": {
+          "wall_s": 60.729,
+          "peak_summed_rss_kib": 661160,
+          "sample_ms": 25,
+          "retained": 0,
+          "reuse": {
+            "retained": 0,
+            "local_hits": 0,
+            "discharged": 240,
+            "input": "disabled",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "edit-warm": {
+          "wall_s": 19.063,
+          "peak_summed_rss_kib": 1100984,
+          "sample_ms": 25,
+          "retained": 240,
+          "reuse": {
+            "retained": 240,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "baseline-warm": {
+          "wall_s": 24.881,
+          "peak_summed_rss_kib": 1119240,
+          "sample_ms": 25,
+          "retained": 360,
+          "reuse": {
+            "retained": 360,
+            "local_hits": 0,
+            "discharged": 0,
+            "input": "authenticated",
+            "retained_groups": 0,
+            "discharged_groups": 0
+          }
+        },
+        "worker-launch": {
+          "wall_s": 0.051,
+          "peak_summed_rss_kib": 16528,
+          "sample_ms": 25
+        }
+      }
+    }
+  },
+  "identity_controls": {
+    "bdd-after-forgery": {
+      "result": "proved",
+      "retained": 0,
+      "reuse": {
+        "retained": 0,
+        "local_hits": 0,
+        "discharged": 120,
+        "input": "unauthenticated",
+        "retained_groups": 0,
+        "discharged_groups": 0
+      }
+    },
+    "bdd-exporter-edited": {
+      "result": "proved",
+      "retained": 0,
+      "reuse": {
+        "retained": 0,
+        "local_hits": 0,
+        "discharged": 120,
+        "input": "incompatible",
+        "retained_groups": 0,
+        "discharged_groups": 0
+      }
+    },
+    "raft-library-edited": {
+      "result": "proved",
+      "retained": 0,
+      "reuse": {
+        "retained": 0,
+        "local_hits": 2,
+        "discharged": 553,
+        "input": "incompatible",
+        "retained_groups": 0,
+        "discharged_groups": 11
+      }
+    }
+  }
+}

@@ -2,6 +2,7 @@
 """Check a compact source predicate by finite induction against the original bound Next."""
 
 import argparse
+import gc
 import hashlib
 import json
 from pathlib import Path
@@ -11,6 +12,7 @@ from dd import cudd
 from engine import Atom, Function, Unsupported, require
 from induction import write_atomic
 from property_proof import PropertyModel
+from verified_obligations import VerifiedObligations, boolean_identity
 
 
 def canonical(document):
@@ -78,8 +80,8 @@ def action_roots(model):
     return roots
 
 
-def verify(document, layout, candidate, property_name):
-    model = InductionModel(document, layout, property_name, cudd.BDD(memory_estimate=512 << 20))
+def verify(document, layout, candidate, property_name, manager, *, cache=None, exporter=None, config_digest=None, lineage=None):
+    model = InductionModel(document, layout, property_name, manager)
     require(not model.counters, "the layout must cover every original variable")
     expr = model.layout_expression(candidate)
     tag, node = model.node(expr)
@@ -102,6 +104,31 @@ def verify(document, layout, candidate, property_name):
     discharge(model.initial & ~candidate_domain, "initiation")
     discharge(admitted & ~target, "safety implication")
     discharge(admitted & model.invalid_sources, "complete finite destination layout")
+    proof = VerifiedObligations(cache, ['bdd-v1', lineage, config_digest, layout, candidate, property_name,
+                                       document['constants'], document['overrides'],
+                                       [(path, [bit.var for bit in bits], options)
+                                        for path, (bits, options) in model.layout.items()]],
+                                [exporter, cudd.__file__, Path(__file__), *[
+                                    Path(__file__).with_name(f + '.py') for f in
+                                    ('engine', 'finite_relation', 'property_proof', 'obligation_receipt')]])
+    identity = boolean_identity(model.b)
+
+    def term_key(term, updated):
+        used = term.support
+        return [identity(term).hex(), sorted((name, identity(value).hex())
+                for name, value in updated.items() if name in used)]
+
+    def preserve(precondition, precondition_key, updated, term, obligation):
+        def cold():
+            return precondition & ~model.b.let(updated, term) == model.b.false
+        premises = [precondition_key, term_key(term, updated)] if proof.secret else None
+        if not proof.unsat(premises, cold):
+            discharge(precondition & ~model.b.let(updated, term), obligation)
+
+    # Keep distinct assumptions in the authenticated obligation key so an
+    # edit and its undo can retain their own results in the same receipt.
+    assumptions_key = digest(document) if document['assumptions'] else None
+    admitted_key = [identity(admitted).hex(), assumptions_key] if proof.secret else None
     rows = []
     for action, root in action_roots(model):
         row = dict(action=action, alternatives=0, occurrences=0, outside_constraint=0)
@@ -113,17 +140,20 @@ def verify(document, layout, candidate, property_name):
                        if val != model.b.var(name)}
             destination_in = model.b.let(updated, model.constraint)
             kept = source & destination_in
-            discharge(source & ~model.b.let(updated, target), action + " destination safety")
+            source_key = [admitted_key, identity(guard).hex()] if proof.secret else None
+            keep_key = [source_key, term_key(model.constraint, updated)] if proof.secret else None
+            preserve(source, source_key, updated, target, action + " destination safety")
             for i, term in enumerate(clauses, 1):
-                discharge(kept & ~model.b.let(updated, term), f"{action} preservation clause {i}")
+                preserve(kept, keep_key, updated, term, f"{action} preservation clause {i}")
             row["alternatives"] += 1
             row["occurrences"] += model.state_count(source)
             row["outside_constraint"] += model.state_count(source & ~destination_in)
         rows.append(row)
+    identity.cache_clear()
     return dict(format="source-named-induction-v1", property=property_name, candidate=candidate, layout=layout,
                 input_sha256=digest(document), clauses=len(clauses), state_bits=len(model.variables),
                 candidate_bdd_nodes=predicate.dag_size, admitted_valuations=model.state_count(admitted),
-                initial_valuations=model.state_count(model.initial), actions=rows)
+                initial_valuations=model.state_count(model.initial), actions=rows), proof
 
 
 def main():
@@ -137,9 +167,12 @@ def main():
     receive = parser.add_mutually_exclusive_group()
     receive.add_argument("--save", type=Path)
     receive.add_argument("--verify", type=Path)
+    parser.add_argument("--obligation-cache", type=Path)
+    parser.add_argument("--rebind", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
+    manager = cudd.BDD(memory_estimate=512 << 20)
     try:
-        run = subprocess.run([args.exporter.resolve(), args.module.resolve(), args.config.resolve()],
+        run = subprocess.run([args.exporter.resolve(), args.module.absolute(), args.config.absolute()],
                              capture_output=True, check=False)
         require(run.returncode == 0, run.stderr.decode(errors="replace") or "source export refused")
         document = json.loads(run.stdout)
@@ -150,16 +183,28 @@ def main():
             require(isinstance(old, dict) and old.get("input_sha256") == digest(document)
                     and old.get("config_sha256") == config_digest,
                     "certificate belongs to a different source or configuration")
-        result = verify(document, args.layout, args.candidate, args.property)
+        result, cache = verify(document, args.layout, args.candidate, args.property, manager,
+                                 cache=args.obligation_cache, exporter=args.exporter.resolve(),
+                                 config_digest=config_digest, lineage=args.module.stem)
+        # Resolve imports again before publishing any result or receipt. A root
+        # file hash alone cannot detect a revision to an EXTENDS dependency.
+        if args.obligation_cache or args.rebind:
+            rebound = subprocess.run([args.exporter.resolve(), args.module.absolute(), args.config.absolute()],
+                                     capture_output=True, check=False)
+            require(rebound.returncode == 0 and digest(json.loads(rebound.stdout)) == digest(document)
+                    and hashlib.sha256(args.config.read_bytes()).hexdigest() == config_digest,
+                    "bound source closure or CFG changed during induction")
         result["config_sha256"] = config_digest
         if args.verify:
             require(canonical(old) == canonical(result), "certificate differs from independently checked obligations")
         if args.save:
             write_atomic(args.save, (json.dumps(result, sort_keys=True) + "\n").encode())
-        print(json.dumps({"result": "proved", **result}))
+        print(json.dumps({"result": "proved", **result, "reuse": cache.finish()}))
     except (Unsupported, OSError, ValueError, MemoryError) as error:
         print(json.dumps({"result": "inconclusive", "reason": str(error)}))
         return 2
+    finally:
+        gc.collect()
     return 0
 
 
