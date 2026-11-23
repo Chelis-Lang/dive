@@ -66,6 +66,7 @@ are in git history.
 - `dive check --strategy bounded-path --path-bound K` checks the original
   safety predicates through K explicit Next transitions, including repeated
   states and depth-zero violations, with independently replayed witnesses.
+  Closed finite Init assignments can use a direct constraint query at depth zero.
 
 - `dive check --periodic-min-states N` sets the first size threshold for [scheduled liveness checks](docs/user/temporal.md). Reports record the actual completed level, counts and validated word.
 

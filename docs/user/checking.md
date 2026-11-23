@@ -61,7 +61,7 @@ preserve a state reached again at another depth. It uses the bound source
 operators and checks the source assumptions. It independently validates a
 counterexample and reports the depth at which the invariant failed.
 
-The configuration uses explicit INIT and NEXT. Repeated states and explicit
+Transition checking uses explicit INIT and NEXT. Repeated states and explicit
 stuttering transitions in Next count toward the bound. A state with no
 admissible successor ends that prefix. If every prefix ends before the bound,
 the result is `executions-too-short`. A reached bound with no violation yields
@@ -69,6 +69,19 @@ the result is `executions-too-short`. A reached bound with no violation yields
 `model_proved: false`. Configurations asking for temporal, symmetry or explicit
 deadlock checking require their corresponding checking mode.
 
+
+For a single configured invariant that negates a conjunction, Dive can
+check an Init made of independent closed finite assignments without
+enumerating their Cartesian product. It checks each clause on all the
+values the clause reads before using the clause to prune a partial
+assignment. This preserves demanded evaluation errors. A clean depth-zero
+query covers every initial assignment. A violation yields an independently
+replayed initial word at any requested bound. A resolved pure
+`SPECIFICATION` can supply Init for this query. Later steps under a
+`SPECIFICATION` with no initial violation require a supported transition
+route. The JSON report records domain sizes, definedness checks and search
+work under `initial_query`.
+[Einstein and permutation controls](../../conformance/reports/perf/2026-11-23-bounded-initial-assignments.json).
 
 ## Select a closed model input in the CFG
 

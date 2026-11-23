@@ -1,5 +1,7 @@
 //! Exact-layer search over the shared compiled Init, Next and invariant roles.
 
+mod initial;
+
 use std::collections::BTreeSet;
 
 use dive_core::{Error, ErrorKind, Handle};
@@ -23,6 +25,7 @@ pub(crate) struct Run {
     pub(crate) checked_layers: Vec<usize>,
     pub(crate) generated: u64,
     pub(crate) terminal_sources: u64,
+    pub(crate) initial_query: Option<serde_json::Value>,
 }
 
 struct Node {
@@ -44,10 +47,17 @@ impl Run {
             checked_layers: Vec::new(),
             generated: 0,
             terminal_sources: 0,
+            initial_query: None,
         }
     }
 
-    pub(crate) fn check(&mut self, model: &Model, bound: usize, budget: &Budget) -> ResultKind {
+    pub(crate) fn check(
+        &mut self,
+        model: &Model,
+        bound: usize,
+        budget: &Budget,
+        specification: bool,
+    ) -> ResultKind {
         if let Some(failure) = assumptions(model) {
             return ResultKind::Failed(failure);
         }
@@ -60,6 +70,39 @@ impl Run {
             },
             Err(error) => return ResultKind::Failed(error.simulation()),
         };
+        match initial::check(&mut search.native) {
+            initial::ResultKind::Found { row, stats } => {
+                self.initial_query =
+                    Some(serde_json::json!({"status":"sat","work":stats.to_json()}));
+                match values(&mut search.native.machine, model, &row) {
+                    Ok(witness) => self.witness.push(witness),
+                    Err(error) => return ResultKind::Failed(Outcome::Unsupported(error)),
+                }
+                return ResultKind::Failed(Outcome::Violation {
+                    kind: "invariant",
+                    name: Some(search.native.plan.invariants[0].name.clone()),
+                    code: 2107,
+                    trace: 0,
+                });
+            }
+            initial::ResultKind::Empty { product, stats } => {
+                self.initial_query =
+                    Some(serde_json::json!({"status":"unsat","work":stats.to_json()}));
+                if bound == 0 {
+                    self.checked_layers.push(product);
+                    self.generated = product as u64;
+                    return ResultKind::ReachedBound;
+                }
+            }
+            initial::ResultKind::Stopped => return ResultKind::Failed(Outcome::Cancelled),
+            initial::ResultKind::Declined => (),
+        }
+        if specification && bound > 0 {
+            return ResultKind::Failed(Outcome::Unsupported(
+                "bounded Next on a SPECIFICATION requires a verified transition interpretation"
+                    .into(),
+            ));
+        }
         search
             .run(self, model, bound)
             .unwrap_or_else(ResultKind::Failed)

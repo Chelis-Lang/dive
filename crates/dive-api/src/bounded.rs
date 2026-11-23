@@ -132,12 +132,20 @@ pub fn check_file(request: &Request) -> Result<Report, ApiError> {
             .map_err(|error| ApiError::Rejected {
                 message: error.to_string(),
             })?;
-        Ok::<_, ApiError>(run.check(model, request.path_bound, &budget.budget))
+        Ok::<_, ApiError>(run.check(
+            model,
+            request.path_bound,
+            &budget.budget,
+            source.config().specification.is_some(),
+        ))
     })??;
     document["statistics"] = json!({
         "generated": run.generated, "checked_layers": run.checked_layers,
         "terminal_sources": run.terminal_sources,
     });
+    if let Some(initial_query) = run.initial_query {
+        document["initial_query"] = initial_query;
+    }
     let (kind, message, mut exit) = match result {
         ResultKind::ReachedBound => {
             document["path_exists_at_bound"] = json!(true);
@@ -216,10 +224,14 @@ fn refusal(source: &SpecModel, request: &Request) -> Option<String> {
     [
         (request.trace.compat_tlc, "the TLC compatibility profile"),
         (
-            cfg.specification.is_some() || cfg.init.is_none() || cfg.next.is_none(),
-            "configurations without explicit INIT and NEXT",
+            model.init.is_empty() || model.next.is_none(),
+            "configurations without bound Init and Next",
         ),
         (!cfg.properties.is_empty(), "PROPERTY"),
+        (
+            !model.temporals.is_empty(),
+            "temporal specification assumptions",
+        ),
         (cfg.symmetry.is_some(), "SYMMETRY"),
         (cfg.view.is_some(), "VIEW"),
         (cfg.alias.is_some(), "ALIAS"),
