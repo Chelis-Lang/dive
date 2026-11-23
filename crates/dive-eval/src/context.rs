@@ -5,7 +5,7 @@ use std::fmt;
 use std::sync::Arc;
 
 use dive_ir::{Arg, DefId, DefScope, Expr, ExprId, OpRef};
-use dive_value::{Interner, Value};
+use dive_value::Interner;
 
 use crate::{ConstBinding, EvalError, Evaluator, Model, Scope};
 
@@ -347,14 +347,12 @@ pub(crate) fn validate(model: &mut Model) -> CResult<()> {
             Some(ConstBinding::Value(_)) | None => {}
         }
     }
-    for (&d, value) in &model.def_values {
+    for &d in model.def_values.keys() {
         let def = ir
             .defs()
             .get(d.index())
             .ok_or_else(|| unknown("definition value binding"))?;
-        let plain_boolean_override =
-            matches!(value, Value::Bool(_)) && def.std.is_none() && def.scope == DefScope::TopLevel;
-        if !(def.params.is_empty() || plain_boolean_override) {
+        if !def.params.is_empty() {
             return Err(ContextError::new(
                 ContextErrorKind::Arity,
                 "parameterized definition bound to a value",
@@ -362,6 +360,27 @@ pub(crate) fn validate(model: &mut Model) -> CResult<()> {
         }
     }
     model.redirects = normalized;
+    Ok(())
+}
+
+pub(crate) fn install_configured_booleans(
+    model: &mut Model,
+    configured: std::collections::HashMap<DefId, bool>,
+) -> CResult<()> {
+    for (id, value) in configured {
+        let def = model
+            .ir
+            .defs()
+            .get(id.index())
+            .ok_or_else(|| unknown("configured Boolean operator binding"))?;
+        if def.params.is_empty() || def.std.is_some() || def.scope != DefScope::TopLevel {
+            return Err(ContextError::new(
+                ContextErrorKind::Arity,
+                "configured Boolean must replace a parameterized user definition",
+            ));
+        }
+        model.def_values.insert(id, dive_value::Value::Bool(value));
+    }
     Ok(())
 }
 

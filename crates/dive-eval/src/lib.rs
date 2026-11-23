@@ -228,10 +228,28 @@ impl Evaluator {
     /// # Errors
     /// A typed malformed context or bounded admission refusal.
     pub fn new(model: Model, opts: Options) -> ::std::result::Result<Self, ContextError> {
+        Self::with_configured_boolean_operators(model, opts, HashMap::new())
+    }
+
+    /// Builds the evaluator for a bound CFG that replaces user operator
+    /// applications with a Boolean. These CFG assignments skip the original
+    /// operator body and argument expressions.
+    ///
+    /// # Errors
+    /// A malformed model or a Boolean replacement of an unknown, built-in,
+    /// local or nullary definition.
+    pub fn with_configured_boolean_operators(
+        mut model: Model,
+        opts: Options,
+        configured: HashMap<DefId, bool>,
+    ) -> ::std::result::Result<Self, ContextError> {
+        context::validate(&mut model)?;
+        context::install_configured_booleans(&mut model, configured)?;
         let sink = Arc::new(CollectSink::default());
-        let mut ev = Self::with_sink(model, opts, sink.clone())?;
-        ev.collected = Some(sink);
-        Ok(ev)
+        Ok(Self {
+            core: Arc::new(Core::new(model, opts, sink.clone())),
+            collected: Some(sink),
+        })
     }
 
     /// Takes the `Print` output collected so far (empty with a custom sink).
