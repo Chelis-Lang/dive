@@ -113,13 +113,66 @@ def compiler_environment():
     return {name: value for name, value in os.environ.items() if name in names}
 
 
-def build(source, target, to, jobs):
+def build(source, target, to, jobs, settings=None):
     env = compiler_environment()
     env.update(CARGO_TARGET_DIR=str(target), CARGO_PROFILE_RELEASE_LTO="off", CARGO_PROFILE_RELEASE_CODEGEN_UNITS="16")
+    if settings:
+        env.update(settings)
     subprocess.run(["cargo", "build", "--release", "--locked", "-j", str(jobs), "-p", "dive-cli", "--bin", "dive"], cwd=source, env=env, check=True)
     shutil.copyfile(target / "release/dive", to)
     to.chmod(0o700)
     subprocess.run(["strip", to], check=True)
+
+
+def throughput_build(source, target, folder, binary, jobs, flags, inputs, tool, workers):
+    """Train only on the immutable source snapshot in the private preparation."""
+    with tempfile.TemporaryDirectory(dir=binary.parent) as tmp:
+        work = Path(tmp)
+        raw = work / "model-counters"
+        raw.mkdir()
+        training_binary = work / "instrumented"
+        settings = {"CARGO_PROFILE_RELEASE_LTO": "thin", "CARGO_PROFILE_RELEASE_CODEGEN_UNITS": "4"}
+        # Build scripts may be instrumented too. Only the explicitly launched
+        # model process contributes counters to the profile used for the worker.
+        instrument = {**settings, "CARGO_ENCODED_RUSTFLAGS": "-Cprofile-generate",
+                      "LLVM_PROFILE_FILE": str(work / "build-%m-%p.profraw")}
+        started = time.monotonic()
+        build(source, target, training_binary, jobs, instrument)
+        instrument_s = time.monotonic() - started
+        env = {"HOME": str(work), "PATH": os.environ["PATH"], "LC_ALL": "C",
+               "LLVM_PROFILE_FILE": str(raw / "%m-%p.profraw")}
+        started = time.monotonic()
+        status, report = cli(training_binary, ["check", inputs["root"], "--config", "native-study.cfg",
+                            *flags, "--exit-codes", "native", "--workers", str(workers), "--seed", "0", "--fp", "0",
+                            "--max-states", "75000", "--max-depth", "14", "--time-limit", "15s",
+                            "--max-memory", "2g"], folder, env)
+        stats = report.get("statistics") or {}
+        profiles = sorted(raw.glob("*.profraw"))
+        outcomes = {"success": 0, "stopped": 5, "invariant-violation": 10, "property-violation": 10,
+                    "action-property-violation": 10, "postcondition-failure": 10,
+                    "liveness-violation": 10, "deadlock": 11}
+        generated = stats.get("generated")
+        if (outcomes.get(report.get("verdict")) != status or not profiles
+                or type(generated) is not int or generated <= 0):
+            raise ValueError(f"no native checker training sample: exit {status}, {report.get('verdict')}")
+        elapsed = time.monotonic() - started
+        profile = work / "worker.profdata"
+        subprocess.run([tool, "merge", "-o", profile, *profiles], check=True)
+        # Include the counter digest as well as using a fresh build path.
+        # Cargo must invalidate generated code when two samples differ.
+        checksum = file_digest(profile)
+        selected = work / f"{checksum}.profdata"
+        profile.rename(selected)
+        started = time.monotonic()
+        build(source, target, binary, jobs, {**settings,
+              "CARGO_ENCODED_RUSTFLAGS": f"-Cprofile-use={selected}"})
+        optimized_s = time.monotonic() - started
+        return {"kind": "profile-guided", "instrument_build_s": round(instrument_s, 6),
+                "optimized_build_s": round(optimized_s, 6), "training_inputs": inputs, "training_workers": workers,
+                "max_states": 75000, "max_depth": 14, "time_limit_seconds": 15, "max_memory": "2g",
+                "seed": 0, "fp": 0, "training_s": round(elapsed, 6), "training_exit": status,
+                "training_verdict": report.get("verdict"), "training_statistics": stats,
+                "profile_sha256": checksum, "llvm_profdata_sha256": file_digest(tool)}
 
 
 def cached_binary(folder):
@@ -188,7 +241,16 @@ def prepare(args):
     identity = {"tree": tree, "rustc": compiler, "cargo": output(["cargo", "-V"], REPO, env=build_env), "study": tool_inputs}
     epoch = cache / key(identity)
     epoch.mkdir(exist_ok=True)
-    with locked(epoch / "lock"):
+    optimize = getattr(args, "optimize", "build-time")
+    workers = min(8, args.jobs)
+    policy = {"optimize": optimize}
+    if optimize == "throughput":
+        target_lib = Path(output(["rustc", "--print", "target-libdir"], REPO, env=build_env))
+        tool = target_lib.parent / "bin" / "llvm-profdata"
+        if not tool.is_file():
+            raise ValueError("throughput preparation requires the pinned rustup component llvm-tools-preview")
+        policy.update(workers=workers, profile=args.profile, llvm_profdata_sha256=file_digest(tool))
+    with locked(epoch / "lock"), tempfile.TemporaryDirectory(dir=epoch) as snapshot_dir:
         src, target = epoch / "source", epoch / "target"
         if not src.is_dir():
             with tempfile.TemporaryDirectory(dir=epoch) as tmp:
@@ -207,17 +269,16 @@ def prepare(args):
                 record(path / "build.json", {"binary_sha256": file_digest(path / "dive")})
                 path.rename(bootstrap_dir)
         bootstrap = cached_binary(bootstrap_dir)
-        with tempfile.TemporaryDirectory(dir=epoch) as tmp:
-            folder = Path(tmp)
-            env = {"HOME": str(folder), "PATH": os.environ["PATH"], "LC_ALL": "C"}
-            inputs = snapshot(bootstrap, module, config, folder, env)
-            planfile = folder / "generator.plan"
-            env["DIVE_EXPORT_SUCCESSORS"] = str(planfile)
-            flags = ["--compat=tlc"] if args.profile == "tlc" else []
-            status, report = cli(bootstrap, ["check", module.name, "--config", "native-study.cfg", *flags, "--workers", "1", "--seed", "0", "--fp", "0", "--max-states", "1", "--time-limit", "15s"], folder, env)
-            require_export(status, report)
-            rust, shape, counts = lower(planfile.read_text())
-        kernel_key = key({"rust": digest(rust.encode()), "shape": digest(shape.encode()), "compiler": identity})
+        folder = Path(snapshot_dir)
+        env = {"HOME": str(folder), "PATH": os.environ["PATH"], "LC_ALL": "C"}
+        inputs = snapshot(bootstrap, module, config, folder, env)
+        planfile = folder / "generator.plan"
+        env["DIVE_EXPORT_SUCCESSORS"] = str(planfile)
+        flags = ["--compat=tlc"] if args.profile == "tlc" else []
+        status, report = cli(bootstrap, ["check", module.name, "--config", "native-study.cfg", *flags, "--workers", "1", "--seed", "0", "--fp", "0", "--max-states", "1", "--time-limit", "15s"], folder, env)
+        require_export(status, report)
+        rust, shape, counts = lower(planfile.read_text())
+        kernel_key = key({"rust": digest(rust.encode()), "shape": digest(shape.encode()), "compiler": identity, "build_policy": policy})
         installed = epoch / kernel_key
         new = not installed.exists()
         compile_seconds = 0
@@ -228,12 +289,19 @@ def prepare(args):
                 path = Path(tmp) / "build"
                 path.mkdir()
                 t = time.monotonic()
-                build(src, target, path / "dive", args.jobs)
-                compile_seconds = time.monotonic() - t
-                record(path / "build.json", {"binary_sha256": file_digest(path / "dive"), "control_shape_sha256": digest(shape.encode()), "code_sha256": digest(rust.encode()), "compiler": identity, "lowered": counts})
+                training = {}
+                if optimize == "throughput":
+                    training = throughput_build(src, epoch / "throughput-target", folder, path / "dive",
+                                                args.jobs, flags, inputs, tool, workers)
+                else:
+                    build(src, target, path / "dive", args.jobs)
+                compile_seconds = (training["instrument_build_s"] + training["optimized_build_s"]
+                                   if training else time.monotonic() - t)
+                record(path / "build.json", {"binary_sha256": file_digest(path / "dive"), "control_shape_sha256": digest(shape.encode()), "code_sha256": digest(rust.encode()), "compiler": identity, "lowered": counts, "build_policy": policy, "training": training})
                 path.rename(installed)
         binary = cached_binary(installed)
-        return {"status": "prepared", "inputs": inputs, "profile": args.profile, "build_tree": tree, "kernel": kernel_key, "built": new, "bootstrap_built": bootstrap_cold, "compile_s": round(compile_seconds, 6), "prepare_s": round(time.monotonic() - started, 6), "binary": str(binary), "binary_sha256": file_digest(binary), "lowered": counts}
+        provenance = json.loads((installed / "build.json").read_text())
+        return {"status": "prepared", "build_policy": policy, "training": provenance["training"], "inputs": inputs, "profile": args.profile, "build_tree": tree, "kernel": kernel_key, "built": new, "bootstrap_built": bootstrap_cold, "compile_s": round(compile_seconds, 6), "prepare_s": round(time.monotonic() - started, 6), "binary": str(binary), "binary_sha256": file_digest(binary), "lowered": counts}
 
 
 if __name__ == "__main__":
@@ -241,6 +309,8 @@ if __name__ == "__main__":
     parser.add_argument("module", type=Path)
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--cache", required=True, type=Path)
+    parser.add_argument("--optimize", choices=("build-time", "throughput"), default="build-time",
+                        help="favor fast preparation or train an optimized worker for repeated checks")
     parser.add_argument("--jobs", type=int, default=4)
     parser.add_argument("--profile", choices=("dive", "tlc"), default="dive")
     try:

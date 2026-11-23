@@ -1,0 +1,1018 @@
+{
+  "title": "Profile-guided source workers on original Flint, edits, Lamport transaction commit and Elevator liveness",
+  "date": "2026-11-23",
+  "issue": 1314,
+  "host": {
+    "ec2": "one dedicated-for-this-run c7i.4xlarge, us-east-2, Intel Xeon Platinum 8488C, 16 vCPUs, 32 GiB, Linux 7.0.0-1018-aws",
+    "affinity": "eight distinct physical cores, taskset -c 0-7, eight checking workers on Flint; one on Lamport controls except where specified",
+    "compiler": "rustc 1.99.0 b940084d7eb6a299eb4bfeb8e34901bc051e7ac4, x86_64-unknown-linux-gnu, LLVM 23.1.1",
+    "units": "wall_s is elapsed wall seconds. rss_kib is the /usr/bin/time maximum resident set of the timed process. peak_bytes in the cgroup panel is the independent cgroup v2 memory.peak of the process family including charged file pages."
+  },
+  "input_pins": {
+    "Flint": "ddalton/flint@8feba0c78f22e3ecdee0648c6b2897eac95ab1b4, lean/formal/LeanP1.tla. Recreate LeanP1Size3L1W3.cfg from lean/formal/LeanP1Holds1p3b.cfg with the substitutions in lean/formal/results/2026-10-06-ec2/scripts/runner3.sh lines 12–18. Each preparation row records both SHA-256 values.",
+    "Examples": "tlaplus/Examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f, specifications/transaction_commit/{TCommit,TwoPhase}, original same-basename TLA+ and CFG files.",
+    "edits": "Original, prepend TRUE /\\ to Inv_CitationsLive, then additionally replace barriers < MaxBarriers with barriers <= MaxBarriers in the Consume guard after s \\notin Readers /\\ w[s].pc = \"idle\". Restore the original source directly. The peer-cache comparison in the design panel separately times compilation after each edit and its warm repeat.",
+    "Flint_properties": {
+      "invariants": [
+        "TypeOK",
+        "Inv_CitationsLive",
+        "Inv_OneName",
+        "Inv_AckedNamed",
+        "Inv_OneHolder",
+        "Inv_NoRegress",
+        "Inv_ShortcutSound",
+        "Inv_ReaderFetches"
+      ],
+      "properties": [
+        "Prop_NoSilentRevert",
+        "Prop_DeleteSettles"
+      ],
+      "postconditions": [],
+      "possible": [],
+      "deadlock": false
+    },
+    "files": {
+      "LeanP1": {
+        "tla_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+        "cfg_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"
+      },
+      "TCommit": {
+        "tla_sha256": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+        "cfg_sha256": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415"
+      },
+      "TwoPhase": {
+        "tla_sha256": "e6e72ed0097cca55e80b97af33c3bc54792a504bcbdf639d6d9c666f49c17817",
+        "cfg_sha256": "6f443b596657a26c817ee130a89c0ba84aa1cd06a60d07db449d06382de4fd87"
+      }
+    },
+    "Elevator": "tlaplus/Examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f specifications/MultiCarElevator/Elevator.tla and ElevatorLivenessLarge.cfg. Unmodified public files; same 50,653 distinct, 230,899 generated, depth 39."
+  },
+  "tools": {
+    "baseline": "de9a64153d2709c6cfa7b2d48476ed99bf029af1; isolated pre-integration compiler and operator experiments used the source worker based on this tree. The stock checker also uses fast compilation (LTO off, 16 codegen units); compare the separate workspace full-LTO control for optimized builds. Stock checker sha256 47efda870e344fea26f28f38c859ee1cfa68296f0eb4c331d2b2ee12c4ffd5e2.",
+    "worker_source_tree": "ea04192adf97d00e885a6d8ccfe888a211fc2d69",
+    "peer": "ddalton/tla-mc@c8fce23493bb78fcd5405faf7b0653855db620ee, cargo build --release --locked, binary sha256 1ee850fef9912311e628cba735cd165265da356f5e8513f2985f27c137d1d67d",
+    "product": "build-time uses LTO off and 16 codegen units. throughput uses the generic Rust target, thin LTO and four codegen units in both instrumented and optimized builds. Each process checks current inputs."
+  },
+  "reproduce": {
+    "prerequisite": "Run rustup component add llvm-tools-preview in the source checkout. Reconstruct the original and edited files in input_pins.",
+    "prepare": "python3 scripts/perf/scale/native-successors/prepare.py MODULE --config CFG --cache PRIVATE_CACHE --jobs 8 --optimize MODE; use the binary from JSON. For Lamport specify --profile tlc for the nominal-profile controls.",
+    "flint": "taskset -c 0-7 WORKER check LeanP1.tla --config LeanP1Size3L1W3.cfg --workers 8 --store fp --fp 0 --seed 0 --max-memory 8g --time-limit 120s --output json; use --store exact for full equality.",
+    "peer": "TLAMC_CACHE=PRIVATE_PEER_CACHE taskset -c 0-7 tla-mc -compile -config LeanP1Size3L1W3.cfg -workers 8 LeanP1.tla",
+    "edits": "Original, prepend TRUE /\\ to Inv_CitationsLive, then additionally replace barriers < MaxBarriers with barriers <= MaxBarriers in the Consume guard after s \\notin Readers /\\ w[s].pc = \"idle\". Restore the original source directly. The peer-cache comparison in the design panel separately times compilation after each edit and its warm repeat.",
+    "ordering": "All Flint throughput timings were sequential on the same isolated instance. Initial preparation timed the build-time worker from an empty cache, then the throughput worker using that same already-built bootstrap. A bootstrap is shared by both builds.",
+    "transfer": "Flint scaling repeats full original checks at 1, 2, 4 and 8 workers per build. Elevator runs the original large liveness CFG on one worker in the default profile. Unrelated-worker rows use the very same Flint binaries from the product panel; a separate dispatch-meter control verifies the unrelated compiled action shape is never invoked."
+  },
+  "statistics_order": [
+    "distinct",
+    "generated",
+    "depth"
+  ],
+  "interpretation": {
+    "training": "The instrumented worker sampled the original properties, 63,043 distinct and 241,608 generated at depth 14. The stopped outcome is solely training provenance. All full positive search rows passed independently using the actual source and obligations.",
+    "amortization": "With a shared bootstrap, throughput prepared in 74.42 s versus about 14 s for the quick kernel. Dividing the roughly 60 s extra by the observed median warm savings (0.563 s original or 9.239 s growth) gives about 108 original full checks or seven growth checks. A fresh bootstrap costs extra in either mode.",
+    "scope": "Each distinct count is for the ordinary labeled state graph. The fp store uses fingerprints, the exact store full-state equality. Training supplies LLVM counters only. Source and CFG are rebound, properties rerun, and no reachable states or verification verdicts are cached. The two small Lamport transfers are correctness controls; use of the option on those startup-dominated cases does not imply a useful performance gain.",
+    "maintenance": "The property edit, growth and undo used the original trained binary after new source binding. The receipt records current inputs independently from immutable earlier training inputs. The external peer recompiles newly edited source, retains its advantage on unchanged warm searches, and can reuse its own previous binary after undo.",
+    "cost_distribution": "On the fresh-cgroup growth pair, successor expansion fell from 29.40 to 21.52 s and level commit from 4.61 to 3.23 s. Total wall fell from 34.07 to 24.80 s while peak memory stayed within 0.1 MiB of 393. Neither a smaller graph nor a change of storage mode accounts for the saving.",
+    "witnesses": "Add BarrierBound == barriers = 0 (INVARIANT) or NoBarrierStep == [][barriers' = barriers]_vars (PROPERTY) to Flint; add NotPrepared == \\A r \\in RM : rmState[r] # \"prepared\" (INVARIANT) to TCommit. Use nominal TLC exits for the six witness rows, exact storage, and 1/8 workers. Validate the reported word using the stock checker, then replace its initial state with its last state and validate again.",
+    "unrelated_holdout": "The Flint-trained product used ordinary traversal on three-floor Elevator. It beat the unrelated quick build, while the earlier full-LTO untrained worker essentially tied it. The Elevator-trained product reached 1.26–1.27 s. These controls support source-directed training on this workload; they do not establish that generic PGO beats ordinary release settings across models."
+  },
+  "product_rows": [
+    {"stage": "original", "tool": "prepare build-time", "wall_s": 37.51969, "build_policy": {"optimize": "build-time"}, "inputs": {"root": "LeanP1.tla", "modules": {"LeanP1.tla": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211"}, "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"}, "profile": "dive", "kernel": "38d6cf3453cd0b25a8acdb52486c9359b05ea68c9da4cc03ed1b777a1267477b", "built": true, "bootstrap_built": true, "compile_s": 13.95117, "prepare_s": 37.468141, "binary_sha256": "d627b2acbfcb0e62a021c4decafa33c455734c50cd32c1f6e9cdff653ce5a97a"},
+    {"stage": "original", "tool": "prepare throughput", "wall_s": 74.41956, "build_policy": {"optimize": "throughput", "workers": 8, "profile": "dive", "llvm_profdata_sha256": "d70a42ea1a575e6c55878aa2b46b9b1dd7b3c97ca24fac52fa07ce1f260a5ada"}, "training": {"kind": "profile-guided", "instrument_build_s": 34.98466, "optimized_build_s": 28.852962, "training_inputs": {"root": "LeanP1.tla", "modules": {"LeanP1.tla": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211"}, "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"}, "training_workers": 8, "max_states": 75000, "max_depth": 14, "time_limit_seconds": 15, "max_memory": "2g", "seed": 0, "fp": 0, "training_s": 10.250563, "training_exit": 5, "training_verdict": "stopped", "training_statistics": {"depth": 14, "distinct": 63043, "exhaustive": false, "generated": 241608, "initial_generated": 1, "left_on_queue": 20773, "reported_by_tlc": false}, "profile_sha256": "5fc0a675c331b6eb02af903d47e047e1a027bffc2df6a9439971c12e88ecd93a", "llvm_profdata_sha256": "d70a42ea1a575e6c55878aa2b46b9b1dd7b3c97ca24fac52fa07ce1f260a5ada"}, "inputs": {"root": "LeanP1.tla", "modules": {"LeanP1.tla": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211"}, "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"}, "profile": "dive", "kernel": "424e64a5298ca188e95b4c77f0c2e90d50c6063c9d11a16d51d21170c95e4231", "built": true, "bootstrap_built": false, "compile_s": 63.837622, "prepare_s": 74.372704, "binary_sha256": "a32b18915ba6df6dffbaae0cbb0b976c6ac2f0ec6c6267439bcac1d19fe10cfb"},
+    {"stage": "original", "tool": "build-time", "store": "fp", "wall_s": 2.06557, "rss_kib": 142632, "verdict": "success", "stats": [449595, 1954072, 33], "expand_ms": 1768.3482339999998, "commit_ms": 254.746614},
+    {"stage": "original", "tool": "throughput", "store": "fp", "wall_s": 1.50712, "rss_kib": 141292, "verdict": "success", "stats": [449595, 1954072, 33], "expand_ms": 1296.691172, "commit_ms": 178.023344},
+    {"stage": "original", "tool": "throughput", "store": "fp", "wall_s": 1.49975, "rss_kib": 139268, "verdict": "success", "stats": [449595, 1954072, 33], "expand_ms": 1290.342371, "commit_ms": 177.168293},
+    {"stage": "original", "tool": "build-time", "store": "fp", "wall_s": 2.08201, "rss_kib": 146768, "verdict": "success", "stats": [449595, 1954072, 33], "expand_ms": 1784.8863339999998, "commit_ms": 254.95769099999998},
+    {"stage": "original", "tool": "throughput", "store": "fp", "wall_s": 1.50252, "rss_kib": 145460, "verdict": "success", "stats": [449595, 1954072, 33], "expand_ms": 1294.515704, "commit_ms": 176.37410500000001},
+    {"stage": "original", "tool": "build-time", "store": "fp", "wall_s": 2.03849, "rss_kib": 144848, "verdict": "success", "stats": [449595, 1954072, 33], "expand_ms": 1746.278499, "commit_ms": 250.094635},
+    {"stage": "original", "tool": "build-time", "store": "exact", "wall_s": 2.52328, "rss_kib": 179428, "verdict": "success", "stats": [449595, 1954072, 33], "expand_ms": 2080.39145, "commit_ms": 400.698333},
+    {"stage": "original", "tool": "throughput", "store": "exact", "wall_s": 1.9011, "rss_kib": 172240, "verdict": "success", "stats": [449595, 1954072, 33], "expand_ms": 1551.4654189999999, "commit_ms": 318.448776},
+    {"stage": "original", "tool": "warm peer", "wall_s": 1.37041, "rss_kib": 299656, "stats": [449595, 1954072, 33]},
+    {"stage": "property", "tool": "prepare build-time", "wall_s": 0.20962, "build_policy": {"optimize": "build-time"}, "inputs": {"root": "LeanP1.tla", "modules": {"LeanP1.tla": "1532acc1e8b12c5ac0fb237d64c57a951ac90e187d6516497f72cd37e422c3b7"}, "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"}, "profile": "dive", "kernel": "38d6cf3453cd0b25a8acdb52486c9359b05ea68c9da4cc03ed1b777a1267477b", "built": false, "bootstrap_built": false, "compile_s": 0, "prepare_s": 0.160045, "binary_sha256": "d627b2acbfcb0e62a021c4decafa33c455734c50cd32c1f6e9cdff653ce5a97a"},
+    {"stage": "property", "tool": "prepare throughput", "wall_s": 0.22988, "build_policy": {"optimize": "throughput", "workers": 8, "profile": "dive", "llvm_profdata_sha256": "d70a42ea1a575e6c55878aa2b46b9b1dd7b3c97ca24fac52fa07ce1f260a5ada"}, "inputs": {"root": "LeanP1.tla", "modules": {"LeanP1.tla": "1532acc1e8b12c5ac0fb237d64c57a951ac90e187d6516497f72cd37e422c3b7"}, "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"}, "profile": "dive", "kernel": "424e64a5298ca188e95b4c77f0c2e90d50c6063c9d11a16d51d21170c95e4231", "built": false, "bootstrap_built": false, "compile_s": 0, "prepare_s": 0.181798, "binary_sha256": "a32b18915ba6df6dffbaae0cbb0b976c6ac2f0ec6c6267439bcac1d19fe10cfb"},
+    {"stage": "property", "tool": "build-time", "store": "fp", "wall_s": 2.04788, "rss_kib": 142320, "verdict": "success", "stats": [449595, 1954072, 33], "expand_ms": 1754.8635639999998, "commit_ms": 251.04242799999997},
+    {"stage": "property", "tool": "throughput", "store": "fp", "wall_s": 1.52966, "rss_kib": 141464, "verdict": "success", "stats": [449595, 1954072, 33], "expand_ms": 1320.2350529999999, "commit_ms": 176.675803},
+    {"stage": "growth", "tool": "prepare build-time", "wall_s": 0.2081, "build_policy": {"optimize": "build-time"}, "inputs": {"root": "LeanP1.tla", "modules": {"LeanP1.tla": "e6cb769c8fb0e6a3bb03463d68c4c63e68ec584cb9029fee2adabae236ace785"}, "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"}, "profile": "dive", "kernel": "38d6cf3453cd0b25a8acdb52486c9359b05ea68c9da4cc03ed1b777a1267477b", "built": false, "bootstrap_built": false, "compile_s": 0, "prepare_s": 0.158171, "binary_sha256": "d627b2acbfcb0e62a021c4decafa33c455734c50cd32c1f6e9cdff653ce5a97a"},
+    {"stage": "growth", "tool": "prepare throughput", "wall_s": 0.23005, "build_policy": {"optimize": "throughput", "workers": 8, "profile": "dive", "llvm_profdata_sha256": "d70a42ea1a575e6c55878aa2b46b9b1dd7b3c97ca24fac52fa07ce1f260a5ada"}, "inputs": {"root": "LeanP1.tla", "modules": {"LeanP1.tla": "e6cb769c8fb0e6a3bb03463d68c4c63e68ec584cb9029fee2adabae236ace785"}, "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"}, "profile": "dive", "kernel": "424e64a5298ca188e95b4c77f0c2e90d50c6063c9d11a16d51d21170c95e4231", "built": false, "bootstrap_built": false, "compile_s": 0, "prepare_s": 0.182998, "binary_sha256": "a32b18915ba6df6dffbaae0cbb0b976c6ac2f0ec6c6267439bcac1d19fe10cfb"},
+    {"stage": "growth", "tool": "build-time", "store": "fp", "wall_s": 33.8484, "rss_kib": 401828, "verdict": "success", "stats": [7387957, 31281750, 40], "expand_ms": 29222.430526, "commit_ms": 4578.701637},
+    {"stage": "growth", "tool": "throughput", "store": "fp", "wall_s": 24.6096, "rss_kib": 395684, "verdict": "success", "stats": [7387957, 31281750, 40], "expand_ms": 21334.104981, "commit_ms": 3237.3769709999997},
+    {"stage": "growth", "tool": "warm peer", "wall_s": 21.33342, "rss_kib": 1370564, "stats": [7387957, 31281750, 40]},
+    {"stage": "undo", "tool": "prepare build-time", "wall_s": 0.20532, "build_policy": {"optimize": "build-time"}, "inputs": {"root": "LeanP1.tla", "modules": {"LeanP1.tla": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211"}, "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"}, "profile": "dive", "kernel": "38d6cf3453cd0b25a8acdb52486c9359b05ea68c9da4cc03ed1b777a1267477b", "built": false, "bootstrap_built": false, "compile_s": 0, "prepare_s": 0.155902, "binary_sha256": "d627b2acbfcb0e62a021c4decafa33c455734c50cd32c1f6e9cdff653ce5a97a"},
+    {"stage": "undo", "tool": "prepare throughput", "wall_s": 0.228, "build_policy": {"optimize": "throughput", "workers": 8, "profile": "dive", "llvm_profdata_sha256": "d70a42ea1a575e6c55878aa2b46b9b1dd7b3c97ca24fac52fa07ce1f260a5ada"}, "inputs": {"root": "LeanP1.tla", "modules": {"LeanP1.tla": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211"}, "config_sha256": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7"}, "profile": "dive", "kernel": "424e64a5298ca188e95b4c77f0c2e90d50c6063c9d11a16d51d21170c95e4231", "built": false, "bootstrap_built": false, "compile_s": 0, "prepare_s": 0.180353, "binary_sha256": "a32b18915ba6df6dffbaae0cbb0b976c6ac2f0ec6c6267439bcac1d19fe10cfb"},
+    {"stage": "undo", "tool": "build-time", "store": "fp", "wall_s": 2.04586, "rss_kib": 144700, "verdict": "success", "stats": [449595, 1954072, 33], "expand_ms": 1749.870285, "commit_ms": 254.688014},
+    {"stage": "undo", "tool": "throughput", "store": "fp", "wall_s": 1.51645, "rss_kib": 139540, "verdict": "success", "stats": [449595, 1954072, 33], "expand_ms": 1306.5434950000001, "commit_ms": 177.168711},
+    {"stage": "TCommit", "tool": "prepare throughput", "wall_s": 57.531, "build_policy": {"optimize": "throughput", "workers": 8, "profile": "tlc", "llvm_profdata_sha256": "d70a42ea1a575e6c55878aa2b46b9b1dd7b3c97ca24fac52fa07ce1f260a5ada"}, "training": {"kind": "profile-guided", "instrument_build_s": 26.964881, "optimized_build_s": 30.300668, "training_inputs": {"root": "TCommit.tla", "modules": {"TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d"}, "config_sha256": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415"}, "training_workers": 8, "max_states": 75000, "max_depth": 14, "time_limit_seconds": 15, "max_memory": "2g", "seed": 0, "fp": 0, "training_s": 0.016055, "training_exit": 0, "training_verdict": "success", "training_statistics": {"depth": 7, "distinct": 34, "generated": 94, "initial_generated": 1, "left_on_queue": 0, "reported_by_tlc": true}, "profile_sha256": "0993424c33f10a4d920f005fb6faf5b994870bf91a1e763788eff5ffe1d34ad7", "llvm_profdata_sha256": "d70a42ea1a575e6c55878aa2b46b9b1dd7b3c97ca24fac52fa07ce1f260a5ada"}, "inputs": {"root": "TCommit.tla", "modules": {"TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d"}, "config_sha256": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415"}, "profile": "tlc", "kernel": "dcbc3f906c7bce20067def284f32d94cbc23bdb35acd0be77552aa0ffa00b936", "built": true, "bootstrap_built": false, "compile_s": 57.265549, "prepare_s": 57.483616, "binary_sha256": "3862cce337c8101241cd27bdaf452af29c408826fcebb54e88dd8b77c1a42e8f"},
+    {"stage": "TCommit", "tool": "stock", "store": "fp", "wall_s": 0.00761, "rss_kib": 21188, "verdict": "success", "stats": [34, 94, 7]},
+    {"stage": "TCommit", "tool": "stock", "store": "exact", "wall_s": 0.00621, "rss_kib": 21136, "verdict": "success", "stats": [34, 94, 7]},
+    {"stage": "TCommit", "tool": "throughput", "store": "fp", "wall_s": 0.00686, "rss_kib": 17568, "verdict": "success", "stats": [34, 94, 7]},
+    {"stage": "TCommit", "tool": "throughput", "store": "exact", "wall_s": 0.00622, "rss_kib": 17712, "verdict": "success", "stats": [34, 94, 7]},
+    {"stage": "TwoPhase", "tool": "prepare throughput", "wall_s": 57.0344, "build_policy": {"optimize": "throughput", "workers": 8, "profile": "tlc", "llvm_profdata_sha256": "d70a42ea1a575e6c55878aa2b46b9b1dd7b3c97ca24fac52fa07ce1f260a5ada"}, "training": {"kind": "profile-guided", "instrument_build_s": 26.740592, "optimized_build_s": 30.017932, "training_inputs": {"root": "TwoPhase.tla", "modules": {"TwoPhase.tla": "e6e72ed0097cca55e80b97af33c3bc54792a504bcbdf639d6d9c666f49c17817", "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d"}, "config_sha256": "6f443b596657a26c817ee130a89c0ba84aa1cd06a60d07db449d06382de4fd87"}, "training_workers": 8, "max_states": 75000, "max_depth": 14, "time_limit_seconds": 15, "max_memory": "2g", "seed": 0, "fp": 0, "training_s": 0.023056, "training_exit": 0, "training_verdict": "success", "training_statistics": {"depth": 11, "distinct": 288, "generated": 1146, "initial_generated": 1, "left_on_queue": 0, "reported_by_tlc": true}, "profile_sha256": "3d22c1d8a5e8ca956d07f56fe4da6e26ae235c9f143910dd168727bc9dab9160", "llvm_profdata_sha256": "d70a42ea1a575e6c55878aa2b46b9b1dd7b3c97ca24fac52fa07ce1f260a5ada"}, "inputs": {"root": "TwoPhase.tla", "modules": {"TwoPhase.tla": "e6e72ed0097cca55e80b97af33c3bc54792a504bcbdf639d6d9c666f49c17817", "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d"}, "config_sha256": "6f443b596657a26c817ee130a89c0ba84aa1cd06a60d07db449d06382de4fd87"}, "profile": "tlc", "kernel": "71a2f219b25baf200d716ed3dd56a511b004a4942d75394b498e1b2010228c93", "built": true, "bootstrap_built": false, "compile_s": 56.758524, "prepare_s": 56.987789, "binary_sha256": "a893db5696d0275e93c0450b1c97cb0e64b22f22b998d4a88f06f9e5ed15aa55"},
+    {"stage": "TwoPhase", "tool": "stock", "store": "fp", "wall_s": 0.00916, "rss_kib": 21216, "verdict": "success", "stats": [288, 1146, 11]},
+    {"stage": "TwoPhase", "tool": "stock", "store": "exact", "wall_s": 0.00933, "rss_kib": 21260, "verdict": "success", "stats": [288, 1146, 11]},
+    {"stage": "TwoPhase", "tool": "throughput", "store": "fp", "wall_s": 0.00805, "rss_kib": 17392, "verdict": "success", "stats": [288, 1146, 11]},
+    {"stage": "TwoPhase", "tool": "throughput", "store": "exact", "wall_s": 0.0088, "rss_kib": 17876, "verdict": "success", "stats": [288, 1146, 11]}
+  ],
+  "family_measurements": [
+    {"tool": "build-time", "stage": "original", "model": "LeanP1", "wall_s": 2.06685, "peak_bytes": 141434880, "exit": 0, "verdict": "success", "stats": {"distinct": 449595, "generated": 1954072, "depth": 33}, "store": "fp", "workers": 8, "compile_ms": 3.561, "arena": {"handles": 935, "nodes": 290}, "row_sites": 11, "row_lookups": 150868, "row_hits": 136673, "expand_ms": 1768.108, "commit_ms": 250.125},
+    {"tool": "throughput", "stage": "original", "model": "LeanP1", "wall_s": 1.53972, "peak_bytes": 139268096, "exit": 0, "verdict": "success", "stats": {"distinct": 449595, "generated": 1954072, "depth": 33}, "store": "fp", "workers": 8, "compile_ms": 3.101, "arena": {"handles": 870, "nodes": 277}, "row_sites": 11, "row_lookups": 156427, "row_hits": 142163, "expand_ms": 1321.438, "commit_ms": 178.238},
+    {"tool": "tla-mc", "stage": "original peer first invocation", "model": "LeanP1", "wall_s": 1.36664, "peak_bytes": 284168192, "exit": 0, "verdict": "success", "stats": {"distinct": 449595, "generated": 1954072, "depth": 33}, "reported_compile_s": 0, "generated_engine": true},
+    {"tool": "tla-mc", "stage": "original peer repeat", "model": "LeanP1", "wall_s": 1.34859, "peak_bytes": 273301504, "exit": 0, "verdict": "success", "stats": {"distinct": 449595, "generated": 1954072, "depth": 33}, "reported_compile_s": 0, "generated_engine": true},
+    {"tool": "build-time", "stage": "growth", "model": "LeanP1", "wall_s": 34.06798, "peak_bytes": 412463104, "exit": 0, "verdict": "success", "stats": {"distinct": 7387957, "generated": 31281750, "depth": 40}, "store": "fp", "workers": 8, "compile_ms": 3.599, "arena": {"handles": 908, "nodes": 246}, "row_sites": 11, "row_lookups": 2524941, "row_hits": 2342554, "expand_ms": 29403.147, "commit_ms": 4610.446},
+    {"tool": "throughput", "stage": "growth", "model": "LeanP1", "wall_s": 24.79662, "peak_bytes": 412360704, "exit": 0, "verdict": "success", "stats": {"distinct": 7387957, "generated": 31281750, "depth": 40}, "store": "fp", "workers": 8, "compile_ms": 3.102, "arena": {"handles": 908, "nodes": 246}, "row_sites": 11, "row_lookups": 2582027, "row_hits": 2397870, "expand_ms": 21519.153, "commit_ms": 3234.685},
+    {"tool": "tla-mc", "stage": "growth peer first invocation", "model": "LeanP1", "wall_s": 21.36411, "peak_bytes": 1474510848, "exit": 0, "verdict": "success", "stats": {"distinct": 7387957, "generated": 31281750, "depth": 40}, "reported_compile_s": 0, "generated_engine": true},
+    {"tool": "tla-mc", "stage": "growth peer repeat", "model": "LeanP1", "wall_s": 21.32941, "peak_bytes": 1508319232, "exit": 0, "verdict": "success", "stats": {"distinct": 7387957, "generated": 31281750, "depth": 40}, "reported_compile_s": 0, "generated_engine": true}
+  ],
+  "witness_controls": [
+    {"control": "witness", "family": "LeanP1", "property": "BarrierBound", "workers": 1, "verdict": "invariant-violation", "exit": 12, "stats": {"depth": 4, "distinct": 27, "generated": 37, "initial_generated": 1, "left_on_queue": 19, "reported_by_tlc": true}, "genuine": "valid", "damaged": "invalid", "actual_native_calls_lower_bound": 64, "kernel": "e27284109c8eeabc2067ceebfa1a859f306688cec2b88848370a46bc7e13b1b5", "training_verdict": "invariant-violation", "blocks": {"Route": 32, "Quant": 64, "Exists": 16, "History": 8, "RowWrite": 16, "HistoryChanged": 8}},
+    {"control": "witness", "family": "LeanP1", "property": "BarrierBound", "workers": 8, "verdict": "invariant-violation", "exit": 12, "stats": {"depth": 4, "distinct": 27, "generated": 37, "initial_generated": 1, "left_on_queue": 19, "reported_by_tlc": true}, "genuine": "valid", "damaged": "invalid", "actual_native_calls_lower_bound": 256, "kernel": "e27284109c8eeabc2067ceebfa1a859f306688cec2b88848370a46bc7e13b1b5", "training_verdict": "invariant-violation", "blocks": {"Route": 128, "Quant": 512, "Exists": 64, "History": 32, "RowWrite": 64, "HistoryChanged": 64}},
+    {"control": "witness", "family": "LeanP1", "property": "NoBarrierStep", "workers": 1, "verdict": "action-property-violation", "exit": 13, "stats": {"depth": 4, "distinct": 27, "generated": 37, "initial_generated": 1, "left_on_queue": 19, "reported_by_tlc": true}, "genuine": "valid", "damaged": "invalid", "actual_native_calls_lower_bound": 64, "kernel": "e27284109c8eeabc2067ceebfa1a859f306688cec2b88848370a46bc7e13b1b5", "training_verdict": "invariant-violation", "blocks": {"Route": 32, "Quant": 64, "Exists": 16, "History": 8, "RowWrite": 16, "HistoryChanged": 8}},
+    {"control": "witness", "family": "LeanP1", "property": "NoBarrierStep", "workers": 8, "verdict": "action-property-violation", "exit": 13, "stats": {"depth": 4, "distinct": 27, "generated": 37, "initial_generated": 1, "left_on_queue": 19, "reported_by_tlc": true}, "genuine": "valid", "damaged": "invalid", "actual_native_calls_lower_bound": 256, "kernel": "e27284109c8eeabc2067ceebfa1a859f306688cec2b88848370a46bc7e13b1b5", "training_verdict": "invariant-violation", "blocks": {"Route": 128, "Quant": 512, "Exists": 64, "History": 32, "RowWrite": 64, "HistoryChanged": 32}},
+    {"control": "witness", "family": "TCommit", "property": "NotPrepared", "workers": 1, "verdict": "invariant-violation", "exit": 12, "stats": {"depth": 2, "distinct": 2, "generated": 2, "initial_generated": 1, "left_on_queue": 0, "reported_by_tlc": true}, "genuine": "valid", "damaged": "invalid", "actual_native_calls_lower_bound": 1, "kernel": "1c8a22298b266fd0bfbe2ae12fb6afc9bc8cc84117a251181a1a1ef46eeb8b66", "training_verdict": "invariant-violation", "blocks": {"GuardWrite": 1, "CellWrite": 1, "LabelRead": 1, "Quant": 2}},
+    {"control": "witness", "family": "TCommit", "property": "NotPrepared", "workers": 8, "verdict": "invariant-violation", "exit": 12, "stats": {"depth": 2, "distinct": 2, "generated": 2, "initial_generated": 1, "left_on_queue": 0, "reported_by_tlc": true}, "genuine": "valid", "damaged": "invalid", "actual_native_calls_lower_bound": 4, "kernel": "1c8a22298b266fd0bfbe2ae12fb6afc9bc8cc84117a251181a1a1ef46eeb8b66", "training_verdict": "invariant-violation", "blocks": {"GuardWrite": 2, "CellWrite": 2, "LabelRead": 2, "Quant": 4}}
+  ],
+  "design_ablations": {
+    "notes": {
+      "named_bodies": "Separate experimental branch perf/shared-source-operators, 71 unique typed bodies. new and disabled are same-binary enabled/disabled arms; meter is instrumented. This trial did not justify adoption. Stock and peer cold/edit/warm are the same matched sources on this host.",
+      "reads": "Private worker with bounded immutable selector caches. Numeric arm is capacity, 0 is off.",
+      "hash": "Private worker with per-column fingerprint term reuse, plus the 2,048-entry reader cache in both.",
+      "profile": "Prototype compiler experiments differ from the product. quick is the earlier build-time mode. thin is x86-64-v3 thin LTO with four codegen units. tuned adds PGO on one worker to depth 14; this exploratory profile can include build counters. Product isolates model counters and uses the generic target.",
+      "portable": "portable is the ordinary workspace release profile with full LTO, one codegen unit, generic target, no profile; quick is the quick-build source worker.",
+      "parallel": "parallel is x86-64-v3, full LTO, one codegen unit and a separate eight-worker finite sample, compared with tuned. This also changes the LTO choice, so it does not isolate the effect of training worker count.",
+      "compiler_wall_s": {
+        "thin": 32.2,
+        "single_instrument": 34.56,
+        "single_optimized": 29.99,
+        "portable": 102.48,
+        "parallel_optimized": 123.74
+      }
+    },
+    "smoke": [
+      {
+        "stage": "original",
+        "tool": "new",
+        "store": "fp",
+        "wall_s": 2.12664,
+        "rss_kib": 142580,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1834.133707,
+        "commit_ms": 246.667395
+      },
+      {
+        "stage": "original",
+        "tool": "disabled",
+        "store": "fp",
+        "wall_s": 2.10082,
+        "rss_kib": 142612,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1810.580987,
+        "commit_ms": 248.205493
+      },
+      {
+        "stage": "original",
+        "tool": "disabled",
+        "store": "fp",
+        "wall_s": 2.06129,
+        "rss_kib": 146960,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1772.3152209999998,
+        "commit_ms": 247.94719600000002
+      },
+      {
+        "stage": "original",
+        "tool": "new",
+        "store": "fp",
+        "wall_s": 2.06262,
+        "rss_kib": 146840,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1771.9320710000002,
+        "commit_ms": 248.180787
+      },
+      {
+        "stage": "original",
+        "tool": "new",
+        "store": "fp",
+        "wall_s": 2.07007,
+        "rss_kib": 142680,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1777.857953,
+        "commit_ms": 249.691044
+      },
+      {
+        "stage": "original",
+        "tool": "disabled",
+        "store": "fp",
+        "wall_s": 2.12684,
+        "rss_kib": 146980,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1838.5973,
+        "commit_ms": 247.222008
+      },
+      {
+        "stage": "original",
+        "tool": "exact",
+        "store": "exact",
+        "wall_s": 2.46642,
+        "rss_kib": 179600,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 2021.5930640000001,
+        "commit_ms": 403.904793
+      },
+      {
+        "stage": "original",
+        "tool": "meter",
+        "store": "fp",
+        "wall_s": 2.2767,
+        "rss_kib": 146904,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1962.495177,
+        "commit_ms": 269.69807299999997
+      }
+    ],
+    "baseline": [
+      {
+        "stage": "original",
+        "tool": "stock",
+        "store": "fp",
+        "wall_s": 2.71804,
+        "rss_kib": 150960,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 2424.4416429999997,
+        "commit_ms": 251.66822
+      },
+      {
+        "stage": "original",
+        "tool": "tla-mc cold",
+        "wall_s": 34.61138,
+        "rss_kib": 518056,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ]
+      },
+      {
+        "stage": "original",
+        "tool": "tla-mc warm",
+        "wall_s": 1.35096,
+        "rss_kib": 262820,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ]
+      }
+    ],
+    "long": [
+      {
+        "stage": "property",
+        "tool": "new",
+        "store": "fp",
+        "wall_s": 2.0659,
+        "rss_kib": 144600,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1778.682051,
+        "commit_ms": 246.782849
+      },
+      {
+        "stage": "property",
+        "tool": "disabled",
+        "store": "fp",
+        "wall_s": 2.1111,
+        "rss_kib": 146964,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1818.735451,
+        "commit_ms": 250.08038399999998
+      },
+      {
+        "stage": "property",
+        "tool": "tla-mc edited",
+        "wall_s": 21.48073,
+        "rss_kib": 425988,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ]
+      },
+      {
+        "stage": "property",
+        "tool": "tla-mc warm",
+        "wall_s": 1.36733,
+        "rss_kib": 281104,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ]
+      },
+      {
+        "stage": "growth",
+        "tool": "new",
+        "store": "fp",
+        "wall_s": 34.19516,
+        "rss_kib": 396896,
+        "stats": [
+          7387957,
+          31281750,
+          40
+        ],
+        "expand_ms": 29585.881805,
+        "commit_ms": 4561.273537
+      },
+      {
+        "stage": "growth",
+        "tool": "disabled",
+        "store": "fp",
+        "wall_s": 34.20913,
+        "rss_kib": 401268,
+        "stats": [
+          7387957,
+          31281750,
+          40
+        ],
+        "expand_ms": 29593.339888,
+        "commit_ms": 4567.275892
+      },
+      {
+        "stage": "growth",
+        "tool": "stock",
+        "store": "fp",
+        "wall_s": 44.34353,
+        "rss_kib": 392716,
+        "stats": [
+          7387957,
+          31281750,
+          40
+        ],
+        "expand_ms": 39721.526977,
+        "commit_ms": 4573.507464
+      },
+      {
+        "stage": "growth",
+        "tool": "tla-mc edited",
+        "wall_s": 41.09602,
+        "rss_kib": 1355192,
+        "stats": [
+          7387957,
+          31281750,
+          40
+        ]
+      },
+      {
+        "stage": "growth",
+        "tool": "tla-mc warm",
+        "wall_s": 21.43748,
+        "rss_kib": 1374032,
+        "stats": [
+          7387957,
+          31281750,
+          40
+        ]
+      },
+      {
+        "stage": "undo",
+        "tool": "new",
+        "store": "fp",
+        "wall_s": 2.0363,
+        "rss_kib": 146732,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1741.07573,
+        "commit_ms": 252.95004799999998
+      },
+      {
+        "stage": "undo",
+        "tool": "disabled",
+        "store": "fp",
+        "wall_s": 2.08565,
+        "rss_kib": 142684,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1795.3057569999999,
+        "commit_ms": 249.23217400000001
+      },
+      {
+        "stage": "undo",
+        "tool": "tla-mc edited",
+        "wall_s": 1.3657,
+        "rss_kib": 299628,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ]
+      },
+      {
+        "stage": "undo",
+        "tool": "tla-mc warm",
+        "wall_s": 1.36647,
+        "rss_kib": 256596,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ]
+      }
+    ],
+    "reads": [
+      {
+        "stage": "original",
+        "tool": "0",
+        "store": "fp",
+        "wall_s": 2.08355,
+        "rss_kib": 145108,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1795.172891,
+        "commit_ms": 245.391188
+      },
+      {
+        "stage": "original",
+        "tool": "512",
+        "store": "fp",
+        "wall_s": 1.99849,
+        "rss_kib": 143076,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1712.918346,
+        "commit_ms": 244.244253
+      },
+      {
+        "stage": "original",
+        "tool": "2048",
+        "store": "fp",
+        "wall_s": 1.98305,
+        "rss_kib": 147264,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1695.997049,
+        "commit_ms": 245.5748
+      },
+      {
+        "stage": "original",
+        "tool": "8192",
+        "store": "fp",
+        "wall_s": 2.00744,
+        "rss_kib": 149320,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1718.790174,
+        "commit_ms": 247.08801
+      },
+      {
+        "stage": "original",
+        "tool": "0",
+        "store": "fp",
+        "wall_s": 2.04514,
+        "rss_kib": 147276,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1752.0777739999999,
+        "commit_ms": 251.501481
+      },
+      {
+        "stage": "original",
+        "tool": "8192",
+        "store": "fp",
+        "wall_s": 2.00416,
+        "rss_kib": 149312,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1713.3441839999998,
+        "commit_ms": 248.737934
+      },
+      {
+        "stage": "original",
+        "tool": "2048",
+        "store": "fp",
+        "wall_s": 2.04,
+        "rss_kib": 145144,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1746.8801950000002,
+        "commit_ms": 250.53185700000003
+      },
+      {
+        "stage": "original",
+        "tool": "512",
+        "store": "fp",
+        "wall_s": 2.0545,
+        "rss_kib": 145300,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1756.2321860000002,
+        "commit_ms": 256.203651
+      },
+      {
+        "stage": "original",
+        "tool": "0",
+        "store": "fp",
+        "wall_s": 2.0649,
+        "rss_kib": 144940,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1772.280491,
+        "commit_ms": 251.41334700000002
+      }
+    ],
+    "hash": [
+      {
+        "stage": "original",
+        "tool": "base",
+        "store": "fp",
+        "wall_s": 2.13728,
+        "rss_kib": 143160,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1849.311532,
+        "commit_ms": 245.837489
+      },
+      {
+        "stage": "original",
+        "tool": "hash",
+        "store": "fp",
+        "wall_s": 2.04604,
+        "rss_kib": 142760,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1755.043666,
+        "commit_ms": 250.18120100000002
+      },
+      {
+        "stage": "original",
+        "tool": "both",
+        "store": "fp",
+        "wall_s": 1.97034,
+        "rss_kib": 147112,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1677.550009,
+        "commit_ms": 250.577209
+      },
+      {
+        "stage": "original",
+        "tool": "both",
+        "store": "fp",
+        "wall_s": 2.00878,
+        "rss_kib": 146912,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1716.125642,
+        "commit_ms": 249.85703800000002
+      },
+      {
+        "stage": "original",
+        "tool": "hash",
+        "store": "fp",
+        "wall_s": 2.08352,
+        "rss_kib": 151036,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1794.380209,
+        "commit_ms": 247.354239
+      },
+      {
+        "stage": "original",
+        "tool": "base",
+        "store": "fp",
+        "wall_s": 2.07751,
+        "rss_kib": 144948,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1782.646162,
+        "commit_ms": 252.22477999999998
+      }
+    ],
+    "profile": [
+      {
+        "stage": "original",
+        "tool": "quick",
+        "store": "fp",
+        "wall_s": 2.08547,
+        "rss_kib": 142984,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1791.1011910000002,
+        "commit_ms": 251.18264000000002
+      },
+      {
+        "stage": "original",
+        "tool": "thin",
+        "store": "fp",
+        "wall_s": 1.84697,
+        "rss_kib": 144952,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1595.873506,
+        "commit_ms": 215.588456
+      },
+      {
+        "stage": "original",
+        "tool": "tuned",
+        "store": "fp",
+        "wall_s": 1.51284,
+        "rss_kib": 144692,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1295.044183,
+        "commit_ms": 185.343605
+      },
+      {
+        "stage": "original",
+        "tool": "tuned",
+        "store": "fp",
+        "wall_s": 1.50846,
+        "rss_kib": 140384,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1289.5616539999999,
+        "commit_ms": 186.991935
+      },
+      {
+        "stage": "original",
+        "tool": "thin",
+        "store": "fp",
+        "wall_s": 1.81783,
+        "rss_kib": 146780,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1565.9555759999998,
+        "commit_ms": 215.52422800000002
+      },
+      {
+        "stage": "original",
+        "tool": "quick",
+        "store": "fp",
+        "wall_s": 2.06185,
+        "rss_kib": 145060,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1767.5391060000002,
+        "commit_ms": 252.165078
+      },
+      {
+        "stage": "original",
+        "tool": "tuned exact",
+        "store": "exact",
+        "wall_s": 1.89267,
+        "rss_kib": 175276,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1546.089958,
+        "commit_ms": 316.247815
+      },
+      {
+        "stage": "growth",
+        "tool": "quick",
+        "store": "fp",
+        "wall_s": 33.85295,
+        "rss_kib": 395468,
+        "stats": [
+          7387957,
+          31281750,
+          40
+        ],
+        "expand_ms": 29196.128940000002,
+        "commit_ms": 4607.6644289999995
+      },
+      {
+        "stage": "growth",
+        "tool": "thin",
+        "store": "fp",
+        "wall_s": 29.73767,
+        "rss_kib": 395972,
+        "stats": [
+          7387957,
+          31281750,
+          40
+        ],
+        "expand_ms": 25962.490381,
+        "commit_ms": 3734.194279
+      },
+      {
+        "stage": "growth",
+        "tool": "tuned",
+        "store": "fp",
+        "wall_s": 24.07281,
+        "rss_kib": 390632,
+        "stats": [
+          7387957,
+          31281750,
+          40
+        ],
+        "expand_ms": 20731.689176,
+        "commit_ms": 3299.847473
+      }
+    ],
+    "portable": [
+      {
+        "stage": "original",
+        "tool": "portable",
+        "store": "fp",
+        "wall_s": 1.787,
+        "rss_kib": 142212,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1525.481434,
+        "commit_ms": 228.187707
+      },
+      {
+        "stage": "original",
+        "tool": "quick",
+        "store": "fp",
+        "wall_s": 2.04282,
+        "rss_kib": 147316,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1753.2157430000002,
+        "commit_ms": 248.830826
+      },
+      {
+        "stage": "original",
+        "tool": "portable",
+        "store": "fp",
+        "wall_s": 1.78321,
+        "rss_kib": 142216,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1522.531108,
+        "commit_ms": 227.94749000000002
+      },
+      {
+        "stage": "growth",
+        "tool": "portable",
+        "store": "fp",
+        "wall_s": 29.40773,
+        "rss_kib": 401552,
+        "stats": [
+          7387957,
+          31281750,
+          40
+        ],
+        "expand_ms": 25348.278299,
+        "commit_ms": 4019.3519249999995
+      }
+    ],
+    "parallel": [
+      {
+        "stage": "original",
+        "tool": "parallel",
+        "store": "fp",
+        "wall_s": 1.77383,
+        "rss_kib": 145380,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1530.678311,
+        "commit_ms": 209.604846
+      },
+      {
+        "stage": "original",
+        "tool": "tuned",
+        "store": "fp",
+        "wall_s": 1.52815,
+        "rss_kib": 142820,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1307.7835129999999,
+        "commit_ms": 188.82091400000002
+      },
+      {
+        "stage": "original",
+        "tool": "parallel",
+        "store": "fp",
+        "wall_s": 1.72339,
+        "rss_kib": 145360,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1479.0547350000002,
+        "commit_ms": 210.694326
+      },
+      {
+        "stage": "original",
+        "tool": "tuned",
+        "store": "fp",
+        "wall_s": 1.4876,
+        "rss_kib": 140692,
+        "stats": [
+          449595,
+          1954072,
+          33
+        ],
+        "expand_ms": 1265.385884,
+        "commit_ms": 190.556694
+      },
+      {
+        "stage": "growth",
+        "tool": "parallel",
+        "store": "fp",
+        "wall_s": 28.98157,
+        "rss_kib": 398548,
+        "stats": [
+          7387957,
+          31281750,
+          40
+        ],
+        "expand_ms": 25247.345506999998,
+        "commit_ms": 3694.696377
+      }
+    ]
+  },
+  "worker_scaling_and_temporal_transfer": [
+    {"tool": "build-time", "stage": "Flint worker scaling", "model": "LeanP1", "wall_s": 8.20467, "peak_bytes": 53620736, "exit": 0, "verdict": "success", "stats": {"distinct": 449595, "generated": 1954072, "depth": 33}, "store": "fp", "workers": 1, "compile_ms": 3.657, "arena": {"handles": 672, "nodes": 105}, "row_sites": 11, "row_lookups": 1094559, "row_hits": 1069755, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "throughput", "stage": "Flint worker scaling", "model": "LeanP1", "wall_s": 5.43384, "peak_bytes": 53866496, "exit": 0, "verdict": "success", "stats": {"distinct": 449595, "generated": 1954072, "depth": 33}, "store": "fp", "workers": 1, "compile_ms": 3.3, "arena": {"handles": 672, "nodes": 105}, "row_sites": 11, "row_lookups": 1094559, "row_hits": 1069755, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "build-time", "stage": "Flint worker scaling", "model": "LeanP1", "wall_s": 5.88876, "peak_bytes": 73424896, "exit": 0, "verdict": "success", "stats": {"distinct": 449595, "generated": 1954072, "depth": 33}, "store": "fp", "workers": 2, "compile_ms": 3.641, "arena": {"handles": 870, "nodes": 277}, "row_sites": 11, "row_lookups": 556076, "row_hits": 533571, "expand_ms": 5553.138, "commit_ms": 282.02},
+    {"tool": "throughput", "stage": "Flint worker scaling", "model": "LeanP1", "wall_s": 4.1234, "peak_bytes": 83681280, "exit": 0, "verdict": "success", "stats": {"distinct": 449595, "generated": 1954072, "depth": 33}, "store": "fp", "workers": 2, "compile_ms": 3.224, "arena": {"handles": 870, "nodes": 277}, "row_sites": 11, "row_lookups": 561338, "row_hits": 538791, "expand_ms": 3887.313, "commit_ms": 198.697},
+    {"tool": "build-time", "stage": "Flint worker scaling", "model": "LeanP1", "wall_s": 3.38848, "peak_bytes": 107462656, "exit": 0, "verdict": "success", "stats": {"distinct": 449595, "generated": 1954072, "depth": 33}, "store": "fp", "workers": 4, "compile_ms": 3.727, "arena": {"handles": 870, "nodes": 277}, "row_sites": 11, "row_lookups": 278680, "row_hits": 260138, "expand_ms": 3069.28, "commit_ms": 267.992},
+    {"tool": "throughput", "stage": "Flint worker scaling", "model": "LeanP1", "wall_s": 2.43699, "peak_bytes": 107282432, "exit": 0, "verdict": "success", "stats": {"distinct": 449595, "generated": 1954072, "depth": 33}, "store": "fp", "workers": 4, "compile_ms": 3.052, "arena": {"handles": 870, "nodes": 277}, "row_sites": 11, "row_lookups": 290569, "row_hits": 271759, "expand_ms": 2208.262, "commit_ms": 193.02},
+    {"tool": "build-time", "stage": "Flint worker scaling", "model": "LeanP1", "wall_s": 2.08369, "peak_bytes": 139501568, "exit": 0, "verdict": "success", "stats": {"distinct": 449595, "generated": 1954072, "depth": 33}, "store": "fp", "workers": 8, "compile_ms": 3.665, "arena": {"handles": 870, "nodes": 277}, "row_sites": 11, "row_lookups": 146801, "row_hits": 132968, "expand_ms": 1779.235, "commit_ms": 253.469},
+    {"tool": "throughput", "stage": "Flint worker scaling", "model": "LeanP1", "wall_s": 1.53869, "peak_bytes": 141320192, "exit": 0, "verdict": "success", "stats": {"distinct": 449595, "generated": 1954072, "depth": 33}, "store": "fp", "workers": 8, "compile_ms": 3.092, "arena": {"handles": 870, "nodes": 277}, "row_sites": 11, "row_lookups": 163932, "row_hits": 149247, "expand_ms": 1319.321, "commit_ms": 180.605},
+    {"tool": "prepare build-time", "stage": "transfer", "model": "Elevator", "wall_s": 13.24351, "peak_bytes": 936361984, "exit": 0, "inputs": {"root": "Elevator.tla", "modules": {"Elevator.tla": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203"}, "config_sha256": "f41449494507bb7def26453fd0bfc46a3928b6436de0da8d6aa888a13aed410c"}, "training": {}, "binary_sha256": "e3c06bfe71faed9c261e09e0b6591ef6cf83ac0a89179a34eae11822b3c67e97"},
+    {"tool": "prepare throughput", "stage": "transfer", "model": "Elevator", "wall_s": 58.76187, "peak_bytes": 1829867520, "exit": 0, "inputs": {"root": "Elevator.tla", "modules": {"Elevator.tla": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203"}, "config_sha256": "f41449494507bb7def26453fd0bfc46a3928b6436de0da8d6aa888a13aed410c"}, "training": {"kind": "profile-guided", "instrument_build_s": 26.803911, "optimized_build_s": 30.02924, "training_inputs": {"root": "Elevator.tla", "modules": {"Elevator.tla": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203"}, "config_sha256": "f41449494507bb7def26453fd0bfc46a3928b6436de0da8d6aa888a13aed410c"}, "training_workers": 8, "max_states": 75000, "max_depth": 14, "time_limit_seconds": 15, "max_memory": "2g", "seed": 0, "fp": 0, "training_s": 1.650258, "training_exit": 5, "training_verdict": "stopped", "training_statistics": {"depth": 14, "distinct": 18187, "exhaustive": false, "generated": 71065, "initial_generated": 729, "left_on_queue": 1855, "reported_by_tlc": false}, "profile_sha256": "9ab9222abc01452dd9cf22d529f262e50549bc6526e536c00149e11e7ef32143", "llvm_profdata_sha256": "d70a42ea1a575e6c55878aa2b46b9b1dd7b3c97ca24fac52fa07ce1f260a5ada"}, "binary_sha256": "eee2722f29d1a6fd9a8fe77d01af154eeb1e92d54fa59693494670a740fe2be8"},
+    {"tool": "build-time", "stage": "fair temporal transfer", "model": "Elevator", "wall_s": 1.71425, "peak_bytes": 68558848, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.777, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "throughput", "stage": "fair temporal transfer", "model": "Elevator", "wall_s": 1.26306, "peak_bytes": 68632576, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.626, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "throughput", "stage": "fair temporal transfer", "model": "Elevator", "wall_s": 1.27064, "peak_bytes": 68481024, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.656, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "build-time", "stage": "fair temporal transfer", "model": "Elevator", "wall_s": 1.71038, "peak_bytes": 68542464, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.787, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "build-time", "stage": "unrelated Flint worker on temporal model", "model": "Elevator", "wall_s": 1.7733, "peak_bytes": 68669440, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.791, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "throughput", "stage": "unrelated Flint worker on temporal model", "model": "Elevator", "wall_s": 1.39598, "peak_bytes": 68538368, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.669, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "throughput", "stage": "unrelated Flint worker on temporal model", "model": "Elevator", "wall_s": 1.40616, "peak_bytes": 68456448, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.79, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "build-time", "stage": "unrelated Flint worker on temporal model", "model": "Elevator", "wall_s": 1.76781, "peak_bytes": 68644864, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.848, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "Flint throughput", "stage": "different action shape native dispatch control", "model": "Elevator", "wall_s": 1.39455, "peak_bytes": 68562944, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.731, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0}
+  ],
+  "unrelated_workspace_release_control": [
+    {"tool": "quick", "stage": "previous compiler ablation on unrelated published Elevator", "model": "Elevator", "wall_s": 1.77371, "peak_bytes": 68538368, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.763, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "portable", "stage": "previous compiler ablation on unrelated published Elevator", "model": "Elevator", "wall_s": 1.40864, "peak_bytes": 68591616, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.681, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "tuned", "stage": "previous compiler ablation on unrelated published Elevator", "model": "Elevator", "wall_s": 1.36476, "peak_bytes": 68665344, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.651, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "tuned", "stage": "previous compiler ablation on unrelated published Elevator", "model": "Elevator", "wall_s": 1.36273, "peak_bytes": 68714496, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.644, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "portable", "stage": "previous compiler ablation on unrelated published Elevator", "model": "Elevator", "wall_s": 1.38895, "peak_bytes": 68489216, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.697, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0},
+    {"tool": "quick", "stage": "previous compiler ablation on unrelated published Elevator", "model": "Elevator", "wall_s": 1.82892, "peak_bytes": 68509696, "exit": 0, "verdict": "success", "stats": {"distinct": 50653, "generated": 230899, "depth": 39}, "store": "fp", "workers": 1, "compile_ms": 0.776, "arena": {"handles": 191, "nodes": 67}, "row_sites": 0, "row_lookups": 0, "row_hits": 0, "expand_ms": 0.0, "commit_ms": 0.0}
+  ],
+  "independent_holdout": {
+    "family": "TCommit",
+    "worker_sha256": "3862cce337c8101241cd27bdaf452af29c408826fcebb54e88dd8b77c1a42e8f",
+    "method": "Run the compiled worker on the original source with notCommitted replacing TCTypeOK TCConsistent in the CFG. Check the native dispatch meter; compare the stock result and validate the reported trace using the stock validation entry point.",
+    "compiled_dispatch": true,
+    "result": {
+      "exit_native": 10,
+      "property": "notCommitted",
+      "distinct": 28,
+      "generated": 71,
+      "depth": 5
+    },
+    "replay_original": "valid",
+    "replay_first_last_states_swapped": "invalid",
+    "undo_original_cfg": {
+      "exit": 0,
+      "distinct": 34,
+      "generated": 94,
+      "depth": 7
+    },
+    "temporal_probe": {
+      "definition": "NeverCommit == <> (~notCommitted)",
+      "training_limits_applied": true,
+      "both_engines": {
+        "exit_native": 10,
+        "verdict": "liveness-violation",
+        "property": "NeverCommit",
+        "generated": 94
+      }
+    }
+  },
+  "golden_comparisons": [
+    {"id": "specifications/transaction_commit/TCommit.cfg", "oracle": "tlc-2026.10.06.014338", "profile": "dive", "workers": 1, "baseline": "small-core-dive-w1.json", "judgement": "agree", "regressions": 0, "compiled_block_events_recorded": true, "worker_sha256": "10b7e821a2f67bb4340f51b2d51e302d6a6a3103b6bc59e2431eeb7941950167"},
+    {"id": "specifications/transaction_commit/TwoPhase.cfg", "oracle": "tlc-2026.10.06.014338", "profile": "dive", "workers": 1, "baseline": "small-core-dive-w1.json", "judgement": "agree", "regressions": 0, "compiled_block_events_recorded": true, "worker_sha256": "f1511f0b1406e174fc8b1f42b885f1477aaf0d3275aab68c28541cd5d3dfc213"}
+  ]
+}
