@@ -191,6 +191,12 @@ pub struct Metrics {
     pub distributed: Option<distributed::Usage>,
     /// Actual opt-in native safety storage facts, not whole-process memory.
     pub storage: storage::Usage,
+    /// Original split slots in complete logical source schedules.
+    pub action_slots: u64,
+    /// Slots remaining after source-guard selection, including fallback.
+    pub action_candidates: u64,
+    /// Indexed split slots and distinct source projections.
+    pub action_index_shape: Option<(usize, usize)>,
     /// Successors discarded as seen before any interning.
     pub discarded_before_intern: u64,
     /// Successors probed against the seen set.
@@ -528,6 +534,7 @@ pub(crate) fn capture_copy(values: &[Handle]) -> Result<Vec<Handle>, Error> {
     reason = "initial phase, cut handoff, expansion and candidate admission are independent facts"
 )]
 struct Explorer<'p> {
+    action_index: Option<dive_core::BoundActionIndex>,
     plan: &'p Plan,
     /// The behavior graph's sink, when a temporal check needs it.
     graph: Option<&'p mut dyn graph::GraphSink>,
@@ -1503,7 +1510,20 @@ fn run_actions(
     actions: &[dive_core::plan::Action],
     code: &Code,
 ) -> Result<(), Error> {
-    for (i, a) in actions.iter().enumerate() {
+    let selected = (!ex.initial)
+        .then_some(ex.action_index.as_ref())
+        .flatten()
+        .and_then(|index| index.candidates(m));
+    let count = selected.as_ref().map_or(actions.len(), Vec::len);
+    if !ex.initial {
+        ex.metrics.action_candidates += count as u64;
+        ex.metrics.action_slots += actions.len() as u64;
+    }
+    for position in 0..count {
+        let i = selected
+            .as_ref()
+            .map_or(position, |indices| indices[position]);
+        let a = &actions[i];
         ex.action = (!ex.initial).then_some(i);
         ex.init_action = ex.initial.then_some(i);
         ex.action_start = ex.emitted;
@@ -1848,7 +1868,14 @@ fn explore_inner<'p>(
         && frontier.is_none()
         && storage.candidate_memory_bytes.is_none())
     .then(Vec::new);
+    let action_index = (config.opts.action_index && config.opts.memo && !plan.effects.any)
+        .then(|| dive_core::BoundActionIndex::build(&plan.code, &plan.next))
+        .flatten();
+    initial_metrics.action_index_shape = action_index
+        .as_ref()
+        .map(dive_core::BoundActionIndex::shape);
     let mut ex = Explorer {
+        action_index,
         packed,
         plan,
         graph,
@@ -2545,6 +2572,7 @@ fn run(
                         nvars,
                         &ex.seen,
                         ex.opts,
+                        ex.action_index.as_ref(),
                         ex.checkpoint.is_some(),
                         ex.graph
                             .as_deref()
@@ -2571,6 +2599,8 @@ fn run(
                         return Err(error);
                     }
                 };
+                ex.metrics.action_slots += metrics.action_slots;
+                ex.metrics.action_candidates += metrics.action_candidates;
                 ex.metrics.conjuncts_total += metrics.conjuncts_total;
                 ex.metrics.conjuncts_skipped += metrics.conjuncts_skipped;
                 ex.metrics.discarded_before_intern += metrics.discarded_before_intern;
@@ -2617,6 +2647,8 @@ fn run(
                         return Err(error);
                     }
                 };
+                ex.metrics.action_slots += metrics.action_slots;
+                ex.metrics.action_candidates += metrics.action_candidates;
                 ex.metrics.conjuncts_total += metrics.conjuncts_total;
                 ex.metrics.conjuncts_skipped += metrics.conjuncts_skipped;
                 ex.metrics.discarded_before_intern += metrics.discarded_before_intern;

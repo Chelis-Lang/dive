@@ -83,6 +83,7 @@ pub use eval::Machine;
 pub use generate::Sink;
 pub use handle::Handle;
 pub use heap::Heap;
+pub use label_guard::BoundActionIndex;
 pub use opts::Opts;
 pub use plan::Plan;
 pub use store::{Semantics, Store};

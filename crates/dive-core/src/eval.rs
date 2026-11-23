@@ -2590,7 +2590,7 @@ impl Machine {
         }
     }
 
-    fn select(&mut self, r: Handle, field: Handle) -> Result<Handle, Error> {
+    pub(crate) fn select(&mut self, r: Handle, field: Handle) -> Result<Handle, Error> {
         if !r.is_compound() {
             return Err(eval_err("field selection on a value that is not a record"));
         }

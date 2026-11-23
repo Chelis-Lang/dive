@@ -2015,6 +2015,8 @@ pub(crate) fn metrics_json(
             "peak_after_nodes": m.storage.reclamation.peak_after_nodes,
         },
         "exact_states": m.storage.exact_states,
+        "action_schedule": {"slots": m.action_slots, "candidates": m.action_candidates,
+            "shape": m.action_index_shape},
         "conjuncts": {"total": m.conjuncts_total, "parent_skipped": m.conjuncts_skipped},
         "store": {
             "hits": m.store.hits, "misses": m.store.misses, "nodes": m.store.nodes, "handles": m.store.handles,

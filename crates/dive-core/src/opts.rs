@@ -31,6 +31,8 @@ pub struct Opts {
     pub framed_function_choices: bool,
     /// Ground read and disjoint record updates at a proved finite table entry.
     pub actor_rows: bool,
+    /// Order-preserving selection by a known leading source guard.
+    pub action_index: bool,
     /// Keyed result caches. Off (`-memo`).
     pub memo: bool,
     /// Keyed result caches for the cached bodies of step predicates
@@ -71,6 +73,7 @@ impl Default for Opts {
             member_index: true,
             framed_function_choices: true,
             actor_rows: true,
+            action_index: true,
             memo: true,
             step_memo: true,
             primed_memo: true,
@@ -93,6 +96,7 @@ pub const SWITCHES: &[&str] = &[
     "member-index",
     "framed-function-choices",
     "actor-rows",
+    "action-index",
     "memo",
     "step-memo",
     "primed-memo",
@@ -132,6 +136,7 @@ impl Opts {
                 "member-index" => &mut o.member_index,
                 "framed-function-choices" => &mut o.framed_function_choices,
                 "actor-rows" => &mut o.actor_rows,
+                "action-index" => &mut o.action_index,
                 "memo" => &mut o.memo,
                 "step-memo" => &mut o.step_memo,
                 "primed-memo" => &mut o.primed_memo,
@@ -169,6 +174,7 @@ impl Opts {
             ("member-index", self.member_index),
             ("framed-function-choices", self.framed_function_choices),
             ("actor-rows", self.actor_rows),
+            ("action-index", self.action_index),
             ("memo", self.memo),
             ("step-memo", self.step_memo),
             ("primed-memo", self.primed_memo),
@@ -187,6 +193,7 @@ impl Opts {
             d.member_index,
             d.framed_function_choices,
             d.actor_rows,
+            d.action_index,
             d.memo,
             d.step_memo,
             d.primed_memo,

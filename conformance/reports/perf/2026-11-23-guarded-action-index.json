@@ -1,0 +1,274 @@
+{
+  "schema": "dive-leading-guard-schedule-v1",
+  "host": "Linux-7.1.5-100.fc43.x86_64-x86_64-with-glibc2.42",
+  "pinned_tlc": "tlc-2026.10.06.014338",
+  "archive_sha256": "1919350f4103ea98141c7b2b1d3f7cfe14f2c96c1ff40a59e43299f2d58a0e81",
+  "original_input": "Counted SharedDigitsAux and equivalent singleton LeafSet domain from the existing reproducer. Original NextMC and original TypeInvariant and CorrectDelivery are unchanged.",
+  "rows": {
+    "16": {
+      "cfg_sha256": "5de65ca94c38cc4fb3352f6fd7e26da8f668086c7d343498f06a6ce36222e3a9",
+      "source_sha256": "55792b81a18cb8163253a5f50abe684c3d44a03887e12ec84471f773cd5191d0",
+      "previous": {
+        "verdict": "success",
+        "statistics": {
+          "depth": 19,
+          "distinct": 222,
+          "generated": 7623,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "stop": null,
+        "wall_s": 0.17,
+        "rss_kib": 112160,
+        "schedule": null,
+        "plan": {
+          "nodes": 26911,
+          "generator_nodes": 27402,
+          "memo_sites": 8203
+        },
+        "compile_ms": 19.048177,
+        "explore_ms": 122.970097,
+        "workers": 4
+      },
+      "indexed": {
+        "verdict": "success",
+        "statistics": {
+          "depth": 19,
+          "distinct": 222,
+          "generated": 7623,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "stop": null,
+        "wall_s": 0.19,
+        "rss_kib": 114360,
+        "schedule": {
+          "candidates": 340992,
+          "shape": [
+            1024,
+            16
+          ],
+          "slots": 511488
+        },
+        "plan": {
+          "nodes": 26911,
+          "generator_nodes": 27402,
+          "memo_sites": 8203
+        },
+        "compile_ms": 19.931904,
+        "explore_ms": 136.42802700000001,
+        "workers": 4
+      },
+      "tlc": {
+        "wall_s": 1.14,
+        "rss_kib": 665688,
+        "workers": 4,
+        "verdict": "success"
+      }
+    },
+    "128": {
+      "cfg_sha256": "aabdda309c7efc35cb86ac1168e22a6b120ea3594c7da53dca77a326e4a8f189",
+      "source_sha256": "55792b81a18cb8163253a5f50abe684c3d44a03887e12ec84471f773cd5191d0",
+      "previous": {
+        "verdict": "success",
+        "statistics": {
+          "depth": 19,
+          "distinct": 474,
+          "generated": 61019,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "stop": null,
+        "wall_s": 139.17,
+        "rss_kib": 3248852,
+        "schedule": null,
+        "plan": {
+          "nodes": 563462,
+          "generator_nodes": 1753098,
+          "memo_sites": 524299
+        },
+        "compile_ms": 9466.747877,
+        "explore_ms": 129107.344555,
+        "workers": 4
+      },
+      "indexed": {
+        "verdict": "success",
+        "statistics": {
+          "depth": 19,
+          "distinct": 474,
+          "generated": 61019,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "stop": null,
+        "wall_s": 91.1,
+        "rss_kib": 3252800,
+        "schedule": {
+          "candidates": 46596096,
+          "shape": [
+            65536,
+            128
+          ],
+          "slots": 69894144
+        },
+        "plan": {
+          "nodes": 563462,
+          "generator_nodes": 1753098,
+          "memo_sites": 524299
+        },
+        "compile_ms": 9877.581641,
+        "explore_ms": 80603.17686899999,
+        "workers": 4
+      },
+      "tlc": {
+        "wall_s": 61.64,
+        "rss_kib": 2223656,
+        "workers": 4,
+        "verdict": "success"
+      }
+    }
+  },
+  "growth_two_joiners": {
+    "+": {
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 28,
+        "distinct": 48941,
+        "exhaustive": false,
+        "generated": 2913418,
+        "initial_generated": 1,
+        "left_on_queue": 8726,
+        "reported_by_tlc": false
+      },
+      "stop": "stopped during safety-search after 42017 ms: the time limit is 42000 ms",
+      "wall_s": 42.04,
+      "rss_kib": 200020,
+      "schedule": {
+        "candidates": 61773312,
+        "shape": [
+          1024,
+          16
+        ],
+        "slots": 92659968
+      },
+      "plan": {
+        "nodes": 26911,
+        "generator_nodes": 27402,
+        "memo_sites": 8203
+      },
+      "compile_ms": 23.400898,
+      "explore_ms": 41986.561854,
+      "workers": 4
+    },
+    "-": {
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 28,
+        "distinct": 48959,
+        "exhaustive": false,
+        "generated": 2914630,
+        "initial_generated": 1,
+        "left_on_queue": 8733,
+        "reported_by_tlc": false
+      },
+      "stop": "stopped during safety-search after 42018 ms: the time limit is 42000 ms",
+      "wall_s": 42.04,
+      "rss_kib": 202852,
+      "schedule": {
+        "candidates": 92710656,
+        "shape": null,
+        "slots": 92710656
+      },
+      "plan": {
+        "nodes": 26911,
+        "generator_nodes": 27402,
+        "memo_sites": 8203
+      },
+      "compile_ms": 21.03256,
+      "explore_ms": 41990.305135,
+      "workers": 4
+    }
+  },
+  "second_protocol": {
+    "+": {
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 6,
+        "distinct": 348,
+        "exhaustive": false,
+        "generated": 704,
+        "initial_generated": 1,
+        "left_on_queue": 212,
+        "reported_by_tlc": false
+      },
+      "stop": "stopped during safety-search: the next depth would be 7, exceeding the limit of 6",
+      "wall_s": 0.01,
+      "rss_kib": 23568,
+      "schedule": {
+        "candidates": 136,
+        "shape": null,
+        "slots": 136
+      },
+      "plan": {
+        "nodes": 1443,
+        "generator_nodes": 162,
+        "memo_sites": 53
+      },
+      "compile_ms": 0.32766799999999996,
+      "explore_ms": 1.311504,
+      "workers": 1
+    },
+    "-": {
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 6,
+        "distinct": 348,
+        "exhaustive": false,
+        "generated": 704,
+        "initial_generated": 1,
+        "left_on_queue": 212,
+        "reported_by_tlc": false
+      },
+      "stop": "stopped during safety-search: the next depth would be 7, exceeding the limit of 6",
+      "wall_s": 0.01,
+      "rss_kib": 24136,
+      "schedule": {
+        "candidates": 136,
+        "shape": null,
+        "slots": 136
+      },
+      "plan": {
+        "nodes": 1443,
+        "generator_nodes": 162,
+        "memo_sites": 53
+      },
+      "compile_ms": 0.297181,
+      "explore_ms": 1.211927,
+      "workers": 1
+    }
+  },
+  "dominant_work": "The parallel expansion phase dominated elapsed time. GDB worker-stack samples showed repeated Core guard and invariant evaluation. The index skips only the independently decidable first source guard.",
+  "pool_empty": {
+    "verdict": "invariant-violation",
+    "property": "PoolEmpty",
+    "statistics": {
+      "depth": 2,
+      "distinct": 2,
+      "generated": 2,
+      "initial_generated": 1,
+      "left_on_queue": 0,
+      "reported_by_tlc": true
+    },
+    "both_routes_independently_validated": true,
+    "changed_endpoint_rejected": true
+  },
+  "reproducer": [
+    "python3 scripts/perf/scale/lupastry.py ZIP DIR --bits 7 --definition counted --singleton-leaves --ready $(seq 0 126)",
+    "dive check DIR/Pastry.tla --config DIR/Model.cfg --library-path LIB --store exact --seed 0 --fp 0 --workers 4 --max-memory 7g --time-limit 230s --output json",
+    "Use DIVE_CORE_OPT=-action-index for the ablation. Pinned TLC uses the same source and CFG, seed 0, fingerprint 0, 4 workers and a 6 GiB heap."
+  ]
+}

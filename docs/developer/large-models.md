@@ -1268,6 +1268,18 @@ At 128 addresses the published action splits into 147,456 named occurrences. Its
 
 The ordinary 128-address LuPastry+ model with one joining node now completes directly on protected main. The default one-worker run took 247.12 s, nominal TLC mode took 250.59 s, and four workers took 165.78 s. Each recorded 474 distinct states, 61,019 generated, depth 19 and an empty queue. [Exact invocation identity and per-run memory](../../conformance/reports/perf/2026-11-21-pastry-source-scale.json).
 
+On the 128-address direct model, Core now groups split occurrences that read
+the same leading string guard, such as `Status[i] = "Waiting"`. It checks
+each concrete projection once per source. A proved-false guard omits its
+whole group. An unreadable projection leaves its actions in their original
+order so generation can report a demanded error. The scheduler retains
+original action ordinals and duplicate emissions. The [ground action guard
+measurements](../../conformance/reports/perf/2026-11-23-guarded-action-index.json)
+record 46,596,096 scheduled candidates across 474 states, down from
+69,894,144. The local four-worker run took 91.10 seconds, versus 139.17
+seconds for stock Core and 61.64 seconds for pinned TLC.
+`DIVE_CORE_OPT=-action-index` disables the index for comparisons.
+
 ### Reproduce the ZooKeeper protocol specification
 
 Three completed no-restart configurations reproduce the state counts and diameters in Ouyang et al., Table 1. The paper’s count matches **generated** states in each. With four servers, two transactions and one timeout, Core and pinned TLC exhausted the queue at 6,634,696 distinct states, 21,393,294 generated and depth 64. Core took 623.70 s and 452 MiB peak RSS. TLC took 136.24 s and 46.3 GiB on the same host. Core used one of the 32 requested workers because the released specification contains twelve diagnostic `PrintT` calls. The completed Core run emitted no lines. With two timeouts the paper reports 1,599,588,210 states at its 24-hour cutoff. [Paper, Table 1](https://arxiv.org/pdf/2302.02703#page=7).
