@@ -2015,8 +2015,6 @@ pub(crate) fn metrics_json(
             "peak_after_nodes": m.storage.reclamation.peak_after_nodes,
         },
         "exact_states": m.storage.exact_states,
-        "action_schedule": {"slots": m.action_slots, "candidates": m.action_candidates,
-            "shape": m.action_index_shape},
         "conjuncts": {"total": m.conjuncts_total, "parent_skipped": m.conjuncts_skipped},
         "store": {
             "hits": m.store.hits, "misses": m.store.misses, "nodes": m.store.nodes, "handles": m.store.handles,
@@ -2051,6 +2049,10 @@ pub(crate) fn metrics_json(
         "thunks": {"forced": m.thunks.0, "cached": m.thunks.1},
         "memo": memo,
     });
+    if let Some(shape) = m.action_index_shape {
+        report["action_schedule"] = json!({"slots": m.action_slots,
+            "candidates": m.action_candidates, "shape": shape});
+    }
     if let Some(roots) = &m.initial_roots {
         report["initial_roots"] = json!(roots);
     }
