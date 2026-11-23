@@ -49,10 +49,12 @@ const CHECK: &str = "USAGE: dive check FILE.tla [OPTIONS]\n\n\
     --exit-codes native|tlc process statuses (default tlc in either profile)\n\
     -deadlock               disable deadlock checking\n\
     --time-limit DURATION|none --max-memory BYTES|auto|none\n\
+    --cold-roots N         diversify a cold-fair search across at most N distinct roots\n\
+    --cold-init-emissions N  bound original Init emissions inspected for diversification\n\
     --max-states N|none --max-depth N|none\n\
     --action-composition off|tla --symmetry-liveness unreduced|refuse|tlc\n\
     --periodic-min-states N  first completed-level liveness check (default 65536)\n\
-    --lncheck cold-fair     seek a validated fair word from one original Init state\n\
+    --lncheck cold-fair     seek a validated fair word from selected original Init states\n\
     --lncheck periodic-all  search every temporal property at each scheduled level\n\
     --core-sample N         compare N sampled states' successors (diagnostic)\n\
     --library-path DIR --module-path DIR (repeatable)\n\n\

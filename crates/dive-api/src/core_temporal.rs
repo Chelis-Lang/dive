@@ -27,7 +27,11 @@ use crate::core_native_values::NativeValues;
 
 /// The completed-level schedule and which properties it searches. `None`
 /// selects a final check only.
-pub(crate) type Route = Option<(Schedule, crate::TemporalMode, bool)>;
+pub(crate) type Route = Option<(
+    Schedule,
+    crate::TemporalMode,
+    dive_explore::storage::InitialStates,
+)>;
 
 /// The refusal of a temporal validation failure, whose report Core does not
 /// build (TLC's start-up and planning errors among them).
@@ -434,10 +438,14 @@ fn check_configured_inner(
         Some(&crate::core_engine::search_work_control(budget)),
         &dive_explore::storage::Storage {
             exact,
-            initial_states: if route.is_some_and(|(_, _, cold)| cold) {
-                dive_explore::storage::InitialStates::FirstAdmitted
-            } else {
-                dive_explore::storage::InitialStates::All
+            initial_states: match route.map(|(_, _, roots)| roots) {
+                Some(dive_explore::storage::InitialStates::Diversified(selection)) => {
+                    dive_explore::storage::InitialStates::Diversified(
+                        selection.with_seed(options.seed.cast_unsigned()),
+                    )
+                }
+                Some(policy) => policy,
+                None => dive_explore::storage::InitialStates::All,
             },
             ..dive_explore::storage::Storage::default()
         },

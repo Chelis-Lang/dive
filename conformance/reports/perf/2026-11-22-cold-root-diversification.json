@@ -1,0 +1,200 @@
+{
+  "issue": 1381,
+  "source_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "source_sha256": {
+    "Elevator.tla": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+    "elevator-5.cfg": "ec00a1abc115f9a6052da98a5a3c3a6dd1534506db40dbdcf4528eb54ff55d93",
+    "elevator-8.cfg": "8e47b6d02a43b7da679a04d8b521c9dfdae7c51407f2e492002361ee6f48ac43"
+  },
+  "host": "Fedora Linux 43, AMD Ryzen AI MAX+ 395. Local control measurements, with one checking worker.",
+  "commands": {
+    "five": "dive check Elevator.tla --config elevator-5.cfg --lncheck cold-fair --workers 1 --fp 0 --seed SEED --periodic-min-states 8000 --time-limit 30s --max-memory 8g --max-states 255000 --output json [--cold-roots 4 --cold-init-emissions 2048]",
+    "eight": "dive check Elevator.tla --config elevator-8.cfg --lncheck cold-fair --workers 1 --fp 0 --seed 0 --periodic-min-states 1500000 --time-limit 355s --max-memory 8g --output json",
+    "replay": "dive validate-trace Elevator.tla --config CFG --trace WORD --seed SEED --fp 0 --output json"
+  },
+  "controls": [
+    "First component safe and larger than cap, later component sole violation. Both Init orders, duplicate emissions, unreachable and unfair cycles. Standalone replay accepted the concrete fair lasso and rejected a stuttering replacement.",
+    "Independent channels with 8,192 possible initial rows. Same seed reproduces selected ordinals, work and word. A changed seed selects different ordinals and still gives a valid violation."
+  ],
+  "rows": [
+    {
+      "floors": 5,
+      "seed": 0,
+      "root_limit": 1,
+      "max_states": 255000,
+      "wall_s": 4.8,
+      "peak_rss_kib": 205740,
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 33,
+        "distinct": 255000,
+        "exhaustive": false,
+        "generated": 1400247,
+        "initial_generated": 1,
+        "left_on_queue": 32044,
+        "reported_by_tlc": false
+      },
+      "initial_selection": "first-admitted-original-init",
+      "root_selection": null,
+      "word_states": null,
+      "property": null,
+      "replay": null
+    },
+    {
+      "floors": 5,
+      "seed": 0,
+      "root_limit": 4,
+      "max_states": 255000,
+      "wall_s": 6.94,
+      "peak_rss_kib": 205832,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 27,
+        "distinct": 243433,
+        "exhaustive": false,
+        "generated": 1318409,
+        "initial_generated": 1008,
+        "left_on_queue": 36665,
+        "reported_by_tlc": false
+      },
+      "initial_selection": "diversified-original-init",
+      "root_selection": {
+        "emission_limit": 2048,
+        "emissions": 1008,
+        "init_ms": 0.15386,
+        "root_limit": 4,
+        "roots": [
+          {
+            "distinct": 60425,
+            "expanded": 51031,
+            "generated": 320184,
+            "ordinal": 0
+          },
+          {
+            "distinct": 12787,
+            "expanded": 11964,
+            "generated": 73489,
+            "ordinal": 1
+          },
+          {
+            "distinct": 87983,
+            "expanded": 75101,
+            "generated": 471080,
+            "ordinal": 651
+          },
+          {
+            "distinct": 82238,
+            "expanded": 68672,
+            "generated": 452648,
+            "ordinal": 1007
+          }
+        ],
+        "selection_cut": true
+      },
+      "word_states": 79,
+      "property": "TemporalInvariant",
+      "replay": "valid"
+    },
+    {
+      "floors": 5,
+      "seed": 13,
+      "root_limit": 1,
+      "max_states": 255000,
+      "wall_s": 4.73,
+      "peak_rss_kib": 205716,
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 33,
+        "distinct": 255000,
+        "exhaustive": false,
+        "generated": 1400247,
+        "initial_generated": 1,
+        "left_on_queue": 32044,
+        "reported_by_tlc": false
+      },
+      "initial_selection": "first-admitted-original-init",
+      "root_selection": null,
+      "word_states": null,
+      "property": null,
+      "replay": null
+    },
+    {
+      "floors": 5,
+      "seed": 13,
+      "root_limit": 4,
+      "max_states": 255000,
+      "wall_s": 3.66,
+      "peak_rss_kib": 206628,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 23,
+        "distinct": 126608,
+        "exhaustive": false,
+        "generated": 596064,
+        "initial_generated": 1315,
+        "left_on_queue": 23964,
+        "reported_by_tlc": false
+      },
+      "initial_selection": "diversified-original-init",
+      "root_selection": {
+        "emission_limit": 2048,
+        "emissions": 1315,
+        "init_ms": 0.178016,
+        "root_limit": 4,
+        "roots": [
+          {
+            "distinct": 29168,
+            "expanded": 24019,
+            "generated": 147164,
+            "ordinal": 0
+          },
+          {
+            "distinct": 9993,
+            "expanded": 9176,
+            "generated": 60399,
+            "ordinal": 1
+          },
+          {
+            "distinct": 37414,
+            "expanded": 29820,
+            "generated": 169001,
+            "ordinal": 568
+          },
+          {
+            "distinct": 50033,
+            "expanded": 39629,
+            "generated": 218185,
+            "ordinal": 1314
+          }
+        ],
+        "selection_cut": true
+      },
+      "word_states": 150,
+      "property": "TemporalInvariant",
+      "replay": "valid"
+    },
+    {
+      "floors": 8,
+      "seed": 0,
+      "root_limit": 1,
+      "max_states": null,
+      "wall_s": 242.17,
+      "peak_rss_kib": 1571452,
+      "verdict": "liveness-violation",
+      "statistics": {
+        "depth": 38,
+        "distinct": 3258536,
+        "exhaustive": false,
+        "generated": 26470981,
+        "initial_generated": 1,
+        "left_on_queue": 381734,
+        "reported_by_tlc": false
+      },
+      "initial_selection": "first-admitted-original-init",
+      "root_selection": null,
+      "word_states": 261,
+      "property": "TemporalInvariant",
+      "replay": "valid"
+    }
+  ]
+}

@@ -41,6 +41,9 @@ mod reclaim;
 mod resident;
 pub mod sample;
 pub mod storage;
+
+/// Selection bounds and reported work for exact cold initial roots.
+pub mod initial_roots;
 mod storage_owned;
 pub mod trace;
 
@@ -182,6 +185,8 @@ pub struct Metrics {
     pub wave_thread_shortage: bool,
     /// Number of retained initial roots when a cheap temporal capture stayed inline.
     pub inline_graph_roots: Option<u64>,
+    /// Selection and work by cold initial root, when diversification is requested.
+    pub initial_roots: Option<initial_roots::Usage>,
     /// Authenticated remote work facts when distributed safety was requested.
     pub distributed: Option<distributed::Usage>,
     /// Actual opt-in native safety storage facts, not whole-process memory.
@@ -544,6 +549,7 @@ struct Explorer<'p> {
     emitted: u64,
     initial: bool,
     initial_cut: bool,
+    initial_roots: Option<initial_roots::Selector>,
     /// Variables the current step changed (bit per variable); all ones for
     /// initial states.
     changed: u64,
@@ -1128,6 +1134,9 @@ impl Explorer<'_> {
         }
         .map_err(|e| Error::internal(format!("predecessor log: {e}")))?;
         self.confirm_logged(id)?;
+        if let Some(roots) = &mut self.initial_roots {
+            roots.admitted(id, self.cur_id, self.stats.initial_generated)?;
+        }
         if self.packed.is_some() {
             self.next_span.push(id)?;
         } else {
@@ -1418,6 +1427,16 @@ impl Explorer<'_> {
             }
         }
         self.report_emitted()?;
+        if self.initial
+            && let Some(roots) = &self.initial_roots
+            && !roots.considers(self.stats.initial_generated)
+        {
+            if roots.reached_bound(self.stats.initial_generated) {
+                self.initial_cut = true;
+                return Err(Error::stop());
+            }
+            return Ok(());
+        }
         if !self.initial && self.graph.is_some() && (self.poll)() {
             self.stop = Some(Verdict::Budget);
             return Err(Error::stop());
@@ -1452,8 +1471,12 @@ impl Explorer<'_> {
         }
         if r.is_ok()
             && self.initial
-            && self.in_model
-            && self.candidate_storage.initial_states == storage::InitialStates::FirstAdmitted
+            && ((self.in_model
+                && self.candidate_storage.initial_states == storage::InitialStates::FirstAdmitted)
+                || self
+                    .initial_roots
+                    .as_ref()
+                    .is_some_and(|roots| roots.reached_bound(self.stats.initial_generated)))
         {
             self.initial_cut = true;
             return Err(Error::stop());
@@ -1848,6 +1871,12 @@ fn explore_inner<'p>(
         emitted: 0,
         initial: true,
         initial_cut: false,
+        initial_roots: match storage.initial_states {
+            storage::InitialStates::Diversified(selection) => {
+                Some(initial_roots::Selector::new(selection))
+            }
+            _ => None,
+        },
         changed: u64::MAX,
         level: 1,
         expanded: false,
@@ -1874,17 +1903,18 @@ fn explore_inner<'p>(
     };
     let mut replayed = None;
     let mut reservoir = config.sample.map(sample::Reservoir::new);
-    let result = if storage.initial_states == storage::InitialStates::FirstAdmitted
+    let result = if storage.initial_states != storage::InitialStates::All
         && (!storage.exact
             || ex.graph.is_none()
             || ex.checkpoint.is_some()
             || ex.distributed.is_some()
+            || ex.frontier.is_some()
             || plan.effects.any
             || plan.view.is_some()
             || plan.symmetry.is_some())
     {
         Err(Error::unsupported(
-            "first Init root requires exact pure temporal capture",
+            "cold Init root selection requires exact pure temporal capture",
         ))
     } else if sorted
         && (ex.checkpoint.is_some()
@@ -2078,6 +2108,10 @@ fn explore_inner<'p>(
         }
     }
     let mut metrics = ex.metrics;
+    metrics.initial_roots = ex
+        .initial_roots
+        .take()
+        .map(|roots| roots.finish(ex.stats.initial_generated, ex.initial_cut));
     metrics.distributed = distributed.map(distributed::Coordinator::usage);
     metrics.store = store.stats();
     metrics.store_memory = store.memory_usage();
@@ -2306,19 +2340,22 @@ fn run(
     };
     let recovered = checkpoint::restore(ex, m)?;
     if !recovered {
+        let started = ex.initial_roots.as_ref().map(|_| Instant::now());
         start_stream(m, plan, None)?;
         // `TLCGet("level")` is 0 in `Init` (TLC's `INIT_LEVEL - 1`).
         m.level = 0;
-        let accelerated =
-            if ex.candidate_storage.initial_states == storage::InitialStates::FirstAdmitted {
-                None
-            } else {
-                initial::parallel(machines, ex)
-            };
+        let accelerated = if ex.candidate_storage.initial_states == storage::InitialStates::All {
+            initial::parallel(machines, ex)
+        } else {
+            None
+        };
         let Some(m) = machines.first_mut() else {
             return Err(Error::internal("no core machine"));
         };
         let result = accelerated.unwrap_or_else(|| run_actions(m, ex, &plan.init, code));
+        if let (Some(roots), Some(started)) = (&mut ex.initial_roots, started) {
+            roots.elapsed = started.elapsed();
+        }
         if let Err(e) = result
             && !(ex.initial_cut && e.kind() == ErrorKind::Stop)
         {
@@ -2663,6 +2700,9 @@ fn run(
                 None => run_actions(m, ex, &plan.next, code),
             }
             .map_err(|e| generator_error(m, ex, state, e));
+            if let (Some(roots), Some(id)) = (&mut ex.initial_roots, ex.cur_id) {
+                roots.expanded(id, ex.emitted, r.is_ok())?;
+            }
             if reexecute {
                 ex.warnings.clone_from(&m.warnings);
             }

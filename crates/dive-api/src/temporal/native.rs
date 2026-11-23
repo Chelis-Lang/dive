@@ -390,7 +390,13 @@ pub(crate) fn core_analysis(
         options,
         (tlc, opts),
         prepared,
-        route.map(|schedule| (schedule, crate::TemporalMode::Ordinary, false)),
+        route.map(|schedule| {
+            (
+                schedule,
+                crate::TemporalMode::Ordinary,
+                dive_explore::storage::InitialStates::All,
+            )
+        }),
         &mut crate::core_engine::CoreRun::default(),
     );
     let crate::core_engine::CoreOutcome::Temporal(report) = outcome else {

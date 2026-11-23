@@ -127,7 +127,13 @@ fn all_semantic_publication_paths_refuse_late_reference_names() {
                     &options,
                     (true, dive_core::Opts::default()),
                     prepared,
-                    route.map(|schedule| (schedule, crate::TemporalMode::Ordinary, false)),
+                    route.map(|schedule| {
+                        (
+                            schedule,
+                            crate::TemporalMode::Ordinary,
+                            dive_explore::storage::InitialStates::All,
+                        )
+                    }),
                     &mut run,
                     crate::temporal::core_file_configuration(),
                 );

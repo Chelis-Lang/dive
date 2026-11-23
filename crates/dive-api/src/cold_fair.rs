@@ -1,5 +1,7 @@
-//! An exact temporal witness search from one source-generated root.
+//! An exact temporal witness search from selected source-generated roots.
 
+pub use dive_explore::initial_roots::Selection as Diversification;
+use dive_explore::storage::InitialStates;
 use serde_json::{Value, json};
 
 use crate::{ApiError, CheckReport, CheckRequest, ExitConvention, Store};
@@ -9,16 +11,30 @@ use crate::{ApiError, CheckReport, CheckRequest, ExitConvention, Store};
 #[derive(Debug)]
 pub struct Report {
     inner: CheckReport,
+    selection: InitialStates,
 }
 
 impl Report {
+    fn selection_name(&self) -> &'static str {
+        match self.selection {
+            InitialStates::Diversified(_) => "diversified-original-init",
+            _ => "first-admitted-original-init",
+        }
+    }
+
     /// Report of a cold search. Counts refer to its selected-root graph.
     /// A holding result on that graph is a bounded search miss.
     #[must_use]
     pub fn to_json(&self, convention: ExitConvention) -> Value {
         let mut result = self.inner.to_json_with_exit_convention(convention);
         result["check_kind"] = json!("cold-fair");
-        result["options"]["initial_selection"] = json!("first-admitted-original-init");
+        result["options"]["initial_selection"] = json!(self.selection_name());
+        if result["core"]["metrics"]["initial_roots"].is_object() {
+            result["initial_roots"] = result["core"]["metrics"]["initial_roots"].take();
+            if let Some(metrics) = result["core"]["metrics"].as_object_mut() {
+                metrics.remove("initial_roots");
+            }
+        }
         result["model_proved"] = json!(false);
         result["witness_validated"] = json!(result["counterexample"]["trace"].is_object());
         for key in ["execution", "periodic"] {
@@ -55,17 +71,21 @@ impl Report {
     /// Human summary that names the scope and never reports a holding model.
     #[must_use]
     pub fn render_human(&self, convention: ExitConvention) -> String {
+        let report = self.to_json(convention);
+        let roots = report["initial_roots"]["roots"]
+            .as_array()
+            .map_or(1, Vec::len);
+        let scope = format!("{} ({roots} retained roots)", self.selection_name());
         if self.inner.verdict() == "success" {
-            let report = self.to_json(convention);
             format!(
-                "Cold fair search: bounded-inconclusive. First admitted original Init root, seed {}, {} generated, {} distinct.\n",
+                "Cold fair search: bounded-inconclusive. {scope}, seed {}, {} generated, {} distinct.\n",
                 report["options"]["seed"],
                 report["statistics"]["generated"],
                 report["statistics"]["distinct"]
             )
         } else {
             format!(
-                "Cold fair search from the first admitted original Init root.\n{}",
+                "Cold fair search using {scope}.\n{}",
                 self.inner.render_human_with_exit_convention(convention)
             )
         }
@@ -90,11 +110,28 @@ impl Report {
 /// search, explicit TLC compatibility, a debugger or an incompatible mode
 /// refuses by name.
 pub fn check_file(request: &CheckRequest) -> Result<Report, ApiError> {
+    check(request, InitialStates::FirstAdmitted)
+}
+
+/// Searches multiple distinct original roots within one exact graph and budget.
+/// The run seed determines the later Init sampling windows.
+///
+/// # Errors
+/// As in [`check_file`].
+pub fn check_diversified(
+    request: &CheckRequest,
+    selection: Diversification,
+) -> Result<Report, ApiError> {
+    check(request, InitialStates::Diversified(selection))
+}
+
+fn check(request: &CheckRequest, selection: InitialStates) -> Result<Report, ApiError> {
     if request.compat_tlc
         || request.distributed.is_some()
         || request.debugger.is_some()
         || request.core_sample.is_some()
         || request.temporal_refusal.is_some()
+        || request.temporal != crate::TemporalMode::Ordinary
     {
         return Err(ApiError::Unsupported {
             feature: "cold fair search requires a local Dive temporal check".into(),
@@ -104,5 +141,6 @@ pub fn check_file(request: &CheckRequest) -> Result<Report, ApiError> {
         store: Store::Exact,
         ..request.clone()
     };
-    crate::check::check_file_in(&request, None, false, None, true).map(|inner| Report { inner })
+    crate::check::check_file_in(&request, None, false, None, selection)
+        .map(|inner| Report { inner, selection })
 }

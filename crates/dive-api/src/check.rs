@@ -1,6 +1,7 @@
 //! Model checking (`dive check`): load, bind and check a specification, and
 //! report the result as a versioned JSON document or TLC-style text.
 
+use dive_explore::storage::InitialStates;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
@@ -426,7 +427,7 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
 /// # Errors
 /// [`crate::ApiError`] if the root file or the configuration cannot be read.
 pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, None, false, None, false)
+    check_file_in(req, None, false, None, InitialStates::All)
 }
 
 /// Checks with Core under explicit strategy switches, as
@@ -440,7 +441,7 @@ pub fn check_file_core_opts(
     req: &CheckRequest,
     switches: &str,
 ) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, None, false, Some(switches), false)
+    check_file_in(req, None, false, Some(switches), InitialStates::All)
 }
 
 /// Loads and checks files with TLC's configuration-first input error priority.
@@ -464,7 +465,7 @@ pub fn check_file_core_opts(
 /// # Errors
 /// [`crate::ApiError`] if the configuration or root file cannot be read.
 pub fn check_file_tlc_inputs(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, None, true, None, false)
+    check_file_in(req, None, true, None, InitialStates::All)
 }
 
 /// Runs the native pure-safety checkpoint/recovery slice. It refuses
@@ -494,7 +495,7 @@ pub fn check_file_checkpoint(
     req: &CheckRequest,
     checkpoint: &dive_runtime::checkpoint::Request,
 ) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, Some(checkpoint), false, None, false)
+    check_file_in(req, Some(checkpoint), false, None, InitialStates::All)
 }
 
 #[allow(
@@ -506,7 +507,7 @@ pub(crate) fn check_file_in(
     checkpoint: Option<&dive_runtime::checkpoint::Request>,
     config_first: bool,
     core_switches: Option<&str>,
-    first_initial_only: bool,
+    initial_states: InitialStates,
 ) -> Result<CheckReport, crate::ApiError> {
     if req.debugger.is_some() {
         let feature = if req.store_compact_bytes.is_some() {
@@ -783,7 +784,7 @@ pub(crate) fn check_file_in(
             req.compat_tlc,
             core_switches,
             req.core_sample,
-            core_route(req, &armed, first_initial_only),
+            core_route(req, &armed, initial_states),
             req.distributed
                 .as_ref()
                 .map(|options| (options, config_hash.as_str())),
@@ -950,7 +951,7 @@ pub(crate) fn check_file_in(
     {
         result.notes.push("Init partial error witness remains unconfirmed: its observed source/bindings were unavailable, its compound assignment encoding is unsupported, or the controlling budget stopped evidence capture.".into());
     }
-    if first_initial_only {
+    if initial_states != InitialStates::All {
         certify_cold_safety_word(&mut report, &ir, &model, &armed);
     }
     if let Some(watchdog) = &mut watchdog {
@@ -1024,11 +1025,11 @@ fn certify_cold_safety_word(
 fn core_route(
     req: &CheckRequest,
     options: &CheckOptions,
-    first_initial_only: bool,
+    initial_states: InitialStates,
 ) -> Option<crate::core_temporal::Route> {
     req.temporal_refusal.is_none().then(|| {
         (options.profile == dive_eval::Profile::Dive || req.temporal == TemporalMode::PeriodicAll)
-            .then_some((req.periodic, req.temporal, first_initial_only))
+            .then_some((req.periodic, req.temporal, initial_states))
     })
 }
 
@@ -2743,7 +2744,7 @@ mod evidence_controls {
             None,
             false,
             None,
-            false,
+            InitialStates::All,
         )
         .expect("report");
         let _ = std::fs::remove_dir_all(&directory);

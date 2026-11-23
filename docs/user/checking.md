@@ -116,6 +116,19 @@ Init and explores its exact reachable states. It evaluates the original
 fairness assumptions and configured properties. Independent replay checks
 every reported counterexample against the original source and configuration.
 
+Add `--cold-roots 8 --cold-init-emissions 256` to explore several distinct
+roots in the same exact graph. The selector tries the first two distinct
+admitted roots near the start of Init and uses seed-dependent gaps for later
+roots. The emission limit includes duplicates and candidates skipped between
+windows. Selection, capture and independent replay share the time and memory
+budget. The default with both flags omitted selects only the first root.
+
+`initial_roots` reports the original emission ordinals, the selection cost
+and the work attributable to each root. If two roots reach the same state,
+its exploration work is assigned to the root of its first discovery path.
+Root ordinals and counts are replayable with the same seed and completed
+search boundary. A wall-time stop can occur at a different boundary.
+
 The JSON report identifies the selected-root scope. Exhausting that graph
 without a witness reports `bounded-inconclusive`. A budget stop reports the
 limiting resource. Ordinary `dive check` explores all admitted initial states

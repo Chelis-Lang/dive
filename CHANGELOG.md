@@ -71,6 +71,8 @@ are in git history.
 
 - `dive check --lncheck cold-fair` searches exact states from the first
   admitted original Init state for an independently replayed fair word.
+  `--cold-roots` and `--cold-init-emissions` diversify that search within
+  one shared budget.
 
 - [Automatic strategy selection](docs/user/symbolic.md#choose-a-strategy-automatically) chooses exact population, packed, decision-diagram or Core search for an original TLA+ configuration.
 - [Match partial etcd Raft event logs](docs/user/traces.md#match-an-etcd-implementation-log) against the upstream trace and protocol specifications, with independently replayable complete states.
