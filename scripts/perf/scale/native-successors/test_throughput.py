@@ -33,7 +33,7 @@ class ThroughputTests(unittest.TestCase):
                     self.assertIn(flag, args)
                 self.assertNotIn("DIVE_DISABLE_NATIVE_SUCCESSORS", env)
                 Path(env["LLVM_PROFILE_FILE"].replace("%m-%p", "worker")).write_bytes(b"sample")
-                return 5, {"verdict": "stopped", "statistics": {"generated": 28}}
+                return 10, {"verdict": "liveness-violation", "statistics": {"generated": 28}}
 
             def merge(cmd, *, check):
                 self.assertTrue(check)
@@ -47,7 +47,7 @@ class ThroughputTests(unittest.TestCase):
                 receipt = prepare.throughput_build(root, root, root, binary, 2, ["--compat=tlc"], inputs, tool, 2)
             self.assertEqual(binary.read_bytes(), b"optimized")
             self.assertEqual(receipt["training_inputs"], inputs)
-            self.assertEqual(receipt["training_verdict"], "stopped")
+            self.assertEqual(receipt["training_verdict"], "liveness-violation")
             self.assertEqual(receipt["profile_sha256"], prepare.digest(b"merged model sample"))
             self.assertIn(receipt["profile_sha256"], builds[1]["CARGO_ENCODED_RUSTFLAGS"])
             self.assertEqual(set(root.iterdir()), {binary, tool})

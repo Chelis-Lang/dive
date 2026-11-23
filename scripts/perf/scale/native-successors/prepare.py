@@ -149,7 +149,8 @@ def throughput_build(source, target, folder, binary, jobs, flags, inputs, tool, 
         stats = report.get("statistics") or {}
         profiles = sorted(raw.glob("*.profraw"))
         outcomes = {"success": 0, "stopped": 5, "invariant-violation": 10, "property-violation": 10,
-                    "action-property-violation": 10, "postcondition-failure": 10, "deadlock": 11}
+                    "action-property-violation": 10, "postcondition-failure": 10,
+                    "liveness-violation": 10, "deadlock": 11}
         generated = stats.get("generated")
         if (outcomes.get(report.get("verdict")) != status or not profiles
                 or type(generated) is not int or generated <= 0):
