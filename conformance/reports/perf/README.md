@@ -24,6 +24,8 @@ The scripts that produced the records are in
 
 [Five- and six-floor Fairness workspace](2026-11-22-streett-workspace.json) records matched Manyan trials, replayed witnesses, peak RSS and a memory-stop control. The larger shared allowance cut five-floor product search from 124.56 s to about 12.4 s.
 
+[Source-bound actor choices and sparse value updates](2026-11-22-source-value-blocks.json) records complete labeled Flint and Lamport checks, old and new source workers against stock and compiled tla-mc, process-family memory, edit/undo, operation coverage and independent witness checks.
+
 [Actor-table reads and row updates](2026-11-22-actor-table-rows.json) records ordinary and emitted checks against pinned tla-mc, warm growth, exact-store runs, memory, edit/undo, two Lamport transfers and witness replay.
 
 [Source-built native successor workers](2026-11-22-source-native-successors.json) records original-source Flint edit and undo runs against compiled tla-mc, actual dispatch on both Lamport models and Elevator, witness replay, Sail transfers and the rejected whole-action cache experiments.
