@@ -1383,6 +1383,8 @@ Adding a fourth writer to the restart-capable model left both exact searches wit
 
 Both runs stopped before reaching the depth of the three-writer witness. The [transferred witness](#transfer-a-slatedb-witness-to-a-larger-configuration) settles the four-writer fix-off case. The fix-on verdict remains open. [Configurations and exact measurements](../../conformance/reports/perf/2026-11-21-slatedb-source-edits.json).
 
+Ordinary fingerprint Core with symmetry disabled returned success after 139,366.40 s at 658.19 GiB peak RSS. It reported 58,777,048,937 distinct states, 283,525,265,839 generated, depth 139 and 0 pending. The three-value configuration with symmetry enabled returned stopped after 130,009.14 s at 441.43 GiB peak RSS. It reported 35,331,529,507 distinct states, 177,799,155,802 generated, depth 91 and 1,628,359,906 pending. [Inputs and per-process measurements](../../conformance/reports/perf/2026-11-21-slatedb-full-comparison.json).
+
 #### The earlier four-writer WAL protocol
 
 The author's November release contains two programs. The main WAL model allows a fenced writer to restart. A separately named, earlier program uses four writers and has no restart parameter. The notes give 49 billion unique states for the newer program and 12 billion for the simpler one. The earlier program's shipped configuration keeps the fix enabled and checks six invariants. Its writer count differs from the three in the newer CFG, so the two published figures require separate reproductions. [Author's notes and configurations](https://github.com/Vanlightly/s3-wal-collection/tree/35fdc537af4d226f43b4574cded1764375f264ac/slatedb) · [TLAPS-Bench, Appendix D](https://arxiv.org/abs/2611.02849).
