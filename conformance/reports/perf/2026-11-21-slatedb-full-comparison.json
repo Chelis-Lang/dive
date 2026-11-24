@@ -309,5 +309,68 @@
     "peak_rss_kib": 598625572,
     "platform": "Dedicated EC2 r7i.48xlarge, 40 physical Xeon Platinum 8488C cores, Linux 7.0.0-1018-aws"
   },
-  "scope": "The original fingerprint Core and TLC ran sequentially on the same host, W40 and the released symmetry declaration. The exact Core control used a second host of the same instance type with matching core count. The 16-core matched runs use smaller configurations."
+  "scope": "The original fingerprint Core and TLC ran sequentially on the same host, W40 and the released symmetry declaration. The exact Core control used a second host of the same instance type with matching core count. The 16-core matched runs use smaller configurations.",
+  "ordinary_labeled_and_value_growth": {
+    "sha256": {
+      "dive": "c86d1ac833fd934335eda7ee68e7d45e867c51c00d9bb9c29b6fa72ce55a1146",
+      "spec/Medium.cfg": "0b59ff90ac10ae3cfe3177b2e1d343502805545ac5291970e11ee8dba27d4b10",
+      "spec/MediumUnreduced.cfg": "e7fc491e61f97ac43935b0efac511c689bf4b8be1b0df9cab5df6e839acaf90b",
+      "spec/OriginalUnreduced.cfg": "a2815143c1d10e9f44f4961ef031e6fd57c2b9fb0ef3d7c68d97387defe407aa",
+      "spec/SlateDBWAL.cfg": "03d666d0af4def6b6e9b7ded231f7dc8d5f114ddb03ec46f45254dce70233169",
+      "spec/Small.cfg": "1f0910bf0f81932e8b58810e34e016ca904142add818162d95baa43f3a29236e",
+      "spec/ThreeNoRetry.cfg": "e7b9e91a44499b87e7b83fa2df735059dbcff02a59439143bc072d42811d61b9",
+      "spec/ThreeValues.cfg": "3bdd0997ce7b159392545542114d4a36cb576691ec7751ac2ddcb38cec317bfd",
+      "spec/TwoRetry.cfg": "91f6681396fc569e13cf614c2cfca4007761b69911a8e0782502cfaad856986f",
+      "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c"
+    },
+    "runs": {
+      "unreduced-fp": {
+        "exit": 0,
+        "wall_s": 139366.4,
+        "peak_rss_kib": 690166652,
+        "verdict": "success",
+        "statistics": {
+          "initial_generated": 1,
+          "distinct": 58777048937,
+          "generated": 283525265839,
+          "left_on_queue": 0,
+          "depth": 139
+        },
+        "store": "fingerprint",
+        "workers_used": 40
+      },
+      "three-values": {
+        "exit": 5,
+        "wall_s": 130009.14,
+        "peak_rss_kib": 462870256,
+        "verdict": "stopped",
+        "statistics": {
+          "initial_generated": 1,
+          "distinct": 35331529507,
+          "generated": 177799155802,
+          "left_on_queue": 1628359906,
+          "depth": 91
+        },
+        "store": "fingerprint",
+        "workers_used": 40,
+        "stop": {
+          "elapsed_ms": 130008101,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 130000000,
+          "observed": 130000019,
+          "phase": "safety-search",
+          "resource": "time",
+          "unit": "ms"
+        }
+      }
+    },
+    "config_changes": "Unreduced removes only the SYMMETRY line. ThreeValues retains symmetry and changes Values from {v1,v2} to {v1,v2,v3}. Both retain the original six invariants.",
+    "command": "On the exact-control r7i.48xlarge instance, taskset to the same 40 physical cores. dive check spec/SlateDBWAL.tla --config spec/CFG.cfg --library-path modules --workers 40 --compat=tlc --seed 0 --fp 1 --store fingerprint --max-memory 1380g --time-limit Ts --output json. Limits 190000s and 130000s respectively.",
+    "config_files": {
+      "unreduced-fp": "OriginalUnreduced",
+      "three-values": "ThreeValues"
+    },
+    "exact_labeled_reference": "58777049012",
+    "fingerprint_minus_exact_labeled": -75
+  }
 }
