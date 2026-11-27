@@ -13,8 +13,9 @@ are in git history.
   `--lncheck cold-fair|periodic-all`, `--cold-roots`, `--cold-init-emissions`,
   `--periodic-min-states`, `--independent-frontier`, the `--seen-disk-entries`
   family and `validate-trace --repair` are labeled experimental.
-- Rust API: `SimulateRequest` and `dive_api::bounded::Request` are
-  `#[non_exhaustive]`; build them from `Default` and assign fields. The
+- Breaking (Rust API): `SimulateRequest` and `dive_api::bounded::Request` are
+  `#[non_exhaustive]`, so struct expressions, including `..Default::default()`,
+  no longer compile outside dive; build them from `Default` and assign fields. The
   `labeled_graph`, `orbit_graph`, `bounded` and `cold_fair` modules are hidden
   from the documentation.
 - The source-built [induction workers](docs/developer/symbolic-preview.md#retain-authenticated-source-obligations-across-edits) can recheck named safety proofs across edits using authenticated results for identical finite obligations.
@@ -115,7 +116,7 @@ are in git history.
 
 - Symbolic checking can derive [finite records and sets as whole values](docs/developer/symbolic-preview.md#check-finite-records-and-sets-as-whole-values) directly from a safety model. It checks the original EmergencyCall module and independently validates reported violations.
 
-- Linux releases support [`dive check --strategy compiled`](docs/developer/symbolic-preview.md#compile-a-finite-safety-check) for eligible finite safety models. With an installed Rust compiler it searches packed exact states at up to eight workers and independently replays violations.
+- Source checkouts with the worker support [`dive check --strategy compiled`](docs/developer/symbolic-preview.md#compile-a-finite-safety-check) for eligible finite safety models. With an installed Rust compiler it searches packed exact states at up to eight workers and independently replays violations.
 - Compiled finite safety checks use exact dense ranks for eligible symmetric layouts from 33 through 63 bits, including the 45-bit KVS Large model.
 - Compiled safety checks reconstruct unambiguous invariant failures with a second native pass and independently validate the concrete trace. Successful checks use no predecessor table.
 
@@ -136,7 +137,7 @@ are in git history.
 
 - An exact population search can save a [portable safety predicate](docs/developer/symbolic-preview.md#transfer-a-population-safety-predicate-across-edits). A receiver proves the current source and reports failed induction obligations explicitly. Direct or retained population proofs accept larger configured participant sets than counted searches.
 
-- Linux releases include [exact labeled occupancy checking](docs/developer/symbolic-preview.md#checking-interchangeable-status-tables). An opt-in source-derived BFS counts concrete states and action witnesses for anonymous finite status tables and independently replays shortest violations.
+- Source checkouts with the worker include [exact labeled occupancy checking](docs/developer/symbolic-preview.md#checking-interchangeable-status-tables). An opt-in source-derived BFS counts concrete states and action witnesses for anonymous finite status tables and independently replays shortest violations.
 
 - Core and trace validation can find [wide integer powerset witnesses](docs/user/checking.md) while checking the empty set and singleton candidates.
 
@@ -285,7 +286,7 @@ are in git history.
 
 - Core names the temporal formula planning bound and source location when checking reaches it.
 
-- The Linux release archives include `dive check --strategy symbolic` for
+- Source checkouts with the worker support `dive check --strategy symbolic` for
   finite safety checks, validated witnesses and independently verified predicates.
 
 - Symbolic safety searches can [learn the members of wide finite sets](docs/developer/symbolic-preview.md#learning-which-members-a-wide-set-needs) with `--refine-domains`.
