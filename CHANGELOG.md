@@ -5,6 +5,8 @@ are in git history.
 
 ## Unreleased
 
+- Documented [D-047](docs/tlc-differences.md#d-047-forced-boolean-formals): an operator argument used as an action is expanded even when an earlier conjunct already evaluated it, so dive can count identical successors that TLC skips.
+
 - The source-built [induction workers](docs/user/symbolic.md#retain-authenticated-source-obligations-across-edits) can recheck named safety proofs across edits using authenticated results for identical finite obligations.
 
 - The Linux symbolic worker can check multiple transition bounds in one invocation and distinguish bounded safety from a checked k-induction proof.

@@ -1,0 +1,37 @@
+{
+  "sources": [
+    "docs/tlc-differences.md#d-047-forced-boolean-formals"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe"
+  ],
+  "modules": [
+    {
+      "path": "specifications/ForcedFormal/ForcedFormal.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/ForcedFormal/ForcedFormal.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    },
+    {
+      "path": "specifications/ForcedFormal/UnforcedFormal.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/ForcedFormal/UnforcedFormal.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    }
+  ]
+}

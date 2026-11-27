@@ -14,6 +14,7 @@
 |---|---|---|---|---|---|---|
 | Finite predecessor function equation (D-046) | TLC reports an unbounded CHOOSE on the published LuPastry+ routing table | Construct the unique solution over the finite integer domain in predecessor order | The TLC comparison profile reports the named unbounded CHOOSE refusal | changing | default on Core | ADR 0165 and `crates/dive-api/tests/core_prefix_function.rs` |
 | Finite symbolic, compiled and occupancy safety (explicit or automatic opt-in, D-030) | Explicit state counts at termination | Core BFS | A completed symbolic search reports exact counts. Refutations report validated shortest witnesses and induction reports proof obligations. | changing evidence | opt-in | `scripts/symbolic/check_source.py` compares TLC goldens and concrete Core results |
+| Forced Boolean formals (Core; D-047) | A formal already forced by an earlier conjunct is read as a cached Boolean in action position; otherwise its argument is expanded | Expand the argument in action position independent of demand order | Nominal compat keeps the same expansion and documents the count gap | changing | default on Core | Exact ForcedFormal count pair; UnforcedFormal agrees; unrelated observables remain required |
 | Boolean recursive predicates (Core; D-029) | Action generation expands duplicate witnesses and can demand an already-unnecessary alternative | Evaluate effect-safe Boolean predicates and count emitted successors | Nominal compat retains Boolean evaluation and documents count/short-circuit gaps | changing | default on Core | Exact ActionCount/VoteProof count pairs and pinned OrError result; unrelated observables remain required |
 | Canonical finite sets (default Core; D-028) | Set construction errors and membership can depend on prior normalization of the same TLC object | Canonical finite literal and mapped sets | Nominal compat keeps canonical producers and names unsupported comparison shapes | changing | default on Core | ADR 0153; `core_receiver_consumers` |
 | Deterministic parallel search (`--workers N`, default `auto`) | Multi-worker BFS is only approximately breadth-first: depth and counterexample length vary with worker count, so exactness needs `-workers 1` (`TLCTrace.java`; tlaplus#883) | Exact BFS results identical to TLC's single-worker run | Any worker count gives the same verdict, counts, depth and chosen shortest counterexample | preserving | **implemented** (`dive check --workers N`, WP-D3: ADR 0015's three-phase level engine; specs using `TLCSet`, live `TLCGet`, randomness, I/O or runtime name constructors under TLC order run in reported sequential mode (#122)) | ADR 0004; harness worker-invariance runs at 1, 3, 4, 8 workers and chaos; `crates/dive-check/tests/invariance.rs`; Examples `DieHard` (TLC depth 9 vs trace 7 at 4 workers); probes in `crates/dive-api/tests/fixtures/checker/tlc-probes/` |
@@ -1316,6 +1317,35 @@ RegisterWitness regression, which TLC violates after three generated/distinct
 states, refuses in Core because of its compiled effects. No lexical-capture,
 prime, escape or nested-recursion guard is removed.
 See [the user explanation](tlc-differences.md#d-029-predicate-witness-counts).
+
+## D-047: Forced Boolean formals
+
+When an operator's argument is a prime-free expression, TLC binds the formal
+to a lazy value. If an earlier conjunct has already evaluated the formal, a
+later use of it as an action conjunct reads the cached Boolean. Otherwise TLC
+expands the argument as an action, so a disjunction emits one successor per
+true disjunct. Which of the two happens depends on demand order. Core always
+expands the argument in action position, independent of what an earlier
+conjunct evaluated (#1166). Reproducing TLC would mean tracking at run time
+whether each thunk was forced earlier in the same expansion, and keeping that
+consistent with Core's guard memoization; that is demand-order emulation, which
+the standing direction rules out.
+
+Only the generated count changes. Verdict, distinct states, depth, queue,
+property, error class, exit and independent trace validation are unchanged:
+
+| Model | TLC generated | Core generated | Distinct | Depth |
+|---|---:|---:|---:|---:|
+| `forced-boolean-formal/specifications/ForcedFormal/ForcedFormal.cfg` | 2 | 3 | 1 | 1 |
+| `forced-boolean-formal/specifications/ForcedFormal/UnforcedFormal.cfg` | 3 | 3 | 1 | 1 |
+
+`UnforcedFormal` drops the forcing conjunct and agrees exactly. Both profiles
+behave the same; the `ForcedFormal` count pair is registered for the default
+profile and as a nominal compat gap. If a later disjunct of a forced formal
+raises an evaluation error, TLC succeeds with the cached value while Core's
+expansion reaches the error; independent validation does not reproduce that
+error, so Core refuses by name instead of reporting it.
+See [the user explanation](tlc-differences.md#d-047-forced-boolean-formals).
 
 <a id="d-030-canonical-bag-fold-order"></a>
 

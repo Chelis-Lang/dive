@@ -405,6 +405,13 @@ path = "conformance/corpus/predicate-witness-counts"
 license = "MIT"
 layout = "examples-manifest"
 
+# Forced Boolean formal generated-count control and unforced twin (D-047).
+[[corpus]]
+id = "forced-boolean-formal"
+path = "conformance/corpus/forced-boolean-formal"
+license = "MIT"
+layout = "examples-manifest"
+
 # Real-world holdout (ADR 0005, amendment 2; issue #854): public specifications
 # written by industrial teams outside tlaplus/Examples. Each pins an upstream
 # repository by commit; a dive-owned manifest under conformance/holdout/ selects
