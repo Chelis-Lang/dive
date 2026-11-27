@@ -1,10 +1,10 @@
 # Release performance qualification
 
 This is the runbook for the performance measurements that qualify dive 0.2.0
-and the Sail release that runs its native temporal jobs on it (Sail 0.4.0).
+and the Sail release that runs its native temporal jobs on it (Sail 0.3.1).
 It is written for an engineer or agent who has not seen the work that led to
 it. Tracking issue: #1418, which lists the qualification steps and collects
-their results. The Sail side is Sail's `v0.4.0` milestone. The 0.1.0
+their results. The Sail side is Sail's `v0.3.1` milestone. The 0.1.0
 qualification used the same procedures; its records are listed in the
 [scoreboard](../scoreboard.md#release-qualification).
 
@@ -47,7 +47,7 @@ we have measured and regressions have an issue before the tag.
 3. The Sail measurements (S1 to S7) run on a Sail branch that pins dive to the
    release-candidate commit by git revision, before either release is tagged.
    S7 must pass before tagging. After dive 0.2.0 is on crates.io, Sail moves
-   its pin to the published version and releases 0.4.0.
+   its pin to the published version and releases 0.3.1.
 
 The harness carries out the R2 procedure itself (`dive-conformance r2`):
 repetitions, band re-runs, cache canaries, the clean environment, the binding

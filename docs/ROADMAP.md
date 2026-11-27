@@ -31,7 +31,7 @@ compact edges and evidence reuse for eligible property edits.
 [Large-model results](developer/large-models.md) ·
 [Symbolic strategy](user/symbolic.md)
 
-dive 0.2.0, released with Sail 0.4.0, is in qualification. It ships the
+dive 0.2.0, released with Sail 0.3.1, is in qualification. It ships the
 default-path Core speed and memory work, strong fairness on Core, the
 reworked simulator and the incremental recheck APIs. Its gates and path are in
 [RELEASE.md](RELEASE.md), tracked in #1418.

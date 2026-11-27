@@ -1,12 +1,12 @@
-# Release 0.2.0: faster Core with Sail 0.4.0
+# Release 0.2.0: faster Core with Sail 0.3.1
 
 [ADR 0153](decisions/0153-core-is-the-product.md) sets the direction. This file
 defines when dive 0.2.0 ships and what work is on the path to it. It gives no
 dates and no effort estimates. Progress is the measured gate numbers below.
 
-dive 0.2.0 ships together with Sail 0.4.0, the Sail release that runs its native
+dive 0.2.0 ships together with Sail 0.3.1, the Sail release that runs its native
 temporal jobs on it. Release tracking issue: #1418, milestone
-[`v0.2: faster Core with Sail 0.4.0`](https://github.com/Chelis-Lang/dive/milestone/12).
+[`v0.2: faster Core with Sail 0.3.1`](https://github.com/Chelis-Lang/dive/milestone/12).
 
 ## What 0.2.0 delivers
 
@@ -52,7 +52,7 @@ hold to tag `v0.2.0`.
 | **R4 Compat exists** | `--compat=tlc` runs on Core. Its known gaps are listed in `docs/tlc-differences.md`. It is not measured against an agreement target. | Small-tier run in the TLC profile reports no internal errors |
 | **R5 Stable surface** | Per-command `--help` works. `--version` names the commit. Unimplemented commands such as `lsp` are hidden. The symbolic strategies and their flags are absent from installed `--help`; experimental tuning flags say so in their help. The JSON report (`schema_version` 4) and the CLI help are pinned by golden tests. | Golden tests in the workspace gate |
 | **R6 Shipped** | A release workflow builds Linux x86_64 and aarch64 archives with checksums and without the symbolic worker. Every published crate is on crates.io at `0.2.0`, and `cargo install dive-cli --locked` works in a clean Cargo home. `CHANGELOG.md` has a curated `0.2.0` section with measured performance numbers. One release-candidate qualification (`cargo xtask gate --full`) passes on the tagged source. | Release workflow dry run on the candidate, then the run on the tag |
-| **R7 Sail with dive** | Sail pinned to the dive release candidate, released as Sail 0.4.0. Through Sail's native temporal backend, checks on small specs and a session of many small checks are much faster than the standard TLC approach (a fresh JVM per check), with the same verdicts and distinct-state counts as the goldens and independently replayed counterexamples. A slower or disagreeing case blocks the release. | S7 of the [release performance qualification](developer/release-performance-plan.md), on one quiet host, 5 alternating repetitions, pinned TLC with its standard invocation |
+| **R7 Sail with dive** | Sail pinned to the dive release candidate, released as Sail 0.3.1. Through Sail's native temporal backend, checks on small specs and a session of many small checks are much faster than the standard TLC approach (a fresh JVM per check), with the same verdicts and distinct-state counts as the goldens and independently replayed counterexamples. A slower or disagreeing case blocks the release. | S7 of the [release performance qualification](developer/release-performance-plan.md), on one quiet host, 5 alternating repetitions, pinned TLC with its standard invocation |
 
 The [release performance qualification](developer/release-performance-plan.md)
 runs on the release-candidate source before the tag. Its R2 and S7 runs are
@@ -90,7 +90,7 @@ checkbox in #1418.
    lockstep version bump to `0.2.0`.
 5. **Sail on the candidate.** Pin dive to the release candidate, accept report
    schema 4 (Chelis-Lang/sail#786), use `SimulateReport::write_json`
-   (Chelis-Lang/sail#767) and curate Sail's `0.4.0` CHANGELOG.
+   (Chelis-Lang/sail#767) and curate Sail's `0.3.1` CHANGELOG.
 6. **Qualify the frozen candidate**, posting each result in #1418:
    - `cargo xtask gate --full`;
    - R1 on Core in both profiles, refreshing the Core baselines;
@@ -100,7 +100,7 @@ checkbox in #1418.
    - R7/S7, Sail with dive;
    - dry runs of `release.yml` and Sail's publish workflow.
 7. **Tag and publish** on an explicit owner go: dive `v0.2.0`, then Sail
-   `0.4.0` pinned to the published dive.
+   `0.3.1` pinned to the published dive.
 
 ## Status
 
