@@ -7,9 +7,17 @@ docs/developer/release-performance-plan.md#s7-saildive-against-standard-tlc).
   s7.py loop     <label>      (b) N small jobs in one session, every path, 5 alternating reps
   s7.py through  <label>      (b) throughput at the admission limit
   s7.py only     <label>      (d) Sail-only capabilities
+  s7.py ratio    <label>      (c) S1's worker-body / dive CLI ratio on the large models Sail admits
 
 <label> names the Sail build in ~/inst-<label>. Rows go to $OUT/s7-<part>-<label>.jsonl.
+
+Sail 0.3.1 replays a completed check from its receipt store when the same job
+(request bytes and wall_time_ms) has already completed in the same cache. With
+S7_FRESH=1 every Sail check job gets its own wall_time_ms (300,000 ms minus a
+counter), so no timed job can be a replay and every path does the check; the
+rows record cache_hit either way.
 """
+import itertools
 import json
 import os
 import shutil
@@ -38,6 +46,42 @@ LAT = ["DieHard", "EWD840", "MCRealTimeHourClock", "MCLiveInternalMemory", "MCDi
        "MCLamportMutex"]
 LOOP = ["DieHard", "EWD840", "MCRealTimeHourClock", "MCLiveInternalMemory"]
 N = int(os.environ.get("S7_N", "100"))
+FRESH = os.environ.get("S7_FRESH") == "1"
+_SEQ = itertools.count(1)  # next() is atomic under the GIL (the throughput part uses threads)
+_TMP = tempfile.mkdtemp(prefix="s7-env-")
+
+
+def envelope(name):
+    """The fixture's envelope, or under S7_FRESH a copy with a unique wall_time_ms."""
+    path = os.path.join(FIX, name, "envelope.json")
+    if not FRESH:
+        return path
+    doc = json.load(open(path))
+    job = doc["input"]["job"]
+    if job["request"]["operation"].get("kind") != "check":
+        return path
+    k = next(_SEQ)
+    job["wall_time_ms"] = st.WALL - k
+    out = os.path.join(_TMP, f"{k}.json")
+    json.dump(doc, open(out, "w"))
+    return out
+
+
+def cache_hit(doc):
+    """The temporal result's cache_hit flag (None when absent)."""
+    if isinstance(doc, dict):
+        if "request_sha256" in doc and "worker_sha256" in doc:
+            return doc.get("cache_hit")
+        for v in doc.values():
+            r = cache_hit(v)
+            if r is not None:
+                return r
+    elif isinstance(doc, list):
+        for v in doc:
+            r = cache_hit(v)
+            if r is not None:
+                return r
+    return None
 
 
 def fx(name):
@@ -138,11 +182,11 @@ def dive_cli(name):
 def sail_row(wall, rc, doc, kb=None):
     o = st.result_of(doc)
     return {"wall_ms": round(wall, 2), "rc": rc, "execution": o[0], "outcome": o[1], "completion": o[2],
-            "distinct": o[3], "depth": o[4], "rss_kb": kb}
+            "distinct": o[3], "depth": o[4], "rss_kb": kb, "cache_hit": cache_hit(doc)}
 
 
 def sail_execute(name, env, socket=None):
-    argv = [st.SAIL, "runtime", "execute", "--file", os.path.join(FIX, name, "envelope.json")]
+    argv = [st.SAIL, "runtime", "execute", "--file", envelope(name)]
     if socket:
         argv += ["--socket", socket]
     wall, rc, out, kb = timed(argv, env=env, rss=socket is None)
@@ -196,19 +240,22 @@ class McpSession:
         self.init_ms = (time.perf_counter() - t0) * 1000
 
     def call(self, name):
+        env = envelope(name)
         t = time.perf_counter()
-        msg = self.m.execute(os.path.join(FIX, name, "envelope.json"))
+        msg = self.m.execute(env)
         wall = (time.perf_counter() - t) * 1000
-        o = (None,) * 6
+        o, doc = (None,) * 6, None
         try:
-            o = st.result_of(json.loads(msg["result"]["content"][0]["text"]))
+            doc = json.loads(msg["result"]["content"][0]["text"])
         except (KeyError, TypeError, ValueError, IndexError):
             try:
-                o = st.result_of(msg["result"]["structuredContent"])
+                doc = msg["result"]["structuredContent"]
             except (KeyError, TypeError):
                 pass
+        if doc is not None:
+            o = st.result_of(doc)
         return {"wall_ms": round(wall, 2), "execution": o[0], "outcome": o[1], "completion": o[2],
-                "distinct": o[3], "depth": o[4]}
+                "distinct": o[3], "depth": o[4], "cache_hit": cache_hit(doc)}
 
     def close(self):
         self.m.close()
@@ -303,7 +350,7 @@ def jobs():
 
 def loop_path(path):
     names = jobs()
-    walls, bad = [], 0
+    walls, bad, hits = [], 0, 0
     extra = {}
     t0 = time.perf_counter()
     if path == "tlc":
@@ -322,6 +369,7 @@ def loop_path(path):
             r = sail_execute(n, env)
             walls.append(r["wall_ms"])
             bad += not sail_ok(n, r)
+            hits += bool(r.get("cache_hit"))
         shutil.rmtree(root, ignore_errors=True)
     elif path == "serve":
         d = Daemon()
@@ -330,6 +378,7 @@ def loop_path(path):
             r = sail_execute(n, d.env, d.sock)
             walls.append(r["wall_ms"])
             bad += not sail_ok(n, r)
+            hits += bool(r.get("cache_hit"))
         extra["daemon_hwm_kb"] = d.hwm_kb()
         d.close()
     else:
@@ -339,11 +388,12 @@ def loop_path(path):
             r = m.call(n)
             walls.append(r["wall_ms"])
             bad += not sail_ok(n, r)
+            hits += bool(r.get("cache_hit"))
         m.close()
     total = (time.perf_counter() - t0) * 1000
     return {"jobs": len(names), "total_ms": round(total, 1), "median_ms": round(statistics.median(walls), 2),
             "p90_ms": round(sorted(walls)[int(0.9 * len(walls)) - 1], 2), "max_ms": round(max(walls), 2),
-            "first_ms": round(walls[0], 2), "disagreements": bad, **extra}
+            "first_ms": round(walls[0], 2), "disagreements": bad, "cache_hits": hits, **extra}
 
 
 def loop():
@@ -378,7 +428,8 @@ def through():
                 with ThreadPoolExecutor(c) as ex:
                     rs = list(ex.map(lambda n: sail_execute(n, d.env, d.sock), names))
                 bad = sum(not sail_ok(n, r) for n, r in zip(names, rs))
-                extra = {"daemon_hwm_kb": d.hwm_kb()}
+                extra = {"daemon_hwm_kb": d.hwm_kb(), "cache_hits": sum(bool(r.get("cache_hit")) for r in rs),
+                         "no_result": sum(r.get("rc") not in (0, None) and r.get("execution") is None for r in rs)}
             total = (time.perf_counter() - t0) * 1000
             if path != "tlc":
                 d.close()
@@ -411,7 +462,30 @@ def only():
         emit("only", {"rep": rep + 1, **rows})
 
 
+# ---------------------------------------------------------------- (c) composition input
+
+LARGE = ["SlushSmall", "MCDisruptor_MPMC", "CoffeeCan1000Beans", "ElevatorLivenessMedium", "MCLamportMutex"]
+
+
+def ratio():
+    """S1's in-worker difference on the large models: temporal_bench's worker
+    body against the dive CLI with Sail's settings, 5 alternating repetitions."""
+    for name in LARGE:
+        for rep in range(REPS):
+            row = {"fixture": name, "rep": rep + 1, "order": ["embedded", "dive"] if rep % 2 == 0 else
+                   ["dive", "embedded"]}
+            for path in row["order"]:
+                if path == "embedded":
+                    r = embedded(name)
+                    r["agrees"] = r["distinct"] == fx(name)["golden"]["distinct"]
+                else:
+                    r = dive_cli(name)
+                    r["agrees"] = agrees(name, dive_holds(r), r["distinct"])
+                row[path] = r
+            emit("ratio", row)
+
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     {"fixtures": st.fixtures, "latency": latency, "first": first_job, "loop": loop, "through": through,
-     "only": only}[sys.argv[1]]()
+     "only": only, "ratio": ratio}[sys.argv[1]]()

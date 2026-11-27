@@ -173,6 +173,7 @@ The [population edit-session measurements](2026-11-21-occupancy-edits.json) pair
 | `2026-11-18-release-d6-stop-latency-08a14fba.json` | D6 | How soon after a time, state or depth limit does a run stop? | `08a14fba` | c7i.metal-24xl (small node) |
 | `2026-11-18-release-d7-macos-08a14fba.json` | D7 (informational) | Does the macOS arm64 build behave like the x86 one? | `08a14fba` | MacBook Air M3, shared laptop |
 | `2026-11-19-release-s7-sail-vs-tlc-ce94df74.json` | S7, release gate | Sail+dive against a fresh `java -jar tla2tools.jar` per check | dive `3d5923a1`, Sail `ce94df74` (and four other Sail builds) | c7i.8xlarge, fresh node |
+| `2026-11-27-release-s7-sail-vs-tlc-5bb88063.json` | S7, release gate (0.2.0) | Sail 0.3.1 + dive 0.2.0 against a fresh `java -jar tla2tools.jar` per check, fresh checks (`rc`) and receipt replays (`rcreplay`) | dive `5bb88063`, Sail `b00b6de9` | c7i.8xlarge, fresh node |
 
 All D records share the oracle `tlc-2026.10.06.014338` (pinned JRE), the
 tlaplus/Examples corpus at `6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f`, and,
@@ -214,6 +215,9 @@ cites the SHA-256 of its three harness files (`harness_sha256`) but not of the
 tarball; the tarball `s7-raw.tar.gz` had SHA-256
 `e0de442aa30e7205c4934b0d97829300c9e5560acd3fc4b898a211f2b62e3c90` when it was
 packed (not rechecked against the bucket copy since).
+Prefix `release-perf/2026-11-27-rc02/s7/` holds the 0.2.0 S7 tarball; its
+record cites it under `raw` (SHA-256
+`92c4b073fb42a556d6324a10a4c1f012aac7dd6e65f95de0b86fcbf8da131562`).
 
 To fetch one, use the AWS CLI with read access to the bucket, then check the
 digest before reading anything:
