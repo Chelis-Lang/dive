@@ -44,14 +44,12 @@ fn request(id: &str, module: &str, compat_tlc: bool) -> (SimulateRequest, tempdi
         format!("{}\n", case["cfg"].as_str().expect("cfg")),
     )
     .expect("configuration");
-    let request = SimulateRequest {
-        file,
-        compat_tlc,
-        seed: Some(0),
-        traces: 8,
-        depth: Some(6),
-        ..Default::default()
-    };
+    let mut request = SimulateRequest::default();
+    request.file = file;
+    request.compat_tlc = compat_tlc;
+    request.seed = Some(0);
+    request.traces = 8;
+    request.depth = Some(6);
     (request, dir)
 }
 
@@ -112,15 +110,17 @@ fn draws_are_identical_at_one_four_and_eight_workers_and_replay_by_trace_ids() {
             let (base, _dir) = request(id, module, compat_tlc);
             let mut base = base;
             base.keep_traces = Some(u64::MAX);
-            let one = run(&SimulateRequest {
-                workers: Some(1),
-                ..base.clone()
+            let one = run(&{
+                let mut built = base.clone();
+                built.workers = Some(1);
+                built
             });
             assert_eq!(one["result"], "sampled", "{id}: {one}");
             for workers in [4, 8] {
-                let many = run(&SimulateRequest {
-                    workers: Some(workers),
-                    ..base.clone()
+                let many = run(&{
+                    let mut built = base.clone();
+                    built.workers = Some(workers);
+                    built
                 });
                 assert_eq!(sample(&one), sample(&many), "{id} at {workers} workers");
             }
@@ -139,10 +139,11 @@ fn draws_are_identical_at_one_four_and_eight_workers_and_replay_by_trace_ids() {
                     assert_eq!(draws.len(), 1, "one draw per chosen step: {state}");
                 }
             }
-            let part = run(&SimulateRequest {
-                workers: Some(3),
-                trace_ids: Some((3, 7)),
-                ..base.clone()
+            let part = run(&{
+                let mut built = base.clone();
+                built.workers = Some(3);
+                built.trace_ids = Some((3, 7));
+                built
             });
             let part = part["traces"].as_array().expect("regenerated traces");
             assert_eq!(part.len(), 5);

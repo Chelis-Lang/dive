@@ -40,12 +40,13 @@ fn operation_reports_share_version_three_without_changing_trace_payloads() -> Re
     assert_eq!(check["statistics"]["distinct"], 5);
     assert!(check.get("execution").is_none());
     assert!(check.get("properties").is_none());
-    let simulation = dive_api::simulate_file(&SimulateRequest {
-        file: file.clone(),
-        seed: Some(0),
-        traces: 1,
-        depth: Some(2),
-        ..Default::default()
+    let simulation = dive_api::simulate_file(&{
+        let mut built = SimulateRequest::default();
+        file.clone_into(&mut built.file);
+        built.seed = Some(0);
+        built.traces = 1;
+        built.depth = Some(2);
+        built
     })?
     .to_json();
     envelope(&simulation, "simulate");

@@ -77,6 +77,53 @@ fn version_is_pinned_and_needs_no_runtime_git() -> Result<(), Box<dyn std::error
     Ok(())
 }
 
+/// The source-checkout symbolic worker's strategies and flags are not part of
+/// the installed 0.2 surface; the Core `bounded-path` strategy is, and tuning
+/// options are labeled experimental.
+#[test]
+fn worker_strategies_are_absent_from_help() -> Result<(), Box<dyn std::error::Error>> {
+    let mut help = String::from_utf8(dive(&["--help"])?.stdout)?;
+    help.push_str(&String::from_utf8(dive(&["check", "--help"])?.stdout)?);
+    for hidden in [
+        "--strategy auto",
+        "--strategy symbolic",
+        "symbolic-path",
+        "--strategy finite-induction",
+        "--strategy occupancy",
+        "--strategy compiled",
+        "--k-induction",
+        "--recheck",
+        "--refine-domains",
+        "receipt",
+        "--property-proof",
+        "--prove-inductive",
+    ] {
+        assert!(!help.contains(hidden), "help still shows {hidden}");
+    }
+    assert!(help.contains("--strategy bounded-path --path-bound K"));
+    let (_, experimental) = help
+        .split_once("Experimental options")
+        .ok_or("missing experimental section")?;
+    for flag in [
+        "--lncheck cold-fair",
+        "--lncheck periodic-all",
+        "--cold-roots",
+        "--cold-init-emissions",
+        "--periodic-min-states",
+        "--independent-frontier",
+        "--partitioned-fingerprints",
+        "--seen-disk-entries",
+    ] {
+        assert!(
+            experimental.contains(flag),
+            "{flag} is not labeled experimental"
+        );
+    }
+    let validate = String::from_utf8(dive(&["validate-trace", "--help"])?.stdout)?;
+    assert!(validate.contains("--repair (experimental)"));
+    Ok(())
+}
+
 #[test]
 fn hidden_commands_still_refuse_explicitly() -> std::io::Result<()> {
     let output = dive(&["lsp", "--help"])?;

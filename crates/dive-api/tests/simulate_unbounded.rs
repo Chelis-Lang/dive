@@ -102,14 +102,15 @@ fn unbounded_init_and_successors_are_sampled_and_validated() -> Result {
     ] {
         let (_scratch, file) = fixture(module, "INIT Init\nNEXT Next\nINVARIANT Small\n")?;
         for (generation, constructive_init) in [(false, false), (true, false), (true, true)] {
-            let json = simulate_file(&SimulateRequest {
-                file: file.clone(),
-                seed: Some(1),
-                traces: 5,
-                depth: Some(20),
-                generation,
-                constructive_init,
-                ..Default::default()
+            let json = simulate_file(&{
+                let mut built = SimulateRequest::default();
+                file.clone_into(&mut built.file);
+                built.seed = Some(1);
+                built.traces = 5;
+                built.depth = Some(20);
+                built.generation = generation;
+                built.constructive_init = constructive_init;
+                built
             })?
             .to_json();
             let case = format!("{module} generate={generation} constructive={constructive_init}");
@@ -154,29 +155,30 @@ fn unbounded_init_and_successors_are_sampled_and_validated() -> Result {
 fn draws_are_reproducible_at_one_and_four_workers() -> Result {
     for module in ["InfInit", "InfNext"] {
         let (_scratch, file) = fixture(module, "INIT Init\nNEXT Next\nINVARIANT Small\n")?;
-        let request = SimulateRequest {
-            file,
-            seed: Some(11),
-            traces: 40,
-            depth: Some(15),
-            keep_traces: Some(KEEP_ALL_TRACES),
-            ..Default::default()
-        };
-        let one = simulate_file(&SimulateRequest {
-            workers: Some(1),
-            ..request.clone()
+        let mut request = SimulateRequest::default();
+        request.file = file;
+        request.seed = Some(11);
+        request.traces = 40;
+        request.depth = Some(15);
+        request.keep_traces = Some(KEEP_ALL_TRACES);
+        let one = simulate_file(&{
+            let mut built = request.clone();
+            built.workers = Some(1);
+            built
         })?
         .to_json();
-        let four = simulate_file(&SimulateRequest {
-            workers: Some(4),
-            ..request.clone()
+        let four = simulate_file(&{
+            let mut built = request.clone();
+            built.workers = Some(4);
+            built
         })?
         .to_json();
         assert_eq!(comparable(&one), comparable(&four), "{module}");
         every_trace_valid(&one);
-        let other = simulate_file(&SimulateRequest {
-            seed: Some(12),
-            ..request
+        let other = simulate_file(&{
+            let mut built = request;
+            built.seed = Some(12);
+            built
         })?
         .to_json();
         assert_ne!(values(&one), values(&other), "{module}");
@@ -196,14 +198,15 @@ fn draws_are_reproducible_at_one_and_four_workers() -> Result {
 fn distributions_are_the_stated_ones() -> Result {
     let draws = |module: &str, body: &str, mean: u64| -> Result<Value> {
         let (_scratch, file) = spec(module, body, "INIT Init\nNEXT Next\n")?;
-        let json = simulate_file(&SimulateRequest {
-            file,
-            seed: Some(5),
-            traces: 400,
-            depth: Some(5),
-            keep_traces: Some(KEEP_ALL_TRACES),
-            sample_unbounded: Some(SampleUnbounded::Geometric { mean }),
-            ..Default::default()
+        let json = simulate_file(&{
+            let mut built = SimulateRequest::default();
+            built.file = file;
+            built.seed = Some(5);
+            built.traces = 400;
+            built.depth = Some(5);
+            built.keep_traces = Some(KEEP_ALL_TRACES);
+            built.sample_unbounded = Some(SampleUnbounded::Geometric { mean });
+            built
         })?
         .to_json();
         assert_eq!(json["result"], "sampled", "{module}: {json}");
@@ -272,13 +275,14 @@ fn violations_through_draws_are_validated() -> Result {
         "INIT Init\nNEXT Next\nINVARIANT Inv\n",
     )?;
     for workers in [1, 4] {
-        let report = simulate_file(&SimulateRequest {
-            file: file.clone(),
-            seed: Some(3),
-            traces: 20,
-            depth: Some(10),
-            workers: Some(workers),
-            ..Default::default()
+        let report = simulate_file(&{
+            let mut built = SimulateRequest::default();
+            file.clone_into(&mut built.file);
+            built.seed = Some(3);
+            built.traces = 20;
+            built.depth = Some(10);
+            built.workers = Some(workers);
+            built
         })?;
         let json = report.to_json();
         assert_eq!(json["result"], "violation", "{json}");
@@ -300,12 +304,13 @@ fn draws_without_a_successor_are_never_a_deadlock() -> Result {
         "Init == x = 0\nNext == \\E n \\in Nat : n > 1000 /\\ x' = n",
         "INIT Init\nNEXT Next\n",
     )?;
-    let json = simulate_file(&SimulateRequest {
-        file,
-        seed: Some(1),
-        traces: 6,
-        depth: Some(10),
-        ..Default::default()
+    let json = simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = file;
+        built.seed = Some(1);
+        built.traces = 6;
+        built.depth = Some(10);
+        built
     })?
     .to_json();
     assert_eq!(json["result"], "sampled", "{json}");
@@ -317,12 +322,13 @@ fn draws_without_a_successor_are_never_a_deadlock() -> Result {
         "Init == x \\in Nat\nNext == x > 5 /\\ x' = x - 1",
         "INIT Init\nNEXT Next\n",
     )?;
-    let json = simulate_file(&SimulateRequest {
-        file,
-        seed: Some(1),
-        traces: 6,
-        depth: Some(40),
-        ..Default::default()
+    let json = simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = file;
+        built.seed = Some(1);
+        built.traces = 6;
+        built.depth = Some(40);
+        built
     })?
     .to_json();
     assert_eq!(json["result"], "violation", "{json}");
@@ -354,12 +360,13 @@ fn unsupported_sets_and_boolean_quantifiers_are_not_sampled() -> Result {
         ),
     ] {
         let (_scratch, file) = spec(module, body, "INIT Init\nNEXT Next\n")?;
-        let json = simulate_file(&SimulateRequest {
-            file,
-            seed: Some(1),
-            traces: 3,
-            depth: Some(5),
-            ..Default::default()
+        let json = simulate_file(&{
+            let mut built = SimulateRequest::default();
+            built.file = file;
+            built.seed = Some(1);
+            built.traces = 3;
+            built.depth = Some(5);
+            built
         })?
         .to_json();
         assert_eq!(json["result"], result, "{module}: {json}");

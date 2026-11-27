@@ -29,14 +29,12 @@ Safe == x \in {0,1}
         std::fs::write(&file, source)?;
         std::fs::write(file.with_extension("cfg"), config)?;
         for compat_tlc in [false, true] {
-            let request = SimulateRequest {
-                file: file.clone(),
-                compat_tlc,
-                seed: Some(0),
-                depth: Some(3),
-                traces: 2,
-                ..Default::default()
-            };
+            let mut request = SimulateRequest::default();
+            file.clone_into(&mut request.file);
+            request.compat_tlc = compat_tlc;
+            request.seed = Some(0);
+            request.depth = Some(3);
+            request.traces = 2;
             // Init draws per trace (ADR 0162 §8); Next keeps the nested
             // ENABLED query, and each trace validates independently.
             let report = dive_api::simulate_file(&request)?.to_json();

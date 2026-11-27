@@ -1,5 +1,8 @@
 # Disk seen-state safety checking
 
+`--seen-disk-entries`, `--partitioned-fingerprints` and the `--seen-*` limits
+are experimental: their flags and behavior may change in a later release.
+
 `dive check --seen-disk-entries N` keeps the set of seen states on disk instead
 of in memory, as fingerprints or, with `--store exact`, exact keys. It is off by
 default. The indexed disk search runs on one worker. For multi-worker fingerprint

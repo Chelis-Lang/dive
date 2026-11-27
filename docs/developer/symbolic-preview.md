@@ -1,6 +1,21 @@
-# Finite symbolic safety checking
+# Finite symbolic safety checking (source-tree preview)
 
-Use `dive check --strategy symbolic` in a Linux release bundle when a finite TLA+
+This is a preview of the symbolic proofs planned for dive 0.3
+([#1417](https://github.com/Chelis-Lang/dive/issues/1417)). The worker is not
+part of the 0.2 release archive or `cargo install`, and its strategies are not
+listed in `dive --help`. It runs from a source checkout once the worker sits
+in `libexec/dive-symbolic` beside the built `dive`:
+
+```sh
+cargo build --release --locked -p dive-cli --bin dive
+cargo build --release --locked -p dive-api --example symbolic_input
+scripts/symbolic/package-worker.sh target/release/examples/symbolic_input \
+    target/release/libexec/dive-symbolic
+```
+
+Flags and report formats may change before 0.3.
+
+Use `dive check --strategy symbolic` from such a checkout when a finite TLA+
 model has many combinations of the same few fields. It can search the complete
 reachable set, check a new invariant against that set, or prove safety by
 induction. It reads the original TLA+ module and configuration through Dive's
@@ -139,8 +154,8 @@ finite `format` field or Core's `schema_version`.
 
 ## Run a check
 
-Keep the extracted Linux release directory together. The bundled worker and
-validator run offline. From the directory containing an existing finite spec:
+Keep `dive` and `libexec/dive-symbolic` together. The worker and validator run
+offline. From the directory containing an existing finite spec:
 
 ```sh
 dive check Model.tla --config Model.cfg --strategy symbolic --output json
@@ -270,7 +285,7 @@ is inconclusive. [Complete TwoPhase and AsyncRaft edit histories](../../conforma
 
 ## Compile a finite safety check
 
-Use `dive check --strategy compiled` in the Linux release bundle to compile a
+Use `dive check --strategy compiled` with the worker installed to compile a
 small finite state layout into native guards and updates. Install `rustc`
 1.99.0 and the host linker before running this strategy. Dive resolves an
 installed compiler through `PATH` or rustup and compiles offline.
@@ -803,3 +818,37 @@ higher peak resident memory. A weakened Mongo strengthening or a changed
 assumption required all 360 obligations again. Restoring the source
 recovered the previously checked results.
 [Native measurements and checked controls](../../conformance/reports/perf/2026-11-23-source-induction-reuse.json).
+
+## Reuse a finite symbolic relation across path bounds
+
+Linux builds with the symbolic worker can reuse one bound relation across
+multiple exact-depth path queries. Select the configured invariant that
+declares the finite layout of all state variables.
+
+```sh
+dive check MCKVS.tla --config MCKVSSafetySmall.cfg \
+  --strategy symbolic-path --type-invariant TypeInvariant \
+  --path-bound 5 --path-bound 15 --k-induction 2 --output json
+```
+
+Each requested bound records whether an execution can reach that length and
+whether any prefix through that length violates a configured invariant. Only
+actual `Next` steps contribute to the length. A supported `SPECIFICATION`
+can also permit full-state stuttering. Stutters implicit in that formula do
+not contribute to path length. Stuttering written in `Next` does contribute.
+A state filtered by a state constraint is still checked on emission. Only
+admitted states can continue a path.
+
+`--k-induction K` checks the base through `K` transitions and a separate
+step from arbitrary admitted valuations satisfying the invariants at the
+preceding `K` positions. Only two discharged obligations yield
+`inductive-safety` and `model_proved: true`. A satisfiable step yields
+`induction-inconclusive` with its last valuation. A reachable violation
+gets an independently validated trace and can be written with `--trace`.
+
+`--write-path-receipt FILE` records the bound query and its result when the
+worker completes without a reachable violation. `--verify-path-receipt FILE`
+requires the same source, CFG, exporter, layout, bounds and induction depth
+and independently repeats the check. Temporal and implied obligations,
+symmetry, action constraints and explicit deadlock checks currently refuse
+with a reason. The strategy uses the normal symbolic time and memory limits.

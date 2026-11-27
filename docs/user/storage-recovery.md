@@ -20,7 +20,7 @@ storage diagnostics and no certified counterexample.
 
 Resident exact membership keeps the first identity directly in its hash slot and compares every variable when the hash matches. Full rectangular blocks of 256 identities with up to 256 variables use lossless per-column encoding. Other widths, partial blocks and variable-length identity rows retain their complete values. Each discovery keeps its original predecessor identifier. These are internal memory representations selected automatically by `--store exact`. [Complete model comparison](../developer/large-models.md#resident-exact-state-identities).
 
-dive's safety BFS also supports disk membership with `--seen-disk-entries`,
+dive's safety BFS also supports experimental disk membership with `--seen-disk-entries`,
 using one worker and complete canonical keys for exact membership. The indexed
 store supports completed-level checkpoints and recovery. Adding
 `--partitioned-fingerprints` uses sorted runs with parallel expansion and a
@@ -178,7 +178,7 @@ restart or used as trace evidence. See the [owned candidate payload spill design
 
 ### Independently stored frontier values
 
-For a wide frontier of compound values, use `--independent-frontier`. Core writes the identity and original values of up to 64 consecutive rows in one self-contained chunk. This allows the value store to release fully written rows between committed worker batches. The default reclamation trigger for this option is 64 MiB of measured store storage. Set `--store-compact-bytes N` to change it. A partial chunk, worker arenas, fingerprint table, parents and file cache still use memory. Allow sufficient local disk for both active breadth-first levels.
+For a wide frontier of compound values, use the experimental `--independent-frontier`. Core writes the identity and original values of up to 64 consecutive rows in one self-contained chunk. This allows the value store to release fully written rows between committed worker batches. The default reclamation trigger for this option is 64 MiB of measured store storage. Set `--store-compact-bytes N` to change it. A partial chunk, worker arenas, fingerprint table, parents and file cache still use memory. Allow sufficient local disk for both active breadth-first levels.
 
 ```sh
 mkdir -p spill

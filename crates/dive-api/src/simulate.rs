@@ -13,14 +13,18 @@ pub const SIMULATE_SCHEMA_VERSION: u32 = crate::REPORT_SCHEMA_VERSION;
 /// A simulation request. The caller must choose a positive trace count, or
 /// [`UNLIMITED_TRACES`] with an explicit time limit.
 ///
+/// The struct is non-exhaustive: start from [`Default`] and assign fields.
+///
 /// ```
-/// let request = dive_api::SimulateRequest {
-///     file: "Counter.tla".into(), seed: Some(7), traces: 10,
-///     depth: Some(100), ..Default::default()
-/// };
+/// let mut request = dive_api::SimulateRequest::default();
+/// request.file = "Counter.tla".into();
+/// request.seed = Some(7);
+/// request.traces = 10;
+/// request.depth = Some(100);
 /// assert_eq!(request.traces, 10);
 /// ```
 #[derive(Clone, Debug, Default)]
+#[non_exhaustive]
 #[allow(
     clippy::struct_excessive_bools,
     reason = "independent public simulation options retain their existing boolean API"

@@ -19,10 +19,11 @@ impl Fixture {
 
     fn report(&self, bound: usize) -> Result<Report> {
         let file = Path::new(&self.0).join("Bounded.tla");
-        Ok(check_file(&Request {
-            file,
-            path_bound: bound,
-            ..Request::default()
+        Ok(check_file(&{
+            let mut built = Request::default();
+            built.file = file;
+            built.path_bound = bound;
+            built
         })?)
     }
 }

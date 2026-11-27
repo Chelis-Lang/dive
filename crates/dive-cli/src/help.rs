@@ -25,23 +25,14 @@ worker proves no model. Give it the same build, FILE.tla, configuration,\n\
             "USAGE: dive dfid FILE.tla --max-level N [--config FILE.cfg]\n                      [--seed N] [--worker-seeds S,...]\n                      [--compat=tlc] [--output human|json]\n                      [--time-limit DURATION|none] [--max-memory BYTES|auto|none]\n\nRun supported bounded iterative deepening; incomplete exploration gives no proof.\n"
         }
         "validate-trace" => {
-            "USAGE: dive validate-trace FILE.tla [--trace TRACE.json] [--inputs RUN.json]\n                                [--config FILE.cfg] [--claim ENDING] [--sample | --repair]\n                                [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc]\n                                [--seed N] [--fp N] [-deadlock] [--output human|json]\n                                [--library-path DIR]... [--module-path DIR]...\n\nIndependently validate a counterexample against its specification.\n--repair searches for short replacement paths for a named periodic word and requires --output json.\n"
+            "USAGE: dive validate-trace FILE.tla [--trace TRACE.json] [--inputs RUN.json]\n                                [--config FILE.cfg] [--claim ENDING] [--sample | --repair (experimental)]\n                                [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc]\n                                [--seed N] [--fp N] [-deadlock] [--output human|json]\n                                [--library-path DIR]... [--module-path DIR]...\n\nIndependently validate a counterexample against its specification.\n--repair (experimental) searches for short replacement paths for a named periodic word and requires --output json.\n"
         }
         _ => return None,
     })
 }
 
 const CHECK: &str = "USAGE: dive check FILE.tla [OPTIONS]\n\n\
-    --strategy auto         select exhaustive checking from the bound model and requested options\n\
     --strategy bounded-path --path-bound K  check paths through K explicit Next transitions\n\
-    --strategy symbolic-path --path-bound K  reuse a finite relation across bounds (Linux)\n\
-    --k-induction K         separately check a K-step induction base and step\n\
-    --strategy symbolic     exact finite safety, symbolic JSON reports (Linux release bundle)\n\
-    --strategy finite-induction  portable finite induction certificates (Linux release bundle)\n\
-    --strategy occupancy    exact labeled safety for interchangeable finite status tables (Linux)\n\
-    --strategy compiled     compile a finite exact safety search (Linux, installed Rust compiler)\n\
-    --recheck MODULE CFG    check another symbolic revision in this invocation\n\
-    --refine-domains        learn reachable members of wide sets in a symbolic search\n\
     --config FILE.cfg       configuration (default FILE.cfg beside the source)\n\
     --compat=tlc            select existing TLC-compatible behavior\n\
     --workers N|auto        worker count; --sequential forces sequential search\n\
@@ -51,23 +42,25 @@ const CHECK: &str = "USAGE: dive check FILE.tla [OPTIONS]\n\n\
     --exit-codes native|tlc process statuses (default tlc in either profile)\n\
     -deadlock               disable deadlock checking\n\
     --time-limit DURATION|none --max-memory BYTES|auto|none\n\
-    --cold-roots N         diversify a cold-fair search across at most N distinct roots\n\
-    --cold-init-emissions N  bound original Init emissions inspected for diversification\n\
     --max-states N|none --max-depth N|none\n\
     --action-composition off|tla --symmetry-liveness unreduced|refuse|tlc\n\
-    --periodic-min-states N  first completed-level liveness check (default 65536)\n\
-    --lncheck cold-fair     seek a validated fair word from selected original Init states\n\
-    --lncheck periodic-all  search every temporal property at each scheduled level\n\
     --core-sample N         compare N sampled states' successors (diagnostic)\n\
     --library-path DIR --module-path DIR (repeatable)\n\n\
 Supported storage options:\n\
-    --independent-frontier --frontier-memory-bytes N --frontier-directory DIR\n\
+    --frontier-memory-bytes N --frontier-directory DIR\n\
     --candidate-memory-bytes N --candidate-directory DIR --store-compact-bytes N\n\
     --predecessor-memory-bytes N --predecessor-directory DIR\n\
-    --seen-disk-entries N --partitioned-fingerprints --seen-directory DIR --seen-key-bytes N\n\
-    --seen-probe-steps N --seen-summary-pairs N\n\
     --checkpoint FILE --checkpoint-after-levels N | --recover FILE\n\
     --checkpoint-counters tlc|retain\n\n\
+Experimental options (tuning; flags and behavior may change):\n\
+    --periodic-min-states N  first completed-level liveness check (default 65536)\n\
+    --lncheck cold-fair     seek a validated fair word from selected original Init states\n\
+    --cold-roots N         diversify a cold-fair search across at most N distinct roots\n\
+    --cold-init-emissions N  bound original Init emissions inspected for diversification\n\
+    --lncheck periodic-all  search every temporal property at each scheduled level\n\
+    --independent-frontier  spill self-contained frontier chunks so values can be reclaimed\n\
+    --seen-disk-entries N --partitioned-fingerprints --seen-directory DIR --seen-key-bytes N\n\
+    --seen-probe-steps N --seen-summary-pairs N\n\n\
 Supported distributed options (pure safety; see\n\
     https://github.com/Chelis-Lang/dive/blob/main/docs/user/distributed-safety.md):\n\
     --distributed-worker IP:port  a running `dive worker` endpoint; repeat, 2..64\n\

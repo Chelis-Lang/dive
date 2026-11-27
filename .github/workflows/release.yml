@@ -53,7 +53,6 @@ jobs:
       - name: Build native binaries
         run: |
           cargo build --release --locked -p dive-cli --bins --target "$TARGET"
-          cargo build --release --locked -p dive-api --example symbolic_input --target "$TARGET"
       - name: Package binaries and licenses
         run: scripts/package-release.sh "target/$TARGET/release" "$RELEASE_TAG" "$TARGET" dist
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

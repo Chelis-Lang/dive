@@ -61,15 +61,16 @@ fn files(dir: &Path) -> Result<BTreeMap<String, Vec<u8>>> {
 fn dump(module: &str, format: TraceFormat, compat_tlc: bool) -> Result<(Scratch, Vec<u8>)> {
     let out = scratch()?;
     let dir = out.0.join("traces");
-    let json = simulate_file(&SimulateRequest {
-        file: receipts().join(format!("{module}.tla")),
-        compat_tlc,
-        seed: Some(1),
-        traces: 1,
-        depth: Some(10),
-        trace_dir: Some(dir.clone()),
-        trace_format: format,
-        ..Default::default()
+    let json = simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = receipts().join(format!("{module}.tla"));
+        built.compat_tlc = compat_tlc;
+        built.seed = Some(1);
+        built.traces = 1;
+        built.depth = Some(10);
+        built.trace_dir = Some(dir.clone());
+        built.trace_format = format;
+        built
     })?
     .to_json();
     assert_eq!(json["result"], "violation", "{module}: {json}");
@@ -141,14 +142,15 @@ fn every_trace_is_written_in_id_order_at_any_worker_count() -> Result {
     let mut directories = Vec::new();
     for workers in [1, 4] {
         let dir = out.0.join(format!("w{workers}"));
-        let json = simulate_file(&SimulateRequest {
-            file: file.clone(),
-            seed: Some(9),
-            traces: 40,
-            depth: Some(12),
-            workers: Some(workers),
-            trace_dir: Some(dir.clone()),
-            ..Default::default()
+        let json = simulate_file(&{
+            let mut built = SimulateRequest::default();
+            file.clone_into(&mut built.file);
+            built.seed = Some(9);
+            built.traces = 40;
+            built.depth = Some(12);
+            built.workers = Some(workers);
+            built.trace_dir = Some(dir.clone());
+            built
         })?
         .to_json();
         assert_eq!(json["result"], "sampled", "{json}");
@@ -193,24 +195,26 @@ fn trace_ids_regenerate_the_same_traces() -> Result {
     for format in [TraceFormat::Dive, TraceFormat::TlcJson, TraceFormat::TlcTla] {
         let whole = out.0.join(format!("whole-{}", format.name()));
         let part = out.0.join(format!("part-{}", format.name()));
-        simulate_file(&SimulateRequest {
-            file: file.clone(),
-            seed: Some(4),
-            traces: 30,
-            depth: Some(8),
-            trace_dir: Some(whole.clone()),
-            trace_format: format,
-            ..Default::default()
+        simulate_file(&{
+            let mut built = SimulateRequest::default();
+            file.clone_into(&mut built.file);
+            built.seed = Some(4);
+            built.traces = 30;
+            built.depth = Some(8);
+            built.trace_dir = Some(whole.clone());
+            built.trace_format = format;
+            built
         })?;
-        let json = simulate_file(&SimulateRequest {
-            file: file.clone(),
-            seed: Some(4),
-            trace_ids: Some((12, 17)),
-            depth: Some(8),
-            workers: Some(3),
-            trace_dir: Some(part.clone()),
-            trace_format: format,
-            ..Default::default()
+        let json = simulate_file(&{
+            let mut built = SimulateRequest::default();
+            file.clone_into(&mut built.file);
+            built.seed = Some(4);
+            built.trace_ids = Some((12, 17));
+            built.depth = Some(8);
+            built.workers = Some(3);
+            built.trace_dir = Some(part.clone());
+            built.trace_format = format;
+            built
         })?
         .to_json();
         assert_eq!(json["options"]["trace_ids"], serde_json::json!([12, 17]));
@@ -242,14 +246,15 @@ fn the_directory_ends_at_the_deciding_trace() -> Result {
         "INIT Init\nNEXT Next\nINVARIANT Inv\n",
     )?;
     let dir = out.0.join("traces");
-    let json = simulate_file(&SimulateRequest {
-        file,
-        seed: Some(2),
-        traces: 1000,
-        depth: Some(6),
-        workers: Some(4),
-        trace_dir: Some(dir.clone()),
-        ..Default::default()
+    let json = simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = file;
+        built.seed = Some(2);
+        built.traces = 1000;
+        built.depth = Some(6);
+        built.workers = Some(4);
+        built.trace_dir = Some(dir.clone());
+        built
     })?
     .to_json();
     assert_eq!(json["result"], "violation", "{json}");
@@ -284,13 +289,14 @@ fn drawn_witnesses_reach_the_files() -> Result {
         "INIT Init\nNEXT Next\n",
     )?;
     let dir = out.0.join("traces");
-    let json = simulate_file(&SimulateRequest {
-        file,
-        seed: Some(5),
-        traces: 15,
-        depth: Some(5),
-        trace_dir: Some(dir.clone()),
-        ..Default::default()
+    let json = simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = file;
+        built.seed = Some(5);
+        built.traces = 15;
+        built.depth = Some(5);
+        built.trace_dir = Some(dir.clone());
+        built
     })?
     .to_json();
     assert_eq!(json["result"], "sampled", "{json}");
@@ -320,12 +326,13 @@ fn a_directory_with_files_is_refused() -> Result {
     let dir = out.0.join("traces");
     std::fs::create_dir(&dir)?;
     std::fs::write(dir.join("old.json"), "{}")?;
-    let refused = simulate_file(&SimulateRequest {
-        file,
-        seed: Some(1),
-        traces: 2,
-        trace_dir: Some(dir),
-        ..Default::default()
+    let refused = simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = file;
+        built.seed = Some(1);
+        built.traces = 2;
+        built.trace_dir = Some(dir);
+        built
     });
     assert!(
         matches!(&refused, Err(dive_api::ApiError::Rejected { message }) if message.contains("not empty")),
@@ -347,14 +354,15 @@ fn an_initial_violation_is_the_first_file() -> Result {
     )?;
     for (ids, first) in [(None, 0), (Some((4, 9)), 4)] {
         let dir = out.0.join(format!("from-{first}"));
-        let json = simulate_file(&SimulateRequest {
-            file: file.clone(),
-            seed: Some(1),
-            traces: if ids.is_some() { 0 } else { 5 },
-            trace_ids: ids,
-            trace_dir: Some(dir.clone()),
-            trace_format: TraceFormat::TlcTla,
-            ..Default::default()
+        let json = simulate_file(&{
+            let mut built = SimulateRequest::default();
+            file.clone_into(&mut built.file);
+            built.seed = Some(1);
+            built.traces = if ids.is_some() { 0 } else { 5 };
+            built.trace_ids = ids;
+            built.trace_dir = Some(dir.clone());
+            built.trace_format = TraceFormat::TlcTla;
+            built
         })?
         .to_json();
         assert_eq!(json["result"], "violation", "{json}");
@@ -399,13 +407,14 @@ fn temporal_counterexamples_reach_the_files() -> Result {
         std::fs::write(&file, source)?;
         std::fs::write(file.with_extension("cfg"), cfg)?;
         let dir = out.0.join("traces");
-        let json = simulate_file(&SimulateRequest {
-            file,
-            seed: Some(1),
-            traces: 5,
-            depth: Some(10),
-            trace_dir: Some(dir.clone()),
-            ..Default::default()
+        let json = simulate_file(&{
+            let mut built = SimulateRequest::default();
+            built.file = file;
+            built.seed = Some(1);
+            built.traces = 5;
+            built.depth = Some(10);
+            built.trace_dir = Some(dir.clone());
+            built
         })?
         .to_json();
         assert_eq!(json["result"], "violation", "{json}");

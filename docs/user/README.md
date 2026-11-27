@@ -18,7 +18,6 @@ the model.
 | Install dive | [Install](install.md) | crates.io, Linux archives, source |
 | Check a first model | [Getting started](getting-started.md) | Counter example, written inline |
 | Check safety properties | [Safety checking](checking.md) | Exhaustive BFS, safety symmetry |
-| Check a large finite state space | [Finite symbolic safety](symbolic.md) | Bundled Linux checker for decision diagrams, edited invariants and induction |
 | Run with TLC's arguments | [TLC checking entrypoints](checking.md#tlc-checking-entrypoints) | Checking only; `-tool` and other TLC protocols refuse |
 | Match TLC's behavior | [Compatibility](compatibility.md) | `--compat=tlc` and its gaps |
 | Check temporal properties | [Temporal checking](temporal.md) | Bounded pure subset |
@@ -60,6 +59,14 @@ without these flags. `--symmetry-liveness tlc` is listed because it is the
 `--compat=tlc` default; it runs unless the model has both `SYMMETRY` and
 temporal properties, and that combination refuses by name. There is no
 language server: `dive lsp` refuses by name.
+
+Help marks tuning options as experimental: `--lncheck cold-fair|periodic-all`,
+`--cold-roots`, `--cold-init-emissions`, `--periodic-min-states`,
+`--independent-frontier`, `--seen-disk-entries`, `--partitioned-fingerprints`
+and `validate-trace --repair`. They work, but their flags and behavior may
+change in a later release. `--strategy bounded-path` is a supported Core mode.
+The symbolic proof strategies are not part of 0.2; see the
+[source-tree preview](../developer/symbolic-preview.md).
 
 The [differences from TLC](../tlc-differences.md) list the known limitations
 and every place where dive's default answer differs from TLC's. The

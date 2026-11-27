@@ -66,17 +66,18 @@ fn request(case: &Value, file: PathBuf, compat_tlc: bool) -> Result<SimulateRequ
             .and_then(|i| flags.get(i + 1))
             .copied()
     };
-    Ok(SimulateRequest {
-        file,
-        compat_tlc,
-        seed: Some(1),
-        traces: after("-simulate")
+    Ok({
+        let mut built = SimulateRequest::default();
+        built.file = file;
+        built.compat_tlc = compat_tlc;
+        built.seed = Some(1);
+        built.traces = after("-simulate")
             .and_then(|num| num.strip_prefix("num="))
             .ok_or("num")?
-            .parse()?,
-        depth: Some(after("-depth").ok_or("depth")?.parse()?),
-        no_deadlock: flags.contains(&"-deadlock"),
-        ..Default::default()
+            .parse()?;
+        built.depth = Some(after("-depth").ok_or("depth")?.parse()?);
+        built.no_deadlock = flags.contains(&"-deadlock");
+        built
     })
 }
 
@@ -97,14 +98,16 @@ fn comparable(report: &Value) -> Value {
 /// Runs at 1 and 4 workers, asserts the reports agree, and checks that
 /// every kept trace validated and nothing claims a proof.
 fn run(request: &SimulateRequest) -> Result<Value> {
-    let one = simulate_file(&SimulateRequest {
-        workers: Some(1),
-        ..request.clone()
+    let one = simulate_file(&{
+        let mut built = request.clone();
+        built.workers = Some(1);
+        built
     })?
     .to_json();
-    let four = simulate_file(&SimulateRequest {
-        workers: Some(4),
-        ..request.clone()
+    let four = simulate_file(&{
+        let mut built = request.clone();
+        built.workers = Some(4);
+        built
     })?
     .to_json();
     assert_eq!(comparable(&four), comparable(&one), "4 workers");
@@ -233,12 +236,13 @@ fn a_lasso_names_every_property_false_on_it() -> Result {
         "Cycle",
         "SPECIFICATION FairSpec\nPROPERTY InfOftenZero EventuallyFive InfOftenFive\n",
     )?;
-    let report = run(&SimulateRequest {
-        file,
-        seed: Some(1),
-        traces: 5,
-        depth: Some(10),
-        ..Default::default()
+    let report = run(&{
+        let mut built = SimulateRequest::default();
+        built.file = file;
+        built.seed = Some(1);
+        built.traces = 5;
+        built.depth = Some(10);
+        built
     })?;
     assert_eq!(report["result"], "violation", "{report}");
     assert_eq!(report["observed_violation"]["name"], "EventuallyFive");
@@ -299,9 +303,10 @@ fn extension_decides_what_the_depth_cut() -> Result {
     assert_eq!(report["options"]["liveness_extend"], 2);
     assert_eq!(deciding(&report), Expect::Temporal("lasso"), "{report}");
     assert_eq!(report["violation_validated"], true);
-    let off = run(&SimulateRequest {
-        liveness_extend: Some(0),
-        ..request(&receipt, file, false)?
+    let off = run(&{
+        let mut built = request(&receipt, file, false)?;
+        built.liveness_extend = Some(0);
+        built
     })?;
     assert_eq!(off["result"], "sampled", "{off}");
 
@@ -379,13 +384,11 @@ fn bad_prefixes_refute_on_truncated_traces() -> Result {
         "SPECIFICATION FairSpec\nPROPERTY StartsBounded\n",
     )?;
     std::fs::write(&file, source)?;
-    let base = SimulateRequest {
-        file,
-        seed: Some(1),
-        traces: 5,
-        depth: Some(10),
-        ..Default::default()
-    };
+    let mut base = SimulateRequest::default();
+    base.file = file;
+    base.seed = Some(1);
+    base.traces = 5;
+    base.depth = Some(10);
     let report = run(&base)?;
     assert_eq!(
         deciding(&report),
@@ -396,9 +399,10 @@ fn bad_prefixes_refute_on_truncated_traces() -> Result {
     let document = &report["traces"][0]["document"];
     assert_eq!(document["states"].as_array().map(Vec::len), Some(5));
     assert_eq!(document["version"], 7);
-    let tlc = run(&SimulateRequest {
-        compat_tlc: true,
-        ..base
+    let tlc = run(&{
+        let mut built = base;
+        built.compat_tlc = true;
+        built
     })?;
     assert_eq!(tlc["result"], "sampled", "{tlc}");
     drop(scratch);
@@ -409,13 +413,14 @@ fn bad_prefixes_refute_on_truncated_traces() -> Result {
 #[test]
 fn a_budget_stop_is_unchecked() -> Result {
     let (_scratch, file) = fixture("Cycle", "SPECIFICATION FairSpec\nPROPERTY EventuallyFive\n")?;
-    let report = run(&SimulateRequest {
-        file,
-        seed: Some(1),
-        traces: 5,
-        depth: Some(10),
-        liveness_budget: Some(1),
-        ..Default::default()
+    let report = run(&{
+        let mut built = SimulateRequest::default();
+        built.file = file;
+        built.seed = Some(1);
+        built.traces = 5;
+        built.depth = Some(10);
+        built.liveness_budget = Some(1);
+        built
     })?;
     assert_eq!(report["result"], "sampled", "{report}");
     assert_eq!(report["options"]["liveness_budget"], 1);
@@ -443,12 +448,13 @@ fn a_counterexample_through_drawn_members_refuses() -> Result {
         file.with_extension("cfg"),
         "SPECIFICATION Spec\nPROPERTY Live\n",
     )?;
-    let report = run(&SimulateRequest {
-        file,
-        seed: Some(1),
-        traces: 20,
-        depth: Some(10),
-        ..Default::default()
+    let report = run(&{
+        let mut built = SimulateRequest::default();
+        built.file = file;
+        built.seed = Some(1);
+        built.traces = 20;
+        built.depth = Some(10);
+        built
     })?;
     assert_eq!(report["result"], "unsupported", "{report}");
     assert!(

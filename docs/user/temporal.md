@@ -135,7 +135,7 @@ check would name it first. Later properties wait for the final check, so the
 reported property is the one a final-only check reports. A violation found on a
 prefix stops the run there, skips postconditions and reports the counts with `capture_completed: false` and `exhausted: false`.
 
-Use `--lncheck periodic-all` to search every configured property at each due
+Use `--lncheck periodic-all` (experimental) to search every configured property at each due
 level. For example, if `Termination` holds on the prefix and `Live` already
 has a fair counterexample, the run can report `Live` there. The checker
 searches in configuration order, evaluates every configured property on the
@@ -157,7 +157,7 @@ exhaustion and whether the final check ran. A run stopped by its budget keeps
 these facts, including zero checks when no level was due. A final-only run
 reports `lncheck: final` and has no `periodic`. Rust callers can choose another
 schedule with `CheckRequest::periodic` (`dive_api::PeriodicSchedule`).
-For a scheduled CLI check, `--periodic-min-states N` sets the minimum number
+For a scheduled CLI check, `--periodic-min-states N` (experimental) sets the minimum number
 of discovered states for the first check. The check runs when the current
 breadth-first level finishes. Subsequent checks still require the graph to
 double. The default is 65,536. Increasing the threshold can avoid an expensive
@@ -646,6 +646,9 @@ counterexample.
 [All floor maps, word hashes and independent controls](../../conformance/reports/perf/2026-11-22-elevator-seven.json)
 
 ### Repair a saved counterexample after an edit
+
+`validate-trace --repair` is experimental: its flags and report may change in a
+later release.
 
 Use the original native word and the current module and configuration.
 

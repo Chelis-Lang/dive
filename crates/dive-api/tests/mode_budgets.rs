@@ -31,14 +31,15 @@ fn model(init: &str) -> Result<(Scratch, PathBuf)> {
     Ok((Scratch(directory), file))
 }
 fn simulation(file: &Path, compat_tlc: bool) -> SimulateRequest {
-    SimulateRequest {
-        file: file.into(),
-        compat_tlc,
-        seed: Some(7),
-        traces: 100_000,
-        depth: Some(100_000),
-        max_memory: BudgetSetting::Unlimited,
-        ..Default::default()
+    {
+        let mut built = SimulateRequest::default();
+        built.file = file.into();
+        built.compat_tlc = compat_tlc;
+        built.seed = Some(7);
+        built.traces = 100_000;
+        built.depth = Some(100_000);
+        built.max_memory = BudgetSetting::Unlimited;
+        built
     }
 }
 fn dfid(file: &Path, compat_tlc: bool) -> DfidRequest {
@@ -68,9 +69,10 @@ fn stopped(document: &Value, resource: &str, phase: &str) {
 fn both_modes_stop_on_time_and_memory_in_both_profiles() -> Result {
     let (_scratch, file) = model("0")?;
     for compat in [false, true] {
-        let simulation = dive_api::simulate_file(&SimulateRequest {
-            time_limit: BudgetSetting::Explicit(Duration::from_millis(20)),
-            ..simulation(&file, compat)
+        let simulation = dive_api::simulate_file(&{
+            let mut built = simulation(&file, compat);
+            built.time_limit = BudgetSetting::Explicit(Duration::from_millis(20));
+            built
         })?;
         assert_eq!(simulation.exit_code(), 5);
         stopped(&simulation.to_json(), "time", "simulation");
@@ -82,10 +84,11 @@ fn both_modes_stop_on_time_and_memory_in_both_profiles() -> Result {
         stopped(&iterative.to_json(), "time", "dfid");
         for (document, phase) in [
             (
-                dive_api::simulate_file(&SimulateRequest {
-                    max_memory: BudgetSetting::Explicit(1),
-                    time_limit: BudgetSetting::Unlimited,
-                    ..self::simulation(&file, compat)
+                dive_api::simulate_file(&{
+                    let mut built = self::simulation(&file, compat);
+                    built.max_memory = BudgetSetting::Explicit(1);
+                    built.time_limit = BudgetSetting::Unlimited;
+                    built
                 })?
                 .to_json(),
                 "simulation",
@@ -111,9 +114,10 @@ fn bulk_initial_predicate_is_interrupted_before_emitting_a_state() -> Result {
     let (_scratch, file) =
         model("IF (\\A i \\in 1..1000: \\A j \\in 1..1000: i + j >= 0) THEN 0 ELSE 1")?;
     for compat in [false, true] {
-        let simulation = dive_api::simulate_file(&SimulateRequest {
-            time_limit: BudgetSetting::Explicit(Duration::from_millis(10)),
-            ..simulation(&file, compat)
+        let simulation = dive_api::simulate_file(&{
+            let mut built = simulation(&file, compat);
+            built.time_limit = BudgetSetting::Explicit(Duration::from_millis(10));
+            built
         })?
         .to_json();
         stopped(&simulation, "time", "simulation");
@@ -134,10 +138,11 @@ fn default_time_limit_is_none_in_both_profiles() -> Result {
     // Neither profile arms a wall-clock budget unless the user sets one, as in TLC.
     let (_scratch, file) = model("0")?;
     for compat in [false, true] {
-        let sampled = dive_api::simulate_file(&SimulateRequest {
-            traces: 2,
-            depth: Some(4),
-            ..simulation(&file, compat)
+        let sampled = dive_api::simulate_file(&{
+            let mut built = simulation(&file, compat);
+            built.traces = 2;
+            built.depth = Some(4);
+            built
         })?
         .to_json();
         let iterative = dive_api::dfid_file(&DfidRequest {
@@ -158,16 +163,15 @@ fn default_time_limit_is_none_in_both_profiles() -> Result {
 fn unlimited_and_generous_budgets_preserve_seeded_samples() -> Result {
     let (_scratch, file) = model("0")?;
     for compat in [false, true] {
-        let request = SimulateRequest {
-            traces: 2,
-            depth: Some(4),
-            time_limit: BudgetSetting::Unlimited,
-            ..simulation(&file, compat)
-        };
+        let mut request = simulation(&file, compat);
+        request.traces = 2;
+        request.depth = Some(4);
+        request.time_limit = BudgetSetting::Unlimited;
         let unlimited = dive_api::simulate_file(&request)?.to_json();
-        let generous = dive_api::simulate_file(&SimulateRequest {
-            time_limit: BudgetSetting::Explicit(Duration::from_secs(60)),
-            ..request
+        let generous = dive_api::simulate_file(&{
+            let mut built = request;
+            built.time_limit = BudgetSetting::Explicit(Duration::from_secs(60));
+            built
         })?
         .to_json();
         assert_eq!(unlimited["traces"], generous["traces"]);
@@ -178,11 +182,12 @@ fn unlimited_and_generous_budgets_preserve_seeded_samples() -> Result {
             generous["options"]["budget"]["time_limit_source"],
             "explicit"
         );
-        let refused = dive_api::simulate_file(&SimulateRequest {
-            workers: Some(8),
-            traces: 0,
-            max_memory: BudgetSetting::Explicit(1),
-            ..simulation(&file, compat)
+        let refused = dive_api::simulate_file(&{
+            let mut built = simulation(&file, compat);
+            built.workers = Some(8);
+            built.traces = 0;
+            built.max_memory = BudgetSetting::Explicit(1);
+            built
         })?
         .to_json();
         assert_eq!(refused["result"], "unsupported");
@@ -215,16 +220,15 @@ fn preflight_errors_and_refusals_keep_precedence_over_run_budgets() -> Result {
             assert_eq!(limited_json["options"]["workers_used"], 0);
             assert!(limited_json["stopped"].is_null());
         }
-        let request = SimulateRequest {
-            workers: Some(2),
-            traces: 0,
-            time_limit: BudgetSetting::Unlimited,
-            ..simulation(&file, compat)
-        };
+        let mut request = simulation(&file, compat);
+        request.workers = Some(2);
+        request.traces = 0;
+        request.time_limit = BudgetSetting::Unlimited;
         let expected = dive_api::simulate_file(&request)?;
-        let limited = dive_api::simulate_file(&SimulateRequest {
-            max_memory: BudgetSetting::Explicit(1),
-            ..request
+        let limited = dive_api::simulate_file(&{
+            let mut built = request;
+            built.max_memory = BudgetSetting::Explicit(1);
+            built
         })?;
         assert_eq!(limited.exit_code(), expected.exit_code());
         assert_eq!(limited.to_json()["result"], expected.to_json()["result"]);
@@ -248,15 +252,14 @@ fn preflight_errors_and_refusals_keep_precedence_over_run_budgets() -> Result {
         assert_eq!(limited.to_json()["message"], expected.to_json()["message"]);
         assert!(limited.to_json()["stopped"].is_null());
     }
-    let request = SimulateRequest {
-        aril: 1_000_001,
-        time_limit: BudgetSetting::Unlimited,
-        ..simulation(&file, true)
-    };
+    let mut request = simulation(&file, true);
+    request.aril = 1_000_001;
+    request.time_limit = BudgetSetting::Unlimited;
     let expected = dive_api::simulate_file(&request)?;
-    let limited = dive_api::simulate_file(&SimulateRequest {
-        max_memory: BudgetSetting::Explicit(1),
-        ..request
+    let limited = dive_api::simulate_file(&{
+        let mut built = request;
+        built.max_memory = BudgetSetting::Explicit(1);
+        built
     })?;
     assert_eq!(expected.to_json()["result"], "resource-limit");
     assert_eq!(limited.exit_code(), expected.exit_code());
@@ -272,11 +275,12 @@ fn simulation_does_not_replay_a_retained_prefix_after_exhaustion() -> Result {
     for compat in [false, true] {
         for (traces, depth) in [(100_000, 10), (1, 10_000_000)] {
             let start = std::time::Instant::now();
-            let report = dive_api::simulate_file(&SimulateRequest {
-                traces,
-                depth: Some(depth),
-                time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
-                ..simulation(&file, compat)
+            let report = dive_api::simulate_file(&{
+                let mut built = simulation(&file, compat);
+                built.traces = traces;
+                built.depth = Some(depth);
+                built.time_limit = BudgetSetting::Explicit(Duration::from_millis(50));
+                built
             })?;
             stopped(&report.to_json(), "time", "simulation");
             assert_eq!(report.to_json()["traces"], serde_json::json!([]));

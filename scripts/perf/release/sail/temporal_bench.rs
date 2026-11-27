@@ -111,16 +111,15 @@ fn main() {
             Some(format!("{r:?}"))
         }
         Operation::Simulate { traces, depth } => {
-            let r = dive_api::simulate_file(&dive_api::SimulateRequest {
-                file: root,
-                config: Some(config),
-                library_paths: libraries,
-                seed: Some(0),
-                workers: Some(1),
-                traces: *traces,
-                depth: Some(*depth),
-                ..Default::default()
-            })
+            let mut request = dive_api::SimulateRequest::default();
+            request.file = root;
+            request.config = Some(config);
+            request.library_paths = libraries;
+            request.seed = Some(0);
+            request.workers = Some(1);
+            request.traces = *traces;
+            request.depth = Some(*depth);
+            let r = dive_api::simulate_file(&request)
             .map(|r| r.to_json()["result"].clone());
             Some(format!("{r:?}"))
         }

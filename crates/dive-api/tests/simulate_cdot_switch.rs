@@ -8,14 +8,15 @@ use dive_api::SimulateRequest;
 use std::path::PathBuf;
 
 fn run(compat_tlc: bool) -> serde_json::Value {
-    dive_api::simulate_file(&SimulateRequest {
-        file: PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../dive-sim/tests/fixtures/SimCdotSwitch.tla"),
-        seed: Some(0),
-        depth: Some(4),
-        traces: 3,
-        compat_tlc,
-        ..Default::default()
+    dive_api::simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../dive-sim/tests/fixtures/SimCdotSwitch.tla");
+        built.seed = Some(0);
+        built.depth = Some(4);
+        built.traces = 3;
+        built.compat_tlc = compat_tlc;
+        built
     })
     .unwrap()
     .to_json()

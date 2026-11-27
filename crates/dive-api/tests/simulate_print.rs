@@ -19,13 +19,14 @@ fn fixtures() -> PathBuf {
 }
 
 fn request(name: &str, depth: usize, compat_tlc: bool) -> SimulateRequest {
-    SimulateRequest {
-        file: fixtures().join(format!("{name}.tla")),
-        traces: 1,
-        depth: Some(depth),
-        seed: Some(0),
-        compat_tlc,
-        ..Default::default()
+    {
+        let mut built = SimulateRequest::default();
+        built.file = fixtures().join(format!("{name}.tla"));
+        built.traces = 1;
+        built.depth = Some(depth);
+        built.seed = Some(0);
+        built.compat_tlc = compat_tlc;
+        built
     }
 }
 
@@ -123,10 +124,8 @@ fn direct_captured_and_configured_prints_match_genuine_primary_words() {
 
 fn check_print_statistics(req: &SimulateRequest, row: &Value, plain: &Value) {
     assert_eq!(plain["action_flow"], Value::Null);
-    let counted_req = SimulateRequest {
-        action_stats: true,
-        ..req.clone()
-    };
+    let mut counted_req = req.clone();
+    counted_req.action_stats = true;
     let counted_report =
         dive_api::simulate_file(&counted_req).expect("Print with basic statistics");
     let counted = counted_report.to_json();

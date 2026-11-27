@@ -59,15 +59,17 @@ fn comparable(report: &Value) -> Value {
 }
 
 fn same_at_every_width(request: &SimulateRequest) -> Result<Value> {
-    let one = simulate_file(&SimulateRequest {
-        workers: Some(1),
-        ..request.clone()
+    let one = simulate_file(&{
+        let mut built = request.clone();
+        built.workers = Some(1);
+        built
     })?
     .to_json();
     for workers in [2, 4, 8] {
-        let many = simulate_file(&SimulateRequest {
-            workers: Some(workers),
-            ..request.clone()
+        let many = simulate_file(&{
+            let mut built = request.clone();
+            built.workers = Some(workers);
+            built
         })?
         .to_json();
         assert_eq!(many["options"]["workers_used"], workers);
@@ -83,13 +85,14 @@ fn same_at_every_width(request: &SimulateRequest) -> Result<Value> {
 fn the_lowest_violating_trace_decides_at_every_worker_count() -> Result {
     let (_scratch, file) = fixture("Walk", "SPECIFICATION Spec\nINVARIANT NotFourteen\n")?;
     for compat_tlc in [false, true] {
-        let report = same_at_every_width(&SimulateRequest {
-            file: file.clone(),
-            compat_tlc,
-            seed: Some(7),
-            traces: 100_000,
-            depth: Some(20),
-            ..Default::default()
+        let report = same_at_every_width(&{
+            let mut built = SimulateRequest::default();
+            file.clone_into(&mut built.file);
+            built.compat_tlc = compat_tlc;
+            built.seed = Some(7);
+            built.traces = 100_000;
+            built.depth = Some(20);
+            built
         })?;
         assert_eq!(report["result"], "violation", "{report}");
         assert_eq!(report["violation_validated"], true);
@@ -106,14 +109,15 @@ fn the_lowest_violating_trace_decides_at_every_worker_count() -> Result {
         assert_eq!(report["statistics"]["traces_started"], id + 1);
         assert_eq!(report["observed_violation"]["trace"], 10);
         // Trace `id` alone, requested from a fresh run, is the same trace.
-        let alone = simulate_file(&SimulateRequest {
-            file: file.clone(),
-            compat_tlc,
-            seed: Some(7),
-            traces: id + 1,
-            depth: Some(20),
-            keep_traces: Some(0),
-            ..Default::default()
+        let alone = simulate_file(&{
+            let mut built = SimulateRequest::default();
+            file.clone_into(&mut built.file);
+            built.compat_tlc = compat_tlc;
+            built.seed = Some(7);
+            built.traces = id + 1;
+            built.depth = Some(20);
+            built.keep_traces = Some(0);
+            built
         })?
         .to_json();
         assert_eq!(alone["traces"][0]["document"], deciding["document"]);
@@ -131,12 +135,13 @@ fn output_is_released_in_trace_order() -> Result {
          Next == \\/ x' = x + 1 /\\ PrintT(<<\"up\", x>>)\n        \\/ x' = 0 /\\ PrintT(<<\"reset\", x>>)\n====\n",
         "INIT Init\nNEXT Next\n",
     )?;
-    let report = same_at_every_width(&SimulateRequest {
-        file,
-        seed: Some(3),
-        traces: 200,
-        depth: Some(6),
-        ..Default::default()
+    let report = same_at_every_width(&{
+        let mut built = SimulateRequest::default();
+        built.file = file;
+        built.seed = Some(3);
+        built.traces = 200;
+        built.depth = Some(6);
+        built
     })?;
     assert_eq!(report["result"], "sampled", "{report}");
     assert_eq!(
@@ -151,24 +156,23 @@ fn output_is_released_in_trace_order() -> Result {
 #[test]
 fn retention_keeps_the_lowest_ids_and_always_validates_the_violation() -> Result {
     let (_scratch, file) = fixture("Walk", "SPECIFICATION Spec\nINVARIANT NotFourteen\n")?;
-    let request = SimulateRequest {
-        file,
-        seed: Some(7),
-        traces: 100_000,
-        depth: Some(20),
-        keep_traces: Some(0),
-        ..Default::default()
-    };
+    let mut request = SimulateRequest::default();
+    request.file = file;
+    request.seed = Some(7);
+    request.traces = 100_000;
+    request.depth = Some(20);
+    request.keep_traces = Some(0);
     let report = same_at_every_width(&request)?;
     let traces = report["traces"].as_array().ok_or("traces")?;
     assert_eq!(traces.len(), 1);
     assert_eq!(report["violation_validated"], true);
     assert_eq!(report["observed_violation"]["trace"], 0);
     assert_eq!(report["options"]["keep_traces"], 0);
-    let sampled = simulate_file(&SimulateRequest {
-        traces: 30,
-        keep_traces: Some(KEEP_ALL_TRACES),
-        ..request.clone()
+    let sampled = simulate_file(&{
+        let mut built = request.clone();
+        built.traces = 30;
+        built.keep_traces = Some(KEEP_ALL_TRACES);
+        built
     })?
     .to_json();
     assert_eq!(sampled["options"]["keep_traces"], "all");
@@ -187,12 +191,13 @@ fn retention_keeps_the_lowest_ids_and_always_validates_the_violation() -> Result
 #[test]
 fn large_successor_sets_are_sampled_without_a_resource_limit() -> Result {
     let (_scratch, file) = fixture("BigNext", "INIT Init\nNEXT Next\nINVARIANT Small\n")?;
-    let report = simulate_file(&SimulateRequest {
-        file,
-        seed: Some(1),
-        traces: 1,
-        depth: Some(2),
-        ..Default::default()
+    let report = simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = file;
+        built.seed = Some(1);
+        built.traces = 1;
+        built.depth = Some(2);
+        built
     })?
     .to_json();
     assert_eq!(report["result"], "sampled", "{report}");
@@ -207,14 +212,15 @@ fn large_successor_sets_are_sampled_without_a_resource_limit() -> Result {
 #[test]
 fn constructive_init_never_enumerates_init() -> Result {
     let (_scratch, file) = fixture("BigNext", "INIT Init\nNEXT Next\nINVARIANT Small\n")?;
-    let report = same_at_every_width(&SimulateRequest {
-        file,
-        seed: Some(1),
-        traces: 5,
-        depth: Some(20),
-        generation: true,
-        constructive_init: true,
-        ..Default::default()
+    let report = same_at_every_width(&{
+        let mut built = SimulateRequest::default();
+        built.file = file;
+        built.seed = Some(1);
+        built.traces = 5;
+        built.depth = Some(20);
+        built.generation = true;
+        built.constructive_init = true;
+        built
     })?;
     assert_eq!(report["result"], "sampled", "{report}");
     assert_eq!(report["options"]["initial_states"], "constructed");
@@ -236,16 +242,18 @@ fn unenumerable_sets_are_tlc_general_errors() -> Result {
         let (_scratch, file) = fixture(module, "INIT Init\nNEXT Next\nINVARIANT Small\n")?;
         for generation in [false, true] {
             for compat_tlc in [false, true] {
-                let report = simulate_file(&SimulateRequest {
-                    file: file.clone(),
-                    compat_tlc,
-                    seed: Some(1),
-                    traces: 5,
-                    depth: Some(20),
-                    generation,
-                    constructive_init: generation,
-                    sample_unbounded: (!compat_tlc).then_some(dive_api::SampleUnbounded::Off),
-                    ..Default::default()
+                let report = simulate_file(&{
+                    let mut built = SimulateRequest::default();
+                    file.clone_into(&mut built.file);
+                    built.compat_tlc = compat_tlc;
+                    built.seed = Some(1);
+                    built.traces = 5;
+                    built.depth = Some(20);
+                    built.generation = generation;
+                    built.constructive_init = generation;
+                    built.sample_unbounded =
+                        (!compat_tlc).then_some(dive_api::SampleUnbounded::Off);
+                    built
                 })?;
                 let json = report.to_json();
                 let case = format!("{module} generate={generation} tlc={compat_tlc}: {json}");
@@ -267,13 +275,14 @@ fn deep_traces_run_in_trace_memory() -> Result {
         "---- MODULE Deep ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = x + 1\n====\n",
         "INIT Init\nNEXT Next\n",
     )?;
-    let report = simulate_file(&SimulateRequest {
-        file,
-        seed: Some(1),
-        traces: 2,
-        depth: Some(200_000),
-        keep_traces: Some(0),
-        ..Default::default()
+    let report = simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = file;
+        built.seed = Some(1);
+        built.traces = 2;
+        built.depth = Some(200_000);
+        built.keep_traces = Some(0);
+        built
     })?
     .to_json();
     assert_eq!(report["result"], "sampled", "{report}");
@@ -287,22 +296,21 @@ fn deep_traces_run_in_trace_memory() -> Result {
 #[test]
 fn the_report_byte_bound_drops_samples_first() -> Result {
     let (_scratch, file) = fixture("Walk", "SPECIFICATION Spec\nINVARIANT NotFourteen\n")?;
-    let request = SimulateRequest {
-        file,
-        seed: Some(7),
-        traces: 100_000,
-        depth: Some(20),
-        ..Default::default()
-    };
+    let mut request = SimulateRequest::default();
+    request.file = file;
+    request.seed = Some(7);
+    request.traces = 100_000;
+    request.depth = Some(20);
     let full = simulate_file(&request)?;
     let full_len = full.json_len(None);
     let mut text = Vec::new();
     full.write_json(&mut text, None)?;
     assert_eq!(text.len(), full_len);
     let bound = full_len - 2_000;
-    let fitted = simulate_file(&SimulateRequest {
-        max_report_bytes: Some(bound),
-        ..request.clone()
+    let fitted = simulate_file(&{
+        let mut built = request.clone();
+        built.max_report_bytes = Some(bound);
+        built
     })?;
     for convention in [
         None,
@@ -324,9 +332,10 @@ fn the_report_byte_bound_drops_samples_first() -> Result {
         full.to_json()["traces"].as_array().and_then(|t| t.last())
     );
     // A bound too small for the deciding trace leaves its summary.
-    let tiny = simulate_file(&SimulateRequest {
-        max_report_bytes: Some(1),
-        ..request
+    let tiny = simulate_file(&{
+        let mut built = request;
+        built.max_report_bytes = Some(1);
+        built
     })?
     .to_json();
     let summary = &tiny["traces"][0]["summary"];
@@ -349,18 +358,17 @@ fn unlimited_traces_need_a_time_limit_and_stop_on_it() -> Result {
         "---- MODULE Loop ----\nEXTENDS Integers\nVARIABLE x\nInit == x = 0\nNext == x' = 1 - x\n====\n",
         "INIT Init\nNEXT Next\n",
     )?;
-    let request = SimulateRequest {
-        file,
-        seed: Some(1),
-        traces: dive_api::UNLIMITED_TRACES,
-        depth: Some(10),
-        ..Default::default()
-    };
+    let mut request = SimulateRequest::default();
+    request.file = file;
+    request.seed = Some(1);
+    request.traces = dive_api::UNLIMITED_TRACES;
+    request.depth = Some(10);
     assert!(simulate_file(&request).is_err());
-    let report = simulate_file(&SimulateRequest {
-        time_limit: BudgetSetting::Explicit(Duration::from_millis(300)),
-        workers: Some(2),
-        ..request
+    let report = simulate_file(&{
+        let mut built = request;
+        built.time_limit = BudgetSetting::Explicit(Duration::from_millis(300));
+        built.workers = Some(2);
+        built
     })?
     .to_json();
     assert_eq!(report["result"], "stopped", "{report}");
