@@ -101,6 +101,7 @@ checkbox in #1418.
    - dry runs of `release.yml` and Sail's publish workflow.
 7. **Tag and publish** on an explicit owner go: dive `v0.2.0`, then Sail
    `0.3.1` pinned to the published dive.
+8. **Docs surfaces**, before the tag and after publication, per the [release playbook](developer/releasing.md#docs-surfaces).
 
 ## Status
 

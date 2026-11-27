@@ -27,6 +27,8 @@ repository `LICENSE`, which the publisher checks.
    `version = "=X.Y.Z"` pin in `[workspace.dependencies]`, `Cargo.lock`
    (`cargo update --workspace`), and a curated `## X.Y.Z` section in
    `CHANGELOG.md` (the release notes are extracted from it).
+   Update the [docs surfaces before the tag](#before-the-tag) in the same
+   PR or one just after it.
 2. **Dry-run** on the merged commit, with a clean worktree and Python 3.11 or
    later:
 
@@ -40,11 +42,18 @@ repository `LICENSE`, which the publisher checks.
    and reports which versions are not yet on crates.io. It reads no
    credential. A manual dispatch of `release.yml` runs the same dry run
    alongside the archive build.
-3. **Tag** the qualified commit and push the tag (`git tag vX.Y.Z <sha>`,
+3. **Check the docs surfaces** on the commit to be tagged. This must print
+   `clean`:
+
+   ```sh
+   python3 -I scripts/check-release-docs.py --version X.Y.Z --previous A.B.C
+   ```
+
+4. **Tag** the qualified commit and push the tag (`git tag vX.Y.Z <sha>`,
    `git push origin vX.Y.Z`). `release.yml` checks the tag against the
    version, builds the Linux archives, repeats the crate dry run and creates
    the GitHub Release.
-4. **Publication.** After creating the release, `release.yml` dispatches
+5. **Publication.** After creating the release, `release.yml` dispatches
    `publish-crates.yml` with the tag and commit. That workflow requires the
    release to be published and the tag to resolve to the same commit, checks
    out that commit and runs `scripts/publish-crates.py --version X.Y.Z` with
@@ -58,6 +67,93 @@ repository `LICENSE`, which the publisher checks.
 
    A release created by hand in the GitHub UI starts the workflow through its
    `release: published` trigger instead.
+6. **Verify** the published crates (see [Verification](#verification)).
+7. **Update the docs surfaces after publication** (see
+   [After the tag and publication](#after-the-tag-and-publication)).
+
+## Docs surfaces
+
+Every release updates every docs surface. dive and Sail release together, so
+run this checklist alongside the docs step of Sail's playbook
+([`docs/releasing.md`](https://github.com/Chelis-Lang/sail/blob/main/docs/releasing.md)
+in Chelis-Lang/sail). Anything that quotes release-candidate measurements is
+written once the qualification has posted its numbers in the release issue.
+
+### Before the tag
+
+These ship from the tagged commit, so they are fixed before it is tagged.
+
+- [ ] `README.md`: install command, headline numbers and what the release
+      includes.
+- [ ] `crates/*/README.md`: crates.io keeps the README of each published
+      version and it cannot be edited afterwards.
+- [ ] `CHANGELOG.md`: a curated `## X.Y.Z` section with measured numbers and no
+      placeholder notes. `release.yml` copies it into the GitHub Release.
+- [ ] `docs/user/install.md` (archive URLs and names, `--version` output) and
+      `docs/user/rust-api.md` (the `dive-api` dependency line).
+- [ ] `docs/tlc-differences.md`: every divergence registered for the release.
+- [ ] `docs/developer/release-performance-results.md`: the results page names
+      the release and carries its measurements.
+- [ ] `docs/scoreboard.md`: the gate rows show the release-candidate results.
+- [ ] `skills/dive/SKILL.md`: install line and commands match the release.
+- [ ] No user-facing page names a feature the release leaves out, other than
+      its preview page.
+
+The checker covers the mechanical part of this list: the CHANGELOG section,
+stale versions in install commands, dependency lines and download URLs, and
+unshipped feature names. Its file and pattern tables are at the top of
+`scripts/check-release-docs.py`; its tests are
+`scripts/test-check-release-docs.py`.
+
+### After the tag and publication
+
+These live outside this repository and point at the published release. Each
+outward-facing change below (the website deploy, a release post, the GitHub
+repository settings) needs the owner's approval before it goes out.
+
+- [ ] **Dive book on jeffreykent.dev.** In `jeffreykentjr/mesite`, set the
+      `dive` entry of `src/data/docs.json` to the tag commit and the SHA-256 of
+      its archive:
+
+      ```sh
+      git rev-parse vX.Y.Z^{commit}
+      curl -sL https://codeload.github.com/Chelis-Lang/dive/tar.gz/FULL_COMMIT_SHA | sha256sum
+      ```
+
+      Follow mesite's `docs/publishing.md` for its checks, review and merge.
+      The paired Sail release moves the `sail` entry of the same file and the
+      cproof.ai pin in Chelis-Lang/website; Sail's playbook owns those.
+- [ ] **Dive pages on jeffreykent.dev.** Update `src/content/guides/dive.md` and
+      `src/content/guides/dive/*.md` in mesite (source tag, revision and
+      numbers), and redraw the share cards if a title or description changes.
+- [ ] **Release post.** The owner decides whether the release gets a post in
+      mesite's `src/content/blog/` and writes or approves its wording.
+- [ ] **GitHub repository metadata.** Set the homepage to the hosted book and
+      the topics to the crates.io keywords plus `rust`:
+
+      ```sh
+      gh repo edit Chelis-Lang/dive --homepage https://jeffreykent.dev/docs/dive/ \
+        --add-topic tla --add-topic tlaplus --add-topic model-checker \
+        --add-topic formal-verification --add-topic pluscal --add-topic rust
+      ```
+
+- [ ] **Internal consumers.** Open an issue or PR in `jeffreykentjr/tire`
+      (README install lines and the CI install of dive) and `Chelis-Lang/oyster`
+      (README, docs and the Sail pin in `Cargo.toml`) asking them to move to
+      `cargo install dive-cli --version X.Y.Z --locked` and the paired Sail
+      release.
+- [ ] **Recheck** with every checkout given, from this repository's root:
+
+      ```sh
+      python3 -I scripts/check-release-docs.py --version X.Y.Z --previous A.B.C \
+        --tag-commit FULL_COMMIT_SHA --mesite PATH/TO/mesite \
+        --sail PATH/TO/sail --sail-version S.T.U --sail-tag-commit SAIL_COMMIT_SHA \
+        --website PATH/TO/website
+      ```
+
+      With the site checkouts on their bumped branches this also confirms the
+      book pins, and Sail's README, install guide, crate READMEs and Action
+      default name the Sail release.
 
 ## Initial publication
 
