@@ -28,8 +28,8 @@ Each GitHub release has archives for `x86_64-unknown-linux-gnu` and
 on x86_64:
 
 ```sh
-base=https://github.com/Chelis-Lang/dive/releases/download/v0.1.0
-name=dive-v0.1.0-x86_64-unknown-linux-gnu
+base=https://github.com/Chelis-Lang/dive/releases/download/v0.2.0
+name=dive-v0.2.0-x86_64-unknown-linux-gnu
 curl -LO "$base/$name.tar.gz" -LO "$base/$name.tar.gz.sha256"
 sha256sum -c "$name.tar.gz.sha256"
 tar -xzf "$name.tar.gz"
@@ -56,14 +56,14 @@ dive --help
 ```
 
 `dive --version` prints the package version and, in parentheses, the commit
-the build came from: `dive 0.1.0 (<commit>)`. The commit takes one of these
+the build came from: `dive 0.2.0 (<commit>)`. The commit takes one of these
 forms:
 
 - From crates.io (`cargo install dive-cli`), the first 12 hex digits of the
   commit Cargo recorded when the package was published, with `-dirty` if it
   was packaged from uncommitted changes.
 - From a Git checkout, including the Linux release archives, the nearest
-  release tag in `git describe` form (`v0.1.0-0-g<hash>` on a tagged
+  release tag in `git describe` form (`v0.2.0-0-g<hash>` on a tagged
   release), or the abbreviated commit hash when no release tag precedes it.
 - From a source tree with neither, `unknown`.
 
