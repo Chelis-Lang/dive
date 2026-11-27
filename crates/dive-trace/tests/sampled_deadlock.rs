@@ -14,7 +14,7 @@ impl HostControl for Continue {
     }
 }
 
-const SOURCE: &str = "---- MODULE D ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x = 0\nNext == x' = x + 1\nC == x < 3\nA == x' < 3\nL == TLCGet(\"level\") < 4\n====\n";
+const SOURCE: &str = "---- MODULE D ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x = 0\nNext == x' = x + 1\nC == x < 3\nA == x' < 3\nL == TLCGet(\"level\") < 4\nI == x # 3\nJ == x # 4\nP == [][x' # 3]_x\n====\n";
 
 fn session(constraint: &str, options: dive_eval::Options) -> Session {
     let analysis = dive_sema::analyze_source("D.tla", SOURCE, &dive_sema::Options::default());
@@ -129,5 +129,38 @@ fn terminal_word_requires_deadlock_checking_off_and_no_admitted_successor() {
                 .validation,
             Validation::Invalid(_)
         ));
+    }
+}
+
+/// TLC's simulator checks invariants and `[][A]_v` parts on every generated
+/// successor before the constraints exclude it, so a successor the
+/// constraints exclude still decides the ending when it violates one.
+#[test]
+fn excluded_successor_violating_a_property_refutes_the_ending() {
+    for options in [dive_eval::Options::dive(), dive_eval::Options::tlc()] {
+        for (properties, violated) in [
+            ("INVARIANT I", Some("I")),
+            ("PROPERTY P", Some("P")),
+            ("INVARIANT J", None),
+        ] {
+            let off = session(
+                &format!("CONSTRAINT C\n{properties}\nCHECK_DEADLOCK FALSE"),
+                options,
+            );
+            let on = session(&format!("CONSTRAINT C\n{properties}"), options);
+            for (session, doc) in [(&off, terminal(2)), (&on, deadlock(2))] {
+                match (sampled(session, &doc), violated) {
+                    (Validation::Valid, None) => {}
+                    (Validation::Invalid(failure), Some(name)) => {
+                        assert_eq!((failure.state, failure.check), (2, Check::Ending));
+                        assert!(
+                            failure.detail.contains(&format!("violates {name}")),
+                            "{failure:?}"
+                        );
+                    }
+                    (other, _) => panic!("{properties}: {other:?}"),
+                }
+            }
+        }
     }
 }

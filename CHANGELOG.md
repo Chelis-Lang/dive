@@ -7,7 +7,7 @@ are in git history.
 
 ### Fixed
 
-- `dive simulate` now marks a trace that stopped early at a state with no successor inside the constraints (deadlock checking off, where TLC's simulator also ends the trace) with the new `terminal` ending, in trace document version 8. Sample validation, `validate-trace --sample` and the conformance harness regenerate every successor of the last state and accept the word only if none is admitted; previously such a word was labelled `behavior` and could not be told apart from a truncated one, so the harness graded EWD687a_anim `disagree`. A reader that accepts dive-trace versions 1 to 7 must add version 8 to read these words.
+- `dive simulate` now marks a trace that stopped early at a state with no successor inside the constraints (deadlock checking off, where TLC's simulator also ends the trace) with the new `terminal` ending, in trace document version 8. Sample validation, `validate-trace --sample` and the conformance harness regenerate every successor of the last state and accept the word only if none is admitted and every excluded successor satisfies the invariants and action properties (the same now holds for a sampled `deadlock`); previously such a word was labelled `behavior` and could not be told apart from a truncated one, so the harness graded EWD687a_anim `disagree`. A reader that accepts dive-trace versions 1 to 7 must add version 8 to read these words.
 
 ## 0.2.0
 

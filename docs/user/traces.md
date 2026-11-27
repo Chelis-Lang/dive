@@ -142,7 +142,9 @@ configured finite safety obligations on the rows (constraints, invariants and
 implied initial and action properties), and the report says
 `validation_goal: "sample"`. A plain Behavior validation checks only the
 relation. A sample may also end in `deadlock`: every successor of the last
-state must then fall outside the `CONSTRAINT`s and `ACTION_CONSTRAINT`s.
+state must then fall outside the `CONSTRAINT`s and `ACTION_CONSTRAINT`s,
+and must still satisfy the invariants and `[][A]_v` properties, which TLC's
+simulator checks on a successor before the constraints exclude it.
 A sample that ends in `terminal` stopped before its depth at such a state
 while deadlock checking was off, where TLC's simulator also ends the trace;
 it is checked the same way, and is invalid if the model checks for deadlock.
