@@ -229,7 +229,7 @@ impl Session {
     /// decoded as it is produced ([`crate::stream`]), so the word is never
     /// held as JSON. The trusted caller's ending selects the operation, as
     /// for a whole document: a behavior is checked by [`Self::read_sampled`],
-    /// a deadlock by [`Self::read_sampled_deadlock`], and an invariant or
+    /// a deadlock or terminal word by [`Self::read_sampled_deadlock`], and an invariant or
     /// property violation or a bad prefix by [`Self::read_controlled`]'s
     /// finite check. Any other ending, a lasso or stuttering word included,
     /// is refused by name: those are validated as whole documents. The word is not returned: its
@@ -248,7 +248,7 @@ impl Session {
             Some(crate::Ending::Behavior) => {
                 self.read_sample_words(words, control, FiniteScope::Sample)
             }
-            Some(crate::Ending::Deadlock) => {
+            Some(crate::Ending::Deadlock | crate::Ending::Terminal) => {
                 self.read_sample_words(words, control, FiniteScope::SampledDeadlock)
             }
             Some(
@@ -329,6 +329,10 @@ impl Session {
     /// checking callers keep [`Self::read_controlled`], whose deadlock has no
     /// successor at all. No producer metadata selects this operation.
     ///
+    /// A `terminal` word, a sample that stopped where TLC's simulator stops
+    /// with deadlock checking off, is certified the same way; it is invalid
+    /// when the model checks for deadlock.
+    ///
     /// ```no_run
     /// # fn check(session: &dive_trace::Session, document: &dive_trace::TraceDoc)
     /// # -> Result<(), dive_trace::ValidationRunError> {
@@ -367,21 +371,21 @@ impl Session {
                 })?;
         }
         let header = doc.header();
-        let (ending, detail) = if scope == FiniteScope::SampledDeadlock {
+        let (admitted, detail) = if scope == FiniteScope::SampledDeadlock {
             (
-                crate::Ending::Deadlock,
-                "sampled deadlock validation requires a native finite deadlock with no property claim",
+                matches!(
+                    header.ending,
+                    Some(crate::Ending::Deadlock | crate::Ending::Terminal)
+                ),
+                "sampled deadlock validation requires a native finite deadlock or terminal word with no property claim",
             )
         } else {
             (
-                crate::Ending::Behavior,
+                header.ending == Some(crate::Ending::Behavior),
                 "sample validation requires a native finite behavior with no property or error endpoint claim",
             )
         };
-        if header.source != Source::Dive
-            || header.ending.as_ref() != Some(&ending)
-            || !header.properties.is_empty()
-        {
+        if header.source != Source::Dive || !admitted || !header.properties.is_empty() {
             return Ok((
                 Report {
                     validation: Validation::Invalid(crate::Failure {
@@ -940,7 +944,8 @@ impl Session {
             // (constraints, invariants, implied initial and action
             // properties), never a temporal property, which simulation
             // refutes only with its own lasso or bad-prefix document.
-            if scope == FiniteScope::Sample
+            if (scope == FiniteScope::Sample
+                || doc.header().ending == Some(crate::Ending::Terminal))
                 && !matches!(&model.postconditions, Ok(postconditions) if postconditions.is_empty())
             {
                 return Ok((
@@ -1316,6 +1321,7 @@ fn finite_word(doc: &TraceDoc) -> bool {
                     | crate::Ending::Invariant(_)
                     | crate::Ending::Property(_)
                     | crate::Ending::Deadlock
+                    | crate::Ending::Terminal
                     | crate::Ending::BadPrefix(_)
             )
         )

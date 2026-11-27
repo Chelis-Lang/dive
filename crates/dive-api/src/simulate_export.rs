@@ -259,9 +259,14 @@ impl crate::core_modes::sample::TraceExport for TraceDir<'_> {
             Outcome::Unsupported(format!("--trace-dir trace {}: {what}: {why}", trace.id))
         };
         let header = source
-            .header(deciding.map_or(dive_trace::Ending::Behavior, |outcome| {
-                crate::simulate_traces::deciding_ending(outcome, trace)
-            }))
+            .header(deciding.map_or(
+                if trace.terminal {
+                    dive_trace::Ending::Terminal
+                } else {
+                    dive_trace::Ending::Behavior
+                },
+                |outcome| crate::simulate_traces::deciding_ending(outcome, trace),
+            ))
             .map_err(|why| refused("a start-up draw", why))?;
         // Every state must have a JSON form before validation reads it.
         dive_trace::stream::write_document(

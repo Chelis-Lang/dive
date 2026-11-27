@@ -450,9 +450,9 @@ impl SpecModel {
 
     /// Validates a simulation word whose states `states` produces one at a
     /// time (`dive_trace::stream`), so the word is never held as JSON. A
-    /// behavior is checked as a finite sample, a simulation deadlock as a
-    /// state with no successor inside the model's constraints, and a
-    /// violation by the ordinary finite check.
+    /// behavior is checked as a finite sample, a simulation deadlock or
+    /// terminal word as a state with no successor inside the model's
+    /// constraints, and a violation by the ordinary finite check.
     pub(crate) fn validate_sample_source(
         &self,
         header: &TraceDoc,
@@ -471,7 +471,8 @@ impl SpecModel {
     /// Unlike ordinary behavior validity, this operation rejects a prefix that
     /// passed a deciding safety violation. It proves no exhaustive result.
     /// A `deadlock` ending is checked as a simulation deadlock: no successor
-    /// of the last state satisfies every constraint.
+    /// of the last state satisfies every constraint. A `terminal` ending is
+    /// checked the same way, with deadlock checking off.
     ///
     /// ```no_run
     /// # fn sample(source: &dive_api::trace::SpecModel,
@@ -485,7 +486,7 @@ impl SpecModel {
     /// Typed interruption, resource exhaustion or isolated validation failure.
     pub fn try_validate_sample(&self, doc: &TraceDoc) -> Result<Report, ValidationRunError> {
         on_big_stack(|| {
-            if doc.ending == Some(Ending::Deadlock) {
+            if matches!(doc.ending, Some(Ending::Deadlock | Ending::Terminal)) {
                 self.session.read_sampled_deadlock(doc, None)
             } else {
                 self.session.read_sampled(doc, None)

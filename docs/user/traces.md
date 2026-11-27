@@ -142,14 +142,20 @@ configured finite safety obligations on the rows (constraints, invariants and
 implied initial and action properties), and the report says
 `validation_goal: "sample"`. A plain Behavior validation checks only the
 relation. A sample may also end in `deadlock`: every successor of the last
-state must then fall outside the `CONSTRAINT`s and `ACTION_CONSTRAINT`s.
-Other endings are rejected, and unproved projections refuse. A valid sample
+state must then fall outside the `CONSTRAINT`s and `ACTION_CONSTRAINT`s,
+and must still satisfy the invariants and `[][A]_v` properties, which TLC's
+simulator checks on a successor before the constraints exclude it.
+A sample that ends in `terminal` stopped before its depth at such a state
+while deadlock checking was off, where TLC's simulator also ends the trace;
+it is checked the same way, and is invalid if the model checks for deadlock.
+Outside sampling, a `terminal` word's last state must have no successor at
+all. Other endings are rejected, and unproved projections refuse. A valid sample
 claims only its finite obligations: configured temporal properties and fairness
 constrain infinite behaviors, which a finite sample does not have, and
 simulation refutes a temporal property only with a lasso or a `bad-prefix`
 word. A valid sample proves neither exhaustive safety nor liveness. Rust callers use
 `SpecModel::try_validate_sample`, or `Session::read_sampled` and
-`Session::read_sampled_deadlock`.
+`Session::read_sampled_deadlock` (which also takes `terminal` words).
 
 ## Trace format versions
 
@@ -165,9 +171,10 @@ A counterexample is a JSON document with `"format": "dive-trace"` and a
 | 5 | `temporal-source-row`: an error in a temporal property's source row | [Temporal source-row errors](#temporal-source-row-errors) |
 | 6 | `view-source-terminal`: an error while evaluating VIEW | [VIEW errors](reports-and-errors.md#view-errors) |
 | 7 | `bad-prefix`: a finite refutation of a temporal property | [Bad prefixes](#bad-prefixes) |
+| 8 | `terminal`: a sample that stopped at a state with no admitted successor, deadlock checking off | [Simulation samples](#simulation-samples) |
 
 Each ending has exactly one version, and a document may not be relabeled with
-another. Readers accept all seven and fail closed on an unknown version or
+another. Readers accept all eight and fail closed on an unknown version or
 ending. Tags, endings and loop indexing follow the
 [compatibility policy](reports-and-errors.md#report-compatibility).
 

@@ -422,6 +422,12 @@ fn simulation_result(
                 Verdict::Deadlock => Some(Ending::Deadlock),
                 _ => None,
             }
+        } else if document.ending == Some(Ending::Terminal) {
+            // A trace that decided nothing reaches the depth, unless it
+            // stopped at a state with no admitted successor, where TLC's
+            // simulator also stops it (deadlock checking off). Sample
+            // validation then regenerates every successor of that state.
+            Some(Ending::Terminal)
         } else {
             Some(Ending::Behavior)
         };
@@ -434,7 +440,7 @@ fn simulation_result(
         {
             return malformed("word ending or completed depth disagrees with the report");
         }
-        let checked = if expected == Some(Ending::Behavior) {
+        let checked = if matches!(expected, Some(Ending::Behavior | Ending::Terminal)) {
             match source.try_validate_sample(&document) {
                 Ok(report) => report,
                 Err(error) => {
@@ -1188,6 +1194,139 @@ mod tests {
                         );
                     }
                 }
+            }
+        }
+        Ok(())
+    }
+
+    /// A trace that stops at a state with no admitted successor (deadlock
+    /// checking off) is a short `terminal` word, as in TLC's simulator
+    /// (issue #1424). Only an independently certified terminal word may be
+    /// shorter than the depth.
+    #[test]
+    #[allow(
+        clippy::too_many_lines,
+        reason = "one real report per profile and model, with its fail-closed mutations"
+    )]
+    fn terminal_words_are_short_only_where_no_successor_is_admitted()
+    -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let fixture = crate::util::TempDir::new("simulation-terminal-word")?;
+        let root = fixture.path();
+        std::fs::write(
+            root.join("T.tla"),
+            "---- MODULE T ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x < 3 /\\ x' = x + 1\nOpen == x' = x + 1\nC == x <= 3\nInv == x >= 0\n====\n",
+        )?;
+        std::fs::write(
+            root.join("Plain.cfg"),
+            "INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\n",
+        )?;
+        std::fs::write(
+            root.join("Constrained.cfg"),
+            "INIT Init\nNEXT Open\nCONSTRAINT C\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\n",
+        )?;
+        for tlc in [false, true] {
+            let implementation = DiveImplementation {
+                options: Vec::new(),
+                engine: DiveEngine::Core,
+                profile: if tlc { Profile::Tlc } else { Profile::Dive },
+                bin: PathBuf::new(),
+                module_path: Vec::new(),
+                provenance: None,
+                tmp_root: PathBuf::new(),
+                cache_root: PathBuf::new(),
+            };
+            for case in ["Plain", "Constrained"] {
+                let model = ModelEntry {
+                    id: format!("{case}.cfg"),
+                    module: "T.tla".into(),
+                    mode: ModelMode::Simulate { traces: 2 },
+                    features: Vec::new(),
+                    tier: Tier::Small,
+                    out_of_scope: None,
+                    counts_comparable: false,
+                    expected: ManifestExpectation {
+                        result: "success".into(),
+                        runtime_seconds: Some(1),
+                        distinct_states: None,
+                        total_states: None,
+                        state_depth: None,
+                        workers: None,
+                    },
+                    worker_introspecting: false,
+                };
+                let req = ModelRequest {
+                    corpus_root: root,
+                    model: &model,
+                    workers: 1,
+                    timeout: Duration::from_secs(10),
+                    xmx: "none",
+                    budgets: false,
+                };
+                let report = simulate_file(&{
+                    let mut built = SimulateRequest::default();
+                    built.file = root.join("T.tla");
+                    built.config = Some(root.join(&model.id));
+                    built.compat_tlc = tlc;
+                    built.seed = Some(0);
+                    built.traces = 2;
+                    built.depth = Some(100);
+                    built.workers = Some(1);
+                    built.time_limit = BudgetSetting::Unlimited;
+                    built.max_memory = BudgetSetting::Unlimited;
+                    built
+                })?;
+                let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
+                let admitted = |value: &Value| {
+                    let outcome = ProcessOutcome {
+                        exit_code: Some(i32::from(report.exit_code_for(ExitConvention::Tlc))),
+                        signal: None,
+                        timed_out: false,
+                        stdout: value.to_string(),
+                        stderr: String::new(),
+                        elapsed: Duration::ZERO,
+                    };
+                    simulation_result(&implementation, &req, &outcome, 2, false)
+                };
+                let accepted = |value: &Value| matches!(admitted(value), CheckMapping::Result(ref result) if result.verdict == Verdict::Success);
+                assert_eq!(value["result"], "sampled", "{tlc}/{case}: {value}");
+                let word = &value["traces"][0]["document"];
+                assert_eq!(word["ending"], serde_json::json!({"kind": "terminal"}));
+                assert_eq!(word["states"].as_array().ok_or("states")?.len(), 4);
+                assert!(accepted(&value), "{tlc}/{case}: {:?}", admitted(&value));
+                // A short word that claims nothing about its end is still
+                // rejected before validation.
+                let mut unfinished = value.clone();
+                for trace in unfinished["traces"].as_array_mut().ok_or("traces")? {
+                    trace["document"]["ending"] = serde_json::json!({"kind": "behavior"});
+                    trace["document"]["version"] = serde_json::json!(1);
+                }
+                assert!(
+                    matches!(admitted(&unfinished), CheckMapping::Result(ref result)
+                        if result.verdict == Verdict::Unclassified
+                            && result.note.as_deref().is_some_and(|note| note.contains("completed depth"))),
+                    "{tlc}/{case}: {:?}",
+                    admitted(&unfinished)
+                );
+                // A "terminal" word whose last state has an admitted successor
+                // is independently rejected.
+                let mut early = value.clone();
+                for trace in early["traces"].as_array_mut().ok_or("traces")? {
+                    let document = &mut trace["document"];
+                    document["states"]
+                        .as_array_mut()
+                        .ok_or("states")?
+                        .truncate(2);
+                    if document.get("length").is_some() {
+                        document["length"] = serde_json::json!(2);
+                    }
+                }
+                let rejected = admitted(&early);
+                assert!(
+                    matches!(rejected, CheckMapping::Result(ref result)
+                        if result.verdict == Verdict::Unclassified
+                            && result.note.as_deref().is_some_and(|note| note.contains("independently rejected"))),
+                    "{tlc}/{case}: {rejected:?}"
+                );
             }
         }
         Ok(())

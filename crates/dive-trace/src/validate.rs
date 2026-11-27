@@ -280,6 +280,9 @@ enum Goal {
     ImpliedInit(usize),
     ImpliedAction(usize),
     Deadlock,
+    /// A behavior that stops at a state with no successor while the model
+    /// does not check for deadlock: certified as a deadlock is.
+    Terminal,
     Behavior,
     Liveness(&'static str),
     /// The index of the configured property claim the prefix refutes.
@@ -303,7 +306,8 @@ pub(crate) enum FiniteScope {
     Behavior,
     /// A sampled finite behavior whose every row passed the safety checks.
     Sample,
-    /// A simulation deadlock: no successor satisfies the model's constraints.
+    /// A simulation deadlock, or a terminal sample: no successor satisfies
+    /// the model's constraints, and every row passed the safety checks.
     SampledDeadlock,
 }
 
@@ -767,14 +771,19 @@ impl<'a> Run<'a> {
             self.bad_prefix(index, trace, last)?;
             return Ok(None);
         }
+        let what = if matches!(goal, Goal::Terminal) {
+            "terminal state"
+        } else {
+            "deadlock"
+        };
         Ok(match goal {
-            Goal::Deadlock
+            Goal::Deadlock | Goal::Terminal
                 if self.finite_scope == FiniteScope::SampledDeadlock
                     && !(m.constraints.is_empty() && m.action_constraints.is_empty()) =>
             {
-                return self.sampled_deadlock(&trace.states[last], last);
+                return self.sampled_deadlock(&trace.states[last], last, what);
             }
-            Goal::Deadlock => {
+            Goal::Deadlock | Goal::Terminal => {
                 if let Some(next) = &m.next {
                     match crate::enabled::deadlock_successor(m, next, &trace.states[last]) {
                         Ok(false) => None,
@@ -782,7 +791,7 @@ impl<'a> Run<'a> {
                             return Err(invalid(
                                 last,
                                 Check::Ending,
-                                "the claimed deadlock has a successor",
+                                format!("the claimed {what} has a successor"),
                             ));
                         }
                         Err(e) => {
@@ -1051,6 +1060,16 @@ impl<'a> Run<'a> {
                     ));
                 }
                 Goal::Deadlock
+            }
+            Ending::Terminal => {
+                if m.settings.check_deadlock {
+                    return Err(invalid(
+                        last,
+                        Check::Ending,
+                        "a terminal ending needs deadlock checking off; with it on, a state with no successor is a deadlock",
+                    ));
+                }
+                Goal::Terminal
             }
             Ending::Behavior => Goal::Behavior,
             Ending::TemporalStateError { .. } => Goal::TemporalStateError,
@@ -1366,10 +1385,16 @@ impl<'a> Run<'a> {
     /// successor of the last state is regenerated here; the claim stands only
     /// if each one falls outside the model. Constraints see the successor's
     /// level, action constraints and generation the last state's.
+    /// A terminal sample (`what` is `terminal state`) is checked the same
+    /// way: TLC's simulator ends the trace there when deadlock checking is
+    /// off. TLC's simulator also checks invariants and `[][A]_v` parts on
+    /// every generated successor before the constraints exclude it, so each
+    /// regenerated successor must satisfy them too.
     fn sampled_deadlock(
         &mut self,
         state: &crate::State,
         last: usize,
+        what: &str,
     ) -> Result<Option<String>, Stop> {
         let m = self.model;
         if m.next.is_none() || m.actions.is_empty() {
@@ -1390,7 +1415,7 @@ impl<'a> Run<'a> {
                 let successor: crate::State = candidate.state.iter().cloned().collect();
                 let here = St::state(successor.clone());
                 let step = St::action(state.clone(), successor);
-                let decision = in_model(m, host, &here, &step, source_level);
+                let decision = admitted(m, host, &here, &step, source_level);
                 // Generation continues at the last state's level.
                 host.set_replay_level(source_level);
                 match decision {
@@ -1406,38 +1431,8 @@ impl<'a> Run<'a> {
                 }
             };
             let outcome = m.evaluator.next_states(action, state, ordinal, &mut sink);
-            match found {
-                None => {}
-                Some(Found::Inside) => {
-                    return Err(invalid(
-                        last,
-                        Check::Ending,
-                        "the claimed deadlock has a successor that satisfies every constraint",
-                    ));
-                }
-                Some(Found::Incomplete) => {
-                    return Err(invalid(
-                        last,
-                        Check::Ending,
-                        "the claimed deadlock has a successor that does not assign every variable",
-                    ));
-                }
-                Some(Found::NotBoolean(detail)) => {
-                    return Err(invalid(last, Check::Ending, detail));
-                }
-                Some(Found::Error(e)) => {
-                    return Err(match e.class() {
-                        ErrorClass::Eval => invalid(
-                            last,
-                            Check::Ending,
-                            format!(
-                                "evaluating a constraint on a successor of the claimed deadlock fails: {}",
-                                e.message()
-                            ),
-                        ),
-                        _ => self.evaluation_refusal(&e, Some(last), Check::Ending),
-                    });
-                }
+            if let Some(found) = found {
+                return Err(self.refuted_ending(found, last, what));
             }
             match outcome {
                 Ok(o) => ordinal = ordinal.saturating_add(o.emitted),
@@ -1447,7 +1442,7 @@ impl<'a> Run<'a> {
                             last,
                             Check::Ending,
                             format!(
-                                "generating a successor of the claimed deadlock fails: {}",
+                                "generating a successor of the claimed {what} fails: {}",
                                 e.error.message()
                             ),
                         ),
@@ -1459,8 +1454,34 @@ impl<'a> Run<'a> {
         if m.has_runtime_names() {
             return Ok(Some(crate::RUNTIME_NAMES_UNSUPPORTED.to_owned()));
         }
-        self.notes.insert("Simulation deadlock: every successor of the last state lies outside the model's constraints, so TLC's simulator keeps none".to_owned());
+        self.notes.insert(format!("Simulation {what}: every successor of the last state lies outside the model's constraints and satisfies its invariants and action properties, so TLC's simulator keeps none"));
         Ok(None)
+    }
+
+    /// Why a regenerated successor refutes a claimed simulation ending.
+    fn refuted_ending(&mut self, found: Found, last: usize, what: &str) -> Stop {
+        let detail = match found {
+            Found::Inside => {
+                format!("the claimed {what} has a successor that satisfies every constraint")
+            }
+            Found::Violates(name) => format!(
+                "the claimed {what} has a successor that violates {name}, which TLC's simulator reports before the constraints exclude it"
+            ),
+            Found::Incomplete => {
+                format!("the claimed {what} has a successor that does not assign every variable")
+            }
+            Found::NotBoolean(detail) => detail,
+            Found::Error(e) => {
+                if e.class() != ErrorClass::Eval {
+                    return self.evaluation_refusal(&e, Some(last), Check::Ending);
+                }
+                format!(
+                    "evaluating a constraint or property on a successor of the claimed {what} fails: {}",
+                    e.message()
+                )
+            }
+        };
+        invalid(last, Check::Ending, detail)
     }
 
     fn evaluation_refusal(
@@ -1518,6 +1539,8 @@ impl<'a> Run<'a> {
 /// What regenerating a claimed simulation deadlock's successors found.
 enum Found {
     Inside,
+    /// A successor violates the named invariant or action property.
+    Violates(String),
     Incomplete,
     NotBoolean(String),
     Error(EvalError),
@@ -1525,8 +1548,11 @@ enum Found {
 
 /// Whether a successor satisfies every `CONSTRAINT` and then every
 /// `ACTION_CONSTRAINT`, stopping at the first false one, as TLC's simulator
-/// does. `source_level` is the TLC level of the state it succeeds.
-fn in_model(
+/// does. The simulator still checks invariants and implied actions on a
+/// successor the constraints exclude, so an excluded successor must satisfy
+/// them (`Found::Violates` otherwise). `source_level` is the TLC level of the
+/// state it succeeds.
+fn admitted(
     m: &Model,
     host: &TraceHost,
     here: &St,
@@ -1542,19 +1568,40 @@ fn in_model(
         ))),
         Err(e) => Err(Found::Error(e)),
     };
-    host.set_replay_level(source_level.saturating_add(1));
+    let successor_level = source_level.saturating_add(1);
+    host.set_replay_level(successor_level);
+    let mut inside = true;
     for constraint in &m.constraints {
         if !truth(&constraint.pred, here)? {
-            return Ok(false);
+            inside = false;
+            break;
         }
     }
     host.set_replay_level(source_level);
-    for constraint in &m.action_constraints {
-        if !truth(&constraint.pred, step)? {
-            return Ok(false);
+    if inside {
+        for constraint in &m.action_constraints {
+            if !truth(&constraint.pred, step)? {
+                inside = false;
+                break;
+            }
         }
     }
-    Ok(true)
+    if inside {
+        return Ok(true);
+    }
+    host.set_replay_level(successor_level);
+    for inv in &m.invariants {
+        if !truth(&inv.pred, here)? {
+            return Err(Found::Violates(inv.name.clone()));
+        }
+    }
+    host.set_replay_level(source_level);
+    for p in &m.implied_actions {
+        if !truth(&p.pred, step)? {
+            return Err(Found::Violates(p.name.clone()));
+        }
+    }
+    Ok(false)
 }
 
 fn invalid(state: usize, check: Check, detail: impl Into<String>) -> Stop {

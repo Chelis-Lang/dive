@@ -1,4 +1,4 @@
-//! Counterexample transports: dive's format (versions 1 through 6) and TLC's JSON.
+//! Counterexample transports: dive's format (versions 1 through 8) and TLC's JSON.
 //!
 //! # dive's format
 //!
@@ -34,6 +34,7 @@
 //!   | `assertion`, `error` | `ec` (`error`, optional) | expanding the last state fails |
 //!   | `invariant-error` | `name`, `ec` | evaluating the named invariant on the last state raises the given underlying error |
 //!   | `bad-prefix` | `name` | every infinite extension of the trace violates the named temporal property (a finite refutation) |
+//!   | `terminal` | | a behavior that stops at a state with no successor, with deadlock checking off (not a violation) |
 //!
 //! The format version is the lowest one that can express the document:
 //!
@@ -46,8 +47,9 @@
 //! | 5 | errors in temporal-source rows after `Next` |
 //! | 6 | errors in a source-final `VIEW` evaluation |
 //! | 7 | the `bad-prefix` ending |
+//! | 8 | the `terminal` ending |
 //!
-//! Readers accept all seven versions and reject a version-1 document that uses
+//! Readers accept all eight versions and reject a version-1 document that uses
 //! the `invariant-error` ending. Unknown versions and ending kinds are
 //! rejected, never guessed.
 //!
@@ -106,6 +108,10 @@ pub const VIEW_SOURCE_ERROR_VERSION: u64 = 6;
 /// Version for a finite refutation of a temporal property (`bad-prefix`).
 pub const BAD_PREFIX_VERSION: u64 = 7;
 
+/// Version for a behavior that stops at a state with no successor
+/// (`terminal`).
+pub const TERMINAL_VERSION: u64 = 8;
+
 /// What a trace claims about its end.
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
@@ -119,6 +125,11 @@ pub enum Ending {
     Deadlock,
     /// No violation: the trace is a behavior of the specification.
     Behavior,
+    /// No violation: a behavior that stops at its last state, which has no
+    /// successor, while the model does not check for deadlock. In a
+    /// simulation sample, no successor satisfies every constraint (TLC's
+    /// simulator ends such a trace before its depth).
+    Terminal,
     /// A liveness counterexample that loops back to state `back_to`
     /// (0-based).
     Lasso {
@@ -207,6 +218,7 @@ impl Ending {
             Self::Property(n) => json!({"kind": "property", "name": n}),
             Self::Deadlock => json!({"kind": "deadlock"}),
             Self::Behavior => json!({"kind": "behavior"}),
+            Self::Terminal => json!({"kind": "terminal"}),
             Self::Lasso { back_to } => json!({"kind": "lasso", "back_to": back_to}),
             Self::Stuttering => json!({"kind": "stuttering"}),
             Self::BadPrefix(n) => json!({"kind": "bad-prefix", "name": n}),
@@ -334,6 +346,7 @@ impl Ending {
             "property" => Self::Property(name()?),
             "deadlock" => Self::Deadlock,
             "behavior" => Self::Behavior,
+            "terminal" => Self::Terminal,
             "lasso" => Self::Lasso {
                 back_to: j
                     .get("back_to")
@@ -388,7 +401,7 @@ impl Ending {
     }
 
     /// Parses the command-line form: `invariant:NAME`, `property:NAME`,
-    /// `deadlock`, `behavior`, `lasso:K`, `stuttering`, `bad-prefix:NAME`,
+    /// `deadlock`, `behavior`, `terminal`, `lasso:K`, `stuttering`, `bad-prefix:NAME`,
     /// `assertion`, `error[:EC]`.
     ///
     /// # Errors
@@ -595,6 +608,9 @@ fn check_ending_version(version: Option<u64>, ending: Option<&Ending>) -> Result
     }
     if matches!(ending, Some(Ending::BadPrefix(_))) != (version == Some(BAD_PREFIX_VERSION)) {
         return Err("a bad-prefix ending requires exactly dive-trace version 7".into());
+    }
+    if matches!(ending, Some(Ending::Terminal)) != (version == Some(TERMINAL_VERSION)) {
+        return Err("a terminal ending requires exactly dive-trace version 8".into());
     }
     Ok(())
 }
@@ -804,10 +820,11 @@ impl TraceDoc {
                     | TEMPORAL_SOURCE_ERROR_VERSION
                     | VIEW_SOURCE_ERROR_VERSION
                     | BAD_PREFIX_VERSION
+                    | TERMINAL_VERSION
             )
         ) {
             return Err(format!(
-                "unsupported {FORMAT} version {version:?}; this build reads versions {VERSION}, {INVARIANT_ERROR_VERSION}, {PARTIAL_STATE_VERSION}, {CANDIDATE_ERROR_VERSION}, {TEMPORAL_SOURCE_ERROR_VERSION}, {VIEW_SOURCE_ERROR_VERSION} and {BAD_PREFIX_VERSION}"
+                "unsupported {FORMAT} version {version:?}; this build reads versions {VERSION}, {INVARIANT_ERROR_VERSION}, {PARTIAL_STATE_VERSION}, {CANDIDATE_ERROR_VERSION}, {TEMPORAL_SOURCE_ERROR_VERSION}, {VIEW_SOURCE_ERROR_VERSION}, {BAD_PREFIX_VERSION} and {TERMINAL_VERSION}"
             ));
         }
         let variables = strings(j.get("variables")).ok_or("`variables` must be a list of names")?;
@@ -1020,6 +1037,8 @@ impl TraceDoc {
             INVARIANT_ERROR_VERSION
         } else if matches!(self.ending, Some(Ending::BadPrefix(_))) {
             BAD_PREFIX_VERSION
+        } else if matches!(self.ending, Some(Ending::Terminal)) {
+            TERMINAL_VERSION
         } else {
             VERSION
         };
@@ -1149,6 +1168,23 @@ mod tests {
         let mut other = TraceDoc::behavior(vec![json!({"x": 0})])?.to_json();
         other["version"] = J::from(BAD_PREFIX_VERSION);
         assert!(TraceDoc::from_json(&other).is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn terminal_round_trips_only_as_version_eight() -> Result<(), String> {
+        let d = TraceDoc::behavior(vec![json!({"x": 0})])?.with_ending(Ending::Terminal);
+        let j = d.to_json();
+        assert_eq!(j["version"], TERMINAL_VERSION);
+        assert_eq!(j["ending"], json!({"kind": "terminal"}));
+        assert_eq!(TraceDoc::from_json(&j)?, d);
+        let mut old = j.clone();
+        old["version"] = J::from(VERSION);
+        assert!(TraceDoc::from_json(&old).is_err());
+        let mut other = TraceDoc::behavior(vec![json!({"x": 0})])?.to_json();
+        other["version"] = J::from(TERMINAL_VERSION);
+        assert!(TraceDoc::from_json(&other).is_err());
+        assert_eq!(Ending::parse("terminal")?, Ending::Terminal);
         Ok(())
     }
 
