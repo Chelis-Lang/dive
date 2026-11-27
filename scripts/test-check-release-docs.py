@@ -41,8 +41,12 @@ CLEAN_DIVE = {
 
 CLEAN_SAIL = {
     "CHANGELOG.md": "# Changelog\n\n## 0.3.1\n\nSail 0.3.1 links D.I.V.E. 0.2.0.\n",
-    "README.md": "# Sail\n\n```sh\ncargo +1.99.1 install sail-solve --version 0.3.1 --locked\n```\n",
+    "README.md": "# Sail\n\n```sh\ncargo +1.99.1 install sail-solve --version 0.3.1 --locked\n```\n\n"
+    "Model checking on [D.I.V.E.](docs/temporal-jobs.md) 0.2.0.\n",
     "docs/install.md": "# Install\n\nStable `sail-solve 0.3.1` is on crates.io.\n\nVERSION=0.3.1\n",
+    "docs/temporal-jobs.md": "# Temporal jobs\n\nSail links `dive-api` and `dive-ir` 0.2.0 from crates.io.\n",
+    "docs/spec/temporal-jobs.md": "# Spec\n\nThe distribution links the native\nD.I.V.E. 0.2.0 library.\n",
+    "docs/release-notes/0.3.0.md": "# 0.3.0\n\nSail 0.3.0 links D.I.V.E. 0.1.0.\n",
     "crates/sail-api/README.md": "# sail-api\n\n[API](https://docs.rs/sail-api/0.3.1/)\n",
     "crates/sail-kani/README.md": "# sail-kani\n\nNo version here.\n",
     "action/action.yml": "name: Sail\ninputs:\n  sail-version:\n    description: >-\n"
@@ -131,6 +135,7 @@ class ReleaseDocsTests(unittest.TestCase):
             ("README.md", "cargo install dive-cli --locked", "cargo install dive-cli --version 0.1.0 --locked"),
             ("docs/user/install.md", "download/v0.2.0", "download/v0.1.0"),
             ("docs/user/install.md", "dive-v0.2.0-x86", "dive-v0.1.0-x86"),
+            ("docs/user/install.md", "name=", "Tagged builds report `v0.1.0-0-g<hash>`.\nname="),
             ("docs/user/rust-api.md", 'dive-api = "0.2"', 'dive-api = "0.1"'),
             ("docs/user/rust-api.md", 'dive-api = "0.2"', 'dive-api = { version = "=0.1.0" }'),
             ("crates/dive-api/README.md", "dive-api/0.2.0/", "dive-api/0.1.0/"),
@@ -164,6 +169,14 @@ class ReleaseDocsTests(unittest.TestCase):
         self.reset()
         self.edit(self.sail, "README.md", "# Sail", "# Sail\n\nRun `sail runtime symbolic-check`.")
         self.assertEqual(self.kinds(self.run_check()), [("sail/README.md", "unshipped feature")])
+
+    def test_link_to_preview_section_is_unshipped(self):
+        # A bullet that only links into the preview page still names it.
+        self.edit(
+            self.sail, "CHANGELOG.md", "Sail 0.3.1 links",
+            "- Recheck [induction](docs/design/symbolic-check.md#recheck-induction).\n\nSail 0.3.1 links",
+        )  # fmt: skip
+        self.assertEqual(self.kinds(self.run_check()), [("sail/CHANGELOG.md", "unshipped feature")])
 
     def test_preview_pages_and_notes_may_name_unshipped_features(self):
         # symbolic-preview.md and symbolic-check.md are allowlisted, the
@@ -201,6 +214,24 @@ class ReleaseDocsTests(unittest.TestCase):
                 self.edit(self.sail, name, old, new)
                 self.assertEqual(self.kinds(self.run_check()), [("sail/" + name, "sail version")])
 
+    def test_sail_names_the_paired_dive_release(self):
+        # The 0.3.0 release notes name D.I.V.E. 0.1.0 as history.
+        cases = [
+            ("README.md", "(docs/temporal-jobs.md) 0.2.0", "(docs/temporal-jobs.md) 0.1.0"),
+            ("docs/temporal-jobs.md", "`dive-ir` 0.2.0", "`dive-ir` 0.1.0"),
+            ("docs/spec/temporal-jobs.md", "D.I.V.E. 0.2.0", "D.I.V.E. 0.1.0"),
+        ]
+        for name, old, new in cases:
+            with self.subTest(file=name):
+                self.reset()
+                self.edit(self.sail, name, old, new)
+                self.assertEqual(self.kinds(self.run_check()), [("sail/" + name, "stale version")])
+
+    def test_sail_checks_run_before_the_sail_tag(self):
+        argv = ["--root", str(self.dive), "--version", "0.2.0", "--previous", "0.1.0",
+                "--sail", str(self.sail), "--sail-version", "0.3.1"]  # fmt: skip
+        self.assertEqual(CHECK.run(CHECK.parse(argv)), [])
+
     def test_sail_readme_must_name_the_release(self):
         self.edit(self.sail, "README.md", "cargo +1.99.1 install sail-solve --version 0.3.1 --locked", "cargo build")
         self.assertEqual(self.kinds(self.run_check()), [("sail/README.md", "sail version")])
@@ -212,6 +243,8 @@ class ReleaseDocsTests(unittest.TestCase):
             ["--version", "0.2.0", "--previous", "0.1.0", "--mesite", "x"],
             ["--version", "0.2.0", "--previous", "0.1.0", "--sail", "x"],
             ["--version", "0.2.0", "--previous", "0.1.0", "--website", "x"],
+            ["--version", "0.2.0", "--previous", "0.1.0", "--tag-commit", "a" * 40,
+             "--mesite", "x", "--sail-version", "0.3.1"],  # fmt: skip
             ["--version", "0.2.0", "--previous", "0.1.0", "--tag-commit", "v0.2.0"],
         ]
         for argv in bad:

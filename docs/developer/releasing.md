@@ -49,6 +49,11 @@ repository `LICENSE`, which the publisher checks.
    python3 -I scripts/check-release-docs.py --version X.Y.Z --previous A.B.C
    ```
 
+   Before the paired Sail release is tagged, add `--sail PATH/TO/sail
+   --sail-version S.T.U` to check the Sail files that crates.io freezes: its
+   CHANGELOG section, README, install guide, crate READMEs, Action default
+   and the dive release its pages name. No Sail tag commit is needed yet.
+
 4. **Tag** the qualified commit and push the tag (`git tag vX.Y.Z <sha>`,
    `git push origin vX.Y.Z`). `release.yml` checks the tag against the
    version, builds the Linux archives, repeats the crate dry run and creates

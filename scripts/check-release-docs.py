@@ -15,12 +15,17 @@ only (no network, no git) and fails when:
       the mesite or website Sail book pin is not --sail-tag-commit, or Sail's
       README, install guide, crate READMEs or GitHub Action default do not name
       --sail-version. Sail's CHANGELOG section and user-facing files get the
-      (a) and (c) checks too.
+      (a) and (c) checks too, and Sail's current-state pages must not name
+      --previous as the dive release Sail links (SAIL_DIVE_VERSION_TABLE).
+      --sail needs no tag commit, so it can run before the Sail tag.
 
 Usage:
   check-release-docs.py --version X.Y.Z --previous A.B.C [--tag-commit SHA]
-      [--mesite PATH] [--sail PATH --sail-version X.Y.Z --sail-tag-commit SHA]
-      [--website PATH] [--root PATH]
+      [--mesite PATH] [--sail PATH] [--sail-version X.Y.Z]
+      [--sail-tag-commit SHA] [--website PATH] [--root PATH]
+
+  --sail needs --sail-version. --website, and --mesite with --sail-version,
+  need --sail-tag-commit.
 
 Exit status: 0 clean, 1 findings, 2 usage error. Standard library only; run
 with `python3 -I`.
@@ -54,6 +59,7 @@ VERSION_PATTERNS: dict[str, str] = {
     ),
     "docs.rs version link": r"docs\.rs/[\w-]+/{prev}\b",
     "version output": r"\bdive {prev} \(",
+    "git describe tag": r"\bv{prev}-\d+-g",
     "release named (lead)": r"\bdive {prev}\b",
 }
 ALL_VERSION_PATTERNS = tuple(k for k in VERSION_PATTERNS if not k.endswith("(lead)"))
@@ -124,6 +130,14 @@ SAIL_VERSION_PATTERNS: dict[str, re.Pattern[str]] = {
     "install Sail": re.compile(r"\bInstall Sail (\d+\.\d+\.\d+)"),
     "release download URL": re.compile(r"sail/releases/(?:download|tag)/v(\d+\.\d+\.\d+)"),
 }
+# (d) Sail pages that state which dive release Sail links, and the patterns
+# (VERSION_PATTERNS syntax) that catch --previous there. Release notes and
+# older CHANGELOG sections are history and are not checked.
+SAIL_DIVE_VERSION_PATTERNS: dict[str, str] = {
+    "D.I.V.E. release": r"D\.I\.V\.E\.(?:\]\([^)\s]*\))?\s+{prev}\b",
+    "dive crate version": r"\bdive-(?:api|ir|value|trace)\b.*\b{prev}\b",
+}
+SAIL_DIVE_VERSION_TABLE = ("README.md", "docs/install.md", "docs/temporal-jobs.md", "docs/spec/temporal-jobs.md")
 SAIL_ACTION = "action/action.yml"
 MESITE_PINS = "src/data/docs.json"
 WEBSITE_PIN = "apps/cproof-site/src/data/sail-book.json"
@@ -338,6 +352,27 @@ def action_default(text: str) -> tuple[int, str] | None:
     return None
 
 
+def check_sail_dive_versions(sail: Path, previous: str) -> list[Finding]:
+    patterns = {k: compile_version_pattern(v, previous) for k, v in SAIL_DIVE_VERSION_PATTERNS.items()}
+    found = []
+    for name in SAIL_DIVE_VERSION_TABLE:
+        path = sail / name
+        if not path.is_file():
+            continue
+        for n, line in enumerate(read(path).splitlines(), 1):
+            for what, pattern in patterns.items():
+                if pattern.search(line):
+                    found.append(
+                        Finding(
+                            "sail/" + name,
+                            n,
+                            "stale version",
+                            f"{what} names dive {previous}: {line.strip()[:120]}",
+                        )
+                    )
+    return found
+
+
 def check_sail_versions(sail: Path, sail_version: str) -> list[Finding]:
     found = []
     for glob in SAIL_VERSION_FILES:
@@ -389,6 +424,7 @@ def run(args: argparse.Namespace) -> list[Finding]:
         found += check_changelog(sail, args.sail_version, "sail/")
         found += check_unshipped(sail, args.sail_version, "sail/")
         found += check_sail_versions(sail, args.sail_version)
+        found += check_sail_dive_versions(sail, args.previous)
     if args.website:
         found += check_website(Path(args.website), args.sail_tag_commit)
     return found
@@ -423,8 +459,8 @@ def parse(argv: list[str]) -> argparse.Namespace:
         parser.error("--mesite needs --tag-commit")
     if args.sail and not args.sail_version:
         parser.error("--sail needs --sail-version")
-    if (args.sail or args.mesite) and args.sail_version and not args.sail_tag_commit:
-        parser.error("--sail-version with --sail or --mesite needs --sail-tag-commit")
+    if args.mesite and args.sail_version and not args.sail_tag_commit:
+        parser.error("--mesite with --sail-version needs --sail-tag-commit")
     if args.website and not args.sail_tag_commit:
         parser.error("--website needs --sail-tag-commit")
     return args
