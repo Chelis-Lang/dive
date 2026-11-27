@@ -1643,6 +1643,7 @@ fn analyze_graph<S: StateSource + ?Sized>(
         for (p, prepared) in model.property_claims().iter().zip(plans).take(searched) {
             let plan = &prepared.plan;
             enter(Stage::Atoms, states);
+            control.release_held_time();
             let active = if plan.atoms.iter().any(|atom| atom.kind == AtomKind::Action) {
                 crate::tlc_plan::active_actions(&plan.formula, limits.formula)
                     .map_err(AnalysisError::Tableau)?

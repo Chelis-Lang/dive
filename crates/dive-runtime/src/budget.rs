@@ -421,10 +421,33 @@ struct Inner {
     sample_points: AtomicU8,
     sampler: Sampler,
     started: Instant,
+    /// Nanoseconds after `started` from which the time limit counts, or
+    /// [`TIME_HELD`] while a held deadline waits for its release.
+    time_origin: AtomicU64,
     done: Mutex<bool>,
     wake: Condvar,
 }
+/// [`Inner::time_origin`] while the deadline is held.
+const TIME_HELD: u64 = u64::MAX;
 impl Inner {
+    /// Time counted against the limit after `elapsed` since arming; `None`
+    /// while the deadline is held.
+    fn counted(&self, elapsed: Duration) -> Option<Duration> {
+        match self.time_origin.load(Ordering::Acquire) {
+            TIME_HELD => None,
+            origin => Some(elapsed.saturating_sub(Duration::from_nanos(origin))),
+        }
+    }
+    /// Trips the time limit when the counted time has reached it.
+    fn check_time(&self, limit: Duration) -> bool {
+        match self.counted(self.started.elapsed()) {
+            Some(counted) if counted >= limit => {
+                self.trip(Resource::Time, millis(counted));
+                true
+            }
+            _ => false,
+        }
+    }
     fn publish(&self, flag: u8, observed: u64) {
         if self
             .tripped
@@ -478,6 +501,8 @@ pub struct Budget {
     /// unlimited. TLC setting: its JVM heap ([`default_memory`]).
     pub memory: Option<u64>,
     signal: Option<Arc<Inner>>,
+    /// Test-only: the time limit counts from [`Self::release_held_time`].
+    hold_time: bool,
 }
 
 impl Budget {
@@ -498,6 +523,7 @@ impl Budget {
             time: None,
             memory: None,
             signal: None,
+            hold_time: false,
         }
     }
 
@@ -508,6 +534,38 @@ impl Budget {
             time,
             memory,
             signal: None,
+            hold_time: false,
+        }
+    }
+
+    /// Test-only phase anchoring: once armed, the time limit does not count
+    /// until [`Self::release_held_time`], so a phase-specific test cannot
+    /// expire in an earlier phase when its runner is descheduled. Memory is
+    /// unaffected, and a deadline that is never released never expires.
+    #[doc(hidden)]
+    #[must_use]
+    pub const fn hold_time_until_released(mut self) -> Self {
+        self.hold_time = true;
+        self
+    }
+
+    /// Starts counting a held time limit from now; otherwise does nothing.
+    #[doc(hidden)]
+    pub fn release_held_time(&self) {
+        if let Some(inner) = &self.signal
+            && inner
+                .time_origin
+                .compare_exchange(
+                    TIME_HELD,
+                    u64::try_from(inner.started.elapsed().as_nanos())
+                        .unwrap_or(TIME_HELD - 1)
+                        .min(TIME_HELD - 1),
+                    Ordering::AcqRel,
+                    Ordering::Relaxed,
+                )
+                .is_ok()
+        {
+            inner.wake.notify_all();
         }
     }
 
@@ -566,11 +624,12 @@ impl Budget {
             sample_points: AtomicU8::new(0),
             sampler,
             started: Instant::now(),
+            time_origin: AtomicU64::new(if self.hold_time { TIME_HELD } else { 0 }),
             done: Mutex::new(false),
             wake: Condvar::new(),
         });
         let (time, memory) = (self.time, self.memory);
-        if time == Some(Duration::ZERO) {
+        if time == Some(Duration::ZERO) && !self.hold_time {
             inner.trip(Resource::Time, millis(inner.started.elapsed()));
         }
         if let Some(ceiling) = memory {
@@ -584,6 +643,7 @@ impl Budget {
                 time,
                 memory,
                 signal: Some(inner),
+                hold_time: self.hold_time,
             },
             thread: Some(thread),
             finished: false,
@@ -744,10 +804,7 @@ impl Watchdog {
                 let _ = inner.sample(SamplePoint::Final, ceiling);
             }
             if let Some(limit) = self.budget.time {
-                let elapsed = inner.started.elapsed();
-                if elapsed >= limit {
-                    inner.trip(Resource::Time, millis(elapsed));
-                }
+                inner.check_time(limit);
             }
         }
         match earlier {
@@ -784,11 +841,9 @@ fn watch(inner: &Inner, time: Option<Duration>, memory: Option<u64>) {
         if *done || inner.tripped.load(Ordering::Relaxed) != 0 {
             return;
         }
-        let elapsed = started.elapsed();
         if let Some(limit) = time
-            && elapsed >= limit
+            && inner.check_time(limit)
         {
-            inner.trip(Resource::Time, millis(elapsed));
             return;
         }
         if let Some(ceiling) = memory
@@ -989,6 +1044,27 @@ mod tests {
         assert!(Budget::unlimited().start().expect("unlimited").is_none());
         // An armed budget is not armed twice.
         assert!(watchdog.budget().start().expect("armed").is_none());
+    }
+
+    #[test]
+    fn a_held_time_limit_counts_only_after_release() {
+        let mut watchdog = Budget::new(Some(Duration::ZERO), None)
+            .hold_time_until_released()
+            .start()
+            .expect("watchdog thread starts")
+            .expect("watchdog");
+        std::thread::sleep(Duration::from_millis(20));
+        assert!(watchdog.budget().poll().expect("measurement").is_none());
+        let control = EvaluationControl::new(watchdog.budget(), Phase::Temporal).expect("control");
+        control.release_held_time();
+        let exhausted = watchdog
+            .finish()
+            .expect("measurement")
+            .expect("released zero limit is exhausted");
+        assert_eq!(exhausted.resource, Resource::Time);
+        // The counted time starts at release, not at arming.
+        assert!(exhausted.elapsed_ms >= 20, "{exhausted:?}");
+        assert!(exhausted.observed < exhausted.elapsed_ms, "{exhausted:?}");
     }
 
     #[test]
@@ -1248,6 +1324,13 @@ impl EvaluationControl {
             phase,
             identity,
         }))
+    }
+
+    /// Starts a held test deadline ([`Budget::hold_time_until_released`]);
+    /// does nothing for an ordinary budget.
+    #[doc(hidden)]
+    pub fn release_held_time(&self) {
+        self.budget.release_held_time();
     }
 
     /// Installs this phase's context for evaluator loop checkpoints.
