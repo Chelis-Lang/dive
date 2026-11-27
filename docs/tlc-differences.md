@@ -51,6 +51,10 @@ reproduce TLC:
   `--compat=tlc`. `byzpaxos/VoteProof` succeeds with TLC's 6962 distinct
   states and depth 14 but generates 27727 states instead of TLC's 318877.
 
+- A formal parameter forced by an earlier conjunct is still expanded when it
+  is used as an action ([D-047](#d-047-forced-boolean-formals)).
+  `ForcedFormal` generates 3 states instead of TLC's 2.
+
 None of these gaps can produce a false verdict or weaken counterexample
 validation. Where an entry below says dive matches TLC exactly, this list
 still applies.
@@ -1666,6 +1670,27 @@ arguments, polls budgets and refuses beyond 64 active calls instead of
 exhausting the stack. Escaping recursive functions, primed applications,
 unproved captures, nested recursion and other unsupported contexts refuse by
 name.
+
+## D-047: Forced Boolean formals
+
+```tla
+Use(p) == /\ p = TRUE
+          /\ p
+          /\ x' = x
+Next == Use(x = 0 \/ x = 0)
+```
+
+TLC evaluates `p` once for `p = TRUE` and then reuses that Boolean for the
+second conjunct, so it emits one successor. Without the first conjunct, TLC
+expands `x = 0 \/ x = 0` as an action and emits two identical successors.
+dive always expands an argument used as an action, whatever an earlier
+conjunct evaluated, so it emits two identical successors in both cases.
+
+With `Init == x = 0`, TLC generates 2 states for this `Next` and dive 3, with
+the same 1 distinct state, depth 1 and successful verdict. Nothing else
+changes. `--compat=tlc` behaves the same way; see [compat gaps](#compat-gaps).
+If a later disjunct of such an argument would raise an error, dive refuses by
+name where TLC succeeds.
 
 ## D-030: Finite symbolic safety evidence
 
