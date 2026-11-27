@@ -13,7 +13,7 @@ give named refusals for unsupported inputs. [ADR 0153](decisions/0153-core-is-th
 
 ## Starting point
 
-v0.1.0 has shipped. It met the [first-release gates](RELEASE.md), including
+v0.1.0 has shipped. It met its release gates, including
 169 covered Examples configurations with zero disagreements, bundled
 libraries, and stable CLI and JSON reports. The 169 agreeing checks ran
 5.1× faster than pinned TLC by geometric mean at one worker including
@@ -30,6 +30,23 @@ a finite reachability result. Current main also has scoped temporal workers,
 compact edges and evidence reuse for eligible property edits.
 [Large-model results](developer/large-models.md) ·
 [Symbolic strategy](user/symbolic.md)
+
+dive 0.2.0, released with Sail 0.3.1, is in qualification. It ships the
+default-path Core speed and memory work, strong fairness on Core, the
+reworked simulator and the incremental recheck APIs. Its gates and path are in
+[RELEASE.md](RELEASE.md), tracked in #1418.
+
+## Next: symbolic proofs (v0.3)
+
+The symbolic strategies are in the source tree but are not part of the 0.2.0
+installed product. v0.3 ships them working on every install route: the Linux
+and macOS archives, `cargo install dive-cli` and Sail, with no extra install.
+The work is a Rust port of the worker on a chosen BDD back end, the existing
+worker tests as the port's regression oracle, versioned certificate and
+receipt formats, and macOS arm64 archives. Sail's matching release runs its
+symbolic checks on the installed dive.
+[Epic #1417](https://github.com/Chelis-Lang/dive/issues/1417) · milestone
+`v0.3: symbolic proofs`
 
 ## Competitive milestones
 
@@ -62,9 +79,8 @@ to review the inputs and share small cross-tool regression cases with the
 community. [Workloads and sources](internal/survey/verification-workloads.md)
 
 The post-v0.1 milestone tracks this work. Other existing work on simulation,
-DFID, storage, debugger and editor support, host I/O, macOS packaging and
-Verus export can follow a concrete user need. The
-[v0.1 gates](RELEASE.md) record what shipped.
+DFID, storage, debugger and editor support, host I/O and Verus export can
+follow a concrete user need.
 
 ## Completed foundation milestones
 
