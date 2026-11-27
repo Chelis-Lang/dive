@@ -201,16 +201,26 @@ file. Copy `sail/*` to `~/tools/` on the node.
 - `sail/sail_temporal.py fixtures` builds the job fixtures from the Examples
   checkout and the goldens; `sail_temporal.py s1`..`s5` run S1 to S5, and
   `sail/sailrecord.py` builds their record.
-- `sail/s7.py latency|first|loop|through|only <label>` runs one S7 part;
-  `sail/s7-chain.sh` ran the `before`, `cache` and `mimalloc` parts, and
-  `sail/s7-chain2.sh` built `final` and `lto` and ran the rest. `sail/s7-env.sh`
+- `sail/s7.py latency|first|loop|through|only|ratio <label>` runs one S7 part;
+  `ratio` times the whole isolated worker against the dive CLI on the large
+  models Sail admits, the factor for S7's composed large-model figure. Sail
+  0.3.1 replays a completed check from its receipt store when the identical
+  job (request bytes and `wall_time_ms`) already completed in the same cache,
+  so `S7_FRESH=1` gives every Sail check job its own `wall_time_ms` and every
+  path does the check; rows record `cache_hit` either way.
+  For 0.1.0, `sail/s7-chain.sh` ran the `before`, `cache` and `mimalloc`
+  parts, and `sail/s7-chain2.sh` built `final` and `lto` and ran the rest.
+  For 0.2.0, `sail/s7-chain-0.2.sh <sail-ref> <dive-rev>` builds `rc`,
+  records that Sail links `<dive-rev>`, and runs every part fresh (`rc`) and
+  then latency, loop and throughput as built (`rcreplay`). `sail/s7-env.sh`
   points them at the pinned oracle's JRE and jar.
 - `sail/s7record.py <raw-dir> <meta.json> <out.json> <tables.md>` builds the S7
   record and its tables; `sail/s7agg.py <raw-dir>` is a quick look while a
   chain runs.
 
-`s7.py`, `sail_temporal.py` and `temporal_bench.rs` are byte-identical to the
-files whose SHA-256 the S7 record lists under `harness_sha256`.
+`s7.py`, `sail_temporal.py`, `temporal_bench.rs` and `s7-chain-0.2.sh` are
+byte-identical to the files whose SHA-256 the 0.2.0 S7 record lists under
+`harness_sha256`; the 0.1.0 record's `s7.py` is in git history.
 
 ## Simulation throughput (S4)
 

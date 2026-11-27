@@ -49,6 +49,9 @@ for lab in LABELS:
             rss = [r[p].get("rss_kb") for r in rs]
             if any(rss):
                 c["peak_rss_kb"] = spread(rss)
+            hits = [r[p].get("cache_hit") for r in rs]
+            if any(h is not None for h in hits):
+                c["cache_hits"] = sum(bool(h) for h in hits)
             hwm = [r[p].get("daemon_hwm_kb") for r in rs]
             if any(hwm):
                 c["daemon_hwm_kb"] = spread(hwm)
@@ -98,6 +101,19 @@ for lab in LABELS:
                             "second_ms": spread([r["second"]["wall_ms"] for r in fj]),
                             "all_completed": all(r["first"]["execution"] == "completed" and
                                                  r["second"]["execution"] == "completed" for r in fj)}
+    ra = rows("ratio", lab)
+    if ra:
+        o = {}
+        for name in dict.fromkeys(r["fixture"] for r in ra):
+            rs = [r for r in ra if r["fixture"] == name]
+            o[name] = {"worker_body_ms": spread([r["embedded"]["worker_body_ms"] for r in rs]),
+                       "embedded_ms": spread([r["embedded"]["wall_ms"] for r in rs]),
+                       "dive_cli_ms": spread([r["dive"]["wall_ms"] for r in rs]),
+                       "worker_body_over_cli": round(st.median([r["embedded"]["worker_body_ms"] / r["dive"]["wall_ms"]
+                                                                for r in rs]), 3),
+                       "agrees": all(r["embedded"]["agrees"] and r["dive"]["agrees"] for r in rs)}
+            disagree += sum(not (r["embedded"]["agrees"] and r["dive"]["agrees"]) for r in rs)
+        rec.setdefault("ratio", {})[lab] = o
     on = rows("only", lab)
     if on:
         o = {"label": lab}
