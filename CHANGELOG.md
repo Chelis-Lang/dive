@@ -5,10 +5,6 @@ are in git history.
 
 ## Unreleased
 
-### Fixed
-
-- `dive simulate` now marks a trace that stopped early at a state with no successor inside the constraints (deadlock checking off, where TLC's simulator also ends the trace) with the new `terminal` ending, in trace document version 8. Sample validation, `validate-trace --sample` and the conformance harness regenerate every successor of the last state and accept the word only if none is admitted and every excluded successor satisfies the invariants and action properties (the same now holds for a sampled `deadlock`); previously such a word was labelled `behavior` and could not be told apart from a truncated one, so the harness graded EWD687a_anim `disagree`. A reader that accepts dive-trace versions 1 to 7 must add version 8 to read these words.
-
 ## 0.2.0
 
 ### Highlights
@@ -41,7 +37,7 @@ All measurements use the installed `dive check` or `dive simulate`. Each record 
 
 ### Breaking
 
-- JSON reports from every command now carry `schema_version: 4` (`dive_api::REPORT_SCHEMA_VERSION`). Schema 4 removes four metrics that were always zero: `core.metrics.store.memory.construction_history_view_bytes` and `core.metrics.candidate_storage.{origin_index_bytes, peak_origin_index_bytes, origin_index_bytes_limit_per_worker}`. To migrate, accept version 4 and stop requiring those fields. Trace document versions are unchanged. See [report compatibility](docs/user/reports-and-errors.md#report-compatibility).
+- JSON reports from every command now carry `schema_version: 4` (`dive_api::REPORT_SCHEMA_VERSION`). Schema 4 removes four metrics that were always zero: `core.metrics.store.memory.construction_history_view_bytes` and `core.metrics.candidate_storage.{origin_index_bytes, peak_origin_index_bytes, origin_index_bytes_limit_per_worker}`. To migrate, accept version 4 and stop requiring those fields. Trace documents add versions 7 (`bad-prefix`) and 8 (`terminal`); a reader of versions 1 to 6 reads older documents unchanged and must accept the new versions to read 0.2.0 output. See [report compatibility](docs/user/reports-and-errors.md#report-compatibility).
 - Core checkpoint archives use format `DIVECC02`. A `DIVECC01` archive is refused with `DIVE-S0400`; recreate it with the current executable.
 - `dive_trace::TraceDoc` and `Trace` gain `witnesses` and `concrete_closure` fields, and `dive_sim::Trace` and `Report` gain `temporal`. Code that builds these structs field by field must set them.
 
@@ -98,6 +94,7 @@ These options are opt-in and may change.
 - If the operating system refuses the worker team at startup, the calling thread completes a multi-worker safety search.
 - Core grows the in-memory fingerprint table one shard at a time and bounds parallel candidate batches, so the eight-worker KVS Large check finishes within 24 GiB.
 - `dive simulate` releases each trace's states once its report entry is written: bosco at 1,000 traces of depth 100 peaks at 0.36 GB instead of 4.0 GB, with byte-identical reports.
+- `dive simulate` marks a trace that stops early at a state with no admitted successor (deadlock checking off, where TLC's simulator also ends the trace) with the new version-8 `terminal` ending. Validation regenerates every successor of the last state and accepts the word only if none is admitted and every excluded successor satisfies the invariants and action properties; a sampled `deadlock` gets the same check. Previously such a trace was labelled `behavior`, as if cut short at the depth.
 - [D-047](docs/tlc-differences.md#d-047-forced-boolean-formals): an operator argument used as an action is expanded even when an earlier conjunct already evaluated it, so dive can count identical successors that TLC skips.
 
 ### Not in this release
