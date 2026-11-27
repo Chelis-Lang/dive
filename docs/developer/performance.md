@@ -1272,3 +1272,174 @@ taskset -c 7 python3 scripts/bench-project-first-temporal.py \
   target/release/examples/project_first_temporal \
   "$EXAMPLES/specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.tla"
 ```
+
+## 0.2.0 improvements
+
+Every default-path performance change between 0.1.0 and 0.2.0 that has a committed record. The release notes in `CHANGELOG.md` quote the strongest rows; ratios against TLC are re-measured on the release candidate.
+
+Source: `conformance/reports/perf/*.json` on `main` at the 0.2.0 feature freeze, compared with v0.1.0.
+Numbers come from the record JSON (medians where the record gives them). Paths are
+repo-relative and all sit under `conformance/reports/perf/`, so the table gives the file name only.
+
+Left out: opt-in flags (`--independent-frontier`, `--partitioned-fingerprints`,
+`--seen-disk-entries`, `--lncheck cold-fair`, `--lncheck periodic-all`, experimental projected
+fairness row fallback #1377), source-built native and trained workers, symbolic, carrier
+certificates, and peer-only (Manyan) comparisons.
+
+Hosts: m24 = c7i.metal-24xl (R2 host), c4 = c7i.4xlarge, c8 = c7i.8xlarge, c12 = c7i.12xlarge,
+r7-8 / r7-16 = r7i.8xlarge / r7i.16xlarge, g24 / g48 = c8g.24xlarge / c8g.48xlarge (Graviton),
+r8g = r8g.12xlarge (Graviton), sim = c7i.metal-24xl (96 vCPU, SMT and turbo off), ws = local Fedora workstation, ws-ryzen = shared Ryzen AI MAX+ 395 workstation.
+W = workers. "fp" = default fingerprint store, "exact" = exact store, "compat" = `--compat=tlc`.
+
+### Check speed
+
+| PR | What changed | Model / config | Before → after | W | Host | TLC compared | Record |
+|---|---|---|---|---|---|---|---|
+| #1082 range (08a14fba..c14687e6) | Hash scan of small sets, inline bounded membership fuel; the range also holds #1047 and #1050 | R2 corpus geomean dive/TLC | 0.1949x → 0.1896x (fixed set 0.2111 → 0.2055; median 0.1476 → 0.1458) | 1 | m24 (5x) | yes, `-Xmx24g` | before `2026-11-18-r2-procedure-08a14fba.json`, after `2026-11-20-r2-procedure-c14687e6.json` |
+| #1082 range | same | AllocatorImplementation | 1.166x → 0.956x (dive 9,366 ms vs TLC 9,808 ms) | 1 | m24 | yes, 24g | both R2 records |
+| #1082 range | same | MCKVsnap | 1.198x → 1.114x | 1 | m24 | yes, 24g | both R2 records |
+| #1082 range | same | MCInnerSerial | 4,355 → 3,227 ms (TLC 534,972 ms) | 1 | m24 | yes, 24g | both R2 records |
+| #1082 range | same | SpanTreeTest5Nodes | 113,199 → 91,880 ms (TLC 691,406 ms) | 1 | m24 | yes, 24g | both R2 records |
+| #1082 range | same | aba_asyn_byz | 517,368 → 455,318 ms (TLC 1,321,705 ms) | 1 | m24 | yes, 24g | both R2 records |
+| #1082 range | same | bcastFolklore | 631,629 → 560,891 ms (TLC 2,137,750 ms) | 1 | m24 | yes, 24g | both R2 records |
+| #1082 range | same | cf1s_folklore | 177,573 → 155,073 ms | 1 | m24 | yes, 24g | both R2 records |
+| #1238 | Skip Cartesian function choices when a frame is proved | CCF MCabs, exact, default | 44.58 → 0.109 s (8W: 8.03 → 0.045 s) | 1, 8 | c4 | no (compat refuses by name) | `2026-11-21-ccf-core-frame-narrowing.json` |
+| #1238 | same | CCF grown MaxExtend=4 | stopped at 180 s → success in 3.12 s (8W 2.94 s) | 1, 8 | c4 | no | same |
+| #1213 | Guarded powerset message choices | detector_chan96 no-fault safety N=3, exact | 452.96 → 4.70 s; 208,184 → 36,364 KiB (final reviewed binary; shared instance with other 1-CPU jobs) | 1 | c4 | no | `2026-11-21-guarded-message-subsets.json` |
+| #1213 | same | detector_chan96 temporal N=3, exact | 839.64 → 218.79 s; 245,252 → 106,164 KiB (final reviewed binary) | 1 | c4 | no | same |
+| #1213 | same | powerset kernel, width 19 / ≥25 | 547 → 8.3 ms; width ≥25 unsupported → succeeds | 1 | c4 | no | same |
+| #1313 | Reuse process-label guards across actions | Flint two-barrier, compat, fp | 102.16 → 83.49 s; RSS 551,376 → 378,496 KiB | 8 | c4 | no | `2026-11-22-core-label-guards.json` |
+| #1313 | same | Flint one-barrier | 5.81 → 4.86 s; RSS ~316k → 134k KiB | 8 | c4 | no | same |
+| #1357 | Reuse pure computed successor components | Flint small, default fp (compat / exact) | 3.97 → 3.48 s (4.74 → 4.33; 4.51 → 3.99) | 8 | c4 | no | `2026-11-22-projected-successor-values.json` |
+| #1357 | same | Flint growth edit, 7,387,957 states | 64.49 → 57.92 s | 8 | c4 | no | same |
+| #1376 | Disjoint updates to one actor row | Flint small, fp (exact) | 3.55 → 2.94 s (4.03 → 3.42) | 8 | c4 | no | `2026-11-22-actor-table-rows.json` |
+| #1376 | same | Flint growth edit, 7.39M states | 57.99 → 48.89 s | 8 | c4 | no | same |
+| #1325 | Parallel generation of large initial products | MCBakery full, compat, fp (exact) | 3.86 → 1.79 s (4.08 → 2.09) | 8 | c4 | no | `2026-11-22-core-parallel-init.json` |
+| #1325 | same | MCBakery capped run | 3.15 → 1.14 s | 8 | c4 | no | same |
+| #1401 | Skip ground actions whose leading guard is false | LuPastry+ 128 addresses, exact | 139.17 → 91.10 s (TLC 61.64 s) | 4 | ws | yes, 6 GiB heap | `2026-11-23-guarded-action-index.json` |
+| #1195 | Invariant memo tables for split-action plans | LuPastry 32 addresses | 25.89 → 1.96 s | 4 | c4 | no | `2026-11-21-pastry-source-scale.json` |
+| #1185 | Share pure instructions across bounded existential bindings | LuPastry 16 IDs (`--singleton-leaves` source prep), exact | refused (inlining limit) → 0.48 s 1W, 0.33 s 4W (TLC 1.68 s 4W). The 1W TLC run (14.0 s) overlapped a release build; the record calls it uncontrolled | 1, 4 | c4 | 4W only, `-Xmx8g` | same |
+| #1183 | Record-union membership without materializing | LuPastry 8 IDs, 8-2, exact | OOM at 15 GiB → 30.79 s / 383,080 KiB (374 MiB) (TLC 52.5 s / 3.00 GiB) | 4 | c4 | yes, `-Xmx8g` | same |
+| #1183 | same | LuPastry 4-2 | 3.03 s (TLC 7.56 s) | 4 | c4 | yes, `-Xmx8g` | same |
+| #1201 | Reuse completed split-action folds near the budget limit | LuPastry 128 addresses (`--singleton-leaves` source prep), exact, default profile | refused (compile budget) → 1W 247.12 s (TLC 272.09 s); 4W 165.78 s (TLC 87.05 s) | 1, 4 | c4 | yes | same |
+| #1262 | Borrowed function view, no heap temp for small EXCEPT | EWD998Small | 1W 15.84 → 15.21 s; 8W 4.47 → 4.33 s | 1, 8 | c4 | no | `2026-11-21-ewd998-function-entries.json` |
+| #1262 | same | EWD998 2M-state prefix | 61.9 → 58.9 s | 1 | c4 | no | same |
+| #1101 | Symmetry compares nested values without copying | SlateDB WAL 5M prefix, compat | 8W 19.97 → 17.92 s; 32W 10.12 → 9.62 s (medians of 3) | 8, 32 | r7-16 | no | `2026-11-20-slatedb-wal.json` |
+| #1250 | mimalloc 3.7.0 (16 GiB arena init fix) | EWD998Small, default | 4.8 → 4.47–4.66 s; RSS 158,004–160,240 → 96,820–105,140 KiB (154–156 → 95–103 MiB) | 8 | c4 | no | `2026-11-21-linux-allocator-arenas.json` |
+| #1250 | same | SlateDB Medium / KVSSafetySmall, default | RSS 121–129 → 81 MiB; KVS 20.47–20.51 → 19.65–20.29 s, 188–197 → 173–175 MiB | 8 | c4 | no | same |
+| #1250 | same | TLCSailfish2 4M prefix, compat | 101.07 → 98.37 s (one run each) | 16 | r7-8 | no | same |
+| range, incl. #1250 | Combined main at b35b9e2b vs e4ab6a1 | EmergencyCall f3, dive/TLC ratio | 8W 1.60x → 0.96x (89.48 s / 412,516 KiB vs TLC 93.13 s / 5,912,308 KiB); 1W 0.68x → 0.48x (233.48 vs 485.14 s) | 1, 8 | m24 before, c4 after (ratios only) | yes, `-Xmx16g` | `2026-11-20-emergencycall-reference.json`, `2026-11-21-allocator-fixed-large-baselines.json` |
+
+### Memory
+
+| PR | What changed | Model / config | Before → after | W | Host | TLC compared | Record |
+|---|---|---|---|---|---|---|---|
+| #1088 | Fewer sources per high-fanout parallel batch | BPConProof 1M prefix, compat | 4.64 → 2.68 s; 1,169,932 → 484,700 KiB (-59%) | 8 | c4 | no | `2026-11-20-high-fanout-waves.json` |
+| #1088 | same | BPConProof 300k prefix | 4.43 → 0.90 s; 1,068 → 318 MiB | 8 | c4 | no | same |
+| #1104 | Pack frontier rows by variable | SlateDB 1B-state prefix | 54,397,472 → 31,594,216 KiB (-42%); 2,264.9 → 2,336.4 s | 32 | r7-16 | no | `2026-11-20-slatedb-wal.json` |
+| #1104 | same | SlateDB one-value complete, 242M states, compat | 7,690,704 → 5,678,156 KiB; 713.18 → 721.24 s | 16 | r7-8 | no | `2026-11-20-slatedb-wal.json` |
+| #1104 | same | SlateDB under a 6 GiB sampled budget, compat | memory stop at 94,702,286 states (7.53 GiB peak) → reached the 100M state cap at 2.81 GiB | 16 | r7-8 | no | `2026-11-20-high-fanout-waves.json` |
+| #1108 | Consecutive discovery IDs stored once per level | SlateDB 12M / BPCon 8M / DiskSynod 3M, compat | 746 → 695 MiB; 1,554 → 1,462 MiB; 202 → 180 MiB (means of 2) | 8 | c4 | no | `2026-11-20-high-fanout-waves.json` |
+| #1120 | Fewer bytes per fingerprint slot | SlateDB 20M / DiskSynod 10M, compat | 1,261 → 1,182 MiB; 497 → 419 MiB (means of 2) | 16 | r7-8 | no | `2026-11-20-slatedb-wal.json` |
+| #1120 | same | SlateDB one-value complete, 242M states, compat | 6,005,032 → 4,357,316 KiB (5.73 → 4.16 GiB, -27%); 712.54 → 727.46 s | 16 | r7-8 | no | same |
+| #1120 | same | synthetic 402M-key insert stream (not a model check) | 5.93 → 3.78 GiB (79.13 → 93.25 s) | 1 core | r7-8 | no | same |
+| #1135 | Pack exact identities in blocks | SlateDB one-value 242M, exact, compat | 89.4 GiB / 938 s (bucket) → 67.3 GiB / 900 s (inline) → 35.2 GiB / 972.5 s (packed) | 16 | r7-8 | no | same |
+| #1153 | Grow exact hash index in shards | EmergencyCall f3, exact, compat | 2,252,316 → 1,326,924 KiB (-41%); 130.61 → 131.97 s | 24 | r8g | no | `2026-11-20-emergencycall-reference.json` |
+| #1153 | same | EmergencyCall sliced 100M prefix / SlateDB one-value complete | 8.70 → 6.14 GiB; 35.6 → 20.3 GiB (643.65 → 654.76 s) | 24 | r8g | no | same |
+| #1153 | same | sliced EmergencyCall, states reached under a 40 GiB ceiling | 469.8M → 816.8M | 24 | r8g | no | same |
+| #1234 | Store reclamation charges growth above last live Store | Flint 250M prefix | 11.04 → 8.97 GiB; 1,373 → 1,323 s | 16 | c8 | no | `2026-11-21-safety-worker-commit.json` |
+| #1229 | Faster reclamation of wide frontiers sharing values | Flint 100M prefix | 575.12 → 512.60 s | 16 | c8 | no | same |
+| #1229 | same | Flint two-barrier, forced collection | 56.29 → 49.70 s | 16 | c8 | no | same |
+| #1070 → #1134 | Temporal graph: narrow ordinals, action IDs, packed rows, joint and adaptive labels | c1cs 2M-state prefix, compat | 2,560,324 → 787,468 KiB (-69%); 78.56 → 74.05 s (single samples) | 8 | c4 | no | `2026-11-20-temporal-edge-ordinals.json` |
+| same chain | same | c1cs states reachable in 20 GiB | 20.39M → 42.93M | 8 | c4 | no | same |
+| same chain | same | BlockingQueuePoisonApple | 723,632 → ~540,916 KiB | 8 | c4 | no | same |
+| same chain | same | Kafka KIP-996 182k prefix, default | 1,507,964 → 652,328 KiB (41.68 → 47.83 s) | 8 | c4 | no | same |
+| #1143 | Allocate action-truth pages on first true result | Kafka KIP-996 full, default | dense stopped on memory at 760 s / 8.14 GiB → paged ran to the 1,800 s limit at 1.88 GiB, same 1,568,061 states (neither run finished) | 8 | r7-8 | no | `2026-11-20-large-model-outcomes.json` |
+
+### Fairness and liveness
+
+All Elevator rows: c4, default profile, 1 worker unless noted; every reported counterexample independently validated.
+
+| PR | What changed | Model / config | Before → after | W | Host | TLC compared | Record |
+|---|---|---|---|---|---|---|---|
+| #1261 | Reuse prefix paths and product rows across fairness alternatives | ElevatorLivenessLarge | 403.59 → 113.90 s, same counts | 8 | c4 | no (v0.1.0 TLC: 1,879.76 s 1W on m24) | `2026-11-21-fairness-product-search.json` |
+| #1261 | same | ElevatorLivenessMedium | 5.87 → 1.84 s | 8 | c4 | no | same |
+| #1295 | Eliminate impossible fairness alternatives by component | ElevatorLivenessLarge | 92.33 → 4.16 s | 1 | c4 | no | `2026-11-22-fairness-components.json` |
+| #1295 | same | ElevatorLivenessMedium | 1.50 → 0.28 s | 1 | c4 | no | same |
+| #1309 | Strong fairness without expanding every alternative | four-floor Elevator | formula-planning refusal → validated counterexample in 18.74 s (compat 100.63 s) | 1 | c4 | no | `2026-11-22-factored-streett.json` |
+| #1321 | Fewer repeated product searches for strong fairness | four-floor Elevator | 18.53 → 15.30 s | 1 | c4 | no | `2026-11-22-streett-component-search.json` |
+| #1326 | Reuse native fairness truth on growing graphs | four-floor / Large / Medium | 19.08 → 9.62 s; 4.21 → 3.55 s; 0.285 → 0.26 s | 1 | c4 | no | `2026-11-22-projected-fairness.json` |
+| #1331 | Select component search for wide alternatives | ElevatorLivenessLarge | 3.59 → 2.94 s; 102,472 → 75,968 KiB | 1 | c4 | no | `2026-11-22-fairness-plan-selection.json` |
+| #1350 | Reuse closed original emissions for enabledness | Large / four-floor | 3.15 → 2.65 s; 10.87 → 9.37 s | 1 | c4 | no | `2026-11-22-closed-enabled.json` |
+| #1346 | Evaluate fairness actions across original successor rows | Large / four-floor | 2.83 → 2.04 s; 9.41–9.89 → 6.82–6.89 s | 1 | c4 | no | `2026-11-22-batched-fairness-actions.json` |
+| #1349 | Keep component search on larger fairness graphs | five-floor Elevator | 149.59 → 36.83 s; product phase 124.6 → 12.3 s | 1 | c4 | no | `2026-11-22-streett-workspace.json` |
+| #1356 | Windowed action masks above 1M closed states | six-floor Elevator | 77.40 → 72.40 s (shipped-code pair; the 69.80 → 64.12 s pair carried extra experiments in both arms) | 1 | c4 | no | `2026-11-22-windowed-enabled.json` |
+| #1358 / #1362 | Reuse deterministic successor values; single-variable subscripts | Large / four-floor | 1.66 → 1.54 s; 5.80 → 5.44 s | 1 | c4 | no | `2026-11-22-producer-action-images.json` |
+| #1360 | Complete seven-floor search, validate across growth | seven-floor Elevator, 3,437,051 states | stopped at 240 s → validated counterexample in 219.98 s, 1,571,928 KiB (1.50 GiB) | 1 | c4 | no | `2026-11-22-elevator-seven.json` |
+| #1160 | Disprove fairness actions on unchanged target components | Kafka KIP-996 200k prefix | 315.78 → 188.52 s; 682,472 → 657,360 KiB | 8 | r7-8 | no | `2026-11-20-large-model-outcomes.json` |
+| #1076 | One worker for wide temporal frontiers with short actions | CoffeeCan3000Beans, 8 requested | 177.47 → 93.34 s (1000Beans 18.61 → 9.58 s) | 8 req. | m24 | no | `2026-11-20-temporal-worker-selection.json` |
+| #1050 | Reuse worker threads across graph-capture batches | CoffeeCan3000Beans | 107.3 → 49.4 s (engineering runs; no perf record. #1076 now runs this model on one worker anyway) | 8 | ws-ryzen (shared) | no | ADR 0159 only |
+
+Cumulative, one worker throughout: ElevatorLivenessLarge 449.30 s in the v0.1.0-era R2 record (08a14fba, m24; TLC 1,879.76 s) → 1.54 s (c4, `2026-11-22-producer-action-images.json`). Both hosts are Xeon 8488C; m24 runs at a fixed 2.4 GHz. Same-host chain on c4 at 1W: 92.33 s (main after #1261) → 1.54 s.
+
+### Simulation
+
+| PR | What changed | Model / config | Before → after | W | Host | TLC compared | Record |
+|---|---|---|---|---|---|---|---|
+| #1162 | Temporal atoms on per-worker Core machines, truths reused across traces. The before is the first simulate temporal checker (#1126), which is new in 0.2 and never shipped | EWD840 with PROPERTIES, 40,000 traces x 100 | 1W 21.40 → 2.92 s (TLC 10.40 s, 3.57x); 8W 6.17 → 0.46 s (TLC 2.46 s, 5.4x) | 1, 8 | sim | yes, `-Xmx16g` | `2026-11-21-simulation-throughput-f685076b.json` (before: `2026-11-21-simulation-throughput-d04a3a88.json`) |
+| #1162 | same | DijkstraMutex LSpec, 4,000 traces | 1W 17.67 → 4.09 s (TLC 32.54 s); 8W 5.23 → 0.96 s (TLC 5.46 s) | 1, 8 | sim | yes, 16g | same |
+| #1162 | same | SimpleAllocator, 4,000 traces | 1W 35.36 → 18.30 s (TLC 109.34 s); 8W 5.94 → 2.49 s (TLC 15.42 s) | 1, 8 | sim | yes, 16g | same |
+| v0.1.0 range | (unchanged by #1162) | bosco 4,000 traces | 1W 12.22 s vs TLC 54.30 s; RSS 51 MiB vs 2,174 MiB | 1 | sim | yes, 16g | same |
+| #1040 | Keep serialized trace entries, not JSON trees | bosco 1,000 traces x 100 | 4.0 → 0.36 GB peak (CHANGELOG figure) | – | – | no | – |
+| #1128 | Validate and write kept traces one state at a time | 2M-state trace | 8.5 → ~1 GB (CHANGELOG figure) | – | – | no | – |
+
+### Trace validation
+
+| PR | What changed | Model / config | Before → after | W | Host | TLC compared | Record |
+|---|---|---|---|---|---|---|---|
+| #1220 | Pairwise consistency over large status tables in one scan | TCommit/Prepared, 4,096 managers | 403.35 → 0.04 s (2,048: 51.82 → 0.02 s) | 1 CPU | c4 | no | `2026-11-21-table-pair-validation.json` |
+| #1223 | Validate single-entry updates without rebuilding the table | genuine word, 65,536 managers | 0.56 s, 522,652 KiB (a forged word at 65,536 still hit the 180 s external limit) | 1 CPU | c4 | no | same |
+| #1203 | Skip unused configured permutation sets in replay | KVS 102-transaction Corrupt word | crashed (abort, 1,883,188 KiB = 1.80 GiB) → valid in 0.01 s | 1 CPU | c4 | no | `2026-11-21-kvs-independent-replay.json` |
+| #1370 | Bounded per-formula work for periodic words | Elevator word, 151 / 181 floors | unsupported → valid in 3.91 / 5.94 s | 1 | c4 | no | `2026-11-22-packed-word-replay.json` |
+| #1394 | Sparse membership for guarded quantified actions | Elevator word, 181 / 241 / 251 floors | 5.58 s → 1.87 s; unsupported → 3.31 s / 3.46 s | 1 | c4 | no | `2026-11-22-sparse-word-membership.json` |
+| #1233 | Share completed checks of pure scoped expressions | KIP-996 fair election witness | unsupported (work bound) → valid in 0.67 s | 1 CPU | c4 | no | `2026-11-21-kafka-liveness.json` |
+
+### Parallel
+
+All rows `--compat=tlc`, fp store. Records: `2026-11-21-safety-worker-commit.json`.
+
+| PR | What changed | Model / config | Before → after | W | Host | TLC compared |
+|---|---|---|---|---|---|---|
+| #1131 | Queue canonical states retained by workers | Flint 10M prefix | 192W 21.7 → 17.9 s; 32W 26.96 → 23.2 s | 32, 192 | g48 | no |
+| #1131 | same | SlateDB 10M prefix | 15.73 → 12.75 s | 32 | g48 | no |
+| #1131 | same | Flint two-barrier complete | 21.0 → 17.9–18.4 s | 192 | g48 | no |
+| #1131 | same | KVS | 7.55 → 7.33 s | 8 | g48 | no |
+| #1138 | Reuse confirmed lookups at ordered commit | KVS 2M / SlateDB one-value 50M / Flint 10M prefix | 2.93 → 2.70 s (32W); 66.42 → 64.5 s (32W); 13.58 → 13.1 s (96W) | 32, 96 | g24 | no |
+| #1191 | Start the safety worker team once per search | etcdraft 500k prefix, default | 0.65 → 0.61 s (2 runs each); RSS 435–437 → 463–475 MiB | 32 | r7-16 | no |
+
+The #1191 rows are in `2026-11-20-large-model-outcomes.json` (`etcd_worker_start_pressure.search_lifetime_pool`), not the safety-worker-commit record. The earlier 192-worker Flint / KVS / PConProof numbers (22.1 → 17.7 s; 5.28 → 3.39 s; 24.5 → 14.6 s) came from a pre-#1191 experiment (a Rayon pool for 32+ workers), not the design that shipped, so they are left out.
+
+### Other default-path wins
+
+| PR | What changed | Model / config | Before → after | W | Host | TLC compared | Record |
+|---|---|---|---|---|---|---|---|
+| #1121 | Ordered multi-worker safety for specs with conditional diagnostics | ZooKeeper Zab s3t2f1r0e3 / four-1, compat | 1 worker forced: 12.38 → 1.20 s; 612.76 → 51.74 s (RSS 0.15 → 1.00 GiB; 0.44 → 3.45 GiB) | 1 → 32 | r7-16 | yes: 7.05 s / 133.97 s (TLC 27.4 / 46.3 GiB) | `2026-11-20-zookeeper-reference.json` (`ordered_diagnostic_workers`) |
+| #1298 | Skip invariant re-evaluation for states committed in earlier waves | Flint LeanP1 one / two barriers, exact store, compat | 6.65 → 6.35 s (median of 3); 117.25 → 110.60 s (single pair) | 8 | c4 | no | `2026-11-22-flint-resident-exact.json` |
+
+Looked at and left out: #1047 (KVS Large finished under 24 GiB at 8W, but the record has no before run), #1129 (all arms hit the time limit; evaluation counts only), #1187 (wide powerset witnesses; the record does not identify which choice variant shipped), #1398 (`--strategy bounded-path`, opt-in), and #1293 / #1320 / #1337 / #1287 / #1297 (symbolic, out of scope for 0.2).
+
+### Costs and remaining gaps
+
+- #1104 packed frontier rows: SlateDB 1B-state prefix +3% time (2,264.9 → 2,336.4 s); 242M states +1%. Memory -42% / -26%.
+- #1120 fingerprint slots: synthetic 402M keys 79.13 → 93.25 s (+18%) for -36% memory.
+- #1135 packed exact identities: 972.5 s against 900 s for the inline layout (+8%) for about half the memory.
+- #1153 sharded exact index: +1–2% time (130.61 → 131.97 s; 643.65 → 654.76 s).
+- #1130 / #1134 temporal labels: Kafka KIP-996 182k prefix 41.68 → 44.07 s (#1130) → 47.83 s (#1134, +15% total) for -57% memory.
+- #1191 worker team: etcdraft 500k at 32W RSS 435–437 → 463–475 MiB. (The PConProof 32W slowdown, 34.7 → 37.1 s, and the 192W RSS doubling, Flint 1.39 → 2.83 GiB, belong to the pre-#1191 pool experiment, not the shipped code.)
+- #1325 parallel init: MCBakery peak RSS 66,756 → 110,348 KiB.
+- #1376 actor rows: Flint RSS 131 → 137–145 MiB.
+- #1162 simulation: DijkstraMutex LSpec 8W peak RSS 173 → 350 MiB (bounded per-worker caches).
+- #1401 guarded action index: LuPastry 16 addresses 0.17 → 0.19 s.
+- #1088 fanout batches: Sailfish 12.72 → 12.88 s (+1%).
+- #1082 range: FastPaxos 0.433x → 0.460x (18,099 → 19,202 ms); EWD840 0.120x → 0.127x; GameOfLife 0.781x → 0.799x. All inside the 1.1x band.
+- Still slower than TLC: LuPastry+ 128 addresses at 4W (91.10 s vs 61.64 s); LuPastry 128 addresses at 4W in the earlier panel (165.78 s vs 87.05 s); LuPastry 14-ready ring (300.12 s vs 169.76 s); MCKVsnap 1.11x at 1W.

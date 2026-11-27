@@ -4,7 +4,7 @@ members = ["crates/*", "xtask"]
 default-members = ["crates/*"]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.99"
 # Opt-in: only the crates that set `publish = ["crates-io"]` are published
@@ -23,24 +23,24 @@ categories = ["development-tools", "science"]
 # version, bumped together with `[workspace.package] version`. Internal
 # dev-dependencies are written as plain paths in each crate so packaging drops
 # them (dev-dependency cycles cannot be published).
-dive-syntax = { path = "crates/dive-syntax", version = "=0.1.0" }
-dive-sema = { path = "crates/dive-sema", version = "=0.1.0" }
-dive-ir = { path = "crates/dive-ir", version = "=0.1.0" }
-dive-value = { path = "crates/dive-value", version = "=0.1.0" }
-dive-eval = { path = "crates/dive-eval", version = "=0.1.0" }
-dive-stdlib = { path = "crates/dive-stdlib", version = "=0.1.0" }
-dive-config = { path = "crates/dive-config", version = "=0.1.0" }
-dive-store = { path = "crates/dive-store", version = "=0.1.0" }
-dive-runtime = { path = "crates/dive-runtime", version = "=0.1.0" }
-dive-liveness = { path = "crates/dive-liveness", version = "=0.1.0" }
-dive-sim = { path = "crates/dive-sim", version = "=0.1.0" }
-dive-trace = { path = "crates/dive-trace", version = "=0.1.0" }
-dive-model = { path = "crates/dive-model", version = "=0.1.0" }
-dive-pluscal = { path = "crates/dive-pluscal", version = "=0.1.0" }
-dive-api = { path = "crates/dive-api", version = "=0.1.0" }
+dive-syntax = { path = "crates/dive-syntax", version = "=0.2.0" }
+dive-sema = { path = "crates/dive-sema", version = "=0.2.0" }
+dive-ir = { path = "crates/dive-ir", version = "=0.2.0" }
+dive-value = { path = "crates/dive-value", version = "=0.2.0" }
+dive-eval = { path = "crates/dive-eval", version = "=0.2.0" }
+dive-stdlib = { path = "crates/dive-stdlib", version = "=0.2.0" }
+dive-config = { path = "crates/dive-config", version = "=0.2.0" }
+dive-store = { path = "crates/dive-store", version = "=0.2.0" }
+dive-runtime = { path = "crates/dive-runtime", version = "=0.2.0" }
+dive-liveness = { path = "crates/dive-liveness", version = "=0.2.0" }
+dive-sim = { path = "crates/dive-sim", version = "=0.2.0" }
+dive-trace = { path = "crates/dive-trace", version = "=0.2.0" }
+dive-model = { path = "crates/dive-model", version = "=0.2.0" }
+dive-pluscal = { path = "crates/dive-pluscal", version = "=0.2.0" }
+dive-api = { path = "crates/dive-api", version = "=0.2.0" }
 dive-conformance = { path = "crates/dive-conformance" }
-dive-core = { path = "crates/dive-core", version = "=0.1.0" }
-dive-explore = { path = "crates/dive-explore", version = "=0.1.0" }
+dive-core = { path = "crates/dive-core", version = "=0.2.0" }
+dive-explore = { path = "crates/dive-explore", version = "=0.2.0" }
 
 # Third-party. Add here first, then reference with `workspace = true`.
 serde = { version = "1", features = ["derive"] }

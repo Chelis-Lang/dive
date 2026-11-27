@@ -186,7 +186,7 @@ dependencies = [
 
 [[package]]
 name = "dive-api"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-config",
  "dive-core",
@@ -209,7 +209,7 @@ dependencies = [
 
 [[package]]
 name = "dive-bench"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-conformance",
  "serde",
@@ -219,7 +219,7 @@ dependencies = [
 
 [[package]]
 name = "dive-cli"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-api",
  "mimalloc3",
@@ -228,7 +228,7 @@ dependencies = [
 
 [[package]]
 name = "dive-config"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-syntax",
  "proptest",
@@ -237,7 +237,7 @@ dependencies = [
 
 [[package]]
 name = "dive-conformance"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-api",
  "rustix",
@@ -250,7 +250,7 @@ dependencies = [
 
 [[package]]
 name = "dive-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-ir",
  "dive-value",
@@ -261,7 +261,7 @@ dependencies = [
 
 [[package]]
 name = "dive-eval"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-config",
  "dive-ir",
@@ -274,7 +274,7 @@ dependencies = [
 
 [[package]]
 name = "dive-explore"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-core",
  "dive-store",
@@ -289,7 +289,7 @@ dependencies = [
 
 [[package]]
 name = "dive-ir"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-sema",
  "dive-syntax",
@@ -299,7 +299,7 @@ dependencies = [
 
 [[package]]
 name = "dive-liveness"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-config",
  "dive-eval",
@@ -315,7 +315,7 @@ dependencies = [
 
 [[package]]
 name = "dive-model"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-config",
  "dive-eval",
@@ -328,7 +328,7 @@ dependencies = [
 
 [[package]]
 name = "dive-pluscal"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-syntax",
  "serde",
@@ -337,7 +337,7 @@ dependencies = [
 
 [[package]]
 name = "dive-runtime"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-config",
  "dive-eval",
@@ -355,14 +355,14 @@ dependencies = [
 
 [[package]]
 name = "dive-sema"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-syntax",
 ]
 
 [[package]]
 name = "dive-sim"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-config",
  "dive-eval",
@@ -375,7 +375,7 @@ dependencies = [
 
 [[package]]
 name = "dive-stdlib"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-eval",
  "dive-ir",
@@ -386,7 +386,7 @@ dependencies = [
 
 [[package]]
 name = "dive-store"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "divan",
  "dive-ir",
@@ -398,7 +398,7 @@ dependencies = [
 
 [[package]]
 name = "dive-syntax"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "proptest",
  "rowan",
@@ -406,7 +406,7 @@ dependencies = [
 
 [[package]]
 name = "dive-trace"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dive-config",
  "dive-eval",
@@ -420,7 +420,7 @@ dependencies = [
 
 [[package]]
 name = "dive-value"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "divan",
  "num-bigint",
@@ -1040,7 +1040,7 @@ checksum = "1ebf944e87a7c253233ad6766e082e3cd714b5d03812acc24c318f549614536e"
 
 [[package]]
 name = "xtask"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "serde_json",
  "sha2",
