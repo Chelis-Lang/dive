@@ -901,18 +901,19 @@ mod tests {
                             xmx: "none",
                             budgets: false,
                         };
-                        let report = simulate_file(&SimulateRequest {
-                            file: root.join("M.tla"),
-                            config: Some(root.join(&model.id)),
-                            compat_tlc: tlc,
-                            generation: true,
-                            seed: Some(0),
-                            traces,
-                            depth: Some(100),
-                            workers: Some(1),
-                            time_limit: BudgetSetting::Unlimited,
-                            max_memory: BudgetSetting::Unlimited,
-                            ..Default::default()
+                        let report = simulate_file(&{
+                            let mut built = SimulateRequest::default();
+                            built.file = root.join("M.tla");
+                            built.config = Some(root.join(&model.id));
+                            built.compat_tlc = tlc;
+                            built.generation = true;
+                            built.seed = Some(0);
+                            built.traces = traces;
+                            built.depth = Some(100);
+                            built.workers = Some(1);
+                            built.time_limit = BudgetSetting::Unlimited;
+                            built.max_memory = BudgetSetting::Unlimited;
+                            built
                         })?;
                         let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
                         let admitted = |value: &Value| {
@@ -997,18 +998,19 @@ mod tests {
                         if case == "FarBad" && traces == 1 {
                             // This actual producer word is independently valid,
                             // but its late violation cannot satisfy depth 100.
-                            let long = simulate_file(&SimulateRequest {
-                                file: root.join("M.tla"),
-                                config: Some(root.join(&model.id)),
-                                compat_tlc: tlc,
-                                generation: true,
-                                seed: Some(0),
-                                traces: 1,
-                                depth: Some(300),
-                                workers: Some(1),
-                                time_limit: BudgetSetting::Unlimited,
-                                max_memory: BudgetSetting::Unlimited,
-                                ..Default::default()
+                            let long = simulate_file(&{
+                                let mut built = SimulateRequest::default();
+                                built.file = root.join("M.tla");
+                                built.config = Some(root.join(&model.id));
+                                built.compat_tlc = tlc;
+                                built.generation = true;
+                                built.seed = Some(0);
+                                built.traces = 1;
+                                built.depth = Some(300);
+                                built.workers = Some(1);
+                                built.time_limit = BudgetSetting::Unlimited;
+                                built.max_memory = BudgetSetting::Unlimited;
+                                built
                             })?;
                             let mut late = long.to_json_with_exit_convention(ExitConvention::Tlc);
                             assert_eq!(late["result"], "violation");
@@ -1127,18 +1129,19 @@ mod tests {
                         xmx: "none",
                         budgets: false,
                     };
-                    let report = simulate_file(&SimulateRequest {
-                        file: root.join("Generation.tla"),
-                        config: Some(root.join(&model.id)),
-                        compat_tlc: tlc,
-                        generation: true,
-                        seed: Some(0),
-                        traces: 1,
-                        depth: Some(100),
-                        workers: Some(1),
-                        time_limit: BudgetSetting::Unlimited,
-                        max_memory: BudgetSetting::Unlimited,
-                        ..Default::default()
+                    let report = simulate_file(&{
+                        let mut built = SimulateRequest::default();
+                        built.file = root.join("Generation.tla");
+                        built.config = Some(root.join(&model.id));
+                        built.compat_tlc = tlc;
+                        built.generation = true;
+                        built.seed = Some(0);
+                        built.traces = 1;
+                        built.depth = Some(100);
+                        built.workers = Some(1);
+                        built.time_limit = BudgetSetting::Unlimited;
+                        built.max_memory = BudgetSetting::Unlimited;
+                        built
                     })?;
                     let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
                     let outcome = |value: &Value| ProcessOutcome {

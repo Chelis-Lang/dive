@@ -6,18 +6,29 @@ are in git history.
 ## Unreleased
 
 - Documented [D-047](docs/tlc-differences.md#d-047-forced-boolean-formals): an operator argument used as an action is expanded even when an earlier conjunct already evaluated it, so dive can count identical successors that TLC skips.
-
-- The source-built [induction workers](docs/user/symbolic.md#retain-authenticated-source-obligations-across-edits) can recheck named safety proofs across edits using authenticated results for identical finite obligations.
+- `dive --help` and `dive check --help` no longer list the symbolic worker
+  strategies (`symbolic`, `symbolic-path`, `finite-induction`, `occupancy`,
+  `compiled`, `auto`) or their flags, and the release archive no longer
+  includes the worker; symbolic proofs follow in 0.3. The tuning options
+  `--lncheck cold-fair|periodic-all`, `--cold-roots`, `--cold-init-emissions`,
+  `--periodic-min-states`, `--independent-frontier`, the `--seen-disk-entries`
+  family and `validate-trace --repair` are labeled experimental.
+- Breaking (Rust API): `SimulateRequest` and `dive_api::bounded::Request` are
+  `#[non_exhaustive]`, so struct expressions, including `..Default::default()`,
+  no longer compile outside dive; build them from `Default` and assign fields. The
+  `labeled_graph`, `orbit_graph`, `bounded` and `cold_fair` modules are hidden
+  from the documentation.
+- The source-built [induction workers](docs/developer/symbolic-preview.md#retain-authenticated-source-obligations-across-edits) can recheck named safety proofs across edits using authenticated results for identical finite obligations.
 
 - The Linux symbolic worker can check multiple transition bounds in one invocation and distinguish bounded safety from a checked k-induction proof.
 - Core skips ground action occurrences whose leading source guard is known false while preserving their original order and diagnostics. [LuPastry+ measurements](conformance/reports/perf/2026-11-23-guarded-action-index.json).
 
 - Export concrete labeled Core paths and [generate executable WiredTiger tests](docs/developer/large-models.md#generate-executable-tests-from-the-wiredtiger-storage-model) using the original Storage model and authored test template.
 
-- The source-checkout [named induction checker](docs/user/symbolic.md#check-a-named-inductive-predicate) verifies a compact safety predicate through original TLA+ actions, including MongoLoglessDynamicRaft membership changes.
+- The source-checkout [named induction checker](docs/developer/symbolic-preview.md#check-a-named-inductive-predicate) verifies a compact safety predicate through original TLA+ actions, including MongoLoglessDynamicRaft membership changes.
 - [Repair a saved temporal counterexample](docs/user/temporal.md#repair-a-saved-counterexample-after-an-edit) by searching short paths through the edited source and independently validating the complete replacement.
 
-- [Check the original AsyncRaft log invariant](docs/user/symbolic.md#check-the-asyncraft-log-invariant) with a compact source-bound induction proof at two and three servers. The [extensional message-set encoding](docs/user/symbolic.md#use-the-published-term-log-and-channel-bounds) also covers the published limit of 1,000 messages per channel.
+- [Check the original AsyncRaft log invariant](docs/developer/symbolic-preview.md#check-the-asyncraft-log-invariant) with a compact source-bound induction proof at two and three servers. The [extensional message-set encoding](docs/developer/symbolic-preview.md#use-the-published-term-log-and-channel-bounds) also covers the published limit of 1,000 messages per channel.
 
 - The optional [source-built worker](docs/user/checking.md#build-a-source-bound-native-successor-worker) accepts `--optimize throughput` for repeated checks. Training once on the original Flint model reduced full search of a 7.39-million-state guard edit from 33.85 to 24.61 seconds. [Timings, preparation cost and comparisons](conformance/reports/perf/2026-11-23-trained-source-workers.json).
 - The optional [source-built worker](docs/user/checking.md#build-a-source-bound-native-successor-worker) groups actor choices and updates only changed cells in eligible tables of sets. On the Flint guard edit, full search time fell from 41.82 to 36.02 seconds. [Benchmark and edit-cycle data](conformance/reports/perf/2026-11-22-source-value-blocks.json).
@@ -62,11 +73,11 @@ are in git history.
 
 - Compare a declared permutation of interchangeable model values against an independent, unreduced exact check on the original TLA+ files. The source-checkout driver records both counts and a portable input manifest. [Carrier symmetry](docs/user/checking.md#compare-a-declared-carrier-symmetry-on-the-original-files)
 
-- Named symbolic checks can [repair a rejected predicate](docs/user/symbolic.md#repair-a-candidate-on-the-currently-bound-source) in the same invocation.
+- Named symbolic checks can [repair a rejected predicate](docs/developer/symbolic-preview.md#repair-a-candidate-on-the-currently-bound-source) in the same invocation.
 
 - The original-source carrier checker can [certify permutations](docs/user/checking.md#certify-interchangeable-model-values) against every reachable state and successor occurrence, or against supported finite relations. Exact-input repeats authenticate the proof and perform a fresh reduced check.
 
-- Named symbolic proofs can [reuse authenticated transition obligations in a new process](docs/user/symbolic.md#reuse-certified-action-obligations-in-another-process).
+- Named symbolic proofs can [reuse authenticated transition obligations in a new process](docs/developer/symbolic-preview.md#reuse-certified-action-obligations-in-another-process).
 
 - Core names the [formula work limit](docs/user/temporal.md#storage-and-limits) when independent fairness assumptions exhaust temporal decomposition.
 
@@ -89,23 +100,23 @@ are in git history.
   `--cold-roots` and `--cold-init-emissions` diversify that search within
   one shared budget.
 
-- [Automatic strategy selection](docs/user/symbolic.md#choose-a-strategy-automatically) chooses exact population, packed, decision-diagram or Core search for an original TLA+ configuration.
+- [Automatic strategy selection](docs/developer/symbolic-preview.md#choose-a-strategy-automatically) chooses exact population, packed, decision-diagram or Core search for an original TLA+ configuration.
 - [Match partial etcd Raft event logs](docs/user/traces.md#match-an-etcd-implementation-log) against the upstream trace and protocol specifications, with independently replayable complete states.
 - [Match CCF election and rollback histories](docs/user/traces.md#match-a-microsoft-ccf-consistency-history) with complete observation and protocol replay. Use `--refinement` to check every reachable observation edge against the original protocol property.
 
 - Symbolic transition lowering reuses common state predicates in named proofs and skips untouched table coordinates in functional updates.
 
-- Named symbolic proofs accept finite Cartesian products, tuple-pattern binders, bounded subset and function choices, and quantified state guards. [Supported models and limits](docs/user/symbolic.md#prove-one-configured-state-invariant)
+- Named symbolic proofs accept finite Cartesian products, tuple-pattern binders, bounded subset and function choices, and quantified state guards. [Supported models and limits](docs/developer/symbolic-preview.md#prove-one-configured-state-invariant)
 
-- [Prove one configured state invariant](docs/user/symbolic.md#prove-one-configured-state-invariant) on the original TLA+ source, including models with isolated unbounded counters. Compatible transition obligations can survive an edit.
+- [Prove one configured state invariant](docs/developer/symbolic-preview.md#prove-one-configured-state-invariant) on the original TLA+ source, including models with isolated unbounded counters. Compatible transition obligations can survive an edit.
 
 - Core checks [groups of fairness alternatives](docs/user/temporal.md#fairness) together on finite behavior graphs.
 
 - Core reports [temporal analysis time](docs/user/temporal.md) spent labeling the graph, finding accepting cycles and attributing failed properties.
 
-- Symbolic checking can derive [finite records and sets as whole values](docs/user/symbolic.md#check-finite-records-and-sets-as-whole-values) directly from a safety model. It checks the original EmergencyCall module and independently validates reported violations.
+- Symbolic checking can derive [finite records and sets as whole values](docs/developer/symbolic-preview.md#check-finite-records-and-sets-as-whole-values) directly from a safety model. It checks the original EmergencyCall module and independently validates reported violations.
 
-- Linux releases support [`dive check --strategy compiled`](docs/user/symbolic.md#compile-a-finite-safety-check) for eligible finite safety models. With an installed Rust compiler it searches packed exact states at up to eight workers and independently replays violations.
+- Source checkouts with the worker support [`dive check --strategy compiled`](docs/developer/symbolic-preview.md#compile-a-finite-safety-check) for eligible finite safety models. With an installed Rust compiler it searches packed exact states at up to eight workers and independently replays violations.
 - Compiled finite safety checks use exact dense ranks for eligible symmetric layouts from 33 through 63 bits, including the 45-bit KVS Large model.
 - Compiled safety checks reconstruct unambiguous invariant failures with a second native pass and independently validate the concrete trace. Successful checks use no predecessor table.
 
@@ -118,19 +129,19 @@ are in git history.
 
 - [Independent trace validation](docs/user/checking.md#consistency-predicates-over-named-processes) can check pairwise consistency over large concrete status tables in one scan and validate or reject single-entry updates without rebuilding the table for every possible process.
 
-- [Whole-value symbolic checks](docs/user/symbolic.md) can recheck an edited invariant list against the exact completed reachable set. A violated invariant receives a fresh breadth-first search and independent trace replay.
+- [Whole-value symbolic checks](docs/developer/symbolic-preview.md) can recheck an edited invariant list against the exact completed reachable set. A violated invariant receives a fresh breadth-first search and independent trace replay.
 
-- [Symbolic rechecks](docs/user/symbolic.md) can reuse shortest-path layers outside the region affected by a deleted action.
+- [Symbolic rechecks](docs/developer/symbolic-preview.md) can reuse shortest-path layers outside the region affected by a deleted action.
 
 - Core can check actions that choose a [subset of messages for one recipient](docs/user/checking.md), including queues that previously exceeded its powerset limit.
 
-- An exact population search can save a [portable safety predicate](docs/user/symbolic.md#transfer-a-population-safety-predicate-across-edits). A receiver proves the current source and reports failed induction obligations explicitly. Direct or retained population proofs accept larger configured participant sets than counted searches.
+- An exact population search can save a [portable safety predicate](docs/developer/symbolic-preview.md#transfer-a-population-safety-predicate-across-edits). A receiver proves the current source and reports failed induction obligations explicitly. Direct or retained population proofs accept larger configured participant sets than counted searches.
 
-- Linux releases include [exact labeled occupancy checking](docs/user/symbolic.md#checking-interchangeable-status-tables). An opt-in source-derived BFS counts concrete states and action witnesses for anonymous finite status tables and independently replays shortest violations.
+- Source checkouts with the worker include [exact labeled occupancy checking](docs/developer/symbolic-preview.md#checking-interchangeable-status-tables). An opt-in source-derived BFS counts concrete states and action witnesses for anonymous finite status tables and independently replays shortest violations.
 
 - Core and trace validation can find [wide integer powerset witnesses](docs/user/checking.md) while checking the empty set and singleton candidates.
 
-- [Symbolic checking](docs/user/symbolic.md#admission-and-reports) can load models with large, unused pure definitions without constructing their values during startup.
+- [Symbolic checking](docs/developer/symbolic-preview.md#admission-and-reports) can load models with large, unused pure definitions without constructing their values during startup.
 
 - Core checks membership in [finite record message types](docs/user/checking.md) without materializing eligible record unions, and independently replays canonical traces with scalar payloads of different types.
 
@@ -140,23 +151,23 @@ are in git history.
 
 - The [EmergencyCall benchmark](docs/developer/large-models.md#enlarge-the-emergencycall-number-sets) checks four larger source configurations and exports independently validated counterexamples.
 
-- [Direct symbolic induction](docs/user/symbolic.md#direct-induction-on-wider-finite-models) admits 2,048-bit finite models and factors independent forbidden pairs. The original transaction-commit safety properties prove at 1,000 managers.
+- [Direct symbolic induction](docs/developer/symbolic-preview.md#direct-induction-on-wider-finite-models) admits 2,048-bit finite models and factors independent forbidden pairs. The original transaction-commit safety properties prove at 1,000 managers.
 
-- [Finite symbolic checking](docs/user/symbolic.md#symbolic-layout-for-nested-tables) groups nested labeled tables by their shared coordinates. The KVS source now proves safety at 102 transaction slots within 512 state bits.
+- [Finite symbolic checking](docs/developer/symbolic-preview.md#symbolic-layout-for-nested-tables) groups nested labeled tables by their shared coordinates. The KVS source now proves safety at 102 transaction slots within 512 state bits.
 
 - The bundled [FramedFunctions module](docs/user/modules.md#enumerating-functions-with-fixed-coordinates) generates finite function updates on their writable coordinates. Release archives include the TLA+ source for TLC.
 
 - Default Core skips irrelevant [finite function choices](docs/user/modules.md#enumerating-functions-with-fixed-coordinates) when an action fixes every coordinate except one.
 
-- [Symbolic safety checking](docs/user/symbolic.md#admission-and-reports) supports finite symmetry groups acting on record contents, nested indices and refined sets, including independent proposer and acceptor permutations.
+- [Symbolic safety checking](docs/developer/symbolic-preview.md#admission-and-reports) supports finite symmetry groups acting on record contents, nested indices and refined sets, including independent proposer and acceptor permutations.
 
-- Finite symbolic checking counts duplicate witnesses from inline state disjunctions in partially assigned actions. Initial membership over a lazy set with unproved enumeration multiplicity gives a named refusal. [Symbolic checking](docs/user/symbolic.md#admission-and-reports).
+- Finite symbolic checking counts duplicate witnesses from inline state disjunctions in partially assigned actions. Initial membership over a lazy set with unproved enumeration multiplicity gives a named refusal. [Symbolic checking](docs/developer/symbolic-preview.md#admission-and-reports).
 
 - [Independent trace validation](docs/user/traces.md#large-unused-symmetry-declarations) can replay labeled protocols that contain a large unused permutation declaration. The original 102-transaction KVS counterexample validates in 0.01 s.
 
 - Native fairness checks can rule out destinations that retain a [state variable required to change](docs/user/temporal.md#fairness).
 
-- Symbolic source-edit sessions reuse earlier breadth-first layers when an added action reaches new states or shortens an existing path. [Edit checking](docs/user/symbolic.md).
+- Symbolic source-edit sessions reuse earlier breadth-first layers when an added action reaches new states or shortens an existing path. [Edit checking](docs/developer/symbolic-preview.md).
 
 - Large native temporal checks allocate [action predicate bits](docs/user/temporal.md#storage-and-limits) only for blocks containing true results.
 
@@ -211,12 +222,12 @@ are in git history.
 
 - Core handles repeated first-order helper calls under quantified fairness within the existing temporal planning budget. The original Kafka KIP-996 liveness model now reaches graph capture. [Temporal checking](docs/user/temporal.md).
 
-- Ordinary symbolic edit sessions reuse proved breadth-first layers across action additions and removals, including transitions that shorten a path. [Eligibility and report fields](docs/user/symbolic.md#check-edits-and-prove-properties).
+- Ordinary symbolic edit sessions reuse proved breadth-first layers across action additions and removals, including transitions that shorten a path. [Eligibility and report fields](docs/developer/symbolic-preview.md#check-edits-and-prove-properties).
 - Core packs ordinary in-memory safety frontiers by variable and stores consecutive discovery IDs once per level. Peak process memory fell about 42% on the measured SlateDB and DiskSynod prefixes. [Inputs, counts and wall times](docs/developer/large-models.md#resident-frontier-rows).
 
 - Core stores large resident fingerprint sets in fewer bytes per slot. [Memory and throughput at 402 million keys](docs/developer/large-models.md#resident-fingerprint-membership).
 
-- Refined symbolic sessions can reuse a completed search across edits to transition guards, repeated actions and self-loops. They report the edited witness count and check for newly introduced deadlocks. [Symbolic checks](docs/user/symbolic.md#learning-which-members-a-wide-set-needs).
+- Refined symbolic sessions can reuse a completed search across edits to transition guards, repeated actions and self-loops. They report the edited witness count and check for newly introduced deadlocks. [Symbolic checks](docs/developer/symbolic-preview.md#learning-which-members-a-wide-set-needs).
 
 - Core reports the measured ordered commit time in `core.metrics.commit_ms` on completed parallel levels. Earlier reports could show zero after subtracting expansion time twice.
 
@@ -226,7 +237,7 @@ are in git history.
 
 - Core safety checks can use multiple workers on specifications with conditional diagnostics. The coordinator preserves the order and number of printed lines. [Checking guide](docs/user/checking.md#workers-and-stores).
 
-- The installed symbolic checker accepts `--recheck MODULE CONFIG` for successive edits. With `--refine-domains`, a completed revision can also check edited invariants on the same reachable set. Action edits can also reuse shortest-path layers, including when an edit adds reachable states. [Usage and report fields](docs/user/symbolic.md#check-edits-and-prove-properties).
+- The installed symbolic checker accepts `--recheck MODULE CONFIG` for successive edits. With `--refine-domains`, a completed revision can also check edited invariants on the same reachable set. Action edits can also reuse shortest-path layers, including when an edit adds reachable states. [Usage and report fields](docs/developer/symbolic-preview.md#check-edits-and-prove-properties).
 
 - Ordinary Core safety searches can put [independently compressed frontier chunks](docs/user/storage-recovery.md#independently-stored-frontier-values) on disk and reclaim compound values between worker batches.
 - `dive simulate --trace-dir DIR` writes every trace to its own file as it
@@ -275,14 +286,14 @@ are in git history.
 
 - Core names the temporal formula planning bound and source location when checking reaches it.
 
-- The Linux release archives include `dive check --strategy symbolic` for
+- Source checkouts with the worker support `dive check --strategy symbolic` for
   finite safety checks, validated witnesses and independently verified predicates.
 
-- Symbolic safety searches can [learn the members of wide finite sets](docs/user/symbolic.md#learning-which-members-a-wide-set-needs) with `--refine-domains`.
+- Symbolic safety searches can [learn the members of wide finite sets](docs/developer/symbolic-preview.md#learning-which-members-a-wide-set-needs) with `--refine-domains`.
 
-- Symbolic safety checks support [finite state constraints and ground assumptions](docs/user/symbolic.md#admission-and-reports), including independently validated violations on excluded successors.
+- Symbolic safety checks support [finite state constraints and ground assumptions](docs/developer/symbolic-preview.md#admission-and-reports), including independently validated violations on excluded successors.
 
-- Symbolic safety checks accept [multiple finite initial choices](docs/user/symbolic.md#finite-initial-choices), including duplicate and symmetric witnesses.
+- Symbolic safety checks accept [multiple finite initial choices](docs/developer/symbolic-preview.md#finite-initial-choices), including duplicate and symmetric witnesses.
 
 - Embedders can qualify a completed native temporal check after retaining its
   first property on unchanged aggregate-state programs. See [retaining a claim](docs/user/rust-api.md#retain-the-first-temporal-property).
@@ -295,7 +306,7 @@ are in git history.
   See [the Rust API guide](docs/user/rust-api.md#drop-an-invariant-from-a-completed-safety-check).
 
 - Symbolic BFS can expand a smaller decision diagram for the same next layer. This cut the original KVS Large check from 135 to 35 seconds on one EC2 core. [Matched runs](docs/developer/large-models.md#results-on-keyvaluestore).
-- The optional [finite symbolic checker](docs/user/symbolic.md) searches finite safety models using decision diagrams, rechecks invariant edits and verifies inductive predicates against the current source.
+- The optional [finite symbolic checker](docs/developer/symbolic-preview.md) searches finite safety models using decision diagrams, rechecks invariant edits and verifies inductive predicates against the current source.
 - Rust embedders can capture a finite single-worker Core safety check and
   recheck edited invariants on the original state rows. A qualified
   refutation includes its current independently validated witness. See

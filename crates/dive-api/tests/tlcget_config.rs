@@ -54,16 +54,17 @@ fn record(fields: &str) -> String {
 }
 
 fn simulation(file: &Path, compat_tlc: bool, workers: usize, generate: bool) -> SimulateRequest {
-    SimulateRequest {
-        file: file.to_owned(),
-        compat_tlc,
-        seed: Some(5),
-        traces: 3,
-        depth: Some(7),
-        workers: Some(workers),
-        generation: generate,
-        keep_traces: Some(dive_api::KEEP_ALL_TRACES),
-        ..SimulateRequest::default()
+    {
+        let mut built = SimulateRequest::default();
+        file.clone_into(&mut built.file);
+        built.compat_tlc = compat_tlc;
+        built.seed = Some(5);
+        built.traces = 3;
+        built.depth = Some(7);
+        built.workers = Some(workers);
+        built.generation = generate;
+        built.keep_traces = Some(dive_api::KEEP_ALL_TRACES);
+        built
     }
 }
 
@@ -190,12 +191,14 @@ fn unbounded_runs_report_minus_one_and_trace_ids_refuse() -> Result {
     let dir = scratch()?;
     let file = module(&dir.0, "C.traces + 1 = 0")?;
     for compat in [false, true] {
-        let report = simulate_file(&SimulateRequest {
-            traces: dive_api::UNLIMITED_TRACES,
-            depth: Some(2),
-            max_generated: Some(30),
-            time_limit: dive_api::BudgetSetting::Explicit(std::time::Duration::from_secs(60)),
-            ..simulation(&file, compat, 1, false)
+        let report = simulate_file(&{
+            let mut built = simulation(&file, compat, 1, false);
+            built.traces = dive_api::UNLIMITED_TRACES;
+            built.depth = Some(2);
+            built.max_generated = Some(30);
+            built.time_limit =
+                dive_api::BudgetSetting::Explicit(std::time::Duration::from_secs(60));
+            built
         })?
         .to_json();
         // The assumption held: sampling started.
@@ -205,9 +208,10 @@ fn unbounded_runs_report_minus_one_and_trace_ids_refuse() -> Result {
             "{report}"
         );
         // `--trace-ids` regenerates part of a run whose total it does not know.
-        let report = simulate_file(&SimulateRequest {
-            trace_ids: Some((2, 4)),
-            ..simulation(&file, compat, 1, false)
+        let report = simulate_file(&{
+            let mut built = simulation(&file, compat, 1, false);
+            built.trace_ids = Some((2, 4));
+            built
         })?
         .to_json();
         assert_eq!(report["result"], "unsupported", "{report}");

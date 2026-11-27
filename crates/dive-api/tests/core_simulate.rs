@@ -8,14 +8,15 @@ use std::path::PathBuf;
 
 type Result<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
 fn request(name: &str, compat_tlc: bool) -> SimulateRequest {
-    SimulateRequest {
-        file: PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join(format!("../dive-sim/tests/fixtures/{name}.tla")),
-        compat_tlc,
-        seed: Some(7),
-        traces: 3,
-        depth: Some(5),
-        ..Default::default()
+    {
+        let mut built = SimulateRequest::default();
+        built.file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join(format!("../dive-sim/tests/fixtures/{name}.tla"));
+        built.compat_tlc = compat_tlc;
+        built.seed = Some(7);
+        built.traces = 3;
+        built.depth = Some(5);
+        built
     }
 }
 fn checked(document: &Value) {
@@ -41,9 +42,10 @@ fn core_samples_replay_and_statistics_do_not_change_choices() -> Result {
         checked(&plain);
         assert_eq!(plain["result"], "sampled");
         assert_eq!(plain, simulate_file(&request)?.to_json());
-        let counted = simulate_file(&SimulateRequest {
-            action_stats: true,
-            ..request
+        let counted = simulate_file(&{
+            let mut built = request;
+            built.action_stats = true;
+            built
         })?
         .to_json();
         checked(&counted);
@@ -176,13 +178,14 @@ fn compound_states_and_fairness_only_specs_produce_independent_violations() -> R
     ] {
         let (_scratch, file) = source(name, text, config)?;
         for compat in [false, true] {
-            let report = simulate_file(&SimulateRequest {
-                file: file.clone(),
-                compat_tlc: compat,
-                seed: Some(0),
-                traces: 10,
-                depth: Some(10),
-                ..Default::default()
+            let report = simulate_file(&{
+                let mut built = SimulateRequest::default();
+                file.clone_into(&mut built.file);
+                built.compat_tlc = compat;
+                built.seed = Some(0);
+                built.traces = 10;
+                built.depth = Some(10);
+                built
             })?
             .to_json();
             checked(&report);
@@ -209,14 +212,12 @@ fn view_samples_as_without_it_and_budgets_still_stop() -> Result {
         "INIT Init\nNEXT Next\n",
     )?;
     for compat_tlc in [false, true] {
-        let request = SimulateRequest {
-            file: file.clone(),
-            compat_tlc,
-            seed: Some(7),
-            traces: 2,
-            depth: Some(3),
-            ..Default::default()
-        };
+        let mut request = SimulateRequest::default();
+        file.clone_into(&mut request.file);
+        request.compat_tlc = compat_tlc;
+        request.seed = Some(7);
+        request.traces = 2;
+        request.depth = Some(3);
         let viewed = simulate_file(&request)?.to_json();
         checked(&viewed);
         assert_eq!(viewed["result"], "sampled", "{viewed}");
@@ -226,9 +227,10 @@ fn view_samples_as_without_it_and_budgets_still_stop() -> Result {
                 "VIEW V does not affect simulation, which never deduplicates states."
             ])
         );
-        let unviewed = simulate_file(&SimulateRequest {
-            file: plain.clone(),
-            ..request.clone()
+        let unviewed = simulate_file(&{
+            let mut built = request.clone();
+            plain.clone_into(&mut built.file);
+            built
         })?
         .to_json();
         for field in ["result", "statistics", "startup_output", "runtime_output"] {
@@ -242,10 +244,11 @@ fn view_samples_as_without_it_and_budgets_still_stop() -> Result {
         {
             assert_eq!(left["document"], right["document"]);
         }
-        let limited = simulate_file(&SimulateRequest {
-            time_limit: BudgetSetting::Explicit(Duration::from_nanos(1)),
-            max_memory: BudgetSetting::Unlimited,
-            ..request
+        let limited = simulate_file(&{
+            let mut built = request;
+            built.time_limit = BudgetSetting::Explicit(Duration::from_nanos(1));
+            built.max_memory = BudgetSetting::Unlimited;
+            built
         })?
         .to_json();
         assert_eq!(limited["result"], "stopped", "{limited}");
@@ -282,12 +285,13 @@ fn the_default_engine_refuses_runtime_effects_on_core_and_never_retries() -> Res
         "---- MODULE DeniedArgs ----\nEXTENDS Naturals,TLC\nVARIABLE x\nInit == x = 0\nNext == TLCSet(0, PrintT(\"must-not-run\")) /\\ x' = x + 1\n====\n",
         "INIT Init\nNEXT Next\n",
     )?;
-    let report = simulate_file(&SimulateRequest {
-        file,
-        seed: Some(0),
-        traces: 1,
-        depth: Some(1),
-        ..Default::default()
+    let report = simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = file;
+        built.seed = Some(0);
+        built.traces = 1;
+        built.depth = Some(1);
+        built
     })?
     .to_json();
     assert_eq!(report["result"], "unsupported");
@@ -305,15 +309,17 @@ fn native_prefix_stops_do_not_start_unbounded_independent_replay() -> Result {
     )?;
     for compat in [false, true] {
         let start = std::time::Instant::now();
-        let report = simulate_file(&SimulateRequest {
-            file: file.clone(),
-            compat_tlc: compat,
-            seed: Some(7),
-            traces: 100_000,
-            depth: Some(10),
-            time_limit: dive_api::BudgetSetting::Explicit(std::time::Duration::from_millis(50)),
-            max_memory: dive_api::BudgetSetting::Unlimited,
-            ..Default::default()
+        let report = simulate_file(&{
+            let mut built = SimulateRequest::default();
+            file.clone_into(&mut built.file);
+            built.compat_tlc = compat;
+            built.seed = Some(7);
+            built.traces = 100_000;
+            built.depth = Some(10);
+            built.time_limit =
+                dive_api::BudgetSetting::Explicit(std::time::Duration::from_millis(50));
+            built.max_memory = dive_api::BudgetSetting::Unlimited;
+            built
         })?
         .to_json();
         assert_eq!(report["result"], "stopped", "{report}");
@@ -343,14 +349,12 @@ fn alias_renders_and_a_failed_lookup_refuses() -> Result {
         "INIT Init\nNEXT Next\nINVARIANT Inv\nALIAS Missing\n",
     )?;
     for compat_tlc in [false, true] {
-        let request = SimulateRequest {
-            file: file.clone(),
-            compat_tlc,
-            seed: Some(7),
-            traces: 3,
-            depth: Some(10),
-            ..Default::default()
-        };
+        let mut request = SimulateRequest::default();
+        file.clone_into(&mut request.file);
+        request.compat_tlc = compat_tlc;
+        request.seed = Some(7);
+        request.traces = 3;
+        request.depth = Some(10);
         let report = simulate_file(&request)?.to_json();
         assert_eq!(report["result"], "violation", "{report}");
         assert_eq!(report["observed_violation"]["name"], "Inv");
@@ -372,9 +376,10 @@ fn alias_renders_and_a_failed_lookup_refuses() -> Result {
             .cloned()
             .unwrap_or_default();
         assert_eq!(last["values"], serde_json::json!({"x": 3}), "{report}");
-        let refused = simulate_file(&SimulateRequest {
-            file: missing.clone(),
-            ..request
+        let refused = simulate_file(&{
+            let mut built = request;
+            missing.clone_into(&mut built.file);
+            built
         })?
         .to_json();
         assert_eq!(refused["result"], "unsupported", "{refused}");
@@ -394,12 +399,10 @@ fn constraint_excluded_successors_end_in_a_validated_deadlock() -> Result {
         .into_iter()
         .flat_map(|name| [(name, false), (name, true)])
     {
-        let request = SimulateRequest {
-            traces: 1,
-            depth: Some(20),
-            seed: Some(0),
-            ..request(name, compat)
-        };
+        let mut request = request(name, compat);
+        request.traces = 1;
+        request.depth = Some(20);
+        request.seed = Some(0);
         let report = simulate_file(&request)?.to_json();
         checked(&report);
         assert_eq!(report["result"], "violation", "{name}: {report}");

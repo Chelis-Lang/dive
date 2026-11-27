@@ -15,15 +15,15 @@ use crate::{ApiError, BudgetSetting};
 ///
 /// ```no_run
 /// use dive_api::bounded::{Request, check_file};
-/// let report = check_file(&Request {
-///     file: "Counter.tla".into(),
-///     path_bound: 5,
-///     ..Request::default()
-/// })?;
+/// let mut request = Request::default();
+/// request.file = "Counter.tla".into();
+/// request.path_bound = 5;
+/// let report = check_file(&request)?;
 /// assert_eq!(report.to_json()["path_bound"], 5);
 /// # Ok::<(), dive_api::ApiError>(())
 /// ```
 #[derive(Clone, Debug, Default)]
+#[non_exhaustive]
 pub struct Request {
     /// Root TLA+ source.
     pub file: PathBuf,

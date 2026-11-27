@@ -17,14 +17,12 @@ fn native_random_steps_and_startup_have_reproducible_validated_samples() {
     )
     .expect("configuration");
     for compat_tlc in [false, true] {
-        let request = SimulateRequest {
-            file: file.clone(),
-            compat_tlc,
-            seed: Some(7),
-            depth: Some(100),
-            traces: 2,
-            ..Default::default()
-        };
+        let mut request = SimulateRequest::default();
+        file.clone_into(&mut request.file);
+        request.compat_tlc = compat_tlc;
+        request.seed = Some(7);
+        request.depth = Some(100);
+        request.traces = 2;
         // ADR 0162 §8: each step draws from its own trace position, and
         // the document records it. A configured `C <- Pick` names Pick's
         // body, which TLC evaluates at every use (fixture `random-ops`, C3),
@@ -57,13 +55,14 @@ fn native_random_steps_and_startup_have_reproducible_validated_samples() {
     std::fs::write(file.with_extension("cfg"), "INIT Init\nNEXT Next\n")
         .expect("configuration fixture");
     for compat_tlc in [false, true] {
-        let report = simulate_file(&SimulateRequest {
-            file: file.clone(),
-            compat_tlc,
-            seed: Some(7),
-            depth: Some(2),
-            traces: 1,
-            ..Default::default()
+        let report = simulate_file(&{
+            let mut built = SimulateRequest::default();
+            file.clone_into(&mut built.file);
+            built.compat_tlc = compat_tlc;
+            built.seed = Some(7);
+            built.depth = Some(2);
+            built.traces = 1;
+            built
         })
         .expect("actual runtime config");
         // Only the retired reference engine read TLCGet here (#791, #910).
@@ -110,13 +109,14 @@ fn check_action_contexts(file: &std::path::Path) {
             // Only the retired reference engine sampled this LET-bound draw
             // (#791, #910); Core refuses it by name.
             for compat_tlc in [false, true] {
-                let report = simulate_file(&SimulateRequest {
-                    file: file.to_path_buf(),
-                    compat_tlc,
-                    seed: Some(7),
-                    depth: Some(4),
-                    traces: 2,
-                    ..Default::default()
+                let report = simulate_file(&{
+                    let mut built = SimulateRequest::default();
+                    built.file = file.to_path_buf();
+                    built.compat_tlc = compat_tlc;
+                    built.seed = Some(7);
+                    built.depth = Some(4);
+                    built.traces = 2;
+                    built
                 })
                 .expect("captured Next");
                 refused::assert_refused(
@@ -128,13 +128,14 @@ fn check_action_contexts(file: &std::path::Path) {
             continue;
         }
         for compat_tlc in [false, true] {
-            let report = simulate_file(&SimulateRequest {
-                file: file.to_path_buf(),
-                compat_tlc,
-                seed: Some(7),
-                depth: Some(4),
-                traces: 2,
-                ..Default::default()
+            let report = simulate_file(&{
+                let mut built = SimulateRequest::default();
+                built.file = file.to_path_buf();
+                built.compat_tlc = compat_tlc;
+                built.seed = Some(7);
+                built.depth = Some(4);
+                built.traces = 2;
+                built
             })
             .expect("captured Next")
             .to_json();

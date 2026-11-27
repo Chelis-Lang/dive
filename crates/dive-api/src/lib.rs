@@ -59,7 +59,9 @@ pub use translate::{
     translate_source,
 };
 
+#[doc(hidden)]
 pub mod labeled_graph;
+#[doc(hidden)]
 pub mod orbit_graph;
 pub mod safety_projection;
 
@@ -74,8 +76,10 @@ pub mod trace;
 pub use config::{ConfigReport, parse_config_file, parse_config_source};
 
 mod analyze;
+#[doc(hidden)]
 pub mod bounded;
 mod check;
+#[doc(hidden)]
 pub mod cold_fair;
 mod core_checkpoint;
 mod core_worker;

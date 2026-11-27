@@ -41,13 +41,14 @@ fn written(module: &str, text: &str, cfg: &str) -> Result<(Scratch, PathBuf)> {
 }
 
 fn run(file: &std::path::Path, compat_tlc: bool, traces: u64, depth: usize) -> Result<Value> {
-    Ok(simulate_file(&SimulateRequest {
-        file: file.to_path_buf(),
-        compat_tlc,
-        seed: Some(1),
-        traces,
-        depth: Some(depth),
-        ..Default::default()
+    Ok(simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = file.to_path_buf();
+        built.compat_tlc = compat_tlc;
+        built.seed = Some(1);
+        built.traces = traces;
+        built.depth = Some(depth);
+        built
     })?
     .to_json())
 }
@@ -397,14 +398,15 @@ fn s1_cases_match_the_pinned_tlc_receipts() -> Result {
             .parse()?;
         let module = case["module"].as_str().ok_or("module")?;
         let (_scratch, file) = fixture(module, case["cfg"].as_str().ok_or("cfg")?)?;
-        let report = simulate_file(&SimulateRequest {
-            file,
-            compat_tlc: true,
-            seed: Some(1),
-            traces,
-            depth: Some(depth),
-            no_deadlock: flags.contains(&"-deadlock"),
-            ..Default::default()
+        let report = simulate_file(&{
+            let mut built = SimulateRequest::default();
+            built.file = file;
+            built.compat_tlc = true;
+            built.seed = Some(1);
+            built.traces = traces;
+            built.depth = Some(depth);
+            built.no_deadlock = flags.contains(&"-deadlock");
+            built
         })?
         .to_json();
         validated(&report);

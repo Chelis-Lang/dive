@@ -8,14 +8,15 @@ use dive_api::{ExitConvention, SimulateRequest};
 use std::path::PathBuf;
 
 fn report(traces: u64) -> dive_api::SimulateReport {
-    dive_api::simulate_file(&SimulateRequest {
-        file: PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../dive-sim/tests/fixtures/SimChoice.tla"),
-        seed: Some(7),
-        depth: Some(5),
-        traces,
-        keep_traces: Some(dive_api::KEEP_ALL_TRACES),
-        ..Default::default()
+    dive_api::simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../dive-sim/tests/fixtures/SimChoice.tla");
+        built.seed = Some(7);
+        built.depth = Some(5);
+        built.traces = traces;
+        built.keep_traces = Some(dive_api::KEEP_ALL_TRACES);
+        built
     })
     .unwrap()
 }

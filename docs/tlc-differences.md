@@ -1694,11 +1694,14 @@ name where TLC succeeds.
 
 ## D-030: Finite symbolic safety evidence
 
-[Automatic selection](user/symbolic.md#choose-a-strategy-automatically) returns this evidence when it selects a finite strategy. Core retains its normal report when selected.
+The strategies below are a source-tree preview of dive 0.3. They are not part
+of the 0.2 release archive or `cargo install`.
 
-The opt-in Linux occupancy strategy uses the same complete-search and independently validated refutation evidence. On its admitted labeled source fragment, it also reports the number of reachable population vectors and decimal strings for exact counts. It supports fresh search. [Occupancy checking](user/symbolic.md#checking-interchangeable-status-tables).
+[Automatic selection](developer/symbolic-preview.md#choose-a-strategy-automatically) returns this evidence when it selects a finite strategy. Core retains its normal report when selected.
 
-The [finite symbolic checker](user/symbolic.md) has its own opt-in proof
+The opt-in Linux occupancy strategy uses the same complete-search and independently validated refutation evidence. On its admitted labeled source fragment, it also reports the number of reachable population vectors and decimal strings for exact counts. It supports fresh search. [Occupancy checking](developer/symbolic-preview.md#checking-interchangeable-status-tables).
+
+The [finite symbolic checker](developer/symbolic-preview.md) has its own opt-in proof
 and search entry point. For example, with `--prove-inductive` it can prove
 the receipt-set bound by checking Init and each action. Its report then
 contains the proof outcome. TLC and Core ordinarily enumerate reachable

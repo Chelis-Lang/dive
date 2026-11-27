@@ -328,7 +328,8 @@ more workers, DFID completion and general coverage are not supported.
 ## Rust API
 
 Rust callers use `SimulateRequest` and `simulate_file`; `traces` is required and
-`depth` is optional. `liveness_extend` and `liveness_budget` are `None` for the
+`depth` is optional. `SimulateRequest` is `#[non_exhaustive]`: start from
+`SimulateRequest::default()` and assign the fields you need. `liveness_extend` and `liveness_budget` are `None` for the
 profile defaults. `SimulateReport::to_json()` holds the traces, statistics,
 observed and pending outcomes and validation, and `exit_code()` the process
 status. The report keeps each trace as its serialized entry;

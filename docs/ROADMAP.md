@@ -29,7 +29,7 @@ Large within a budget where both explicit checkers stopped. Its completion is
 a finite reachability result. Current main also has scoped temporal workers,
 compact edges and evidence reuse for eligible property edits.
 [Large-model results](developer/large-models.md) ·
-[Symbolic strategy](user/symbolic.md)
+[Symbolic strategy](developer/symbolic-preview.md)
 
 dive 0.2.0, released with Sail 0.3.1, is in qualification. It ships the
 default-path Core speed and memory work, strong fairness on Core, the

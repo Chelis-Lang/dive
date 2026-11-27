@@ -116,15 +116,13 @@ fn seeded_generation_is_reproducible_and_samples_remain_non_exhaustive() -> Resu
         CONFIG,
     )?;
     for compat in [false, true] {
-        let request = SimulateRequest {
-            file: project.file.clone(),
-            compat_tlc: compat,
-            generation: true,
-            traces: 2,
-            depth: Some(4),
-            seed: Some(7),
-            ..SimulateRequest::default()
-        };
+        let mut request = SimulateRequest::default();
+        project.file.clone_into(&mut request.file);
+        request.compat_tlc = compat;
+        request.generation = true;
+        request.traces = 2;
+        request.depth = Some(4);
+        request.seed = Some(7);
         let report = simulate_file(&request)?.to_json();
         assert_eq!(report["result"], "sampled", "{report}");
         assert_eq!(report["model_proved"], false);

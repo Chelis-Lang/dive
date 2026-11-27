@@ -14,14 +14,16 @@ fn fixtures() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-sim/tests/fixtures/random-init")
 }
 fn request(row: &Value, compat_tlc: bool) -> SimulateRequest {
-    SimulateRequest {
-        file: fixtures().join(format!("{}.tla", row["model"].as_str().expect("model"))),
-        seed: row["seed"].as_i64(),
-        aril: row["aril"].as_u64().expect("aril"),
-        depth: Some(usize::try_from(row["depth"].as_u64().expect("depth")).expect("depth bound")),
-        traces: row["requested_traces"].as_u64().expect("traces"),
-        compat_tlc,
-        ..Default::default()
+    {
+        let mut built = SimulateRequest::default();
+        built.file = fixtures().join(format!("{}.tla", row["model"].as_str().expect("model")));
+        built.seed = row["seed"].as_i64();
+        built.aril = row["aril"].as_u64().expect("aril");
+        built.depth =
+            Some(usize::try_from(row["depth"].as_u64().expect("depth")).expect("depth bound"));
+        built.traces = row["requested_traces"].as_u64().expect("traces");
+        built.compat_tlc = compat_tlc;
+        built
     }
 }
 /// Runs `request` and checks that every trace it reports validates.
@@ -112,14 +114,12 @@ fn actual_primary_init_words_errors_and_output_keep_their_boundaries() {
 fn seed_prefix_statistics_and_true_word_mutations_remain_independent() {
     let file = fixtures().join("InitRandomInterval.tla");
     for compat_tlc in [false, true] {
-        let request = SimulateRequest {
-            file: file.clone(),
-            seed: Some(0),
-            depth: Some(3),
-            traces: 2,
-            compat_tlc,
-            ..Default::default()
-        };
+        let mut request = SimulateRequest::default();
+        file.clone_into(&mut request.file);
+        request.seed = Some(0);
+        request.depth = Some(3);
+        request.traces = 2;
+        request.compat_tlc = compat_tlc;
         let (first, _) = sampled(&request);
         let (again, _) = sampled(&request);
         assert_eq!(first["result"], "sampled");
@@ -183,13 +183,14 @@ impl Files {
         Self(dir)
     }
     fn request(&self) -> SimulateRequest {
-        SimulateRequest {
-            file: self.0.join("Boundary.tla"),
-            seed: Some(0),
-            depth: Some(1),
-            traces: 1,
-            compat_tlc: true,
-            ..Default::default()
+        {
+            let mut built = SimulateRequest::default();
+            built.file = self.0.join("Boundary.tla");
+            built.seed = Some(0);
+            built.depth = Some(1);
+            built.traces = 1;
+            built.compat_tlc = true;
+            built
         }
     }
 }

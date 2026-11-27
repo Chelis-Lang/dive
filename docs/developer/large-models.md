@@ -1,6 +1,6 @@
 # Large-model performance and exact symbolic checking
 
-The [source-driven symbolic checker](../user/symbolic.md) checks finite safety specifications using binary decision diagrams (BDDs). Dive resolves the original modules, binds the configuration and exports its IR. The Python compiler reads the actual state types, initial predicate, actions, invariants, symmetry group and deadlock setting. KVS runs directly from its existing source with an inferred bit layout.
+The [source-driven symbolic checker](symbolic-preview.md) checks finite safety specifications using binary decision diagrams (BDDs). Dive resolves the original modules, binds the configuration and exports its IR. The Python compiler reads the actual state types, initial predicate, actions, invariants, symmetry group and deadlock setting. KVS runs directly from its existing source with an inferred bit layout.
 
 The [performance evidence index](../../conformance/reports/perf/README.md) collects compact records for reuse in other reports. The tables below identify which comparisons ran on the same host, which reached a complete fixed point and which stopped at a limit.
 
@@ -160,7 +160,7 @@ dive check "$model/TCommit.tla" --config R8192.cfg --strategy occupancy \
   --type-invariant TCTypeOK --max-orbits 34500000 --time-limit 380s --max-memory 3900m --output json
 ```
 
-[Installed command and admission limits](../user/symbolic.md#checking-interchangeable-status-tables). [Exact counts, negative controls, timings and pinned inputs](../../conformance/reports/perf/2026-11-21-source-occupancy.json).
+[Installed command and admission limits](symbolic-preview.md#checking-interchangeable-status-tables). [Exact counts, negative controls, timings and pinned inputs](../../conformance/reports/perf/2026-11-21-source-occupancy.json).
 
 ### When a coordinator splits the graph into exact products
 
@@ -208,7 +208,7 @@ On the installed Sail and Dive release candidates, the original 8,192-manager ex
 
 After deleting abort, the exact labeled counts changed to `2^(n+1) − 1` distinct and `1 + n·2^n` generated. The retained proof supplies neither value. For the two false edits, independent native replay accepted the original words and rejected corrupted initial states. The session candidate survived both failed searches. A BDD search in the same directory used its own file. [Every sample, exact counts, certificate, identities and commands](../../conformance/reports/perf/2026-11-21-occupancy-edits.json).
 
-To reproduce the edits, generate a new directory from the pinned source with `python3 scripts/symbolic/check_occupancy_predicate.py "$model" ./edits8192 8192`. The generated wrapper retains both original invariants. Its stronger property forbids simultaneous working and committed participants. The deletion removes abort transitions, while the addition permits an unconditional commit. An independent differential covers all 26,312 concrete moves on 2,001 count vectors across 45 small domains. The implementation's support successors matched all 3,552 distinct projected queries. [Installed population proofs](../user/symbolic.md#transfer-a-population-safety-predicate-across-edits).
+To reproduce the edits, generate a new directory from the pinned source with `python3 scripts/symbolic/check_occupancy_predicate.py "$model" ./edits8192 8192`. The generated wrapper retains both original invariants. Its stronger property forbids simultaneous working and committed participants. The deletion removes abort transitions, while the addition permits an unconditional commit. An independent differential covers all 26,312 concrete moves on 2,001 count vectors across 45 small domains. The implementation's support successors matched all 3,552 distinct projected queries. [Installed population proofs](symbolic-preview.md#transfer-a-population-safety-predicate-across-edits).
 
 ### Isolated symbolic measurements
 
@@ -315,7 +315,7 @@ include the CFG digests, commands, time budgets and the 32-bit Medium control.
 
 The explicit Core edit experiment also captured 3,599 exact integer rows and parents. Rebinding and scanning a second property reused the completed closure, and a rebuilt transition produced 3,658 rows. Scanning took about 0.9 ms versus 12 ms for a fresh search, excluding binding. This gives an explicit alternative when a model has poor BDD structure.
 
-For an edit that changes the transition relation, a completed ordinary symbolic search also supplies its breadth-first layers. A saved successor layer is sufficient when the enabled transitions removed from its source only reached already visited states. The checker unions the images of the added transitions, preserves new constrained-out emissions for property checking, and resumes a fresh breadth-first search at the first changed frontier. This maintains shortest-path depth even when an edit introduces a shortcut or removes the only predecessor of a state. [Edit reports and trace behavior](../user/symbolic.md#check-edits-and-prove-properties).
+For an edit that changes the transition relation, a completed ordinary symbolic search also supplies its breadth-first layers. A saved successor layer is sufficient when the enabled transitions removed from its source only reached already visited states. The checker unions the images of the added transitions, preserves new constrained-out emissions for property checking, and resumes a fresh breadth-first search at the first changed frontier. This maintains shortest-path depth even when an edit introduces a shortcut or removes the only predecessor of a state. [Edit reports and trace behavior](symbolic-preview.md#check-edits-and-prove-properties).
 
 On the 594,616,815-state KVS Large input, adding a transition that resets the store and every transaction to their initial values took 3.81 s versus 118.82 s for fresh search. Removing it took 3.68 s versus 111.98 s. Both edits reused all 30 layer images, and the added transition raised the generated count from 13,385,471,536 to 13,980,088,351. A second edit opened every transaction at once. It changed the first successor layer and took 144.03 s versus 144.19 s fresh. On Medium the same edit shortened depth from 22 to 21. [Paired results and edit definitions](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
 
@@ -1567,7 +1567,7 @@ eight physical cores. Core finished Base in 1.77 s and the quarantine case in
 RSS was 3.89 GiB for Core and 15.58 GiB for TLC. Both matched the author's
 verdict, distinct, generated, depth and exhausted queue on both configurations.
 
-The symbolic strategy checks the five ground assumptions and admits the state constraint. The unedited models exceed the ordinary 512-bit dense layout. The optional [reachable set-domain refinement](../user/symbolic.md#learning-which-members-a-wide-set-needs) can discover a smaller exact alphabet directly from the source. Pinned TLC evaluated `<<Cardinality(Msg), MaxNetwork>>` with the released constants: Base has 1,008 possible messages, QuarantineEqualsProposer 608, and Retry and RenewRetry 1,320 each. All limit the admitted network to four messages. To reproduce the diagnostic, extend `PaxosLeaseChecked, TLC`, print that pair in a ground assumption, and run the original Init with a single stuttering step. These are type cardinalities. A sparse representation must preserve set equality, duplicate message elimination, all generated witnesses, and invariant checking on emissions beyond four. [Symbolic state-constraint semantics](../user/symbolic.md#admission-and-reports).
+The symbolic strategy checks the five ground assumptions and admits the state constraint. The unedited models exceed the ordinary 512-bit dense layout. The optional [reachable set-domain refinement](symbolic-preview.md#learning-which-members-a-wide-set-needs) can discover a smaller exact alphabet directly from the source. Pinned TLC evaluated `<<Cardinality(Msg), MaxNetwork>>` with the released constants: Base has 1,008 possible messages, QuarantineEqualsProposer 608, and Retry and RenewRetry 1,320 each. All limit the admitted network to four messages. To reproduce the diagnostic, extend `PaxosLeaseChecked, TLC`, print that pair in a ground assumption, and run the original Init with a single stuttering step. These are type cardinalities. A sparse representation must preserve set equality, duplicate message elimination, all generated witnesses, and invariant checking on emissions beyond four. [Symbolic state-constraint semantics](symbolic-preview.md#admission-and-reports).
 
 For Retry, use the original configuration with its `StateConstraint` and
 all its invariants. From the same directory, set `TLA2TOOLS_JAR` to the pinned jar and
@@ -2048,7 +2048,7 @@ destinations, in 38.17 s and 82 MiB. A separate host verified the proof in
 65 seconds with 3,743,621 distinct states and 1,228,744 queued. Both
 configurations kept two log entries and terms through 2. The previous
 election experiment used different capacities and checked a different
-invariant. [Run the checker](../user/symbolic.md#check-the-asyncraft-log-invariant).
+invariant. [Run the checker](symbolic-preview.md#check-the-asyncraft-log-invariant).
 [Evidence and peer runs](../../conformance/reports/perf/2026-11-22-asyncraft-log-induction.json).
 
 ### Prove AsyncRaft log safety over arbitrary finite message sets
@@ -2092,7 +2092,7 @@ Six-worker Core discovered 8,878,296 distinct states in 30 s with 5,989,499
 queued. Fresh receipt verification took 18.33 s with six workers and 52.67 s
 with one. The 18-state two-index replication and both reachable client-request
 mutants replayed independently.
-[Command](../user/symbolic.md#use-the-published-term-log-and-channel-bounds).
+[Command](symbolic-preview.md#use-the-published-term-log-and-channel-bounds).
 [Matched measurements and controls](../../conformance/reports/perf/2026-11-22-asyncraft-channel-sets.json).
 
 ### Certify bounded AsyncRaft elections
@@ -2166,7 +2166,7 @@ a Dive session. A separate Sail process checked all 323 on the previous
 predicate, taking 1.005 s for the edit versus 1.157 s fresh. Both edit and undo
 avoided all three closure sweeps. On lockserv the warm and cold Sail checks both
 took 0.354 s at 20 clients. Binding the edited source and starting the worker
-still cost time. [Run a named-property check](../user/symbolic.md#prove-one-configured-state-invariant) · [Sail CLI](https://github.com/Chelis-Lang/sail/pull/792).
+still cost time. [Run a named-property check](symbolic-preview.md#prove-one-configured-state-invariant) · [Sail CLI](https://github.com/Chelis-Lang/sail/pull/792).
 
 On a separate five-transaction KVS configuration with two keys and two values,
 initially proving `TxLifecycle` cost 87.765 s. A fresh Sail/Dive process that
@@ -2175,7 +2175,7 @@ images. Its median fell from 505 to 355 ms versus rechecking the same predicate
 with every image. Expanding a write guard reused 25 of 65 and fell from 555 to
 454 ms. The unsigned and authenticated paths broke even at four transactions.
 For TCommit at 100 managers the respective worker times were 0.69 and 0.72 s.
-[Trust boundary and key setup](../user/symbolic.md#reuse-certified-action-obligations-in-another-process) · [Source histories, fault controls and timing data](https://github.com/Chelis-Lang/sail/pull/794).
+[Trust boundary and key setup](symbolic-preview.md#reuse-certified-action-obligations-in-another-process) · [Source histories, fault controls and timing data](https://github.com/Chelis-Lang/sail/pull/794).
 
 A TCommit action tests a predicate over **all** managers before changing the
 state of **one** manager. At 200 managers the compiler evaluated each of
@@ -2237,7 +2237,7 @@ control. The four-writer safety proof remains open.
 ## Reproduce the comparisons
 
 Build the checker's exporter and validator and install the Python dependencies
-using the [source-checkout instructions](../user/symbolic.md#run-a-check).
+using the [source-checkout instructions](symbolic-preview.md#run-a-check).
 The ordinary Core comparisons used release builds with LTO disabled and 16
 codegen units. Fetch the pinned corpus with
 `cargo run --release --locked -p dive-conformance -- corpus fetch --corpus examples`.

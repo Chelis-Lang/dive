@@ -333,15 +333,13 @@ fn local_class_recovery_preserves_identity_across_widths_and_corrupt_bootstrap_p
 fn finite_simulation_keeps_its_separate_worker_contract() {
     let files = setup(true);
     for compat_tlc in [false, true] {
-        let mut req = SimulateRequest {
-            file: files.0.join("Scope.tla"),
-            compat_tlc,
-            seed: Some(7),
-            depth: Some(2),
-            traces: 1,
-            workers: Some(1),
-            ..SimulateRequest::default()
-        };
+        let mut req = SimulateRequest::default();
+        req.file = files.0.join("Scope.tla");
+        req.compat_tlc = compat_tlc;
+        req.seed = Some(7);
+        req.depth = Some(2);
+        req.traces = 1;
+        req.workers = Some(1);
         let sampled = dive_api::simulate_file(&req).expect("sample").to_json();
         assert_eq!(sampled["result"], "sampled");
         assert_eq!(sampled["model_proved"], false);
@@ -373,15 +371,13 @@ fn state_dependent_calls_use_the_local_class_in_check_and_simulate() {
             let json = dive_api::check_file(&req).expect("check").to_json();
             assert_eq!(json["verdict"], "success", "{json}");
             assert_eq!(json["statistics"]["distinct"], 10, "{json}");
-            let sim = SimulateRequest {
-                file: files.0.join("Scope.tla"),
-                compat_tlc: profile,
-                seed: Some(7),
-                depth: Some(8),
-                traces: 4,
-                workers: Some(workers),
-                ..SimulateRequest::default()
-            };
+            let mut sim = SimulateRequest::default();
+            sim.file = files.0.join("Scope.tla");
+            sim.compat_tlc = profile;
+            sim.seed = Some(7);
+            sim.depth = Some(8);
+            sim.traces = 4;
+            sim.workers = Some(workers);
             let sampled = dive_api::simulate_file(&sim).expect("sample").to_json();
             assert_eq!(sampled["result"], "sampled", "{sampled}");
             assert_eq!(sampled["traces"][0]["validation"]["result"], "valid");

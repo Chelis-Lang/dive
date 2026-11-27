@@ -303,7 +303,7 @@ The optional compiled strategy exhausts the published KVS Medium model with 17,2
 | 1 | 835.14 s | 4.30 s | 3.32 s | 94.14 s | 194× |
 | 8 | 302.36 s | 1.25 s | 0.72 s | 14.78 s | 242× |
 
-KVS Small and 12-manager TCommit match the exact controls at both widths. SlateDB WAL Medium refuses by name during finite admission. Its TypeOK also lacks the fixed declarations needed to encode its nested manifest and WAL after recognizing its untyped model names. [Inputs, peaks, controls and per-run observations](../../../conformance/reports/perf/2026-11-21-compiled-finite-safety.json) · [Compiled strategy](../../user/symbolic.md#compile-a-finite-safety-check)
+KVS Small and 12-manager TCommit match the exact controls at both widths. SlateDB WAL Medium refuses by name during finite admission. Its TypeOK also lacks the fixed declarations needed to encode its nested manifest and WAL after recognizing its untyped model names. [Inputs, peaks, controls and per-run observations](../../../conformance/reports/perf/2026-11-21-compiled-finite-safety.json) · [Compiled strategy](../../developer/symbolic-preview.md#compile-a-finite-safety-check)
 
 The finite safety binder already checks whether a configuration can be
 expressed as Boolean guards and updates over a fixed layout. The new probe
@@ -312,7 +312,7 @@ together, keeps state packed through generation and membership, and sorts
 configured interchangeable lanes to identify exact symmetry orbits. It
 verifies the configured invariants and checks for deadlock where requested.
 The current worker uses one physical core.
-[Source-driven finite checker](../../user/symbolic.md) ·
+[Source-driven finite checker](../../developer/symbolic-preview.md) ·
 [Packed search emitter](../../../scripts/perf/scale/packed-codegen-probe/emit_finite_search.py)
 
 | TLA+ input | Exact distinct states | Exact generated states | Depth | Cold bind, compile and check | Warm check | Same-host control |

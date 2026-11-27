@@ -9,10 +9,6 @@ dive check docs/user/examples/Counter.tla --seed 7 --workers auto --output json
 dive check docs/user/examples/Counter.tla --compat=tlc --seed 7 --fp 0 --workers 8 --store exact --output json
 ```
 
-Use [`--strategy auto`](symbolic.md#choose-a-strategy-automatically) to select a representation for the bound model.
-
-For finite function and set models, the optional [symbolic safety checker](symbolic.md) can reuse a complete reachable set or prove invariants by induction.
-
 For message types written as unions of finite record sets, Core can check
 membership directly against the fields. This also works inside a containing
 record or a powerset, such as `MessagePool \in SUBSET Message`. Asking for the
@@ -83,40 +79,6 @@ route. The JSON report records domain sizes, definedness checks and search
 work under `initial_query`.
 [Einstein and permutation controls](../../conformance/reports/perf/2026-11-23-bounded-initial-assignments.json).
 
-## Reuse a finite symbolic relation across path bounds
-
-Linux builds with the symbolic worker can reuse one bound relation across
-multiple exact-depth path queries. Select the configured invariant that
-declares the finite layout of all state variables.
-
-```sh
-dive check MCKVS.tla --config MCKVSSafetySmall.cfg \
-  --strategy symbolic-path --type-invariant TypeInvariant \
-  --path-bound 5 --path-bound 15 --k-induction 2 --output json
-```
-
-Each requested bound records whether an execution can reach that length and
-whether any prefix through that length violates a configured invariant. Only
-actual `Next` steps contribute to the length. A supported `SPECIFICATION`
-can also permit full-state stuttering. Stutters implicit in that formula do
-not contribute to path length. Stuttering written in `Next` does contribute.
-A state filtered by a state constraint is still checked on emission. Only
-admitted states can continue a path.
-
-`--k-induction K` checks the base through `K` transitions and a separate
-step from arbitrary admitted valuations satisfying the invariants at the
-preceding `K` positions. Only two discharged obligations yield
-`inductive-safety` and `model_proved: true`. A satisfiable step yields
-`induction-inconclusive` with its last valuation. A reachable violation
-gets an independently validated trace and can be written with `--trace`.
-
-`--write-path-receipt FILE` records the bound query and its result when the
-worker completes without a reachable violation. `--verify-path-receipt FILE`
-requires the same source, CFG, exporter, layout, bounds and induction depth
-and independently repeats the check. Temporal and implied obligations,
-symmetry, action constraints and explicit deadlock checks currently refuse
-with a reason. The strategy uses the normal symbolic time and memory limits.
-
 ## Select a closed model input in the CFG
 
 When a zero-argument TLA+ definition selects a host input, you can give that
@@ -159,6 +121,9 @@ native higher-order operator reports an unsupported feature.
 [WiredTiger graph and test generation](../developer/large-models.md#generate-executable-tests-from-the-wiredtiger-storage-model).
 
 ## Search for a fair counterexample from a cold start
+
+`--lncheck cold-fair`, `--cold-roots` and `--cold-init-emissions` are
+experimental: their flags and behavior may change in a later release.
 
 ```sh
 dive check Elevator.tla --config ElevatorLivenessLarge.cfg --lncheck cold-fair \

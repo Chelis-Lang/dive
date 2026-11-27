@@ -28,14 +28,15 @@ fn seeded_tlc_choices_and_counts_match_ten_oracle_runs() {
     .unwrap();
     let mut matching_rows = 0;
     for row in expected.as_array().unwrap() {
-        let report = dive_api::simulate_file(&SimulateRequest {
-            file: fixture(),
-            compat_tlc: true,
-            seed: row["seed"].as_i64(),
-            aril: row["aril"].as_u64().unwrap(),
-            depth: Some(5),
-            traces: 3,
-            ..Default::default()
+        let report = dive_api::simulate_file(&{
+            let mut built = SimulateRequest::default();
+            built.file = fixture();
+            built.compat_tlc = true;
+            built.seed = row["seed"].as_i64();
+            built.aril = row["aril"].as_u64().unwrap();
+            built.depth = Some(5);
+            built.traces = 3;
+            built
         })
         .unwrap();
         let json = report.to_json();
@@ -80,13 +81,11 @@ fn seeded_tlc_choices_and_counts_match_ten_oracle_runs() {
 
 #[test]
 fn default_trace_identity_replays_and_is_prefix_stable() {
-    let mut request = SimulateRequest {
-        file: fixture(),
-        seed: Some(7),
-        depth: Some(5),
-        traces: 2,
-        ..Default::default()
-    };
+    let mut request = SimulateRequest::default();
+    request.file = fixture();
+    request.seed = Some(7);
+    request.depth = Some(5);
+    request.traces = 2;
     let a = dive_api::simulate_file(&request).unwrap().to_json();
     // D-003's per-trace streams are dive-defined: Core's own sample is the
     // contract for this seed.
@@ -118,13 +117,14 @@ fn simulation_error_sites_match_pinned_messages_and_statuses() {
     .unwrap();
     for row in expected.as_array().unwrap() {
         let name = row["model"].as_str().unwrap();
-        let report = dive_api::simulate_file(&SimulateRequest {
-            file: fixture().with_file_name(format!("{name}.tla")),
-            compat_tlc: true,
-            seed: Some(0),
-            depth: Some(4),
-            traces: 1,
-            ..Default::default()
+        let report = dive_api::simulate_file(&{
+            let mut built = SimulateRequest::default();
+            built.file = fixture().with_file_name(format!("{name}.tla"));
+            built.compat_tlc = true;
+            built.seed = Some(0);
+            built.depth = Some(4);
+            built.traces = 1;
+            built
         })
         .unwrap();
         let json = report.to_json();
@@ -178,12 +178,13 @@ fn simulation_error_sites_match_pinned_messages_and_statuses() {
 #[test]
 fn corrupted_trace_rejected_and_guarded_deadlock_certified() {
     use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-    let report = dive_api::simulate_file(&SimulateRequest {
-        file: fixture(),
-        seed: Some(0),
-        depth: Some(3),
-        traces: 1,
-        ..Default::default()
+    let report = dive_api::simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = fixture();
+        built.seed = Some(0);
+        built.depth = Some(3);
+        built.traces = 1;
+        built
     })
     .unwrap()
     .to_json();
@@ -204,11 +205,12 @@ fn corrupted_trace_rejected_and_guarded_deadlock_certified() {
     let path = dir.join("Uncovered.tla");
     std::fs::write(&path, "---- MODULE Uncovered ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x > 0 /\\ x' \\in Nat\n====\n").unwrap();
     std::fs::write(path.with_extension("cfg"), "INIT Init\nNEXT Next\n").unwrap();
-    let json = dive_api::simulate_file(&SimulateRequest {
-        file: path,
-        seed: Some(0),
-        traces: 1,
-        ..Default::default()
+    let json = dive_api::simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = path;
+        built.seed = Some(0);
+        built.traces = 1;
+        built
     })
     .unwrap()
     .to_json();
@@ -228,12 +230,13 @@ fn unrepresentable_sample_retains_execution_statistics() {
     let path = dir.join("SymbolicState.tla");
     std::fs::write(&path, "---- MODULE SymbolicState ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = Nat\n====\n").unwrap();
     std::fs::write(path.with_extension("cfg"), "INIT Init\nNEXT Next\n").unwrap();
-    let report = dive_api::simulate_file(&SimulateRequest {
-        file: path,
-        seed: Some(0),
-        traces: 1,
-        depth: Some(1),
-        ..Default::default()
+    let report = dive_api::simulate_file(&{
+        let mut built = SimulateRequest::default();
+        built.file = path;
+        built.seed = Some(0);
+        built.traces = 1;
+        built.depth = Some(1);
+        built
     })
     .unwrap();
     let json = report.to_json();
@@ -254,14 +257,12 @@ fn unrepresentable_sample_retains_execution_statistics() {
 fn tlc_runtime_name_sampling_refuses_before_uncertifiable_traces() {
     let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../dive-trace/tests/fixtures/runtime-names/ReplayNames.tla");
-    let request = SimulateRequest {
-        file,
-        compat_tlc: true,
-        seed: Some(0),
-        depth: Some(3),
-        traces: 1,
-        ..Default::default()
-    };
+    let mut request = SimulateRequest::default();
+    request.file = file;
+    request.compat_tlc = true;
+    request.seed = Some(0);
+    request.depth = Some(3);
+    request.traces = 1;
     let report = dive_api::simulate_file(&request).unwrap().to_json();
     assert_eq!(report["result"], "unsupported", "{report}");
     assert_eq!(report["exhaustive"], false);
@@ -271,9 +272,10 @@ fn tlc_runtime_name_sampling_refuses_before_uncertifiable_traces() {
         "{report}"
     );
     assert_eq!(report["traces"].as_array().unwrap().len(), 0);
-    let sampled = dive_api::simulate_file(&SimulateRequest {
-        compat_tlc: false,
-        ..request
+    let sampled = dive_api::simulate_file(&{
+        let mut built = request;
+        built.compat_tlc = false;
+        built
     })
     .unwrap()
     .to_json();
@@ -288,14 +290,12 @@ fn tlc_runtime_name_sampling_refuses_before_uncertifiable_traces() {
 fn basic_action_statistics_preserve_replay_and_independent_safety_validation() {
     for compat_tlc in [false, true] {
         for name in ["SimChoice", "SimInvariant"] {
-            let mut request = SimulateRequest {
-                file: fixture().with_file_name(format!("{name}.tla")),
-                compat_tlc,
-                seed: Some(7),
-                depth: Some(5),
-                traces: 3,
-                ..Default::default()
-            };
+            let mut request = SimulateRequest::default();
+            request.file = fixture().with_file_name(format!("{name}.tla"));
+            request.compat_tlc = compat_tlc;
+            request.seed = Some(7);
+            request.depth = Some(5);
+            request.traces = 3;
             let plain = dive_api::simulate_file(&request).unwrap().to_json();
             request.action_stats = true;
             let counted_report = dive_api::simulate_file(&request).unwrap();

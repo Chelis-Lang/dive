@@ -7,15 +7,16 @@ use serde_json::Value;
 
 fn request(config: &str, tlc: bool) -> SimulateRequest {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/generation");
-    SimulateRequest {
-        file: root.join("Generation.tla"),
-        config: Some(root.join(format!("{config}.cfg"))),
-        compat_tlc: tlc,
-        generation: true,
-        seed: Some(7),
-        traces: 2,
-        depth: Some(6),
-        ..Default::default()
+    {
+        let mut built = SimulateRequest::default();
+        built.file = root.join("Generation.tla");
+        built.config = Some(root.join(format!("{config}.cfg")));
+        built.compat_tlc = tlc;
+        built.generation = true;
+        built.seed = Some(7);
+        built.traces = 2;
+        built.depth = Some(6);
+        built
     }
 }
 
@@ -205,9 +206,10 @@ fn process_conventions_and_budget_stops_do_not_change_generation_semantics()
                 assert_eq!(mapped["traces"], report.to_json()["traces"]);
                 assert_eq!(mapped["options"]["exit_codes"], convention.as_str());
             }
-            let stopped = simulate_file(&SimulateRequest {
-                time_limit: BudgetSetting::Explicit(std::time::Duration::ZERO),
-                ..request("Wide", tlc)
+            let stopped = simulate_file(&{
+                let mut built = request("Wide", tlc);
+                built.time_limit = BudgetSetting::Explicit(std::time::Duration::ZERO);
+                built
             })?;
             assert_eq!(stopped.to_json()["result"], "stopped");
             assert_eq!(stopped.exit_code_for(ExitConvention::Native), 5);
