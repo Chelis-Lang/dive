@@ -41,7 +41,7 @@ All measurements use the installed `dive check` or `dive simulate`. Each record 
 - Core checkpoint archives use format `DIVECC02`. A `DIVECC01` archive is refused with `DIVE-S0400`; recreate it with the current executable.
 - `dive_trace::TraceDoc` and `Trace` gain `witnesses` and `concrete_closure` fields, and `dive_sim::Trace` and `Report` gain `temporal`. Code that builds these structs field by field must set them.
 
-- Rust API: `SimulateRequest` and `dive_api::bounded::Request` are `#[non_exhaustive]`. Build them from `Default::default()` and assign fields; struct expressions no longer compile outside dive.
+- Rust API: `SimulateRequest` is `#[non_exhaustive]`. Build it from `Default::default()` and assign fields; struct expressions no longer compile outside dive.
 - Distributed workers must run the same dive build as the coordinator.
 
 ### Changed defaults

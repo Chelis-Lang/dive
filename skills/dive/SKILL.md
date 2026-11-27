@@ -89,8 +89,9 @@ dive check Spec.tla --workers 1 --output json
 ```
 
 Safety checking scales with workers. Temporal checks give the same result at
-any worker count, but can run slower with more workers, and a few refuse more
-than one worker. A liveness
+any worker count, but can run slower with more workers. A few run with one
+worker whatever `--workers` says, and `options.workers.reason` in the report
+says why. A liveness
 violation reports a lasso counterexample and the complete list of properties
 it falsifies in `properties`.
 
@@ -112,7 +113,8 @@ check that produced the trace.
 ## Simulation and other commands
 
 `dive simulate Spec.tla --traces N --depth D --seed S` samples behaviors. A
-sample is never a proof, even when it finds no error. `dive translate` turns
+sample is never a proof, even when it finds no error. `--workers N` samples in
+parallel and reports exactly what one worker reports. `dive translate` turns
 PlusCal into TLA+ (`--write` updates the file), `dive parse` and
 `dive analyze` check syntax and names without checking a model.
 

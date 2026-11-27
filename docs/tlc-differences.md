@@ -908,77 +908,9 @@ See [the decision record](decisions/0165-finite-predecessor-function-equations.m
 
 ## Under consideration
 
-These are recorded candidates. They are not decided, and dive behaves as TLC
-does for each of them.
+These are recorded candidates that are not decided. dive behaves as TLC does
+for each of them unless the entry says otherwise.
 
-### Empty symmetry sets crash TLC
-
-```tla
-VARIABLE x
-Init == x = TRUE
-Next == UNCHANGED x
-Sym == {}
-```
-
-With `INIT Init`, `NEXT Next` and `SYMMETRY Sym`, the pinned TLC exits 255
-with GENERAL and an `IllegalArgumentException`, instead of explaining that
-there are no permutations. SANY accepts the module. TLC's closure code
-allocates a set of capacity `size - 1`, so zero or one function throws when
-called directly; normal binding often disables the singleton case first with
-warning 2300. dive refuses the empty declaration by name (the `SyEmpty`
-capture is in `crates/dive-model/tests/fixtures/symmetry-group/`).
-
-### D-037: Simulation closes loops only on equal states
-
-TLC's simulation closes a liveness loop when two states have the same
-fingerprint. Under `VIEW` that is the view's fingerprint, and under
-`SYMMETRY` the symmetric one. Two measured results:
-
-- `x` toggles while `y` counts up to 3 with weak fairness, `VIEW x`, and the
-  property `<>(y = 3)`. Every behavior reaches `y = 3`, yet TLC reports a
-  violation: its loop goes back from `x = 0, y = 2` to the initial state,
-  which only has the same view.
-- `x` alternates between two symmetric model values `a` and `b` with weak
-  fairness, and the property `<>(x \notin {a, b})` is false on every
-  behavior. Without `SYMMETRY`, TLC reports the violation; with it, TLC's
-  simulation reports none, because the cycle `a, b, a` looks like stuttering
-  at `a`, which weak fairness rules out.
-
-dive's simulation treats `VIEW` and `SYMMETRY` as having no effect on
-simulation and closes a loop only when a state equals an earlier one, in both
-profiles. Every reported loop is then a real behavior that the trace
-validator checks: dive reports no violation in the first example and reports
-the `a, b` lasso in the second.
-
-### D-038: Simulation reports how much of a property it checked
-
-TLC's simulation checks a liveness property only on traces that return to an
-earlier state or stop. When every trace is cut by `-depth` first, for example
-`<>(x = 10)` on `x' = x + 1` at depth 5 or a three-state cycle at depth 2,
-TLC reports success exactly as when it checked every trace. dive's simulation
-reports, for each property, how many traces gave a fair behavior on which it
-was checked and how many could not decide it, and why
-(`statistics.properties`). It never reports that a property holds.
-
-### D-039: Extending traces cut by the depth
-
-A trace that reaches `--depth` while a temporal property is still undecided on
-it continues, by up to `--depth` more steps, until it returns to an earlier
-state or stops. TLC always ends the trace at `-depth`. Every violation
-found this way is a real behavior and is validated, and every extra step is
-checked like any other. `--liveness-extend N` sets the number of extra steps;
-`--liveness-extend 0`, or `--compat=tlc`, ends every trace at the depth as TLC
-does.
-
-The default profile also refutes a temporal property on a finite prefix that
-no extension can satisfy, such as `x = 0 .. 4` for `(x = 0) => [](x < 4)`,
-and reports it as a `bad-prefix` word. TLC's simulation refutes only `[]P` and
-`[][A]_v` parts on a prefix. As for those, the prefix is not required to
-extend to a fair behavior. `--compat=tlc` does not look for bad prefixes.
-
-### Other candidates
-
-- **Which liveness counterexample is reported.** TLC's liveness counterexample depends on the order of its internal hash tables, so it depends on the fingerprint polynomial (`-fp`), which TLC picks at random unless you set it. On the Examples spec `MCDistributedReplicatedLog`, six polynomials gave five different counterexamples, of 4, 5 or 6 states, naming either `InSync` or `AllExtending and InSync` as violated. TLC's choice is also not the shortest available: for `[]<>(x = 0)` on a counter `0, 1, 2` with no fairness, TLC shows three states and then stuttering, where stuttering after two states already violates the property. dive reports a counterexample with the shortest possible prefix, the same one at any polynomial and any worker count; see [D-013](#d-013-a-deterministic-short-liveness-counterexample). The verdict and the state counts are the same either way.
 - **Liveness under a state constraint.** TLC checks liveness on the graph that `CONSTRAINT` leaves, while `ENABLED` (and so fairness) still sees the successors the constraint removed. A behavior that leaves the model is not considered at all. For `x' = x + 1` under weak fairness with `CONSTRAINT x < 3`, TLC reports that `<>(x = 5)` holds, although no state inside the model has `x = 5` (`LvConstraint`). With `ACTION_CONSTRAINT` the cut graph can also produce a counterexample that the unconstrained spec does not have (`LvActionConstraint`). dive reproduces TLC exactly. A warning could point out when a liveness verdict depends on a constraint.
 - **SANY parser artifacts.** SANY rejects some inputs that look like valid TLA+, apparently because of how its JavaCC parser is implemented:
   - `{a, b \in S}`;
@@ -1035,6 +967,23 @@ extend to a fair behavior. `--compat=tlc` does not look for bad prefixes.
   - String values keep their escapes verbatim, so `"a\nb"` in a cfg is four characters, unlike the same literal in a module.
 
   dive matches TLC exactly, and adds warnings (`DIVE-C0100` to `DIVE-C0102`) where TLC accepts input it can never resolve. An opt-in `--cfg=strict` could reject these files. The cases are in `crates/dive-config/tests/fixtures/`. Earlier TLC versions did worse: a lexical error silently truncated the file, so TLC could report success while ignoring an `INVARIANT`. The pinned TLC rejects such files, and so does dive.
+
+### Empty symmetry sets crash TLC
+
+```tla
+VARIABLE x
+Init == x = TRUE
+Next == UNCHANGED x
+Sym == {}
+```
+
+With `INIT Init`, `NEXT Next` and `SYMMETRY Sym`, the pinned TLC exits 255
+with GENERAL and an `IllegalArgumentException`, instead of explaining that
+there are no permutations. SANY accepts the module. TLC's closure code
+allocates a set of capacity `size - 1`, so zero or one function throws when
+called directly; normal binding often disables the singleton case first with
+warning 2300. dive refuses the empty declaration by name (the `SyEmpty`
+capture is in `crates/dive-model/tests/fixtures/symmetry-group/`).
 
 ## Where dive is currently more limited than TLC
 
@@ -1743,6 +1692,75 @@ configured property would report a sample as clean when it is not. The
 receipts are `crates/dive-sim/tests/fixtures/temporal/oracle.json` U12 and
 its model-checking control B-U12.
 
+## D-037: Simulation closes loops only on equal states
+
+| | |
+|---|---|
+| **Kind** | Different answer |
+| **Default** | A loop closes only on an equal state; `VIEW` and `SYMMETRY` do not affect simulation |
+| **TLC behavior** | Not reproduced; the same rule applies under `--compat=tlc` |
+| **Status** | implemented for `dive simulate` |
+
+TLC's simulation closes a liveness loop when two states have the same
+fingerprint. Under `VIEW` that is the view's fingerprint, and under
+`SYMMETRY` the symmetric one. Two measured results:
+
+- `x` toggles while `y` counts up to 3 with weak fairness, `VIEW x`, and the
+  property `<>(y = 3)`. Every behavior reaches `y = 3`, yet TLC reports a
+  violation: its loop goes back from `x = 0, y = 2` to the initial state,
+  which only has the same view.
+- `x` alternates between two symmetric model values `a` and `b` with weak
+  fairness, and the property `<>(x \notin {a, b})` is false on every
+  behavior. Without `SYMMETRY`, TLC reports the violation; with it, TLC's
+  simulation reports none, because the cycle `a, b, a` looks like stuttering
+  at `a`, which weak fairness rules out.
+
+dive's simulation treats `VIEW` and `SYMMETRY` as having no effect on
+simulation and closes a loop only when a state equals an earlier one, in both
+profiles. Every reported loop is then a real behavior that the trace
+validator checks: dive reports no violation in the first example and reports
+the `a, b` lasso in the second.
+
+## D-038: Simulation reports how much of a property it checked
+
+| | |
+|---|---|
+| **Kind** | Same answer, more report |
+| **Default** | Per-property checked and undecided counts in `statistics.properties` |
+| **TLC behavior** | Not applicable; report fields only |
+| **Status** | implemented for `dive simulate` |
+
+TLC's simulation checks a liveness property only on traces that return to an
+earlier state or stop. When every trace is cut by `-depth` first, for example
+`<>(x = 10)` on `x' = x + 1` at depth 5 or a three-state cycle at depth 2,
+TLC reports success exactly as when it checked every trace. dive's simulation
+reports, for each property, how many traces gave a fair behavior on which it
+was checked and how many could not decide it, and why
+(`statistics.properties`). It never reports that a property holds.
+
+## D-039: Extending traces cut by the depth
+
+| | |
+|---|---|
+| **Kind** | Different answer |
+| **Default** | `--liveness-extend auto`: extend an undecided trace by up to `--depth` steps, and report `bad-prefix` refutations |
+| **TLC behavior** | `--liveness-extend 0` or `--compat=tlc` |
+| **Status** | default for `dive simulate` |
+
+A trace that reaches `--depth` while a temporal property is still undecided on
+it continues, by up to `--depth` more steps, until it returns to an earlier
+state or stops. TLC always ends the trace at `-depth`. Every violation
+found this way is a real behavior and is validated, and every extra step is
+checked like any other. `--liveness-extend N` sets the number of extra steps;
+`--liveness-extend 0`, or `--compat=tlc`, ends every trace at the depth as TLC
+does.
+
+The default profile also refutes a temporal property on a finite prefix that
+no extension can satisfy, such as `x = 0 .. 4` for `(x = 0) => [](x < 4)`,
+and reports it as a `bad-prefix` word. TLC's simulation refutes only `[]P` and
+`[][A]_v` parts on a prefix. As for those, the prefix is not required to
+extend to a fair behavior. `--compat=tlc` does not look for bad prefixes.
+
 ## D-040: Sampling from unbounded sets
 
 | | |
@@ -1853,8 +1871,8 @@ On each violation, TLC also writes a trace exploration module,
 | **Status** | implemented for `dive simulate` |
 
 TLC's `-simulate` reports `<>[]P` violated on traces that satisfy it, when
-`P` is false before the part of the trace that repeats. On `0, 1, 2, 1, 2,
-...` with weak fairness, `<>[](x > 0)` holds, but TLC reports a lasso back to
+`P` is false before the part of the trace that repeats. On
+`0, 1, 2, 1, 2, ...` with weak fairness, `<>[](x > 0)` holds, but TLC reports a lasso back to
 `x = 1`. On a counter that stops at `x = 2`, whose behavior repeats the last
 state forever, `<>[](x = 2)` holds, but TLC reports a stuttering
 counterexample. Model checking reports neither. The Examples models
