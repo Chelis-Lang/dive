@@ -1,10 +1,12 @@
 # Release performance qualification
 
-This is the runbook for the performance measurements that qualify dive 0.1.0
-and the first Sail release that runs native temporal jobs on it (Sail 0.3.0).
+This is the runbook for the performance measurements that qualify dive 0.2.0
+and the Sail release that runs its native temporal jobs on it (Sail 0.3.1).
 It is written for an engineer or agent who has not seen the work that led to
-it. Tracking issue: #1011. The Sail side is tracked in
-[Chelis-Lang/sail#764](https://github.com/Chelis-Lang/sail/issues/764).
+it. Tracking issue: #1418, which lists the qualification steps and collects
+their results. The Sail side is Sail's `v0.3.1` milestone. The 0.1.0
+qualification used the same procedures; its records are listed in the
+[scoreboard](../scoreboard.md#release-qualification).
 
 ## Purpose and status rule
 
@@ -36,25 +38,21 @@ we have measured and regressions have an issue before the tag.
 
 ## When
 
-1. On the release-candidate source: `main` after the history rewrite (the
-   rewrite changes every commit id, so measurements taken before it name
-   commits that no longer exist).
-2. The dive measurements (D1 to D7) run before the `v0.1.0` tag. D1 must pass
-   before tagging.
-3. The Sail measurements (S1 to S7) run after dive 0.1.0 is on crates.io and
-   Sail PR [#763](https://github.com/Chelis-Lang/sail/pull/763) builds against
-   it, before the Sail 0.3.0 release.
+1. On the release-candidate source: one frozen commit on `main`, the feature
+   freeze at `a1fd9e003` (#1407) plus the release PRs listed in #1418. Every
+   record names that commit.
+2. The dive measurements (D1 to D7) run before the `v0.2.0` tag. D1 must pass
+   before tagging. D2 and D4 are compared with the last committed records
+   (`c14687e6` for R2, `08a14fba` for the others).
+3. The Sail measurements (S1 to S7) run on a Sail branch that pins dive to the
+   release-candidate commit by git revision, before either release is tagged.
+   S7 must pass before tagging. After dive 0.2.0 is on crates.io, Sail moves
+   its pin to the published version and releases 0.3.1.
 
-Prerequisites on the dive side:
-
-- #1010 (Core liveness with the exact store and state/depth ceilings) is
-  merged. D3's liveness half, D6's temporal ceilings and every Sail
-  liveness job depend on it. Until it lands, Core refuses `--store exact` and
-  `--max-states`/`--max-depth` with temporal properties, and Sail returns
-  `Unsupported` for those jobs.
-- The harness carries out the R2 procedure itself (`dive-conformance r2`,
-  #983): repetitions, band re-runs, cache canaries, the clean environment,
-  the binding and the record. D1 needs no driver script.
+The harness carries out the R2 procedure itself (`dive-conformance r2`):
+repetitions, band re-runs, cache canaries, the clean environment, the binding
+and the record. D1 needs no driver script. Reuse the cached TLC times for the
+same oracle and host type instead of re-timing TLC.
 
 ## Where
 
@@ -78,7 +76,7 @@ node and fetches files. Both need:
 | `AWS_REGION` | optional, default `us-east-1` |
 | `DIVE_AWS_AMI` | an Ubuntu 24.04 x86_64 AMI id |
 | `DIVE_AWS_INSTANCE_PROFILE` | an IAM instance profile that can read the token parameter and accept SSM commands |
-| `DIVE_AWS_GH_TOKEN_PARAM` | the SSM SecureString parameter holding a GitHub token (the repository is private until release); the token is never printed |
+| `DIVE_AWS_GH_TOKEN_PARAM` | the SSM SecureString parameter holding a GitHub token for cloning and release downloads; the token is never printed |
 
 `DRY_RUN=1` prints the generated user data without launching.
 
@@ -140,7 +138,7 @@ Sail's own scripts launch its hosts, in Sail's checkout:
   the dive account is fine) and cite it by SHA-256 in the record.
   `scripts/check-repo-budget.py` runs in the pre-commit hook.
 - One PR per repository for the records, after all measurements are in. Then
-  comment on #1011 with the PR and the headline numbers, and open the `perf`
+  comment on #1418 with the PR and the headline numbers, and open the `perf`
   issues.
 
 Every dive record carries these common fields:
@@ -261,7 +259,7 @@ where this section and the procedure differ, the procedure wins.
   `first_pass` and `pairs` (large banded). `r2 record` writes all of these
   except `attempts` and the raw archive digests, which are added by hand; it
   names host shortfalls under `triage` instead of `deviations`.
-- **Follow-up.** Post the summary on the pinned v0.1 status issue, update the
+- **Follow-up.** Post the summary on #1418, update the
   `## Speed` section of the scoreboard, and open or update a `perf` issue for
   every model above 1x. Any model above 2x blocks the tag.
 
@@ -422,7 +420,7 @@ process's wall time minus the time at which the stop was due.
 
 ### D7: macOS arm64 spot check
 
-Information only, never a gate (macOS is not a v0.1 gate). On the Sail Mac
+Information only, never a gate (macOS is not a 0.2.0 gate). On the Sail Mac
 host used for S6 (mac-m4.metal), build dive from the release-candidate
 source and run D2's benchmark-set part with `--workers 1,8 --reps 3 --tlc`
 and D5's startup part. `dive-bench` reads RSS from `/usr/bin/time -l` there.

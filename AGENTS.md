@@ -63,11 +63,12 @@ Read [ADR 0153](docs/decisions/0153-core-is-the-product.md) and
 rules exist.
 
 **Choose work by the release gates.**
-- Every PR links an issue in the `v0.1: first value` milestone. The exceptions
-  are a fix for a wrong user-visible result, or work the owner has signed off.
+- Every PR links an issue in the current release milestone,
+  `v0.2: faster Core with Sail 0.3.1`. The exceptions are a fix for a wrong
+  user-visible result, or work the owner has signed off.
 - Rank Core work by the refusal-reason histogram, largest bucket first. Do not
   rank it model by model.
-- Frozen until v0.1:
+- Frozen until v0.2:
   - distributed workers;
   - DAP;
   - checkpoint, spill and recovery breadth;
