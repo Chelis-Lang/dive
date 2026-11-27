@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source_run_id": "20261127T201421231-dive-all",
+  "source_run_id": "20261127T224723369-dive-all",
   "implementation": "dive",
   "profile": "dive",
   "engine": "core",
@@ -188,7 +188,7 @@
     "examples:specifications/ewd426/APTokenRing.cfg": {"outcome":"out-of-scope","runs":[]},
     "examples:specifications/ewd426/SimTokenRing.cfg": {"outcome":"out-of-scope","runs":[]},
     "examples:specifications/ewd426/TokenRing.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":46656,"states_generated":248832,"depth":1}]},
-    "examples:specifications/ewd687a/EWD687a_anim.cfg": {"outcome":"disagree","runs":[{"workers":1,"verdict":"unclassified","exit_code":12}]},
+    "examples:specifications/ewd687a/EWD687a_anim.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"safety-violation","verdict_code":2110,"error_class":"TLC_INVARIANT_VIOLATED_BEHAVIOR","exit_code":12,"violated_property":"InterestingBehavior","states_generated":120}]},
     "examples:specifications/ewd687a/MCEWD687a.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":18028,"states_generated":137161,"depth":27}]},
     "examples:specifications/ewd840/APEWD840.cfg": {"outcome":"out-of-scope","runs":[]},
     "examples:specifications/ewd840/APSyncTerminationDetection.cfg": {"outcome":"out-of-scope","runs":[]},
