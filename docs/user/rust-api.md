@@ -4,7 +4,7 @@
 
 ```toml
 [dependencies]
-dive-api = "0.1"
+dive-api = "0.2"
 serde_json = "1"
 ```
 

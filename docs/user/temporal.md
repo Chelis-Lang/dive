@@ -264,8 +264,8 @@ and generated 337 occurrences through depth 5. While labeling
 `TemporalInvariant`, it reached `CurrentLease[n].counter` at line 225 with
 `CurrentLease[n] = NoCheckpointLease`. Pinned TLC instead stopped on the
 initial state while comparing a record with a tuple. In isolation their
-different domains make them unequal in the default profile. [Original sources
-and configuration](../../conformance/reports/perf/2026-11-22-factored-streett.json)
+different domains make them unequal in the default profile.
+[Original sources and configuration](../../conformance/reports/perf/2026-11-22-factored-streett.json)
 
 ### Errors on a source row
 
