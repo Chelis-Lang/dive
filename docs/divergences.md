@@ -8,7 +8,7 @@
 
 **Status** is one of `recorded` (the design keeps it possible), `planned` (has a milestone), `implemented` or `default`.
 
-Ids are never reused. D-032 to D-035 were never assigned: the ADR 0162 design draft proposed them, and the simulation entries were registered as D-037 to D-040 instead. D-025 is reserved (see [D-026](#d-026-run-budgets-stop-a-run-with-a-structured-result)).
+Ids are never reused. D-032 to D-035 were never assigned: the ADR 0162 design draft proposed D-031 to D-035, and the simulation entries were registered as D-036 to D-040 instead. D-025 is reserved (see [D-026](#d-026-run-budgets-stop-a-run-with-a-structured-result)).
 
 ## Registry
 

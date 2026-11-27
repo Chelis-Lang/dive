@@ -64,11 +64,11 @@ rules exist.
 
 **Choose work by the release gates.**
 - Every PR links an issue in the current release milestone,
-  `v0.2: faster Core with Sail 0.3.1`. The exceptions are a fix for a wrong
+  `v0.2: faster Core with Sail 0.4.0`. The exceptions are a fix for a wrong
   user-visible result, or work the owner has signed off.
 - Rank Core work by the refusal-reason histogram, largest bucket first. Do not
   rank it model by model.
-- Frozen until v0.1:
+- Frozen until v0.2:
   - distributed workers;
   - DAP;
   - checkpoint, spill and recovery breadth;
