@@ -862,6 +862,8 @@ The census supports groups of order up to 64 in local exact safety search withou
 `VIEW` or checkpoint recovery. Partial searches publish no completed census.
 [SlateDB controls and commands](../developer/large-models.md#reproduce-the-released-slatedb-wal-model).
 
+Ordinary `dive check` recognizes repeated updates to distinct fields of the same finite actor record, such as `[w EXCEPT ![a].pc = next, ![a].seen = stamp]`. It preserves source order, nested paths and the old value bound to `@`. A missing key, a repeated field or a different runtime shape uses ordinary evaluation. The original Flint check took 2.94–3.02 s with this lowering. Compiled tla-mc remained faster on unchanged warm checks. [Full equality, growing models and edit-cycle measurements](../../conformance/reports/perf/2026-11-22-actor-table-rows.json).
+
 The source checkout's research drivers, which compare or certify a declared
 symmetry and build source-bound native successor workers, are described in
 [source-checkout tools](../developer/source-tools.md).
