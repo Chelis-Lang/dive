@@ -262,6 +262,12 @@ pub struct CheckRequest {
     pub periodic: PeriodicSchedule,
     /// `--time-limit`: wall-clock time for the whole check.
     pub time_limit: BudgetSetting<std::time::Duration>,
+    /// Test-only: the time limit counts from the first entry to temporal
+    /// atom evaluation instead of from the start, so a phase-specific budget
+    /// test cannot expire earlier when its runner is descheduled. Not part
+    /// of the supported API.
+    #[doc(hidden)]
+    pub hold_time_until_temporal_atoms: bool,
     /// `--max-memory`: the whole process's resident-memory
     /// ceiling, in bytes.
     pub max_memory: BudgetSetting<u64>,
@@ -672,6 +678,9 @@ pub(crate) fn check_file_in(
     };
     let (memory, memory_source) = memory_resolution.unwrap_or((None, "unavailable"));
     opts.budget = dive_runtime::budget::Budget::new(time, memory);
+    if req.hold_time_until_temporal_atoms {
+        opts.budget = opts.budget.hold_time_until_released();
+    }
     let cfg_path = req
         .config
         .clone()

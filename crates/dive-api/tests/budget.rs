@@ -562,6 +562,11 @@ fn evaluator_loops_stop_next_even_when_no_successor_is_emitted()
     Ok(())
 }
 
+/// The refusal and the phase-specific stop anchor their 50 ms deadline at the
+/// entry to atom evaluation, so a runner descheduled before then cannot
+/// expire the budget in an earlier phase (#1336). The same budget counted
+/// from the start still stops the run by wall clock, in whichever phase the
+/// clock runs out.
 #[test]
 fn evaluator_loops_stop_temporal_atoms_after_actual_complete_capture()
 -> Result<(), Box<dyn std::error::Error>> {
@@ -569,7 +574,7 @@ fn evaluator_loops_stop_temporal_atoms_after_actual_complete_capture()
     let file = scratch.0.join("LoopAtom.tla");
     std::fs::write(
         &file,
-        "---- MODULE LoopAtom ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=x\nP == []<>(\\A y \\in 1..1000 : \\A z \\in 1..1000 : x+y+z >= 0)\n====\n",
+        "---- MODULE LoopAtom ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=x\nP == []<>(\\A y \\in 1..1000 : \\A z \\in 1..10000 : x+y+z >= 0)\n====\n",
     )?;
     std::fs::write(
         scratch.0.join("LoopAtom.cfg"),
@@ -580,6 +585,7 @@ fn evaluator_loops_stop_temporal_atoms_after_actual_complete_capture()
             temporal_refusal: Some(refused::FINAL_SHORT.into()),
             time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
             max_memory: BudgetSetting::Unlimited,
+            hold_time_until_temporal_atoms: true,
             ..request(&file, compat_tlc, 1)
         };
         // Only the retired reference engine ran bounded final checking
@@ -592,6 +598,16 @@ fn evaluator_loops_stop_temporal_atoms_after_actual_complete_capture()
             refused::FINAL_SHORT,
         );
         budgeted.temporal_refusal = None;
+        let wall_clock = dive_api::check_file(&CheckRequest {
+            hold_time_until_temporal_atoms: false,
+            ..budgeted.clone()
+        })?;
+        let json = wall_clock.to_json();
+        assert_eq!(json["verdict"], "stopped", "{json}");
+        assert_eq!(json["stopped"]["resource"], "time", "{json}");
+        assert!(json["tlc"].is_null(), "{json}");
+        assert!(json["counterexample"].is_null(), "{json}");
+        assert_eq!(wall_clock.exit_code(), exit::STOPPED, "{json}");
         let report = dive_api::check_file(&budgeted)?;
         let json = report.to_json();
         assert_stopped(&json, "time", "temporal-analysis");
@@ -605,6 +621,7 @@ fn evaluator_loops_stop_temporal_atoms_after_actual_complete_capture()
             json["stopped"]["elapsed_ms"].as_u64() < Some(1500),
             "{json}"
         );
+        assert_eq!(report.exit_code(), exit::STOPPED, "{json}");
     }
     Ok(())
 }
