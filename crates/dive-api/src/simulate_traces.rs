@@ -213,13 +213,15 @@ fn values_at(
 }
 
 /// How `trace`, number `number` of the report, ends under the run's
-/// `outcome`.
+/// `outcome`: a trace that decided nothing is a `terminal` word when it
+/// stopped at a state with no admitted successor, else a `behavior`.
 pub(crate) fn ending(outcome: &Outcome, number: usize, trace: &dive_sim::Trace) -> Ending {
     match outcome {
         _ if trace.temporal.is_some() => deciding_ending(outcome, trace),
         Outcome::Violation {
             trace: deciding, ..
         } if *deciding == number => deciding_ending(outcome, trace),
+        _ if trace.terminal => Ending::Terminal,
         _ => Ending::Behavior,
     }
 }

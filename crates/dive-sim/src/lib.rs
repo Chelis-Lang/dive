@@ -230,6 +230,10 @@ pub struct Trace {
     /// and the configured properties false on it, in configuration order.
     /// `None` for a finite sampled trace.
     pub temporal: Option<(TemporalEnding, Vec<String>)>,
+    /// The trace stopped at a state none of whose successors satisfies the
+    /// constraints, with deadlock checking off: TLC's simulator ends a trace
+    /// there too. Such a trace can be shorter than the depth.
+    pub terminal: bool,
 }
 
 /// How a temporal counterexample word continues after its last state.

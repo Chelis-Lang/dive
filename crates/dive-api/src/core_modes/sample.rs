@@ -257,6 +257,8 @@ struct Kept {
     witnesses: Vec<(usize, Vec<Handle>)>,
     draws: Vec<(usize, Vec<Handle>)>,
     word: Option<Word>,
+    /// The last state had no admitted successor ([`Trace::terminal`]).
+    terminal: bool,
 }
 
 /// The committed prefix of the run.
@@ -581,6 +583,10 @@ impl Native {
             kept.generated,
             (&kept.witnesses, &kept.draws),
         )
+        .map(|trace| Trace {
+            terminal: kept.terminal,
+            ..trace
+        })
     }
 
     fn flush_driver_output(&mut self, report: &mut Report) {
@@ -640,6 +646,7 @@ fn trace_values(
         witnesses,
         draws,
         temporal: None,
+        terminal: false,
     })
 }
 
@@ -653,6 +660,7 @@ fn word_trace(id: u64, generated: u64, word: Word) -> Trace {
         witnesses: Vec::new(),
         draws: Vec::new(),
         temporal: Some((word.ending, word.properties)),
+        terminal: false,
     }
 }
 
@@ -681,6 +689,10 @@ fn export(machine: &mut Machine, cx: &Context<'_>, run: &mut Run) {
             run.generated,
             (&run.witnesses, &run.draws),
         )
+        .map(|trace| Trace {
+            terminal: run.terminal,
+            ..trace
+        })
     };
     let written = trace
         .map_err(Outcome::Unsupported)
@@ -807,6 +819,7 @@ fn enumerate_init(
                     witnesses: Vec::new(),
                     draws: Vec::new(),
                     temporal: None,
+                    terminal: false,
                 }),
                 Err(message) => report.outcome = Outcome::Unsupported(message),
             }
@@ -961,6 +974,7 @@ impl Commit {
             stalled,
             exported,
             end,
+            terminal,
             class,
             coverage,
             word,
@@ -1044,6 +1058,7 @@ impl Commit {
             witnesses,
             draws,
             word,
+            terminal,
         };
         let fits = self
             .retained

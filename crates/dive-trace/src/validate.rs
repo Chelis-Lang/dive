@@ -280,6 +280,9 @@ enum Goal {
     ImpliedInit(usize),
     ImpliedAction(usize),
     Deadlock,
+    /// A behavior that stops at a state with no successor while the model
+    /// does not check for deadlock: certified as a deadlock is.
+    Terminal,
     Behavior,
     Liveness(&'static str),
     /// The index of the configured property claim the prefix refutes.
@@ -303,7 +306,8 @@ pub(crate) enum FiniteScope {
     Behavior,
     /// A sampled finite behavior whose every row passed the safety checks.
     Sample,
-    /// A simulation deadlock: no successor satisfies the model's constraints.
+    /// A simulation deadlock, or a terminal sample: no successor satisfies
+    /// the model's constraints, and every row passed the safety checks.
     SampledDeadlock,
 }
 
@@ -767,14 +771,19 @@ impl<'a> Run<'a> {
             self.bad_prefix(index, trace, last)?;
             return Ok(None);
         }
+        let what = if matches!(goal, Goal::Terminal) {
+            "terminal state"
+        } else {
+            "deadlock"
+        };
         Ok(match goal {
-            Goal::Deadlock
+            Goal::Deadlock | Goal::Terminal
                 if self.finite_scope == FiniteScope::SampledDeadlock
                     && !(m.constraints.is_empty() && m.action_constraints.is_empty()) =>
             {
-                return self.sampled_deadlock(&trace.states[last], last);
+                return self.sampled_deadlock(&trace.states[last], last, what);
             }
-            Goal::Deadlock => {
+            Goal::Deadlock | Goal::Terminal => {
                 if let Some(next) = &m.next {
                     match crate::enabled::deadlock_successor(m, next, &trace.states[last]) {
                         Ok(false) => None,
@@ -782,7 +791,7 @@ impl<'a> Run<'a> {
                             return Err(invalid(
                                 last,
                                 Check::Ending,
-                                "the claimed deadlock has a successor",
+                                format!("the claimed {what} has a successor"),
                             ));
                         }
                         Err(e) => {
@@ -1051,6 +1060,16 @@ impl<'a> Run<'a> {
                     ));
                 }
                 Goal::Deadlock
+            }
+            Ending::Terminal => {
+                if m.settings.check_deadlock {
+                    return Err(invalid(
+                        last,
+                        Check::Ending,
+                        "a terminal ending needs deadlock checking off; with it on, a state with no successor is a deadlock",
+                    ));
+                }
+                Goal::Terminal
             }
             Ending::Behavior => Goal::Behavior,
             Ending::TemporalStateError { .. } => Goal::TemporalStateError,
@@ -1366,10 +1385,14 @@ impl<'a> Run<'a> {
     /// successor of the last state is regenerated here; the claim stands only
     /// if each one falls outside the model. Constraints see the successor's
     /// level, action constraints and generation the last state's.
+    /// A terminal sample (`what` is `terminal state`) is checked the same
+    /// way: TLC's simulator ends the trace there when deadlock checking is
+    /// off.
     fn sampled_deadlock(
         &mut self,
         state: &crate::State,
         last: usize,
+        what: &str,
     ) -> Result<Option<String>, Stop> {
         let m = self.model;
         if m.next.is_none() || m.actions.is_empty() {
@@ -1412,14 +1435,18 @@ impl<'a> Run<'a> {
                     return Err(invalid(
                         last,
                         Check::Ending,
-                        "the claimed deadlock has a successor that satisfies every constraint",
+                        format!(
+                            "the claimed {what} has a successor that satisfies every constraint"
+                        ),
                     ));
                 }
                 Some(Found::Incomplete) => {
                     return Err(invalid(
                         last,
                         Check::Ending,
-                        "the claimed deadlock has a successor that does not assign every variable",
+                        format!(
+                            "the claimed {what} has a successor that does not assign every variable"
+                        ),
                     ));
                 }
                 Some(Found::NotBoolean(detail)) => {
@@ -1431,7 +1458,7 @@ impl<'a> Run<'a> {
                             last,
                             Check::Ending,
                             format!(
-                                "evaluating a constraint on a successor of the claimed deadlock fails: {}",
+                                "evaluating a constraint on a successor of the claimed {what} fails: {}",
                                 e.message()
                             ),
                         ),
@@ -1447,7 +1474,7 @@ impl<'a> Run<'a> {
                             last,
                             Check::Ending,
                             format!(
-                                "generating a successor of the claimed deadlock fails: {}",
+                                "generating a successor of the claimed {what} fails: {}",
                                 e.error.message()
                             ),
                         ),
@@ -1459,7 +1486,7 @@ impl<'a> Run<'a> {
         if m.has_runtime_names() {
             return Ok(Some(crate::RUNTIME_NAMES_UNSUPPORTED.to_owned()));
         }
-        self.notes.insert("Simulation deadlock: every successor of the last state lies outside the model's constraints, so TLC's simulator keeps none".to_owned());
+        self.notes.insert(format!("Simulation {what}: every successor of the last state lies outside the model's constraints, so TLC's simulator keeps none"));
         Ok(None)
     }
 

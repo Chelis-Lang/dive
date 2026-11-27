@@ -79,7 +79,11 @@ state satisfies them and deadlock checking is on, the simulation reports a
 deadlock (exit 11). `dive check` reports no deadlock there, because exhaustive
 checking only stops exploring past such successors. Independent validation
 regenerates every successor of the deadlocked state and accepts the deadlock
-only if each one falls outside the constraints.
+only if each one falls outside the constraints. With deadlock checking off
+(`CHECK_DEADLOCK FALSE` or `--deadlock`), the trace ends there instead, as
+TLC's simulator ends it, and its word has the `terminal` ending: it can be
+shorter than the depth, and its validation checks the same successor
+condition.
 
 Initial states may hold compound values: sets, functions, records and
 sequences. A `SPECIFICATION` with fairness conjuncts is simulated; fairness

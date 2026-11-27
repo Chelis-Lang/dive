@@ -83,3 +83,51 @@ fn sampled_deadlock_requires_every_successor_outside_the_constraints() {
         ));
     }
 }
+
+fn terminal(last: i64) -> TraceDoc {
+    TraceDoc::behavior((0..=last).map(|x| serde_json::json!({ "x": x })).collect())
+        .expect("word")
+        .with_ending(Ending::Terminal)
+}
+
+/// With deadlock checking off, TLC's simulator ends a trace at a state with
+/// no admitted successor (issue #1424); the `terminal` word is certified as
+/// a sampled deadlock is, and is invalid where deadlock checking is on.
+#[test]
+fn terminal_word_requires_deadlock_checking_off_and_no_admitted_successor() {
+    for options in [dive_eval::Options::dive(), dive_eval::Options::tlc()] {
+        for constraint in ["CONSTRAINT C", "ACTION_CONSTRAINT A", "CONSTRAINT L"] {
+            let off = session(&format!("{constraint}\nCHECK_DEADLOCK FALSE"), options);
+            assert_eq!(
+                sampled(&off, &terminal(2)),
+                Validation::Valid,
+                "{constraint}"
+            );
+            match sampled(&off, &terminal(1)) {
+                Validation::Invalid(failure) => {
+                    assert_eq!((failure.state, failure.check), (1, Check::Ending));
+                    assert!(failure.detail.contains("terminal state"), "{failure:?}");
+                }
+                other => panic!("{constraint}: {other:?}"),
+            }
+            // With deadlock checking on, that state is a deadlock instead.
+            let on = session(constraint, options);
+            assert!(matches!(sampled(&on, &terminal(2)), Validation::Invalid(_)));
+            assert_eq!(sampled(&on, &deadlock(2)), Validation::Valid);
+        }
+        // Without constraints a terminal state has no successor at all.
+        let off = session("CHECK_DEADLOCK FALSE", options);
+        assert!(matches!(
+            sampled(&off, &terminal(2)),
+            Validation::Invalid(_)
+        ));
+        // The plain sample operation keeps its `behavior` ending only.
+        assert!(matches!(
+            off.read_sampled(&terminal(2), None)
+                .expect("completed replay")
+                .0
+                .validation,
+            Validation::Invalid(_)
+        ));
+    }
+}
