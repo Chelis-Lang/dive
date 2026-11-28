@@ -180,6 +180,7 @@ The [population edit-session measurements](2026-11-21-occupancy-edits.json) pair
 | `2026-11-27-release-d5-throughput-5bb88063.json` | D5 (0.2.0) | Startup latency, simulation throughput, trace-validation throughput | `5bb88063` | c7i.metal-24xl (small node) |
 | `2026-11-27-release-d6-stop-latency-5bb88063.json` | D6 (0.2.0) | How soon after a time, state or depth limit does a run stop? | `5bb88063` | c7i.metal-24xl (small node) |
 | `2026-11-27-release-s7-sail-vs-tlc-5bb88063.json` | S7, release gate (0.2.0) | Sail 0.3.1 + dive 0.2.0 against a fresh `java -jar tla2tools.jar` per check, fresh checks (`rc`) and receipt replays (`rcreplay`) | dive `5bb88063`, Sail `b00b6de9` | c7i.8xlarge, fresh node |
+| `2026-11-28-release-s7-sail-vs-tlc-f01027f6.json` | S7, release gate (0.2.0), rerun on the Sail release commit | The same S7 on Sail 0.3.1's release commit, linking dive 0.2.0 from crates.io | dive `3122643a` (v0.2.0), Sail `f01027f6` | c7i.8xlarge, fresh node |
 
 All D records share the oracle `tlc-2026.10.06.014338` (pinned JRE), the
 tlaplus/Examples corpus at `6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f`, and,
@@ -224,6 +225,8 @@ packed (not rechecked against the bucket copy since).
 Prefix `release-perf/2026-11-27-rc02/s7/` holds the 0.2.0 S7 tarball; its
 record cites it under `raw` (SHA-256
 `92c4b073fb42a556d6324a10a4c1f012aac7dd6e65f95de0b86fcbf8da131562`).
+Prefix `release-perf/2026-11-28-sail031/s7/` holds the S7 rerun on the Sail
+0.3.1 release commit; its record cites it under `raw`.
 
 Prefix `release-perf/2026-11-27-rc02/` holds the 0.2.0 D1 to D6 tarballs:
 `small-node-raw.tar.gz` (D1 small class, D2, D3, D5, D6) and

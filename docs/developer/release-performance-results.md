@@ -30,7 +30,7 @@ For the subsequent large-model investigations, see the [engineering measurements
 | Startup and throughput | `dive --version` 1.3 ms, `dive parse` 1.4 ms and a full `dive check` of a small model 4.5 ms (medians of 50). Trace validation 6 to 46 ms per trace, all valid. The bosco simulation, which stopped at its 16 GiB budget in 0.1.0, now samples its 10,000 traces in 28.5 s at 46 MiB. | `2026-11-27-release-d5-throughput-5bb88063.json` |
 | Stop latency | Time budgets stop 7 to 43 ms after the limit (median per cell, load time subtracted; worst single run 48 ms). State and depth ceilings stop exactly at the ceiling, with no overshoot. | `2026-11-27-release-d6-stop-latency-5bb88063.json` |
 | macOS (informational) | Not repeated for 0.2.0. On 0.1.0, on an Apple M3 laptop, dive / TLC geomean 0.354x at 1 worker over six benchmark models, all agreeing. | `2026-11-18-release-d7-macos-08a14fba.json` |
-| Sail with dive against TLC | **Pass.** 25x to 37x faster than TLC per check on the smallest specifications (DieHard 12.3 ms through `sail runtime execute` against 453 ms), 13.8x over 100 fresh small checks in one MCP session (5.14 s against 70.8 s), 5.5x at 14,365 states and 1.3x on MCLamportMutex. All jobs agreed with their goldens. | `2026-11-27-release-s7-sail-vs-tlc-5bb88063.json` |
+| Sail with dive against TLC | **Pass.** 25x to 37x faster than TLC per check on the smallest specifications (DieHard 12.3 ms through `sail runtime execute` against 453 ms), 13.8x over 100 fresh small checks in one MCP session (5.14 s against 70.8 s), 5.5x at 14,365 states and 1.3x on MCLamportMutex. All jobs agreed with their goldens. The rerun on the Sail 0.3.1 release commit, linking dive 0.2.0 from crates.io, is within 4 % on every headline figure. | `2026-11-27-release-s7-sail-vs-tlc-5bb88063.json`, `2026-11-28-release-s7-sail-vs-tlc-f01027f6.json` |
 
 ## Source, machine and method
 
@@ -517,6 +517,17 @@ a check whose identical job already completed in the same cache, so every
 timed Sail job below carries its own `wall_time_ms` and is a fresh check. The
 Sail page is `docs/validation/sail-dive-0.2-vs-tlc.md` (Chelis-Lang/sail#815);
 the record is `2026-11-27-release-s7-sail-vs-tlc-5bb88063.json`.
+
+**Rerun on the release commit.** S7 ran again the same way on Sail 0.3.1's
+release commit `f01027f6`, which links dive 0.2.0 (`3122643a`) from crates.io
+(the worker embeds only the crates.io 0.2.0 sources), on another fresh
+c7i.8xlarge with the same harness files. Again every job agreed with its
+golden and every path beat TLC. TLC ÷ `sail runtime execute`: DieHard 35.4x,
+the small liveness specifications 11.3x to 28.1x, MCDisruptor_MPMC_liveliness
+5.4x and MCLamportMutex 1.3x. The 100-check loop ran 13.2x (serve) to 15.3x
+(execute), with MCP at 13.5x (5.10 s against 69.1 s). No headline figure moved
+by more than 4 % from the table below. The record is
+`2026-11-28-release-s7-sail-vs-tlc-f01027f6.json`.
 
 Median milliseconds:
 
