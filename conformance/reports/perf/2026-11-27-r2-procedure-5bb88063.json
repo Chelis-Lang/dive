@@ -1,0 +1,3266 @@
+{
+  "gate": "R2",
+  "procedure": "docs/developer/performance.md#r2-measurement-procedure",
+  "generator": "dive-conformance 0.2.0",
+  "generated_at": "2026-11-28T01:23:24Z",
+  "source": "dive 0.2.0 (v0.1.0-294-g5bb88063)",
+  "dive_binary_sha256": "f18c0f9a0411750a8aaeced079e625ada6c05c86581fb01871e3057ae6aa007a",
+  "harness_binary_sha256": [
+    "d904f24c5725e8bd1e7ac41dab63387ce80e65b0bd1b445a3adcac2007c7a802"
+  ],
+  "oracle": "tlc-2026.10.06.014338 (SHA-256 7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d)",
+  "jre": "openjdk version \"17.0.20.1\" 2026-08-18 (archive SHA-256 0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62; 2 stock CDS archive(s) verified)",
+  "corpus": "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "controls": {
+    "host": {
+      "instance": "c7i.metal-24xl",
+      "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+      "os": "Ubuntu 24.04.5 LTS",
+      "kernel": "Linux 7.0.0-1014-aws",
+      "arch": "x86_64",
+      "cpus": 48,
+      "memory_bytes": 202374877184,
+      "smt": "off",
+      "turbo": "off",
+      "governor": "performance",
+      "min_khz": 2400000,
+      "max_khz": 2400000,
+      "thp": "madvise",
+      "storage": "/dev/root"
+    },
+    "binding": {
+      "applied": true,
+      "description": "numactl --cpunodebind=0 --membind=0 (48 CPUs)"
+    },
+    "environment": {
+      "names": [
+        "DIVE_CACHE_DIR",
+        "HOME",
+        "PATH"
+      ],
+      "extra": []
+    },
+    "jobs": 1,
+    "xmx": "24g",
+    "budget_cap_s": 30000,
+    "oracle": "tlc-2026.10.06.014338",
+    "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "jre": "openjdk version \"17.0.20.1\" 2026-08-18",
+    "jre_sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+    "cds": [
+      {
+        "path": "jdk-17.0.20.1+1-jre/lib/server/classes.jsa",
+        "sha256": "1f856fea23ffb1000738953b5e9685359c6ecf5e6b119631845551dfc283bcd4"
+      },
+      {
+        "path": "jdk-17.0.20.1+1-jre/lib/server/classes_nocoops.jsa",
+        "sha256": "fc77327780f4bb5df91abe2c57e68d55d8891aef1d92f3141bb66feda5bf2cbc"
+      }
+    ],
+    "corpus": "examples",
+    "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "tlc_command": [
+      "$DIVE_CACHE_DIR/jre/0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62/jdk-17.0.20.1+1-jre/bin/java",
+      "-XX:+UseParallelGC",
+      "-Xmx24g",
+      "-Xss8m",
+      "-Duser.home=$DIVE_CACHE_DIR/home",
+      "-Djava.io.tmpdir=$TMP",
+      "-Duser.language=en",
+      "-Duser.country=US",
+      "-Dfile.encoding=UTF-8",
+      "-cp",
+      "$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar:$DIVE_CACHE_DIR/sha256/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad/CommunityModules-202610040242.jar:$DIVE_CACHE_DIR/sha256/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d/CommunityModules-deps-202610040242.jar:$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla:$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+      "tlc2.TLC",
+      "<module>",
+      "-config",
+      "<config>",
+      "-workers",
+      "1",
+      "-lncheck",
+      "final",
+      "-cleanup",
+      "-tool",
+      "-fp",
+      "0",
+      "-seed",
+      "0",
+      "-metadir",
+      "$TMP/states"
+    ],
+    "harness": "dive-conformance 0.2.0"
+  },
+  "classification": "TLC pass 20261127T200943417-tlc_tlc-2026.10.06.014338-all at --jobs 1 before any Core run, timeout 15 s: 127 small (< 10000 ms), 48 large, 0 without a class",
+  "parts": [
+    {
+      "label": "",
+      "class": "small",
+      "started_at": "2026-11-27T20:11:30Z",
+      "finished_at": "2026-11-27T20:37:59Z",
+      "host": {
+        "instance": "c7i.metal-24xl",
+        "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+        "os": "Ubuntu 24.04.5 LTS",
+        "kernel": "Linux 7.0.0-1014-aws",
+        "arch": "x86_64",
+        "cpus": 48,
+        "memory_bytes": 202374877184,
+        "smt": "off",
+        "turbo": "off",
+        "governor": "performance",
+        "min_khz": 2400000,
+        "max_khz": 2400000,
+        "thp": "madvise",
+        "storage": "/dev/root"
+      },
+      "binding": "numactl --cpunodebind=0 --membind=0 (48 CPUs)",
+      "overhead_ms": 56.59,
+      "warmed_bytes": 229889317,
+      "budget_factor": 2.0,
+      "passes": [
+        {
+          "tag": "rep1-tlc",
+          "run_id": "20261127T201504717-tlc_tlc-2026.10.06.014338-all",
+          "started_at": "2026-11-27T20:11:34Z"
+        },
+        {
+          "tag": "rep1-core",
+          "run_id": "20261127T201558654-dive-all",
+          "started_at": "2026-11-27T20:15:04Z"
+        },
+        {
+          "tag": "rep2-core",
+          "run_id": "20261127T201652683-dive-all",
+          "started_at": "2026-11-27T20:15:58Z"
+        },
+        {
+          "tag": "rep2-tlc",
+          "run_id": "20261127T202022769-tlc_tlc-2026.10.06.014338-all",
+          "started_at": "2026-11-27T20:16:52Z"
+        },
+        {
+          "tag": "rep3-tlc",
+          "run_id": "20261127T202352551-tlc_tlc-2026.10.06.014338-all",
+          "started_at": "2026-11-27T20:20:22Z"
+        },
+        {
+          "tag": "rep3-core",
+          "run_id": "20261127T202446511-dive-all",
+          "started_at": "2026-11-27T20:23:52Z"
+        },
+        {
+          "tag": "rep4-core",
+          "run_id": "20261127T202540670-dive-all",
+          "started_at": "2026-11-27T20:24:46Z"
+        },
+        {
+          "tag": "rep4-tlc",
+          "run_id": "20261127T202911003-tlc_tlc-2026.10.06.014338-all",
+          "started_at": "2026-11-27T20:25:40Z"
+        },
+        {
+          "tag": "rep5-tlc",
+          "run_id": "20261127T203241003-tlc_tlc-2026.10.06.014338-all",
+          "started_at": "2026-11-27T20:29:11Z"
+        },
+        {
+          "tag": "rep5-core",
+          "run_id": "20261127T203335015-dive-all",
+          "started_at": "2026-11-27T20:32:41Z"
+        },
+        {
+          "tag": "rep6-core",
+          "run_id": "20261127T203429067-dive-all",
+          "started_at": "2026-11-27T20:33:35Z"
+        },
+        {
+          "tag": "rep6-tlc",
+          "run_id": "20261127T203759078-tlc_tlc-2026.10.06.014338-all",
+          "started_at": "2026-11-27T20:34:29Z"
+        }
+      ]
+    },
+    {
+      "label": "shard1of4",
+      "class": "large",
+      "started_at": "2026-11-27T20:11:37Z",
+      "finished_at": "2026-11-28T01:18:32Z",
+      "host": {
+        "instance": "c7i.metal-24xl",
+        "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+        "os": "Ubuntu 24.04.5 LTS",
+        "kernel": "Linux 7.0.0-1014-aws",
+        "arch": "x86_64",
+        "cpus": 48,
+        "memory_bytes": 202374889472,
+        "smt": "off",
+        "turbo": "off",
+        "governor": "performance",
+        "min_khz": 2400000,
+        "max_khz": 2400000,
+        "thp": "madvise",
+        "storage": "/dev/root"
+      },
+      "binding": "numactl --cpunodebind=0 --membind=0 (48 CPUs)",
+      "overhead_ms": 56.582,
+      "warmed_bytes": 229889317,
+      "budget_factor": 2.5,
+      "passes": [
+        {
+          "tag": "first-tlc",
+          "run_id": "20261127T234119533-tlc_tlc-2026.10.06.014338-all",
+          "started_at": "2026-11-27T20:11:41Z"
+        },
+        {
+          "tag": "first-core",
+          "run_id": "20261128T011832709-dive-all",
+          "started_at": "2026-11-27T23:41:19Z"
+        }
+      ]
+    },
+    {
+      "label": "shard2of4",
+      "class": "large",
+      "started_at": "2026-11-27T20:11:43Z",
+      "finished_at": "2026-11-28T00:14:40Z",
+      "host": {
+        "instance": "c7i.metal-24xl",
+        "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+        "os": "Ubuntu 24.04.5 LTS",
+        "kernel": "Linux 7.0.0-1014-aws",
+        "arch": "x86_64",
+        "cpus": 48,
+        "memory_bytes": 202374893568,
+        "smt": "off",
+        "turbo": "off",
+        "governor": "performance",
+        "min_khz": 2400000,
+        "max_khz": 2400000,
+        "thp": "madvise",
+        "storage": "/dev/root"
+      },
+      "binding": "numactl --cpunodebind=0 --membind=0 (48 CPUs)",
+      "overhead_ms": 56.592,
+      "warmed_bytes": 229889317,
+      "budget_factor": 2.5,
+      "passes": [
+        {
+          "tag": "first-tlc",
+          "run_id": "20261127T231002586-tlc_tlc-2026.10.06.014338-all",
+          "started_at": "2026-11-27T20:11:48Z"
+        },
+        {
+          "tag": "first-core",
+          "run_id": "20261128T001440146-dive-all",
+          "started_at": "2026-11-27T23:10:02Z"
+        }
+      ]
+    },
+    {
+      "label": "shard3of4",
+      "class": "large",
+      "started_at": "2026-11-27T20:11:50Z",
+      "finished_at": "2026-11-28T00:28:39Z",
+      "host": {
+        "instance": "c7i.metal-24xl",
+        "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+        "os": "Ubuntu 24.04.5 LTS",
+        "kernel": "Linux 7.0.0-1014-aws",
+        "arch": "x86_64",
+        "cpus": 48,
+        "memory_bytes": 202374889472,
+        "smt": "off",
+        "turbo": "off",
+        "governor": "performance",
+        "min_khz": 2400000,
+        "max_khz": 2400000,
+        "thp": "madvise",
+        "storage": "/dev/root"
+      },
+      "binding": "numactl --cpunodebind=0 --membind=0 (48 CPUs)",
+      "overhead_ms": 56.536,
+      "warmed_bytes": 229889317,
+      "budget_factor": 2.5,
+      "passes": [
+        {
+          "tag": "first-tlc",
+          "run_id": "20261127T230758162-tlc_tlc-2026.10.06.014338-all",
+          "started_at": "2026-11-27T20:11:54Z"
+        },
+        {
+          "tag": "first-core",
+          "run_id": "20261128T002839097-dive-all",
+          "started_at": "2026-11-27T23:07:58Z"
+        }
+      ]
+    },
+    {
+      "label": "shard4of4",
+      "class": "large",
+      "started_at": "2026-11-27T20:11:57Z",
+      "finished_at": "2026-11-27T23:03:04Z",
+      "host": {
+        "instance": "c7i.metal-24xl",
+        "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+        "os": "Ubuntu 24.04.5 LTS",
+        "kernel": "Linux 7.0.0-1014-aws",
+        "arch": "x86_64",
+        "cpus": 48,
+        "memory_bytes": 202374893568,
+        "smt": "off",
+        "turbo": "off",
+        "governor": "performance",
+        "min_khz": 2400000,
+        "max_khz": 2400000,
+        "thp": "madvise",
+        "storage": "/dev/root"
+      },
+      "binding": "numactl --cpunodebind=0 --membind=0 (48 CPUs)",
+      "overhead_ms": 56.493,
+      "warmed_bytes": 229889317,
+      "budget_factor": 2.5,
+      "passes": [
+        {
+          "tag": "first-tlc",
+          "run_id": "20261127T221339483-tlc_tlc-2026.10.06.014338-all",
+          "started_at": "2026-11-27T20:12:01Z"
+        },
+        {
+          "tag": "first-core",
+          "run_id": "20261127T230304875-dive-all",
+          "started_at": "2026-11-27T22:13:39Z"
+        }
+      ]
+    }
+  ],
+  "conforming": true,
+  "triage": [],
+  "summary": {
+    "agreeing": 169,
+    "small": 121,
+    "large": 48,
+    "geomean": 0.1698,
+    "fixed_set_geomean": 0.1848,
+    "fixed_set_rows": 175,
+    "above_1x": {},
+    "above_2x": [],
+    "stopped": [],
+    "excluded": [
+      "specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
+      "specifications/TLC/TestGraphs.cfg",
+      "specifications/ewd687a/EWD687a_anim.cfg",
+      "specifications/ewd998/EWD998ChanID.cfg",
+      "specifications/ewd998/EWD998ChanTrace.cfg",
+      "specifications/ewd998/SmokeEWD998.cfg"
+    ],
+    "median": 0.1288,
+    "min": 0.0011,
+    "max": 0.87,
+    "gate_result": "pass"
+  },
+  "not_timed": {},
+  "notes": [
+    "Five on-demand c7i.metal-24xl nodes (us-east-1): one for classification and the small class, four for the large shards. Root volume gp3 provisioned at 16000 IOPS and 1000 MiB/s at launch.",
+    "Release build of 5bb88063 (cargo build --release --locked -p dive-cli --bins, no RUSTFLAGS) built once on the small-class node and copied to the shards; the harness was built the same way and copied. All five nodes ran the binaries with the recorded SHA-256.",
+    "Fresh TLC times on every node; no cached TLC time was reused, so no canaries ran."
+  ],
+  "models": {
+    "specifications/Bakery-Boulangerie/MCBakery.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.5482,
+      "tlc_ms": 11971,
+      "core_ms": 6562
+    },
+    "specifications/Bakery-Boulangerie/MCBoulanger.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.5322,
+      "tlc_ms": 269124,
+      "core_ms": 143225
+    },
+    "specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1164,
+      "tlc_ms": 513,
+      "core_ms": 59,
+      "reps": [
+        0.1287,
+        0.1092,
+        0.1237,
+        0.1092,
+        0.1339,
+        0.1092
+      ],
+      "range": [
+        0.1092,
+        0.1339
+      ]
+    },
+    "specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_2/MC.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.6259,
+      "tlc_ms": 1180,
+      "core_ms": 739,
+      "reps": [
+        0.6202,
+        0.6316,
+        0.6316,
+        0.6134,
+        0.6343,
+        0.5967
+      ],
+      "range": [
+        0.5967,
+        0.6343
+      ]
+    },
+    "specifications/Chameneos/Chameneos.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1948,
+      "tlc_ms": 1345,
+      "core_ms": 262,
+      "reps": [
+        0.1948,
+        0.1948,
+        0.1948,
+        0.1909,
+        0.1909,
+        0.1948
+      ],
+      "range": [
+        0.1909,
+        0.1948
+      ]
+    },
+    "specifications/CheckpointCoordination/MCCheckpointCoordination.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.2848,
+      "tlc_ms": 282160,
+      "core_ms": 80372
+    },
+    "specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.2238,
+      "tlc_ms": 20577,
+      "core_ms": 4606
+    },
+    "specifications/CigaretteSmokers/CigaretteSmokers.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1136,
+      "tlc_ms": 493,
+      "core_ms": 56,
+      "reps": [
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136
+      ],
+      "range": [
+        0.1136,
+        0.1136
+      ]
+    },
+    "specifications/CoffeeCan/CoffeeCan1000Beans.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.2777,
+      "tlc_ms": 34461,
+      "core_ms": 9569
+    },
+    "specifications/CoffeeCan/CoffeeCan100Beans.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1463,
+      "tlc_ms": 1070,
+      "core_ms": 157,
+      "reps": [
+        0.1467,
+        0.1467,
+        0.1434,
+        0.1467,
+        0.1458,
+        0.1434
+      ],
+      "range": [
+        0.1434,
+        0.1467
+      ]
+    },
+    "specifications/CoffeeCan/CoffeeCan3000Beans.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.2862,
+      "tlc_ms": 321512,
+      "core_ms": 92006
+    },
+    "specifications/DieHard/DieHard.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1136,
+      "tlc_ms": 493,
+      "core_ms": 56,
+      "reps": [
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136
+      ],
+      "range": [
+        0.1136,
+        0.1136
+      ]
+    },
+    "specifications/DieHard/MCDieHarder.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1136,
+      "tlc_ms": 493,
+      "core_ms": 56,
+      "reps": [
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136
+      ],
+      "range": [
+        0.1136,
+        0.1136
+      ]
+    },
+    "specifications/DieHard/MCDieHardest.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1458,
+      "tlc_ms": 1070,
+      "core_ms": 156,
+      "reps": [
+        0.1458,
+        0.1458,
+        0.1467,
+        0.1458,
+        0.1467,
+        0.1458
+      ],
+      "range": [
+        0.1458,
+        0.1467
+      ]
+    },
+    "specifications/DiningPhilosophers/DiningPhilosophers.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0808,
+      "tlc_ms": 693,
+      "core_ms": 56,
+      "reps": [
+        0.0808,
+        0.0808,
+        0.0808,
+        0.0807,
+        0.0808,
+        0.0807
+      ],
+      "range": [
+        0.0807,
+        0.0808
+      ]
+    },
+    "specifications/Disruptor/MCDisruptor_MPMC.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.2263,
+      "tlc_ms": 4680,
+      "core_ms": 1059,
+      "reps": [
+        0.2263,
+        0.2263,
+        0.2263,
+        0.2275,
+        0.2275,
+        0.2263
+      ],
+      "range": [
+        0.2263,
+        0.2275
+      ]
+    },
+    "specifications/Disruptor/MCDisruptor_MPMC_liveliness.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1993,
+      "tlc_ms": 3176,
+      "core_ms": 633,
+      "reps": [
+        0.1993,
+        0.1993,
+        0.1993,
+        0.1993,
+        0.1993,
+        0.1993
+      ],
+      "range": [
+        0.1993,
+        0.1993
+      ]
+    },
+    "specifications/Disruptor/MCDisruptor_SPMC.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1591,
+      "tlc_ms": 1772,
+      "core_ms": 282,
+      "reps": [
+        0.1591,
+        0.1592,
+        0.1591,
+        0.1591,
+        0.1591,
+        0.1592
+      ],
+      "range": [
+        0.1591,
+        0.1592
+      ]
+    },
+    "specifications/FiniteMonotonic/MCCRDT.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.5158,
+      "tlc_ms": 16760,
+      "core_ms": 8644
+    },
+    "specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg": {
+      "cls": "small",
+      "cat": "excluded",
+      "ratio": null,
+      "tlc_ms": 719,
+      "core_ms": 0,
+      "reps": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "rep_outcomes": [
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported"
+      ],
+      "detail": "unsupported: temporal properties: graph capture with VIEW requires quotient edge and closing-state evidence (core)"
+    },
+    "specifications/FiniteMonotonic/MCReplicatedLog.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1663,
+      "tlc_ms": 944,
+      "core_ms": 157,
+      "reps": [
+        0.1663,
+        0.1663,
+        0.1697,
+        0.1697,
+        0.1663,
+        0.1653
+      ],
+      "range": [
+        0.1653,
+        0.1697
+      ]
+    },
+    "specifications/FlashProtocol/MCFlashWithMutex.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1256,
+      "tlc_ms": 844,
+      "core_ms": 106,
+      "reps": [
+        0.122,
+        0.1256,
+        0.122,
+        0.1256,
+        0.1256,
+        0.1256
+      ],
+      "range": [
+        0.122,
+        0.1256
+      ]
+    },
+    "specifications/FlashProtocol/MCFlashWithMutexLive.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.0673,
+      "tlc_ms": 15135,
+      "core_ms": 1019
+    },
+    "specifications/GameOfLife/GameOfLife.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.7873,
+      "tlc_ms": 13782,
+      "core_ms": 10850
+    },
+    "specifications/GermanProtocol/MCGermanCMPWithMutex.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0944,
+      "tlc_ms": 593,
+      "core_ms": 56,
+      "reps": [
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944
+      ],
+      "range": [
+        0.0944,
+        0.0944
+      ]
+    },
+    "specifications/GermanProtocol/MCGermanControl.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0906,
+      "tlc_ms": 618,
+      "core_ms": 56,
+      "reps": [
+        0.0906,
+        0.0906,
+        0.0906,
+        0.0906,
+        0.0906,
+        0.0906
+      ],
+      "range": [
+        0.0906,
+        0.0906
+      ]
+    },
+    "specifications/GermanProtocol/MCGermanData.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1169,
+      "tlc_ms": 693,
+      "core_ms": 81,
+      "reps": [
+        0.1169,
+        0.1169,
+        0.1169,
+        0.1169,
+        0.1128,
+        0.1169
+      ],
+      "range": [
+        0.1128,
+        0.1169
+      ]
+    },
+    "specifications/Huang/Huang.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.7289,
+      "tlc_ms": 50839,
+      "core_ms": 37056
+    },
+    "specifications/KeyValueStore/MCKVSSafetyMedium.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.7923,
+      "tlc_ms": 1164595,
+      "core_ms": 922670
+    },
+    "specifications/KeyValueStore/MCKVSSafetySmall.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.6133,
+      "tlc_ms": 171718,
+      "core_ms": 105321
+    },
+    "specifications/KeyValueStore/MCKVsnap.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.7078,
+      "tlc_ms": 13982,
+      "core_ms": 9896
+    },
+    "specifications/LearnProofs/MCFindHighest.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0807,
+      "tlc_ms": 694,
+      "core_ms": 56,
+      "reps": [
+        0.0808,
+        0.0807,
+        0.0808,
+        0.0838,
+        0.0807,
+        0.0807
+      ],
+      "range": [
+        0.0807,
+        0.0838
+      ]
+    },
+    "specifications/LeastCircularSubstring/MCLeastCircularSubstringMedium.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.0108,
+      "tlc_ms": 196727,
+      "core_ms": 2123
+    },
+    "specifications/LeastCircularSubstring/MCLeastCircularSubstringSmall.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0881,
+      "tlc_ms": 919,
+      "core_ms": 81,
+      "reps": [
+        0.0881,
+        0.0881,
+        0.0881,
+        0.0881,
+        0.0858,
+        0.0881
+      ],
+      "range": [
+        0.0858,
+        0.0881
+      ]
+    },
+    "specifications/LoopInvariance/MCBinarySearch.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.3722,
+      "tlc_ms": 2724,
+      "core_ms": 1014,
+      "reps": [
+        0.3722,
+        0.3722,
+        0.3722,
+        0.446,
+        0.3721,
+        0.3721
+      ],
+      "range": [
+        0.3721,
+        0.446
+      ]
+    },
+    "specifications/LoopInvariance/MCQuicksort.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.7136,
+      "tlc_ms": 7000,
+      "core_ms": 5007,
+      "reps": [
+        0.7055,
+        0.7115,
+        0.7192,
+        0.713,
+        0.7141,
+        0.7166
+      ],
+      "range": [
+        0.7055,
+        0.7192
+      ]
+    },
+    "specifications/Majority/MCMajority.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0835,
+      "tlc_ms": 731,
+      "core_ms": 61,
+      "reps": [
+        0.0821,
+        0.0918,
+        0.082,
+        0.082,
+        0.085,
+        0.0918
+      ],
+      "range": [
+        0.082,
+        0.0918
+      ]
+    },
+    "specifications/MisraReachability/MCParReach.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.2197,
+      "tlc_ms": 14684,
+      "core_ms": 3226
+    },
+    "specifications/MisraReachability/MCReachabilityTestAllGraphs.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.3712,
+      "tlc_ms": 3677,
+      "core_ms": 1363,
+      "reps": [
+        0.3712,
+        0.3712,
+        0.3724,
+        0.3674,
+        0.3699,
+        0.3763
+      ],
+      "range": [
+        0.3674,
+        0.3763
+      ]
+    },
+    "specifications/MisraReachability/MCReachabilityTestRandomGraphs.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0778,
+      "tlc_ms": 1395,
+      "core_ms": 109,
+      "reps": [
+        0.0796,
+        0.0796,
+        0.081,
+        0.0759,
+        0.076,
+        0.076
+      ],
+      "range": [
+        0.0759,
+        0.081
+      ]
+    },
+    "specifications/MisraReachability/MCReachable.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.0053,
+      "tlc_ms": 90702,
+      "core_ms": 482
+    },
+    "specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1031,
+      "tlc_ms": 543,
+      "core_ms": 56,
+      "reps": [
+        0.1031,
+        0.1031,
+        0.1031,
+        0.1031,
+        0.1031,
+        0.1031
+      ],
+      "range": [
+        0.1031,
+        0.1031
+      ]
+    },
+    "specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1136,
+      "tlc_ms": 493,
+      "core_ms": 56,
+      "reps": [
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1081,
+        0.1081
+      ],
+      "range": [
+        0.1081,
+        0.1136
+      ]
+    },
+    "specifications/Moving_Cat_Puzzle/CatOddBoxes.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1136,
+      "tlc_ms": 493,
+      "core_ms": 56,
+      "reps": [
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136
+      ],
+      "range": [
+        0.1136,
+        0.1136
+      ]
+    },
+    "specifications/MultiCarElevator/ElevatorLivenessLarge.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.0011,
+      "tlc_ms": 1881882,
+      "core_ms": 2148
+    },
+    "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.0147,
+      "tlc_ms": 15737,
+      "core_ms": 232
+    },
+    "specifications/MultiCarElevator/ElevatorSafetyLarge.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.529,
+      "tlc_ms": 2582448,
+      "core_ms": 1366226
+    },
+    "specifications/MultiCarElevator/ElevatorSafetyMedium.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.5809,
+      "tlc_ms": 811553,
+      "core_ms": 471433
+    },
+    "specifications/MultiCarElevator/ElevatorSafetySmall.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1123,
+      "tlc_ms": 944,
+      "core_ms": 106,
+      "reps": [
+        0.1123,
+        0.1123,
+        0.1123,
+        0.1123,
+        0.1123,
+        0.1123
+      ],
+      "range": [
+        0.1123,
+        0.1123
+      ]
+    },
+    "specifications/MultiPaxos-SMR/MultiPaxos_MC.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.5258,
+      "tlc_ms": 4816646,
+      "core_ms": 2532686
+    },
+    "specifications/MultiPaxos-SMR/MultiPaxos_MC_small.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.3445,
+      "tlc_ms": 26468,
+      "core_ms": 9118
+    },
+    "specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1031,
+      "tlc_ms": 543,
+      "core_ms": 56,
+      "reps": [
+        0.1031,
+        0.1031,
+        0.1031,
+        0.1031,
+        0.1031,
+        0.1031
+      ],
+      "range": [
+        0.1031,
+        0.1031
+      ]
+    },
+    "specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0944,
+      "tlc_ms": 593,
+      "core_ms": 56,
+      "reps": [
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944
+      ],
+      "range": [
+        0.0944,
+        0.0944
+      ]
+    },
+    "specifications/NanoBlockchain/MCNanoLarge.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.4071,
+      "tlc_ms": 5810004,
+      "core_ms": 2365149
+    },
+    "specifications/NanoBlockchain/MCNanoMedium.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.3539,
+      "tlc_ms": 24261,
+      "core_ms": 8586
+    },
+    "specifications/NanoBlockchain/MCNanoSmall.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1256,
+      "tlc_ms": 844,
+      "core_ms": 106,
+      "reps": [
+        0.1256,
+        0.1256,
+        0.1294,
+        0.122,
+        0.1256,
+        0.1294
+      ],
+      "range": [
+        0.122,
+        0.1294
+      ]
+    },
+    "specifications/Paxos/MCConsensus.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0944,
+      "tlc_ms": 593,
+      "core_ms": 56,
+      "reps": [
+        0.0944,
+        0.0808,
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944
+      ],
+      "range": [
+        0.0808,
+        0.0944
+      ]
+    },
+    "specifications/Paxos/MCPaxos.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1128,
+      "tlc_ms": 718,
+      "core_ms": 81,
+      "reps": [
+        0.1127,
+        0.1128,
+        0.1128,
+        0.1127,
+        0.1128,
+        0.1128
+      ],
+      "range": [
+        0.1127,
+        0.1128
+      ]
+    },
+    "specifications/Paxos/MCVoting.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1089,
+      "tlc_ms": 744,
+      "core_ms": 81,
+      "reps": [
+        0.1089,
+        0.1089,
+        0.1089,
+        0.1089,
+        0.109,
+        0.1089
+      ],
+      "range": [
+        0.1089,
+        0.109
+      ]
+    },
+    "specifications/PaxosHowToWinATuringAward/MCConsensus.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0807,
+      "tlc_ms": 694,
+      "core_ms": 56,
+      "reps": [
+        0.0807,
+        0.0807,
+        0.0808,
+        0.0807,
+        0.0944,
+        0.0944
+      ],
+      "range": [
+        0.0807,
+        0.0944
+      ]
+    },
+    "specifications/PaxosHowToWinATuringAward/MCPaxosSmall.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.3398,
+      "tlc_ms": 150625,
+      "core_ms": 51179
+    },
+    "specifications/PaxosHowToWinATuringAward/MCPaxosTiny.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.2372,
+      "tlc_ms": 2774,
+      "core_ms": 658,
+      "reps": [
+        0.2372,
+        0.2372,
+        0.2372,
+        0.2371,
+        0.2394,
+        0.2371
+      ],
+      "range": [
+        0.2371,
+        0.2394
+      ]
+    },
+    "specifications/PaxosHowToWinATuringAward/MCVoting.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1652,
+      "tlc_ms": 3226,
+      "core_ms": 533,
+      "reps": [
+        0.1652,
+        0.1652,
+        0.1652,
+        0.1652,
+        0.1665,
+        0.1639
+      ],
+      "range": [
+        0.1639,
+        0.1665
+      ]
+    },
+    "specifications/Prisoners/Prisoners.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0906,
+      "tlc_ms": 618,
+      "core_ms": 56,
+      "reps": [
+        0.0906,
+        0.0906,
+        0.0906,
+        0.0906,
+        0.0906,
+        0.0906
+      ],
+      "range": [
+        0.0906,
+        0.0906
+      ]
+    },
+    "specifications/Prisoners_Single_Switch/Prisoner.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1081,
+      "tlc_ms": 518,
+      "core_ms": 56,
+      "reps": [
+        0.1081,
+        0.1081,
+        0.1081,
+        0.1031,
+        0.1081,
+        0.1081
+      ],
+      "range": [
+        0.1031,
+        0.1081
+      ]
+    },
+    "specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1031,
+      "tlc_ms": 543,
+      "core_ms": 56,
+      "reps": [
+        0.1031,
+        0.1031,
+        0.1031,
+        0.1031,
+        0.1031,
+        0.1031
+      ],
+      "range": [
+        0.1031,
+        0.1031
+      ]
+    },
+    "specifications/Prisoners_Single_Switch/PrisonerSolo.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1081,
+      "tlc_ms": 518,
+      "core_ms": 56,
+      "reps": [
+        0.1081,
+        0.1081,
+        0.1081,
+        0.1081,
+        0.1081,
+        0.1081
+      ],
+      "range": [
+        0.1081,
+        0.1081
+      ]
+    },
+    "specifications/Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1081,
+      "tlc_ms": 518,
+      "core_ms": 56,
+      "reps": [
+        0.1081,
+        0.1081,
+        0.1081,
+        0.1081,
+        0.1081,
+        0.1081
+      ],
+      "range": [
+        0.1081,
+        0.1081
+      ]
+    },
+    "specifications/ReadersWriters/MC.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.244,
+      "tlc_ms": 2799,
+      "core_ms": 683,
+      "reps": [
+        0.2439,
+        0.2461,
+        0.244,
+        0.244,
+        0.2462,
+        0.2439
+      ],
+      "range": [
+        0.2439,
+        0.2462
+      ]
+    },
+    "specifications/SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.164,
+      "tlc_ms": 1897,
+      "core_ms": 307,
+      "reps": [
+        0.164,
+        0.1597,
+        0.164,
+        0.1618,
+        0.1727,
+        0.175
+      ],
+      "range": [
+        0.1597,
+        0.175
+      ]
+    },
+    "specifications/SDP_Verification/SDP_Attack_Spec/MC.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1066,
+      "tlc_ms": 994,
+      "core_ms": 106,
+      "reps": [
+        0.1066,
+        0.1066,
+        0.1066,
+        0.1066,
+        0.1066,
+        0.1066
+      ],
+      "range": [
+        0.1066,
+        0.1066
+      ]
+    },
+    "specifications/SimplifiedFastPaxos/FastPaxos.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.4266,
+      "tlc_ms": 41837,
+      "core_ms": 17847
+    },
+    "specifications/SimplifiedFastPaxos/Paxos.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.3955,
+      "tlc_ms": 1860,
+      "core_ms": 738,
+      "reps": [
+        0.3942,
+        0.3969,
+        0.3996,
+        0.389,
+        0.3921,
+        0.4131
+      ],
+      "range": [
+        0.389,
+        0.4131
+      ]
+    },
+    "specifications/SingleLaneBridge/MC.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1284,
+      "tlc_ms": 5332,
+      "core_ms": 683,
+      "reps": [
+        0.129,
+        0.1281,
+        0.1281,
+        0.129,
+        0.1281,
+        0.1287
+      ],
+      "range": [
+        0.1281,
+        0.129
+      ]
+    },
+    "specifications/SlidingPuzzles/SlidingPuzzles.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.7261,
+      "tlc_ms": 2361,
+      "core_ms": 1717,
+      "reps": [
+        0.7233,
+        0.7313,
+        0.7236,
+        0.7287,
+        0.7207,
+        0.7467
+      ],
+      "range": [
+        0.7207,
+        0.7467
+      ]
+    },
+    "specifications/SlidingPuzzles/SlidingPuzzles_anim.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.6075,
+      "tlc_ms": 2863,
+      "core_ms": 1737,
+      "reps": [
+        0.6109,
+        0.6259,
+        0.5903,
+        0.6259,
+        0.5955,
+        0.6042
+      ],
+      "range": [
+        0.5903,
+        0.6259
+      ]
+    },
+    "specifications/SlushProtocol/SlushLarge.cfg": {
+      "cls": "large",
+      "shard": "shard1of4",
+      "cat": "agreeing",
+      "ratio": 0.4638,
+      "tlc_ms": 12578011,
+      "core_ms": 5833135
+    },
+    "specifications/SlushProtocol/SlushMedium.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.5136,
+      "tlc_ms": 276874,
+      "core_ms": 142213
+    },
+    "specifications/SlushProtocol/SlushSmall.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.4032,
+      "tlc_ms": 9269,
+      "core_ms": 3742,
+      "reps": [
+        0.4021,
+        0.401,
+        0.4038,
+        0.4027,
+        0.4129,
+        0.4037
+      ],
+      "range": [
+        0.401,
+        0.4129
+      ]
+    },
+    "specifications/SpanningTree/SpanTree.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.2722,
+      "tlc_ms": 944,
+      "core_ms": 257,
+      "reps": [
+        0.2652,
+        0.2875,
+        0.2722,
+        0.2652,
+        0.2722,
+        0.2797
+      ],
+      "range": [
+        0.2652,
+        0.2875
+      ]
+    },
+    "specifications/SpanningTree/SpanTreeRandom.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.2191,
+      "tlc_ms": 29727,
+      "core_ms": 6512
+    },
+    "specifications/SpanningTree/SpanTreeTest4Nodes.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.3871,
+      "tlc_ms": 1245,
+      "core_ms": 482,
+      "reps": [
+        0.388,
+        0.3649,
+        0.3871,
+        0.3871,
+        0.3871,
+        0.388
+      ],
+      "range": [
+        0.3649,
+        0.388
+      ]
+    },
+    "specifications/SpanningTree/SpanTreeTest5Nodes.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.1105,
+      "tlc_ms": 670286,
+      "core_ms": 74049
+    },
+    "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1713,
+      "tlc_ms": 1646,
+      "core_ms": 282,
+      "reps": [
+        0.174,
+        0.1713,
+        0.1713,
+        0.1614,
+        0.1713,
+        0.1767
+      ],
+      "range": [
+        0.1614,
+        0.1767
+      ]
+    },
+    "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSerial.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.006,
+      "tlc_ms": 518684,
+      "core_ms": 3126
+    },
+    "specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1197,
+      "tlc_ms": 468,
+      "core_ms": 56,
+      "reps": [
+        0.1197,
+        0.1197,
+        0.1199,
+        0.1199,
+        0.1197,
+        0.1197
+      ],
+      "range": [
+        0.1197,
+        0.1199
+      ]
+    },
+    "specifications/SpecifyingSystems/AsynchronousInterface/Channel.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1199,
+      "tlc_ms": 467,
+      "core_ms": 56,
+      "reps": [
+        0.1136,
+        0.1197,
+        0.1199,
+        0.1199,
+        0.1199,
+        0.1199
+      ],
+      "range": [
+        0.1136,
+        0.1199
+      ]
+    },
+    "specifications/SpecifyingSystems/AsynchronousInterface/PrintValues.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1148,
+      "tlc_ms": 488,
+      "core_ms": 56,
+      "reps": [
+        0.1148,
+        0.1148,
+        0.1136,
+        0.1148,
+        0.1148,
+        0.1136
+      ],
+      "range": [
+        0.1136,
+        0.1148
+      ]
+    },
+    "specifications/SpecifyingSystems/CachingMemory/MCInternalMemory.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0925,
+      "tlc_ms": 606,
+      "core_ms": 56,
+      "reps": [
+        0.0906,
+        0.0944,
+        0.0906,
+        0.0906,
+        0.0952,
+        0.0944
+      ],
+      "range": [
+        0.0906,
+        0.0952
+      ]
+    },
+    "specifications/SpecifyingSystems/CachingMemory/MCWriteThroughCache.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1865,
+      "tlc_ms": 1107,
+      "core_ms": 206,
+      "reps": [
+        0.1881,
+        0.189,
+        0.1881,
+        0.1848,
+        0.1839,
+        0.1841
+      ],
+      "range": [
+        0.1839,
+        0.189
+      ]
+    },
+    "specifications/SpecifyingSystems/FIFO/MCInnerFIFO.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0944,
+      "tlc_ms": 593,
+      "core_ms": 56,
+      "reps": [
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944
+      ],
+      "range": [
+        0.0944,
+        0.0944
+      ]
+    },
+    "specifications/SpecifyingSystems/HourClock/HourClock.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1197,
+      "tlc_ms": 468,
+      "core_ms": 56,
+      "reps": [
+        0.1197,
+        0.1197,
+        0.1197,
+        0.1197,
+        0.1197,
+        0.1197
+      ],
+      "range": [
+        0.1197,
+        0.1197
+      ]
+    },
+    "specifications/SpecifyingSystems/HourClock/HourClock2.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1197,
+      "tlc_ms": 468,
+      "core_ms": 56,
+      "reps": [
+        0.1197,
+        0.1197,
+        0.1197,
+        0.1197,
+        0.1199,
+        0.1197
+      ],
+      "range": [
+        0.1197,
+        0.1199
+      ]
+    },
+    "specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1142,
+      "tlc_ms": 491,
+      "core_ms": 56,
+      "reps": [
+        0.1136,
+        0.1136,
+        0.1148,
+        0.1136,
+        0.1148,
+        0.1148
+      ],
+      "range": [
+        0.1136,
+        0.1148
+      ]
+    },
+    "specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1158,
+      "tlc_ms": 1571,
+      "core_ms": 182,
+      "reps": [
+        0.1158,
+        0.1158,
+        0.1162,
+        0.1152,
+        0.1158,
+        0.119
+      ],
+      "range": [
+        0.1152,
+        0.119
+      ]
+    },
+    "specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.3936,
+      "tlc_ms": 2373,
+      "core_ms": 937,
+      "reps": [
+        0.3999,
+        0.3916,
+        0.3936,
+        0.3916,
+        0.3936,
+        0.3936
+      ],
+      "range": [
+        0.3916,
+        0.3999
+      ]
+    },
+    "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1031,
+      "tlc_ms": 543,
+      "core_ms": 56,
+      "reps": [
+        0.1031,
+        0.1031,
+        0.1031,
+        0.1123,
+        0.1031,
+        0.1031
+      ],
+      "range": [
+        0.1031,
+        0.1123
+      ]
+    },
+    "specifications/SpecifyingSystems/SimpleMath/SimpleMath.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1198,
+      "tlc_ms": 468,
+      "core_ms": 56,
+      "reps": [
+        0.1199,
+        0.1199,
+        0.1264,
+        0.1197,
+        0.1197,
+        0.1197
+      ],
+      "range": [
+        0.1197,
+        0.1264
+      ]
+    },
+    "specifications/SpecifyingSystems/TLC/ABCorrectness.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1197,
+      "tlc_ms": 468,
+      "core_ms": 56,
+      "reps": [
+        0.1197,
+        0.1197,
+        0.1199,
+        0.1197,
+        0.1197,
+        0.1197
+      ],
+      "range": [
+        0.1197,
+        0.1199
+      ]
+    },
+    "specifications/SpecifyingSystems/TLC/MCAlternatingBit.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0779,
+      "tlc_ms": 719,
+      "core_ms": 56,
+      "reps": [
+        0.0779,
+        0.0758,
+        0.078,
+        0.0779,
+        0.0785,
+        0.0785
+      ],
+      "range": [
+        0.0758,
+        0.0785
+      ]
+    },
+    "specifications/Stones/Stones.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.2815,
+      "tlc_ms": 643,
+      "core_ms": 181,
+      "reps": [
+        0.2442,
+        0.2815,
+        0.283,
+        0.2815,
+        0.2426,
+        0.283
+      ],
+      "range": [
+        0.2426,
+        0.283
+      ]
+    },
+    "specifications/TLC/TestGraphs.cfg": {
+      "cls": "small",
+      "cat": "excluded",
+      "ratio": null,
+      "tlc_ms": 1446,
+      "core_ms": 0,
+      "reps": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "rep_outcomes": [
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported"
+      ],
+      "detail": "unsupported: the start-up evaluation of GraphName: IOUtils!IOEnv requires explicit --allow-io=env"
+    },
+    "specifications/TeachingConcurrency/Simple.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0986,
+      "tlc_ms": 568,
+      "core_ms": 56,
+      "reps": [
+        0.0986,
+        0.0986,
+        0.0986,
+        0.0986,
+        0.0986,
+        0.0986
+      ],
+      "range": [
+        0.0986,
+        0.0986
+      ]
+    },
+    "specifications/TeachingConcurrency/SimpleRegular.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.4483,
+      "tlc_ms": 5733,
+      "core_ms": 2576,
+      "reps": [
+        0.4514,
+        0.4516,
+        0.4452,
+        0.4448,
+        0.4427,
+        0.4516
+      ],
+      "range": [
+        0.4427,
+        0.4516
+      ]
+    },
+    "specifications/TransitiveClosure/TransitiveClosure.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.6366,
+      "tlc_ms": 1120,
+      "core_ms": 713,
+      "reps": [
+        0.6366,
+        0.6381,
+        0.6366,
+        0.6375,
+        0.6227,
+        0.6366
+      ],
+      "range": [
+        0.6227,
+        0.6381
+      ]
+    },
+    "specifications/TwoPhase/MCTwoPhase.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1288,
+      "tlc_ms": 493,
+      "core_ms": 64,
+      "reps": [
+        0.1237,
+        0.1237,
+        0.1237,
+        0.1339,
+        0.1339,
+        0.1339
+      ],
+      "range": [
+        0.1237,
+        0.1339
+      ]
+    },
+    "specifications/YoYo/MCYoYoNoPruning.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1385,
+      "tlc_ms": 769,
+      "core_ms": 107,
+      "reps": [
+        0.1378,
+        0.1378,
+        0.1378,
+        0.1391,
+        0.1508,
+        0.1443
+      ],
+      "range": [
+        0.1378,
+        0.1508
+      ]
+    },
+    "specifications/YoYo/MCYoYoPruning.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.122,
+      "tlc_ms": 869,
+      "core_ms": 106,
+      "reps": [
+        0.1186,
+        0.122,
+        0.122,
+        0.122,
+        0.1378,
+        0.122
+      ],
+      "range": [
+        0.1186,
+        0.1378
+      ]
+    },
+    "specifications/YoYo/YoYoAllGraphs.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.52,
+      "tlc_ms": 6761,
+      "core_ms": 3522,
+      "reps": [
+        0.5209,
+        0.5113,
+        0.5192,
+        0.5209,
+        0.5229,
+        0.5134
+      ],
+      "range": [
+        0.5113,
+        0.5229
+      ]
+    },
+    "specifications/aba-asyn-byz/aba_asyn_byz.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.2385,
+      "tlc_ms": 1313593,
+      "core_ms": 313280
+    },
+    "specifications/acp/ACP_NB_TLC.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.2336,
+      "tlc_ms": 1646,
+      "core_ms": 387,
+      "reps": [
+        0.2311,
+        0.2357,
+        0.2351,
+        0.2351,
+        0.2321,
+        0.2286
+      ],
+      "range": [
+        0.2286,
+        0.2357
+      ]
+    },
+    "specifications/acp/ACP_NB_WRONG_TLC.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1658,
+      "tlc_ms": 944,
+      "core_ms": 157,
+      "reps": [
+        0.1653,
+        0.1928,
+        0.1663,
+        0.161,
+        0.1579,
+        0.1663
+      ],
+      "range": [
+        0.1579,
+        0.1928
+      ]
+    },
+    "specifications/acp/ACP_SB_TLC.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.2074,
+      "tlc_ms": 1721,
+      "core_ms": 357,
+      "reps": [
+        0.2074,
+        0.2074,
+        0.2074,
+        0.2074,
+        0.2045,
+        0.2044
+      ],
+      "range": [
+        0.2044,
+        0.2074
+      ]
+    },
+    "specifications/allocator/AllocatorImplementation.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.5274,
+      "tlc_ms": 9808,
+      "core_ms": 5172,
+      "reps": [
+        0.5267,
+        0.528,
+        0.5321,
+        0.5253,
+        0.5307,
+        0.524
+      ],
+      "range": [
+        0.524,
+        0.5321
+      ]
+    },
+    "specifications/allocator/AllocatorRefinement.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.2432,
+      "tlc_ms": 1571,
+      "core_ms": 382,
+      "reps": [
+        0.2642,
+        0.2432,
+        0.2642,
+        0.2432,
+        0.2432,
+        0.2432
+      ],
+      "range": [
+        0.2432,
+        0.2642
+      ]
+    },
+    "specifications/allocator/SchedulingAllocator.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0959,
+      "tlc_ms": 3201,
+      "core_ms": 307,
+      "reps": [
+        0.0959,
+        0.0967,
+        0.0974,
+        0.0952,
+        0.0952,
+        0.0959
+      ],
+      "range": [
+        0.0952,
+        0.0974
+      ]
+    },
+    "specifications/allocator/SimpleAllocator.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0709,
+      "tlc_ms": 1496,
+      "core_ms": 106,
+      "reps": [
+        0.0709,
+        0.0709,
+        0.0709,
+        0.0721,
+        0.0709,
+        0.0721
+      ],
+      "range": [
+        0.0709,
+        0.0721
+      ]
+    },
+    "specifications/barriers/Barrier.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1136,
+      "tlc_ms": 493,
+      "core_ms": 56,
+      "reps": [
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136
+      ],
+      "range": [
+        0.1136,
+        0.1136
+      ]
+    },
+    "specifications/barriers/Barriers.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.2534,
+      "tlc_ms": 4091,
+      "core_ms": 1037,
+      "reps": [
+        0.2459,
+        0.2547,
+        0.252,
+        0.2548,
+        0.2548,
+        0.252
+      ],
+      "range": [
+        0.2459,
+        0.2548
+      ]
+    },
+    "specifications/bcastByz/bcastByz.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.2453,
+      "tlc_ms": 17140,
+      "core_ms": 4205
+    },
+    "specifications/bcastByz/bcastByzNoBcast.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0989,
+      "tlc_ms": 819,
+      "core_ms": 81,
+      "reps": [
+        0.0989,
+        0.0989,
+        0.1062,
+        0.0989,
+        0.0989,
+        0.105
+      ],
+      "range": [
+        0.0989,
+        0.1062
+      ]
+    },
+    "specifications/bcastFolklore/bcastFolklore.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.2711,
+      "tlc_ms": 2162149,
+      "core_ms": 586150
+    },
+    "specifications/bosco/bosco.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.4171,
+      "tlc_ms": 653920,
+      "core_ms": 272721
+    },
+    "specifications/braf/BufferedRandomAccessFile.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.3428,
+      "tlc_ms": 54550,
+      "core_ms": 18701
+    },
+    "specifications/btree/MCbtree.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.1236,
+      "tlc_ms": 43718,
+      "core_ms": 5403
+    },
+    "specifications/btree/kvstore.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0944,
+      "tlc_ms": 593,
+      "core_ms": 56,
+      "reps": [
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944
+      ],
+      "range": [
+        0.0944,
+        0.0944
+      ]
+    },
+    "specifications/byihive/VoucherCancel.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1123,
+      "tlc_ms": 944,
+      "core_ms": 106,
+      "reps": [
+        0.1123,
+        0.1123,
+        0.1123,
+        0.1123,
+        0.1123,
+        0.1123
+      ],
+      "range": [
+        0.1123,
+        0.1123
+      ]
+    },
+    "specifications/byihive/VoucherIssue.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1096,
+      "tlc_ms": 1195,
+      "core_ms": 131,
+      "reps": [
+        0.1096,
+        0.1096,
+        0.1096,
+        0.1096,
+        0.1096,
+        0.1096
+      ],
+      "range": [
+        0.1096,
+        0.1096
+      ]
+    },
+    "specifications/byihive/VoucherLifeCycle.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1136,
+      "tlc_ms": 493,
+      "core_ms": 56,
+      "reps": [
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136
+      ],
+      "range": [
+        0.1136,
+        0.1136
+      ]
+    },
+    "specifications/byihive/VoucherRedeem.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1123,
+      "tlc_ms": 944,
+      "core_ms": 106,
+      "reps": [
+        0.1123,
+        0.1123,
+        0.1123,
+        0.1123,
+        0.1094,
+        0.1123
+      ],
+      "range": [
+        0.1094,
+        0.1123
+      ]
+    },
+    "specifications/byihive/VoucherTransfer.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1123,
+      "tlc_ms": 944,
+      "core_ms": 106,
+      "reps": [
+        0.1123,
+        0.1123,
+        0.1123,
+        0.1123,
+        0.1123,
+        0.1123
+      ],
+      "range": [
+        0.1123,
+        0.1123
+      ]
+    },
+    "specifications/byzpaxos/Consensus.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0779,
+      "tlc_ms": 719,
+      "core_ms": 56,
+      "reps": [
+        0.078,
+        0.0779,
+        0.078,
+        0.078,
+        0.0779,
+        0.0779
+      ],
+      "range": [
+        0.0779,
+        0.078
+      ]
+    },
+    "specifications/byzpaxos/PConProof.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.394,
+      "tlc_ms": 1919875,
+      "core_ms": 756514
+    },
+    "specifications/byzpaxos/VoteProof.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.0503,
+      "tlc_ms": 14784,
+      "core_ms": 744
+    },
+    "specifications/cf1s-folklore/cf1s_folklore.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.3376,
+      "tlc_ms": 254358,
+      "core_ms": 85881
+    },
+    "specifications/chang_roberts/MCChangRoberts.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0944,
+      "tlc_ms": 593,
+      "core_ms": 56,
+      "reps": [
+        0.0906,
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944
+      ],
+      "range": [
+        0.0906,
+        0.0944
+      ]
+    },
+    "specifications/dag-consensus/BlockDagTest.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1081,
+      "tlc_ms": 518,
+      "core_ms": 56,
+      "reps": [
+        0.1031,
+        0.1081,
+        0.1081,
+        0.1081,
+        0.1081,
+        0.1031
+      ],
+      "range": [
+        0.1031,
+        0.1081
+      ]
+    },
+    "specifications/dag-consensus/TLCSailfish1.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.6687,
+      "tlc_ms": 55077,
+      "core_ms": 36828
+    },
+    "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.1448,
+      "tlc_ms": 25742,
+      "core_ms": 3728
+    },
+    "specifications/dijkstra-mutex/DijkstraMutex.toolbox/Safety-4-processors/MC.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.3778,
+      "tlc_ms": 435251,
+      "core_ms": 164433
+    },
+    "specifications/echo/MCEcho.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.7978,
+      "tlc_ms": 643,
+      "core_ms": 513,
+      "reps": [
+        0.7978,
+        0.7978,
+        0.7978,
+        0.7978,
+        0.7978,
+        0.7978
+      ],
+      "range": [
+        0.7978,
+        0.7978
+      ]
+    },
+    "specifications/ewd426/TokenRing.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.5457,
+      "tlc_ms": 2373,
+      "core_ms": 1295,
+      "reps": [
+        0.5457,
+        0.5457,
+        0.5457,
+        0.5515,
+        0.5457,
+        0.5515
+      ],
+      "range": [
+        0.5457,
+        0.5515
+      ]
+    },
+    "specifications/ewd687a/EWD687a_anim.cfg": {
+      "cls": "small",
+      "cat": "excluded",
+      "ratio": null,
+      "tlc_ms": 1233,
+      "core_ms": 167,
+      "reps": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "rep_outcomes": [
+        "disagree",
+        "disagree",
+        "disagree",
+        "disagree",
+        "disagree",
+        "disagree"
+      ],
+      "detail": "simulation report: word ending or completed depth disagrees with the report"
+    },
+    "specifications/ewd687a/MCEWD687a.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.4917,
+      "tlc_ms": 5633,
+      "core_ms": 2770,
+      "reps": [
+        0.4874,
+        0.494,
+        0.4917,
+        0.494,
+        0.4917,
+        0.4917
+      ],
+      "range": [
+        0.4874,
+        0.494
+      ]
+    },
+    "specifications/ewd840/EWD840.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1148,
+      "tlc_ms": 706,
+      "core_ms": 81,
+      "reps": [
+        0.1241,
+        0.1089,
+        0.1128,
+        0.1128,
+        0.1169,
+        0.1241
+      ],
+      "range": [
+        0.1089,
+        0.1241
+      ]
+    },
+    "specifications/ewd840/EWD840_anim.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.2394,
+      "tlc_ms": 969,
+      "core_ms": 232,
+      "reps": [
+        0.2334,
+        0.2394,
+        0.2334,
+        0.2446,
+        0.2394,
+        0.2394
+      ],
+      "range": [
+        0.2334,
+        0.2446
+      ]
+    },
+    "specifications/ewd840/EWD840_json.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0838,
+      "tlc_ms": 669,
+      "core_ms": 56,
+      "reps": [
+        0.0838,
+        0.0837,
+        0.0837,
+        0.0838,
+        0.0838,
+        0.0837
+      ],
+      "range": [
+        0.0837,
+        0.0838
+      ]
+    },
+    "specifications/ewd840/SyncTerminationDetection.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0986,
+      "tlc_ms": 568,
+      "core_ms": 56,
+      "reps": [
+        0.0986,
+        0.0986,
+        0.0986,
+        0.0986,
+        0.0986,
+        0.0986
+      ],
+      "range": [
+        0.0986,
+        0.0986
+      ]
+    },
+    "specifications/ewd998/AsyncTerminationDetection.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1697,
+      "tlc_ms": 919,
+      "core_ms": 157,
+      "reps": [
+        0.1436,
+        0.1708,
+        0.1697,
+        0.1663,
+        0.1697,
+        0.1708
+      ],
+      "range": [
+        0.1436,
+        0.1708
+      ]
+    },
+    "specifications/ewd998/EWD998Chan.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.87,
+      "tlc_ms": 955585,
+      "core_ms": 831375
+    },
+    "specifications/ewd998/EWD998ChanID.cfg": {
+      "cls": "small",
+      "cat": "excluded",
+      "ratio": null,
+      "tlc_ms": 844,
+      "core_ms": 0,
+      "reps": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "rep_outcomes": [
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported"
+      ],
+      "detail": "unsupported: temporal properties: graph capture with VIEW requires quotient edge and closing-state evidence (core)"
+    },
+    "specifications/ewd998/EWD998ChanID_export.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.2037,
+      "tlc_ms": 6824,
+      "core_ms": 1390,
+      "reps": [
+        0.2033,
+        0.2064,
+        0.2041,
+        0.2049,
+        0.2026,
+        0.2033
+      ],
+      "range": [
+        0.2026,
+        0.2064
+      ]
+    },
+    "specifications/ewd998/EWD998ChanID_shiviz.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.2056,
+      "tlc_ms": 6786,
+      "core_ms": 1395,
+      "reps": [
+        0.2048,
+        0.2063,
+        0.2063,
+        0.205,
+        0.2064,
+        0.2011
+      ],
+      "range": [
+        0.2011,
+        0.2064
+      ]
+    },
+    "specifications/ewd998/EWD998ChanTrace.cfg": {
+      "cls": "small",
+      "cat": "excluded",
+      "ratio": null,
+      "tlc_ms": 944,
+      "core_ms": 0,
+      "reps": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "rep_outcomes": [
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported"
+      ],
+      "detail": "unsupported: splitting the next-state relation: Json!ndJsonDeserialize requires explicit --allow-io=files"
+    },
+    "specifications/ewd998/EWD998PCal.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.3076,
+      "tlc_ms": 45549,
+      "core_ms": 14011
+    },
+    "specifications/ewd998/EWD998Small.cfg": {
+      "cls": "large",
+      "shard": "shard2of4",
+      "cat": "agreeing",
+      "ratio": 0.4712,
+      "tlc_ms": 41336,
+      "core_ms": 19477
+    },
+    "specifications/ewd998/SmokeEWD998.cfg": {
+      "cls": "small",
+      "cat": "excluded",
+      "ratio": null,
+      "tlc_ms": 1270,
+      "core_ms": 0,
+      "reps": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "rep_outcomes": [
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported",
+        "unsupported"
+      ],
+      "detail": "unsupported: \"simulation temporal property TDSpec: DIVE-L0020: unsupported liveness planning in line 113, col 34 to line 113, col 48 of module EWD998: effects or dynamic bindings in temporal planning "
+    },
+    "specifications/glowingRaccoon/clean.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1136,
+      "tlc_ms": 493,
+      "core_ms": 56,
+      "reps": [
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136,
+        0.1136
+      ],
+      "range": [
+        0.1136,
+        0.1136
+      ]
+    },
+    "specifications/glowingRaccoon/product.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1733,
+      "tlc_ms": 756,
+      "core_ms": 131,
+      "reps": [
+        0.1761,
+        0.1704,
+        0.1763,
+        0.1706,
+        0.1704,
+        0.1838
+      ],
+      "range": [
+        0.1704,
+        0.1838
+      ]
+    },
+    "specifications/glowingRaccoon/stages.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1031,
+      "tlc_ms": 543,
+      "core_ms": 56,
+      "reps": [
+        0.1031,
+        0.1031,
+        0.1031,
+        0.1031,
+        0.1031,
+        0.1081
+      ],
+      "range": [
+        0.1031,
+        0.1081
+      ]
+    },
+    "specifications/lamport_mutex/MCLamportMutex.cfg": {
+      "cls": "large",
+      "shard": "shard3of4",
+      "cat": "agreeing",
+      "ratio": 0.6145,
+      "tlc_ms": 18470,
+      "core_ms": 11349
+    },
+    "specifications/locks_auxiliary_vars/Lock.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0986,
+      "tlc_ms": 568,
+      "core_ms": 56,
+      "reps": [
+        0.0986,
+        0.0986,
+        0.0986,
+        0.0988,
+        0.0986,
+        0.0986
+      ],
+      "range": [
+        0.0986,
+        0.0988
+      ]
+    },
+    "specifications/locks_auxiliary_vars/LockHS.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.109,
+      "tlc_ms": 743,
+      "core_ms": 81,
+      "reps": [
+        0.1127,
+        0.1089,
+        0.109,
+        0.109,
+        0.1089,
+        0.1128
+      ],
+      "range": [
+        0.1089,
+        0.1128
+      ]
+    },
+    "specifications/locks_auxiliary_vars/Peterson.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0906,
+      "tlc_ms": 618,
+      "core_ms": 56,
+      "reps": [
+        0.0906,
+        0.0906,
+        0.0906,
+        0.0906,
+        0.0906,
+        0.0906
+      ],
+      "range": [
+        0.0906,
+        0.0906
+      ]
+    },
+    "specifications/nbacc_ray97/nbacc_ray97.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1053,
+      "tlc_ms": 769,
+      "core_ms": 81,
+      "reps": [
+        0.1053,
+        0.109,
+        0.1053,
+        0.1055,
+        0.1053,
+        0.1053
+      ],
+      "range": [
+        0.1053,
+        0.109
+      ]
+    },
+    "specifications/nbacg_guer01/nbacg_guer01.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1771,
+      "tlc_ms": 4279,
+      "core_ms": 758,
+      "reps": [
+        0.1792,
+        0.1771,
+        0.1761,
+        0.1772,
+        0.1771,
+        0.1761
+      ],
+      "range": [
+        0.1761,
+        0.1792
+      ]
+    },
+    "specifications/spanning/MC_spanning.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1136,
+      "tlc_ms": 493,
+      "core_ms": 56,
+      "reps": [
+        0.1081,
+        0.1136,
+        0.1081,
+        0.1136,
+        0.1136,
+        0.1136
+      ],
+      "range": [
+        0.1081,
+        0.1136
+      ]
+    },
+    "specifications/sums_even/MC_sums_even.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.2694,
+      "tlc_ms": 768,
+      "core_ms": 207,
+      "reps": [
+        0.2692,
+        0.2692,
+        0.2695,
+        0.2695,
+        0.2695,
+        0.2682
+      ],
+      "range": [
+        0.2682,
+        0.2695
+      ]
+    },
+    "specifications/tcp/MCtcp.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.112,
+      "tlc_ms": 1170,
+      "core_ms": 131,
+      "reps": [
+        0.1128,
+        0.1144,
+        0.112,
+        0.112,
+        0.1105,
+        0.112
+      ],
+      "range": [
+        0.1105,
+        0.1144
+      ]
+    },
+    "specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0944,
+      "tlc_ms": 593,
+      "core_ms": 56,
+      "reps": [
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944,
+        0.0944
+      ],
+      "range": [
+        0.0944,
+        0.0944
+      ]
+    },
+    "specifications/tower_of_hanoi/Hanoi_anim.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1168,
+      "tlc_ms": 694,
+      "core_ms": 81,
+      "reps": [
+        0.1169,
+        0.1169,
+        0.1167,
+        0.1169,
+        0.1089,
+        0.1127
+      ],
+      "range": [
+        0.1089,
+        0.1169
+      ]
+    },
+    "specifications/transaction_commit/2PCwithBTM.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.0906,
+      "tlc_ms": 618,
+      "core_ms": 56,
+      "reps": [
+        0.0906,
+        0.0906,
+        0.0871,
+        0.0906,
+        0.0871,
+        0.0906
+      ],
+      "range": [
+        0.0871,
+        0.0906
+      ]
+    },
+    "specifications/transaction_commit/PaxosCommit.cfg": {
+      "cls": "large",
+      "shard": "shard4of4",
+      "cat": "agreeing",
+      "ratio": 0.3976,
+      "tlc_ms": 177940,
+      "core_ms": 70754
+    },
+    "specifications/transaction_commit/TCommit.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1197,
+      "tlc_ms": 468,
+      "core_ms": 56,
+      "reps": [
+        0.1197,
+        0.1197,
+        0.1197,
+        0.1197,
+        0.1197,
+        0.1197
+      ],
+      "range": [
+        0.1197,
+        0.1197
+      ]
+    },
+    "specifications/transaction_commit/TwoPhase.cfg": {
+      "cls": "small",
+      "cat": "agreeing",
+      "ratio": 0.1081,
+      "tlc_ms": 518,
+      "core_ms": 56,
+      "reps": [
+        0.1081,
+        0.1081,
+        0.1138,
+        0.1081,
+        0.1081,
+        0.1081
+      ],
+      "range": [
+        0.1081,
+        0.1138
+      ]
+    }
+  },
+  "commit": "5bb880635f46c7266e015a0d812f18e4411cdc6a",
+  "attempts": [
+    {
+      "date": "2026-11-27",
+      "source": "5bb88063",
+      "result": "first complete conforming attempt; this record"
+    }
+  ],
+  "raw": {
+    "location": "dive evidence archive bucket (us-east-1), prefix release-perf/2026-11-27-rc02/",
+    "files": {
+      "small-node-raw.tar.gz": "51823724eacf41329b3a925971ae0275c634acaaed3741aa05129ae7f083b29c",
+      "shard1-d1-d4-raw.tar.gz": "c995cb5dacf90699cb337c517021480cbd33fb7ec11c68b0628d95e0aac9b189",
+      "shard2-d1-d4-raw.tar.gz": "e91260ed60c41b866478f2e472cd15e70b26deadc3beaf3162a1e913dd7a2ca9",
+      "shard3-d1-d4-raw.tar.gz": "b0edbd326b1241ce2645866ce1f3a983aef53e228f27abb4e2a086d0a7df81bc",
+      "shard4-d1-d4-raw.tar.gz": "706aa03a7643acfdbf98ebf9b5b5b362f23503cda14997126ca889b951ed857e"
+    }
+  },
+  "reference": {
+    "record": "conformance/reports/perf/2026-11-20-r2-procedure-c14687e6.json",
+    "geomean": 0.1896,
+    "agreeing": 169,
+    "above_1x": [
+      "specifications/KeyValueStore/MCKVsnap.cfg"
+    ]
+  },
+  "versus_reference": {
+    "rule": "per-model ratio now / ratio in the reference record; outside [0.9, 1.1] is listed",
+    "within_band": 134,
+    "above_1_1": {
+      "specifications/CoffeeCan/CoffeeCan100Beans.cfg": 1.209,
+      "specifications/SpanningTree/SpanTree.cfg": 1.137,
+      "specifications/SpanningTree/SpanTreeRandom.cfg": 1.131,
+      "specifications/SpanningTree/SpanTreeTest4Nodes.cfg": 1.262,
+      "specifications/ewd426/TokenRing.cfg": 1.107
+    },
+    "below_0_9": {
+      "specifications/Bakery-Boulangerie/MCBakery.cfg": 0.895,
+      "specifications/Bakery-Boulangerie/MCBoulanger.cfg": 0.826,
+      "specifications/Disruptor/MCDisruptor_MPMC_liveliness.cfg": 0.467,
+      "specifications/Disruptor/MCDisruptor_SPMC.cfg": 0.652,
+      "specifications/FiniteMonotonic/MCReplicatedLog.cfg": 0.853,
+      "specifications/KeyValueStore/MCKVSSafetyMedium.cfg": 0.889,
+      "specifications/KeyValueStore/MCKVsnap.cfg": 0.635,
+      "specifications/MultiCarElevator/ElevatorLivenessLarge.cfg": 0.005,
+      "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg": 0.035,
+      "specifications/MultiCarElevator/ElevatorSafetySmall.cfg": 0.809,
+      "specifications/ReadersWriters/MC.cfg": 0.388,
+      "specifications/SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg": 0.633,
+      "specifications/SlushProtocol/SlushLarge.cfg": 0.888,
+      "specifications/SlushProtocol/SlushMedium.cfg": 0.872,
+      "specifications/SlushProtocol/SlushSmall.cfg": 0.847,
+      "specifications/SpanningTree/SpanTreeTest5Nodes.cfg": 0.831,
+      "specifications/SpecifyingSystems/CachingMemory/MCWriteThroughCache.cfg": 0.89,
+      "specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg": 0.784,
+      "specifications/TeachingConcurrency/SimpleRegular.cfg": 0.767,
+      "specifications/aba-asyn-byz/aba_asyn_byz.cfg": 0.692,
+      "specifications/acp/ACP_NB_WRONG_TLC.cfg": 0.865,
+      "specifications/allocator/AllocatorImplementation.cfg": 0.552,
+      "specifications/allocator/AllocatorRefinement.cfg": 0.728,
+      "specifications/allocator/SimpleAllocator.cfg": 0.807,
+      "specifications/barriers/Barriers.cfg": 0.737,
+      "specifications/byzpaxos/PConProof.cfg": 0.896,
+      "specifications/cf1s-folklore/cf1s_folklore.cfg": 0.563,
+      "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg": 0.597,
+      "specifications/dijkstra-mutex/DijkstraMutex.toolbox/Safety-4-processors/MC.cfg": 0.602,
+      "specifications/ewd998/EWD998Small.cfg": 0.856
+    },
+    "reading": "Five models are slower relative to TLC by more than 10 % (all still at or below 0.40x TLC); 30 are faster, led by the liveness models whose temporal analysis changed in 0.2.0 (ElevatorLivenessLarge, ElevatorLivenessMedium). No model is above 1x."
+  }
+}

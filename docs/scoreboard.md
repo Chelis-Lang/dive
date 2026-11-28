@@ -8,12 +8,12 @@ a measurement is repeated; history is in git.
 | Gate | Status | Evidence |
 |---|---|---|
 | R1 Coverage | **Met on main.** Core alone, default profile, one worker, full Examples tier including the long tier: 169 covered (162 agree, 7 registered expected divergences), 0 disagreements, 7 named refusals and no stops. The frozen historical floor on the same selection rule is 140 (see the [R1 gate](RELEASE.md#gates)). 48 models are out of scope and 9 have no TLC golden. | Quiet-node run in #784; #338 |
-| R2 Speed | **Met on `c14687e6`** (#1099) under the [R2 measurement procedure](developer/performance.md#r2-measurement-procedure): one checker at a time on quiet nodes, small models as the median of six alternating repetitions. Geomean 0.190x TLC over the 169 agreeing models (fixed-set geomean 0.206x, counting the six refused models at 2x); no model above 2x. Above 1x: `MCKVsnap` 1.11x (#979). `AllocatorImplementation` is 0.96x (#940). The 0.2.0 candidate is measured again before the tag. | `conformance/reports/perf/2026-11-20-r2-procedure-c14687e6.json`; [0.1.0 release results](developer/release-performance-results.md) |
+| R2 Speed | **Met on the 0.2.0 candidate `5bb88063`** (#1418) under the [R2 measurement procedure](developer/performance.md#r2-measurement-procedure): one checker at a time on quiet nodes, small models as the median of six alternating repetitions. Geomean 0.170x TLC over the 169 agreeing models (fixed-set geomean 0.185x, counting the six excluded models at 2x); no model above 1x. The highest is `EWD998Chan` at 0.87x. | `conformance/reports/perf/2026-11-27-r2-procedure-5bb88063.json`; [release results](developer/release-performance-results.md) |
 | R3 Bare use | **Met on Core.** All ten smoke models resolve with no library flags; nine check and EWD998ChanID refuses by name. The CI conformance gate and the x86_64 release archive with an empty `PATH` both pass on main. | #803; #784 |
 | R4 Compat exists | **Met.** `cargo xtask gate --full` passes on main. In that run Core in the TLC profile ran the small tier with 142 agreements, 13 named refusals, one registered gap and no internal errors; the committed TLC-profile baseline, refreshed from a later run with the same counts, records them as the ratchet floor. | #810; #784 |
 | R5 Stable surface | **Met.** Command help, `--version` naming the source commit, hidden unimplemented commands (`lsp`); the help and schema-4 JSON-report golden tests pass on main. | #802, #804; #784 |
 | R6 Shipped | **Met.** v0.1.0 is released: the GitHub Release has both Linux archives with checksums, all 18 crates are on crates.io, and `cargo install dive-cli --locked` works in a clean Cargo home. | #794 |
-| R7 Sail with dive | **Met.** Through Sail, a DieHard check is 38.9x faster than TLC (12.8 ms against 491 ms) and a 100-check MCP session is 12.6x faster, with golden verdicts and counts throughout ([S7 results](developer/release-performance-results.md)). | #1011 |
+| R7 Sail with dive | **Met.** Through Sail 0.3.1 with dive 0.2.0, a fresh DieHard check is 36.8x faster than TLC (12.3 ms against 453 ms) and a 100-check MCP session is 13.8x faster, with golden verdicts and counts throughout ([S7 results](developer/release-performance-results.md)). | #1011 |
 
 Required CI compares Core alone with the TLC goldens on 29 smoke models (#840)
 and ratchets the Core-only small tier nightly (#806).
@@ -107,41 +107,43 @@ TLC's simulator is wrong on five configurations, three of them D-043.
 
 ## Speed
 
-Measured on `c14687e6` (#1099) under the
+Measured on the 0.2.0 candidate `5bb88063` (#1418) under the
 [R2 measurement procedure](developer/performance.md#r2-measurement-procedure):
 five c7i.metal-24xl nodes (SMT off, fixed 2.4 GHz, one NUMA node, provisioned
 storage), one checker at a time, one worker, seed and fingerprint 0, pinned
-TLC timed on the same node as Core. The 121 agreeing models where TLC takes
-under 10 s are the median of six alternating repetitions (geomean 0.158x);
-the 48 larger models are one pass (geomean 0.301x). The geomean over the 169
-agreeing models is 0.190x TLC, and the median is 0.146x. No model is above
-2x, and one is above 1x. The four models nearest 1x:
+TLC timed fresh on the same node as Core. The 121 agreeing models where TLC
+takes under 10 s are the median of six alternating repetitions (geomean
+0.151x); the 48 larger models are one pass (geomean 0.229x). The geomean over
+the 169 agreeing models is 0.170x TLC, and the median is 0.129x. No model is
+above 1x. The four models nearest 1x:
 
-| Model | Core / TLC | Issue |
-|---|---:|---|
-| `KeyValueStore/MCKVsnap` | 1.11x (unreduced under symmetry with liveness, D-005) | #979 |
-| `allocator/AllocatorImplementation` | 0.96x | #940 |
-| `ewd998/EWD998Chan` | 0.92x | |
-| `KeyValueStore/MCKVSSafetyMedium` | 0.89x | |
+| Model | Core / TLC |
+|---|---:|
+| `ewd998/EWD998Chan` | 0.87x |
+| `echo/MCEcho` | 0.80x |
+| `KeyValueStore/MCKVSSafetyMedium` | 0.79x |
+| `GameOfLife/GameOfLife` | 0.79x |
 
-The largest models: `SlushProtocol/SlushLarge` 0.52x, `NanoBlockchain/MCNanoLarge`
-0.42x, `MultiPaxos-SMR/MultiPaxos_MC` 0.54x, `MultiCarElevator/ElevatorSafetyLarge`
-0.58x, `ElevatorSafetyMedium` 0.63x, `bosco/bosco` 0.46x and
-`bcastFolklore/bcastFolklore` 0.26x.
+`KeyValueStore/MCKVsnap`, 1.20x in 0.1.0, is 0.71x, and
+`allocator/AllocatorImplementation`, 1.17x in 0.1.0, is 0.53x. The largest models:
+`SlushProtocol/SlushLarge` 0.46x, `NanoBlockchain/MCNanoLarge` 0.41x,
+`MultiPaxos-SMR/MultiPaxos_MC` 0.53x, `MultiCarElevator/ElevatorSafetyLarge`
+0.53x, `ElevatorSafetyMedium` 0.58x, `bosco/bosco` 0.42x and
+`bcastFolklore/bcastFolklore` 0.27x.
 
 ### Release qualification
 
-The 0.1.0 measurements of the [release performance plan](developer/release-performance-plan.md);
+The 0.2.0 measurements of the [release performance plan](developer/release-performance-plan.md);
 methodology and tables are in [release performance results](developer/release-performance-results.md).
 
-- D1, R2 gate: pass, geomean 0.195x TLC, none above 2x ([record](../conformance/reports/perf/2026-11-18-r2-procedure-08a14fba.json)).
-- D2, memory: benchmark set 37 to 286 MiB peak RSS against 795 to 1,449 MiB for TLC at `-Xmx3g`; 64 liveness models, largest 4,523 MiB ([record](../conformance/reports/perf/2026-11-18-release-d2-memory-08a14fba.json)).
-- D3, exact store: 1.00x to 1.30x the fingerprint store's time, 0.95x to 2.68x its peak RSS ([record](../conformance/reports/perf/2026-11-18-release-d3-store-08a14fba.json)).
-- D4, worker scaling: median 8-worker speed-up 4.04x over the 47 large models; 15 of 17 temporal models 0.50x to 1.40x (#1028) ([record](../conformance/reports/perf/2026-11-18-release-d4-scaling-08a14fba.json)).
+- D1, R2 gate: pass, geomean 0.170x TLC, none above 1x ([record](../conformance/reports/perf/2026-11-27-r2-procedure-5bb88063.json)).
+- D2, memory: benchmark set 24 to 140 MiB peak RSS against 798 to 1,448 MiB for TLC at `-Xmx3g`; 64 liveness models, largest 1,929 MiB; `MCParReach` 3.1% above 0.1.0 (#1432) ([record](../conformance/reports/perf/2026-11-27-release-d2-memory-5bb88063.json)).
+- D3, exact store: 1.00x to 1.25x the fingerprint store's time, 0.99x to 1.90x its peak RSS ([record](../conformance/reports/perf/2026-11-27-release-d3-store-5bb88063.json)).
+- D4, worker scaling: median 8-worker speed-up 5.22x over the 28 safety models and 3.25x over all 47 (4.04x in 0.1.0, #1431); 16 of 19 temporal models 0.83x to 1.25x (#1028) ([record](../conformance/reports/perf/2026-11-27-release-d4-scaling-5bb88063.json)).
 - Simulation (S4): without temporal properties 1.2x to 4.4x faster than TLC `-simulate` at 1 worker, 1.4x to 3.8x at 8; with them, `EWD840` 3.6x and 5.4x, `DijkstraMutex` 8.0x and 5.7x, `SimpleAllocator` 6.0x and 6.2x ([record](../conformance/reports/perf/2026-11-21-simulation-throughput-f685076b.json)).
-- D5, startup: `dive check` of a small model 4.9 ms; bosco simulation stops at its memory budget (#1024) ([record](../conformance/reports/perf/2026-11-18-release-d5-throughput-08a14fba.json)).
-- D6, stop latency: 4 to 40 ms after a time limit; ceilings with no overshoot ([record](../conformance/reports/perf/2026-11-18-release-d6-stop-latency-08a14fba.json)).
-- D7, macOS (informational, shared M3 laptop): geomean 0.354x TLC at 1 worker ([record](../conformance/reports/perf/2026-11-18-release-d7-macos-08a14fba.json)).
+- D5, startup: `dive check` of a small model 4.5 ms; bosco simulation samples 10,000 traces in 28.5 s at 46 MiB ([record](../conformance/reports/perf/2026-11-27-release-d5-throughput-5bb88063.json)).
+- D6, stop latency: 7 to 43 ms after a time limit; ceilings with no overshoot ([record](../conformance/reports/perf/2026-11-27-release-d6-stop-latency-5bb88063.json)).
+- D7, macOS (informational, 0.1.0 only, shared M3 laptop): geomean 0.354x TLC at 1 worker ([record](../conformance/reports/perf/2026-11-18-release-d7-macos-08a14fba.json)).
 
 ## Feature families
 

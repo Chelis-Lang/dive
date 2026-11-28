@@ -1,0 +1,2249 @@
+{
+ "measurement": "D2",
+ "plan": "docs/developer/release-performance-plan.md#d2-memory",
+ "date": "2026-11-27",
+ "source": "5bb880635f46c7266e015a0d812f18e4411cdc6a",
+ "dive_binary_sha256": "f18c0f9a0411750a8aaeced079e625ada6c05c86581fb01871e3057ae6aa007a",
+ "oracle": "tlc-2026.10.06.014338",
+ "corpus": "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+ "host": {
+  "instance": "c7i.metal-24xl, us-east-1",
+  "cpu": "Intel Xeon Platinum 8488C",
+  "smt": "off",
+  "turbo": "off",
+  "frequency_khz": 2400000,
+  "governor": "performance",
+  "numa_nodes": 1,
+  "cpus": 48,
+  "binding": "numactl --cpunodebind=0 --membind=0 (all 48 CPUs of the single NUMA node)",
+  "storage": "gp3, 16000 IOPS, 1000 MiB/s",
+  "thp": "madvise",
+  "kernel": "7.0.0-1014-aws",
+  "ami": "Ubuntu 24.04.5 LTS (Canonical, x86_64)"
+ },
+ "command": {
+  "benchmark_set": "dive-bench --dive-bin ~/bins/dive --dive-revision 5bb880635f46c7266e015a0d812f18e4411cdc6a --profile both --workers 1,8 --reps 5 --tlc --timeout 900 --xmx 3g (crates/dive-bench/benchmarks.toml)",
+  "liveness": "dive check <module.tla> --config <model.cfg> --workers 1 --seed 0 --fp 0 --time-limit <max(60s, 2.5 x D1 TLC time)> --max-memory 64g --output json under GNU /usr/bin/time -v; 3 repetitions"
+ },
+ "raw": {
+  "location": "dive evidence archive bucket (us-east-1), prefix release-perf/2026-11-27-rc02/small-node-raw.tar.gz",
+  "sha256": "51823724eacf41329b3a925971ae0275c634acaaed3741aa05129ae7f083b29c"
+ },
+ "deviations": [
+  "Release binary built on one bench node and copied to the others (independent builds were not byte-identical); dive_binary_sha256 names the copied binary.",
+  "The liveness part ran on the small-class node after D5, D3 and D6 rather than straight after the benchmark-set part, because its budgets needed every D1 shard's TLC times; one measured process at a time throughout."
+ ],
+ "benchmark_set_sha256": "5d539b1ba02458121a60b5f8f92f11e312e202e5441fd07fe2be32458eac0555",
+ "tlc_memory_note": "TLC peak RSS depends on -Xmx3g (dive-bench --xmx 3g); it is the JVM's footprint, not TLC's minimum.",
+ "liveness_selection": "Every R1 agreeing model whose config has PROPERTY or PROPERTIES was run once (the probe, at the same budget); those whose report says check_kind temporal were kept. Refinement-only and safety-reducible properties report safety and drop out.",
+ "summary": {
+  "benchmark_set_cells": 40,
+  "benchmark_set_all_correct": true,
+  "liveness_models": 64,
+  "liveness_all_agree": false,
+  "liveness_stopped": [],
+  "liveness_max_peak_rss": [
+   2022666240,
+   "specifications/CoffeeCan/CoffeeCan3000Beans.cfg"
+  ],
+  "liveness_all_agree_or_registered": true
+ },
+ "previous_record": {
+  "record": "conformance/reports/perf/2026-11-18-release-d2-memory-08a14fba.json",
+  "benchmark_set_rss_now_over_then": [
+   0.36,
+   0.92
+  ],
+  "liveness_rss_now_over_then": [
+   0.329,
+   1.031
+  ],
+  "worse_than_previous": {
+   "specifications/MisraReachability/MCParReach.cfg": 1.031
+  }
+ },
+ "rows": {
+  "benchmark_set": [
+   {
+    "model": "BufferedRandomAccessFile",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 29380608,
+    "dive_rss_min": 29335552,
+    "dive_rss_max": 29528064,
+    "dive_wall_ms_median": 18801.0,
+    "dive_wall_ms_range": [
+     18701.0,
+     18853.0
+    ],
+    "tlc_rss_median": 1151016960,
+    "tlc_rss_range": [
+     1143943168,
+     1155694592
+    ],
+    "tlc_wall_ms_median": 50812.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "BufferedRandomAccessFile",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 29569024,
+    "dive_rss_min": 29409280,
+    "dive_rss_max": 29769728,
+    "dive_wall_ms_median": 21537.0,
+    "dive_wall_ms_range": [
+     21483.0,
+     21609.0
+    ],
+    "tlc_rss_median": 1151016960,
+    "tlc_rss_range": [
+     1143943168,
+     1155694592
+    ],
+    "tlc_wall_ms_median": 50812.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "BufferedRandomAccessFile",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 111513600,
+    "dive_rss_min": 109547520,
+    "dive_rss_max": 122126336,
+    "dive_wall_ms_median": 2600.0,
+    "dive_wall_ms_range": [
+     2599.0,
+     2624.0
+    ],
+    "tlc_rss_median": 1244024832,
+    "tlc_rss_range": [
+     1191796736,
+     1251770368
+    ],
+    "tlc_wall_ms_median": 8065.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "BufferedRandomAccessFile",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 111845376,
+    "dive_rss_min": 111640576,
+    "dive_rss_max": 120180736,
+    "dive_wall_ms_median": 2975.0,
+    "dive_wall_ms_range": [
+     2974.0,
+     2975.0
+    ],
+    "tlc_rss_median": 1244024832,
+    "tlc_rss_range": [
+     1191796736,
+     1251770368
+    ],
+    "tlc_wall_ms_median": 8065.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "CoffeeCan1000BeansSafety",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 106455040,
+    "dive_rss_min": 106070016,
+    "dive_rss_max": 106598400,
+    "dive_wall_ms_median": 1371.0,
+    "dive_wall_ms_range": [
+     1371.0,
+     1371.0
+    ],
+    "tlc_rss_median": 844603392,
+    "tlc_rss_range": [
+     837513216,
+     847114240
+    ],
+    "tlc_wall_ms_median": 2248.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "CoffeeCan1000BeansSafety",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 106463232,
+    "dive_rss_min": 106332160,
+    "dive_rss_max": 106696704,
+    "dive_wall_ms_median": 1371.0,
+    "dive_wall_ms_range": [
+     1371.0,
+     1396.0
+    ],
+    "tlc_rss_median": 844603392,
+    "tlc_rss_range": [
+     837513216,
+     847114240
+    ],
+    "tlc_wall_ms_median": 2248.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "CoffeeCan1000BeansSafety",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 138031104,
+    "dive_rss_min": 136175616,
+    "dive_rss_max": 138379264,
+    "dive_wall_ms_median": 895.0,
+    "dive_wall_ms_range": [
+     869.0,
+     970.0
+    ],
+    "tlc_rss_median": 836771840,
+    "tlc_rss_range": [
+     829263872,
+     845156352
+    ],
+    "tlc_wall_ms_median": 1672.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "CoffeeCan1000BeansSafety",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 137879552,
+    "dive_rss_min": 136101888,
+    "dive_rss_max": 138235904,
+    "dive_wall_ms_median": 895.0,
+    "dive_wall_ms_range": [
+     894.0,
+     945.0
+    ],
+    "tlc_rss_median": 836771840,
+    "tlc_rss_range": [
+     829263872,
+     845156352
+    ],
+    "tlc_wall_ms_median": 1672.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "EWD998PCal",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 33529856,
+    "dive_rss_min": 33406976,
+    "dive_rss_max": 33579008,
+    "dive_wall_ms_median": 14006.0,
+    "dive_wall_ms_range": [
+     13974.0,
+     14011.0
+    ],
+    "tlc_rss_median": 1276411904,
+    "tlc_rss_range": [
+     1262690304,
+     1368588288
+    ],
+    "tlc_wall_ms_median": 42390.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "EWD998PCal",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 33538048,
+    "dive_rss_min": 33370112,
+    "dive_rss_max": 33718272,
+    "dive_wall_ms_median": 15159.0,
+    "dive_wall_ms_range": [
+     15134.0,
+     15164.0
+    ],
+    "tlc_rss_median": 1276411904,
+    "tlc_rss_range": [
+     1262690304,
+     1368588288
+    ],
+    "tlc_wall_ms_median": 42390.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "EWD998PCal",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 90800128,
+    "dive_rss_min": 90497024,
+    "dive_rss_max": 92758016,
+    "dive_wall_ms_median": 2374.0,
+    "dive_wall_ms_range": [
+     2349.0,
+     2374.0
+    ],
+    "tlc_rss_median": 1518784512,
+    "tlc_rss_range": [
+     1510293504,
+     1545048064
+    ],
+    "tlc_wall_ms_median": 7556.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "EWD998PCal",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 90603520,
+    "dive_rss_min": 81981440,
+    "dive_rss_max": 92561408,
+    "dive_wall_ms_median": 2524.0,
+    "dive_wall_ms_range": [
+     2522.0,
+     2524.0
+    ],
+    "tlc_rss_median": 1518784512,
+    "tlc_rss_range": [
+     1510293504,
+     1545048064
+    ],
+    "tlc_wall_ms_median": 7556.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "GameOfLife",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 47923200,
+    "dive_rss_min": 47333376,
+    "dive_rss_max": 48128000,
+    "dive_wall_ms_median": 10876.0,
+    "dive_wall_ms_range": [
+     10851.0,
+     11051.0
+    ],
+    "tlc_rss_median": 1160429568,
+    "tlc_rss_range": [
+     1153933312,
+     1170096128
+    ],
+    "tlc_wall_ms_median": 12101.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "GameOfLife",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 47988736,
+    "dive_rss_min": 47771648,
+    "dive_rss_max": 48132096,
+    "dive_wall_ms_median": 20431.0,
+    "dive_wall_ms_range": [
+     20355.0,
+     20632.0
+    ],
+    "tlc_rss_median": 1160429568,
+    "tlc_rss_range": [
+     1153933312,
+     1170096128
+    ],
+    "tlc_wall_ms_median": 12101.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "GameOfLife",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 81833984,
+    "dive_rss_min": 81760256,
+    "dive_rss_max": 81969152,
+    "dive_wall_ms_median": 1697.0,
+    "dive_wall_ms_range": [
+     1696.0,
+     1722.0
+    ],
+    "tlc_rss_median": 1161326592,
+    "tlc_rss_range": [
+     1155502080,
+     1167806464
+    ],
+    "tlc_wall_ms_median": 2649.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "GameOfLife",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 81764352,
+    "dive_rss_min": 81285120,
+    "dive_rss_max": 82018304,
+    "dive_wall_ms_median": 2975.0,
+    "dive_wall_ms_range": [
+     2950.0,
+     2976.0
+    ],
+    "tlc_rss_median": 1161326592,
+    "tlc_rss_range": [
+     1155502080,
+     1167806464
+    ],
+    "tlc_wall_ms_median": 2649.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCBakery",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 39215104,
+    "dive_rss_min": 38555648,
+    "dive_rss_max": 39411712,
+    "dive_wall_ms_median": 6587.0,
+    "dive_wall_ms_range": [
+     6562.0,
+     6588.0
+    ],
+    "tlc_rss_median": 1330319360,
+    "tlc_rss_range": [
+     1323073536,
+     1350971392
+    ],
+    "tlc_wall_ms_median": 11174.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCBakery",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 39141376,
+    "dive_rss_min": 39067648,
+    "dive_rss_max": 39321600,
+    "dive_wall_ms_median": 6587.0,
+    "dive_wall_ms_range": [
+     6582.0,
+     6612.0
+    ],
+    "tlc_rss_median": 1330319360,
+    "tlc_rss_range": [
+     1323073536,
+     1350971392
+    ],
+    "tlc_wall_ms_median": 11174.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCBakery",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 102682624,
+    "dive_rss_min": 98336768,
+    "dive_rss_max": 106967040,
+    "dive_wall_ms_median": 2148.0,
+    "dive_wall_ms_range": [
+     2123.0,
+     2198.0
+    ],
+    "tlc_rss_median": 1357570048,
+    "tlc_rss_range": [
+     1350979584,
+     1363865600
+    ],
+    "tlc_wall_ms_median": 7835.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCBakery",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 104775680,
+    "dive_rss_min": 92225536,
+    "dive_rss_max": 105009152,
+    "dive_wall_ms_median": 2148.0,
+    "dive_wall_ms_range": [
+     2073.0,
+     2248.0
+    ],
+    "tlc_rss_median": 1357570048,
+    "tlc_rss_range": [
+     1350979584,
+     1363865600
+    ],
+    "tlc_wall_ms_median": 7835.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCDisruptor_MPMC",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 25001984,
+    "dive_rss_min": 24289280,
+    "dive_rss_max": 25161728,
+    "dive_wall_ms_median": 1065.0,
+    "dive_wall_ms_range": [
+     1060.0,
+     1070.0
+    ],
+    "tlc_rss_median": 1138483200,
+    "tlc_rss_range": [
+     1122205696,
+     1149403136
+    ],
+    "tlc_wall_ms_median": 4475.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCDisruptor_MPMC",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 24809472,
+    "dive_rss_min": 24735744,
+    "dive_rss_max": 25079808,
+    "dive_wall_ms_median": 1095.0,
+    "dive_wall_ms_range": [
+     1085.0,
+     1095.0
+    ],
+    "tlc_rss_median": 1138483200,
+    "tlc_rss_range": [
+     1122205696,
+     1149403136
+    ],
+    "tlc_wall_ms_median": 4475.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCDisruptor_MPMC",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 67305472,
+    "dive_rss_min": 67051520,
+    "dive_rss_max": 69554176,
+    "dive_wall_ms_median": 317.0,
+    "dive_wall_ms_range": [
+     307.0,
+     318.0
+    ],
+    "tlc_rss_median": 1143181312,
+    "tlc_rss_range": [
+     1121734656,
+     1168904192
+    ],
+    "tlc_wall_ms_median": 1592.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCDisruptor_MPMC",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 69439488,
+    "dive_rss_min": 67080192,
+    "dive_rss_max": 71544832,
+    "dive_wall_ms_median": 318.0,
+    "dive_wall_ms_range": [
+     317.0,
+     318.0
+    ],
+    "tlc_rss_median": 1143181312,
+    "tlc_rss_range": [
+     1121734656,
+     1168904192
+    ],
+    "tlc_wall_ms_median": 1592.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCLamportMutex",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 87461888,
+    "dive_rss_min": 87166976,
+    "dive_rss_max": 89812992,
+    "dive_wall_ms_median": 11325.0,
+    "dive_wall_ms_range": [
+     11275.0,
+     11375.0
+    ],
+    "tlc_rss_median": 1339080704,
+    "tlc_rss_range": [
+     1316966400,
+     1345941504
+    ],
+    "tlc_wall_ms_median": 17443.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCLamportMutex",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 87969792,
+    "dive_rss_min": 87400448,
+    "dive_rss_max": 88236032,
+    "dive_wall_ms_median": 12352.0,
+    "dive_wall_ms_range": [
+     12302.0,
+     12377.0
+    ],
+    "tlc_rss_median": 1339080704,
+    "tlc_rss_range": [
+     1316966400,
+     1345941504
+    ],
+    "tlc_wall_ms_median": 17443.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCLamportMutex",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 147001344,
+    "dive_rss_min": 145035264,
+    "dive_rss_max": 148246528,
+    "dive_wall_ms_median": 2900.0,
+    "dive_wall_ms_range": [
+     2875.0,
+     2926.0
+    ],
+    "tlc_rss_median": 1395683328,
+    "tlc_rss_range": [
+     1379037184,
+     1404751872
+    ],
+    "tlc_wall_ms_median": 4380.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCLamportMutex",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 144932864,
+    "dive_rss_min": 136577024,
+    "dive_rss_max": 145100800,
+    "dive_wall_ms_median": 3276.0,
+    "dive_wall_ms_range": [
+     3226.0,
+     3276.0
+    ],
+    "tlc_rss_median": 1395683328,
+    "tlc_rss_range": [
+     1379037184,
+     1404751872
+    ],
+    "tlc_wall_ms_median": 4380.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCbtree",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 33402880,
+    "dive_rss_min": 33177600,
+    "dive_rss_max": 33705984,
+    "dive_wall_ms_median": 5398.0,
+    "dive_wall_ms_range": [
+     5383.0,
+     5408.0
+    ],
+    "tlc_rss_median": 1236561920,
+    "tlc_rss_range": [
+     1182154752,
+     1254227968
+    ],
+    "tlc_wall_ms_median": 40811.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCbtree",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 33648640,
+    "dive_rss_min": 33574912,
+    "dive_rss_max": 33873920,
+    "dive_wall_ms_median": 5609.0,
+    "dive_wall_ms_range": [
+     5574.0,
+     5684.0
+    ],
+    "tlc_rss_median": 1236561920,
+    "tlc_rss_range": [
+     1182154752,
+     1254227968
+    ],
+    "tlc_wall_ms_median": 40811.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCbtree",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 79519744,
+    "dive_rss_min": 77664256,
+    "dive_rss_max": 80052224,
+    "dive_wall_ms_median": 1220.0,
+    "dive_wall_ms_range": [
+     1215.0,
+     1246.0
+    ],
+    "tlc_rss_median": 1357266944,
+    "tlc_rss_range": [
+     1349537792,
+     1383223296
+    ],
+    "tlc_wall_ms_median": 7764.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCbtree",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 77967360,
+    "dive_rss_min": 77398016,
+    "dive_rss_max": 79945728,
+    "dive_wall_ms_median": 1270.0,
+    "dive_wall_ms_range": [
+     1245.0,
+     1296.0
+    ],
+    "tlc_rss_median": 1357266944,
+    "tlc_rss_range": [
+     1349537792,
+     1383223296
+    ],
+    "tlc_wall_ms_median": 7764.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "SimpleRegular",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 47882240,
+    "dive_rss_min": 47775744,
+    "dive_rss_max": 48001024,
+    "dive_wall_ms_median": 2589.0,
+    "dive_wall_ms_range": [
+     2564.0,
+     2599.0
+    ],
+    "tlc_rss_median": 1192325120,
+    "tlc_rss_range": [
+     1188962304,
+     1198673920
+    ],
+    "tlc_wall_ms_median": 5477.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "SimpleRegular",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 45703168,
+    "dive_rss_min": 45506560,
+    "dive_rss_max": 47796224,
+    "dive_wall_ms_median": 2589.0,
+    "dive_wall_ms_range": [
+     2549.0,
+     2599.0
+    ],
+    "tlc_rss_median": 1192325120,
+    "tlc_rss_range": [
+     1188962304,
+     1198673920
+    ],
+    "tlc_wall_ms_median": 5477.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "SimpleRegular",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 87977984,
+    "dive_rss_min": 85843968,
+    "dive_rss_max": 94187520,
+    "dive_wall_ms_median": 769.0,
+    "dive_wall_ms_range": [
+     744.0,
+     769.0
+    ],
+    "tlc_rss_median": 1258782720,
+    "tlc_rss_range": [
+     1229930496,
+     1290444800
+    ],
+    "tlc_wall_ms_median": 2325.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "SimpleRegular",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 87945216,
+    "dive_rss_min": 87764992,
+    "dive_rss_max": 91611136,
+    "dive_wall_ms_median": 769.0,
+    "dive_wall_ms_range": [
+     744.0,
+     794.0
+    ],
+    "tlc_rss_median": 1258782720,
+    "tlc_rss_range": [
+     1229930496,
+     1290444800
+    ],
+    "tlc_wall_ms_median": 2325.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "TLCSailfish1",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 69189632,
+    "dive_rss_min": 69017600,
+    "dive_rss_max": 69337088,
+    "dive_wall_ms_median": 36785.0,
+    "dive_wall_ms_range": [
+     36731.0,
+     36909.0
+    ],
+    "tlc_rss_median": 1214697472,
+    "tlc_rss_range": [
+     1202483200,
+     1219092480
+    ],
+    "tlc_wall_ms_median": 52294.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "TLCSailfish1",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 69562368,
+    "dive_rss_min": 69148672,
+    "dive_rss_max": 69607424,
+    "dive_wall_ms_median": 68533.0,
+    "dive_wall_ms_range": [
+     68434.0,
+     68761.0
+    ],
+    "tlc_rss_median": 1214697472,
+    "tlc_rss_range": [
+     1202483200,
+     1219092480
+    ],
+    "tlc_wall_ms_median": 52294.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "TLCSailfish1",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 118210560,
+    "dive_rss_min": 116109312,
+    "dive_rss_max": 120549376,
+    "dive_wall_ms_median": 5533.0,
+    "dive_wall_ms_range": [
+     5533.0,
+     5533.0
+    ],
+    "tlc_rss_median": 1430179840,
+    "tlc_rss_range": [
+     1410875392,
+     1446404096
+    ],
+    "tlc_wall_ms_median": 8266.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "TLCSailfish1",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 125771776,
+    "dive_rss_min": 124772352,
+    "dive_rss_max": 128004096,
+    "dive_wall_ms_median": 10197.0,
+    "dive_wall_ms_range": [
+     10171.0,
+     10222.0
+    ],
+    "tlc_rss_median": 1430179840,
+    "tlc_rss_range": [
+     1410875392,
+     1446404096
+    ],
+    "tlc_wall_ms_median": 8266.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   }
+  ],
+  "liveness": {
+   "specifications/CoffeeCan/CoffeeCan1000Beans.cfg": {
+    "model": "specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 240791552,
+     "min": 240607232,
+     "max": 240848896
+    },
+    "observed_max_bytes": 241102848,
+    "known_retained_lb": 48212354,
+    "distinct": 501500,
+    "wall_ms": 9487.24,
+    "bytes_per_state": 480.1,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/CoffeeCan/CoffeeCan100Beans.cfg": {
+    "model": "specifications/CoffeeCan/CoffeeCan100Beans.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 31350784,
+     "min": 31203328,
+     "max": 31543296
+    },
+    "observed_max_bytes": 31473664,
+    "known_retained_lb": 1774722,
+    "distinct": 5150,
+    "wall_ms": 103.64,
+    "bytes_per_state": 6087.5,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/CoffeeCan/CoffeeCan3000Beans.cfg": {
+    "model": "specifications/CoffeeCan/CoffeeCan3000Beans.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 2022666240,
+     "min": 2022498304,
+     "max": 2023059456
+    },
+    "observed_max_bytes": 2023419904,
+    "known_retained_lb": 671721858,
+    "distinct": 4504500,
+    "wall_ms": 92035.53,
+    "bytes_per_state": 449.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/DiningPhilosophers/DiningPhilosophers.cfg": {
+    "model": "specifications/DiningPhilosophers/DiningPhilosophers.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 25509888,
+     "min": 25432064,
+     "max": 25702400
+    },
+    "observed_max_bytes": 25780224,
+    "known_retained_lb": 1088715,
+    "distinct": 67,
+    "wall_ms": 15.58,
+    "bytes_per_state": 380744.6,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Disruptor/MCDisruptor_MPMC_liveliness.cfg": {
+    "model": "specifications/Disruptor/MCDisruptor_MPMC_liveliness.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 38207488,
+     "min": 38187008,
+     "max": 38301696
+    },
+    "observed_max_bytes": 38297600,
+    "known_retained_lb": 1908012,
+    "distinct": 14365,
+    "wall_ms": 595.34,
+    "bytes_per_state": 2659.8,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Disruptor/MCDisruptor_SPMC.cfg": {
+    "model": "specifications/Disruptor/MCDisruptor_SPMC.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 31739904,
+     "min": 31481856,
+     "max": 31875072
+    },
+    "observed_max_bytes": 31809536,
+    "known_retained_lb": 1908027,
+    "distinct": 8496,
+    "wall_ms": 247.17,
+    "bytes_per_state": 3735.9,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/FiniteMonotonic/MCCRDT.cfg": {
+    "model": "specifications/FiniteMonotonic/MCCRDT.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 56090624,
+     "min": 55754752,
+     "max": 57155584
+    },
+    "observed_max_bytes": 56299520,
+    "known_retained_lb": 13673362,
+    "distinct": 25000,
+    "wall_ms": 8574.55,
+    "bytes_per_state": 2243.6,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/FiniteMonotonic/MCReplicatedLog.cfg": {
+    "model": "specifications/FiniteMonotonic/MCReplicatedLog.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 29782016,
+     "min": 29777920,
+     "max": 29810688
+    },
+    "observed_max_bytes": 29868032,
+    "known_retained_lb": 1244672,
+    "distinct": 1363,
+    "wall_ms": 120.38,
+    "bytes_per_state": 21850.3,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/FlashProtocol/MCFlashWithMutexLive.cfg": {
+    "model": "specifications/FlashProtocol/MCFlashWithMutexLive.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 48730112,
+     "min": 48504832,
+     "max": 48840704
+    },
+    "observed_max_bytes": 48738304,
+    "known_retained_lb": 1248222,
+    "distinct": 8096,
+    "wall_ms": 968.1,
+    "bytes_per_state": 6019.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Huang/Huang.cfg": {
+    "model": "specifications/Huang/Huang.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 73359360,
+     "min": 73191424,
+     "max": 73424896
+    },
+    "observed_max_bytes": 73719808,
+    "known_retained_lb": 6488419,
+    "distinct": 81256,
+    "wall_ms": 35115.59,
+    "bytes_per_state": 902.8,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/KeyValueStore/MCKVsnap.cfg": {
+    "model": "specifications/KeyValueStore/MCKVsnap.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 88342528,
+     "min": 87937024,
+     "max": 88797184
+    },
+    "observed_max_bytes": 88850432,
+    "known_retained_lb": 4148731,
+    "distinct": 189664,
+    "wall_ms": 9422.83,
+    "bytes_per_state": 465.8,
+    "agrees_with_golden": false,
+    "stopped": null,
+    "registered_divergence": "symmetry-liveness-unreduced-mckvsnap (D-005): verdict, exit, depth and the registered distinct/generated counts (189664/365596) match conformance/expected-divergences.toml"
+   },
+   "specifications/LoopInvariance/MCBinarySearch.cfg": {
+    "model": "specifications/LoopInvariance/MCBinarySearch.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 129609728,
+     "min": 129454080,
+     "max": 131846144
+    },
+    "observed_max_bytes": 129761280,
+    "known_retained_lb": 1537837,
+    "distinct": 27953,
+    "wall_ms": 959.63,
+    "bytes_per_state": 4636.7,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/LoopInvariance/MCQuicksort.cfg": {
+    "model": "specifications/LoopInvariance/MCQuicksort.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 38244352,
+     "min": 38105088,
+     "max": 38518784
+    },
+    "observed_max_bytes": 38596608,
+    "known_retained_lb": 1087213,
+    "distinct": 4548,
+    "wall_ms": 4942.79,
+    "bytes_per_state": 8409.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/MisraReachability/MCParReach.cfg": {
+    "model": "specifications/MisraReachability/MCParReach.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 107212800,
+     "min": 107094016,
+     "max": 107454464
+    },
+    "observed_max_bytes": 107610112,
+    "known_retained_lb": 935019,
+    "distinct": 393,
+    "wall_ms": 3097.84,
+    "bytes_per_state": 272806.1,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/MisraReachability/MCReachable.cfg": {
+    "model": "specifications/MisraReachability/MCReachable.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 42336256,
+     "min": 42106880,
+     "max": 42455040
+    },
+    "observed_max_bytes": 42541056,
+    "known_retained_lb": 1181629,
+    "distinct": 8,
+    "wall_ms": 432.85,
+    "bytes_per_state": 5292032.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg": {
+    "model": "specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 23113728,
+     "min": 22683648,
+     "max": 23261184
+    },
+    "observed_max_bytes": 23453696,
+    "known_retained_lb": 867585,
+    "distinct": 48,
+    "wall_ms": 7.49,
+    "bytes_per_state": 481536.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Moving_Cat_Puzzle/CatOddBoxes.cfg": {
+    "model": "specifications/Moving_Cat_Puzzle/CatOddBoxes.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 23191552,
+     "min": 23142400,
+     "max": 23404544
+    },
+    "observed_max_bytes": 23416832,
+    "known_retained_lb": 867585,
+    "distinct": 30,
+    "wall_ms": 7.42,
+    "bytes_per_state": 773051.7,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/MultiCarElevator/ElevatorLivenessLarge.cfg": {
+    "model": "specifications/MultiCarElevator/ElevatorLivenessLarge.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 77766656,
+     "min": 77627392,
+     "max": 77844480
+    },
+    "observed_max_bytes": 77729792,
+    "known_retained_lb": 1382239,
+    "distinct": 50653,
+    "wall_ms": 2078.75,
+    "bytes_per_state": 1535.3,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg": {
+    "model": "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 33718272,
+     "min": 33669120,
+     "max": 33767424
+    },
+    "observed_max_bytes": 33677312,
+    "known_retained_lb": 1249439,
+    "distinct": 4122,
+    "wall_ms": 178.04,
+    "bytes_per_state": 8180.1,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Prisoners/Prisoners.cfg": {
+    "model": "specifications/Prisoners/Prisoners.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 25239552,
+     "min": 25194496,
+     "max": 25509888
+    },
+    "observed_max_bytes": 25653248,
+    "known_retained_lb": 931496,
+    "distinct": 214,
+    "wall_ms": 13.21,
+    "bytes_per_state": 117941.8,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Prisoners_Single_Switch/Prisoner.cfg": {
+    "model": "specifications/Prisoners_Single_Switch/Prisoner.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 25337856,
+     "min": 24784896,
+     "max": 25374720
+    },
+    "observed_max_bytes": 25739264,
+    "known_retained_lb": 889348,
+    "distinct": 16,
+    "wall_ms": 8.84,
+    "bytes_per_state": 1583616.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg": {
+    "model": "specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 25616384,
+     "min": 25513984,
+     "max": 25702400
+    },
+    "observed_max_bytes": 25784320,
+    "known_retained_lb": 897668,
+    "distinct": 62,
+    "wall_ms": 10.2,
+    "bytes_per_state": 413167.5,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Prisoners_Single_Switch/PrisonerSolo.cfg": {
+    "model": "specifications/Prisoners_Single_Switch/PrisonerSolo.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 25333760,
+     "min": 25305088,
+     "max": 25374720
+    },
+    "observed_max_bytes": 25710592,
+    "known_retained_lb": 875926,
+    "distinct": 2,
+    "wall_ms": 8.78,
+    "bytes_per_state": 12666880.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg": {
+    "model": "specifications/Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 25137152,
+     "min": 25116672,
+     "max": 25546752
+    },
+    "observed_max_bytes": 25714688,
+    "known_retained_lb": 875926,
+    "distinct": 4,
+    "wall_ms": 8.7,
+    "bytes_per_state": 6284288.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/ReadersWriters/MC.cfg": {
+    "model": "specifications/ReadersWriters/MC.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 38268928,
+     "min": 37765120,
+     "max": 38293504
+    },
+    "observed_max_bytes": 38502400,
+    "known_retained_lb": 1986737,
+    "distinct": 21527,
+    "wall_ms": 639.57,
+    "bytes_per_state": 1777.7,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg": {
+    "model": "specifications/SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 44515328,
+     "min": 43712512,
+     "max": 44769280
+    },
+    "observed_max_bytes": 44789760,
+    "known_retained_lb": 1227618,
+    "distinct": 2881,
+    "wall_ms": 276.5,
+    "bytes_per_state": 15451.3,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SingleLaneBridge/MC.cfg": {
+    "model": "specifications/SingleLaneBridge/MC.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 34004992,
+     "min": 33988608,
+     "max": 34058240
+    },
+    "observed_max_bytes": 34336768,
+    "known_retained_lb": 1611816,
+    "distinct": 3605,
+    "wall_ms": 640.19,
+    "bytes_per_state": 9432.7,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpanningTree/SpanTree.cfg": {
+    "model": "specifications/SpanningTree/SpanTree.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 27398144,
+     "min": 27357184,
+     "max": 27586560
+    },
+    "observed_max_bytes": 27848704,
+    "known_retained_lb": 1222766,
+    "distinct": 1236,
+    "wall_ms": 221.02,
+    "bytes_per_state": 22166.8,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpanningTree/SpanTreeRandom.cfg": {
+    "model": "specifications/SpanningTree/SpanTreeRandom.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 40202240,
+     "min": 40071168,
+     "max": 42184704
+    },
+    "observed_max_bytes": 40497152,
+    "known_retained_lb": 2003100,
+    "distinct": 22040,
+    "wall_ms": 6458.42,
+    "bytes_per_state": 1824.1,
+    "agrees_with_golden": false,
+    "stopped": null,
+    "registered_divergence": "d002-spantreerandom-default-streams (D-002): verdict, exit, depth and the registered distinct/generated counts (22040/293361) match conformance/expected-divergences.toml"
+   },
+   "specifications/SpanningTree/SpanTreeTest4Nodes.cfg": {
+    "model": "specifications/SpanningTree/SpanTreeTest4Nodes.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 27803648,
+     "min": 27529216,
+     "max": 27832320
+    },
+    "observed_max_bytes": 27959296,
+    "known_retained_lb": 1201448,
+    "distinct": 3984,
+    "wall_ms": 442.6,
+    "bytes_per_state": 6978.8,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpanningTree/SpanTreeTest5Nodes.cfg": {
+    "model": "specifications/SpanningTree/SpanTreeTest5Nodes.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 155164672,
+     "min": 154296320,
+     "max": 155332608
+    },
+    "observed_max_bytes": 155828224,
+    "known_retained_lb": 1927726,
+    "distinct": 410112,
+    "wall_ms": 73979.78,
+    "bytes_per_state": 378.3,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg": {
+    "model": "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 29413376,
+     "min": 28991488,
+     "max": 29650944
+    },
+    "observed_max_bytes": 29683712,
+    "known_retained_lb": 1589834,
+    "distinct": 3528,
+    "wall_ms": 237.0,
+    "bytes_per_state": 8337.1,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSerial.cfg": {
+    "model": "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSerial.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 33988608,
+     "min": 33869824,
+     "max": 34066432
+    },
+    "observed_max_bytes": 34172928,
+    "known_retained_lb": 1902197,
+    "distinct": 195,
+    "wall_ms": 3068.65,
+    "bytes_per_state": 174300.6,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg": {
+    "model": "specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 23273472,
+     "min": 23015424,
+     "max": 23445504
+    },
+    "observed_max_bytes": 23273472,
+    "known_retained_lb": 864144,
+    "distinct": 12,
+    "wall_ms": 7.01,
+    "bytes_per_state": 1939456.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg": {
+    "model": "specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 29446144,
+     "min": 29192192,
+     "max": 29573120
+    },
+    "observed_max_bytes": 29667328,
+    "known_retained_lb": 1121738,
+    "distinct": 4408,
+    "wall_ms": 139.4,
+    "bytes_per_state": 6680.2,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg": {
+    "model": "specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 31531008,
+     "min": 31449088,
+     "max": 31805440
+    },
+    "observed_max_bytes": 31875072,
+    "known_retained_lb": 1031033,
+    "distinct": 5196,
+    "wall_ms": 904.84,
+    "bytes_per_state": 6068.3,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg": {
+    "model": "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 25710592,
+     "min": 25616384,
+     "max": 25866240
+    },
+    "observed_max_bytes": 25677824,
+    "known_retained_lb": 865808,
+    "distinct": 216,
+    "wall_ms": 9.86,
+    "bytes_per_state": 119030.5,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpecifyingSystems/TLC/MCAlternatingBit.cfg": {
+    "model": "specifications/SpecifyingSystems/TLC/MCAlternatingBit.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 24854528,
+     "min": 24715264,
+     "max": 25509888
+    },
+    "observed_max_bytes": 25055232,
+    "known_retained_lb": 938396,
+    "distinct": 240,
+    "wall_ms": 22.39,
+    "bytes_per_state": 103560.5,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/YoYo/MCYoYoNoPruning.cfg": {
+    "model": "specifications/YoYo/MCYoYoNoPruning.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 30068736,
+     "min": 30052352,
+     "max": 30142464
+    },
+    "observed_max_bytes": 30142464,
+    "known_retained_lb": 1167226,
+    "distinct": 60,
+    "wall_ms": 51.74,
+    "bytes_per_state": 501145.6,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/YoYo/MCYoYoPruning.cfg": {
+    "model": "specifications/YoYo/MCYoYoPruning.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 30076928,
+     "min": 29978624,
+     "max": 30220288
+    },
+    "observed_max_bytes": 30162944,
+    "known_retained_lb": 1300037,
+    "distinct": 102,
+    "wall_ms": 67.43,
+    "bytes_per_state": 294871.8,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/YoYo/YoYoAllGraphs.cfg": {
+    "model": "specifications/YoYo/YoYoAllGraphs.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 59224064,
+     "min": 59047936,
+     "max": 59330560
+    },
+    "observed_max_bytes": 59535360,
+    "known_retained_lb": 5934165,
+    "distinct": 26731,
+    "wall_ms": 3465.52,
+    "bytes_per_state": 2215.6,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/aba-asyn-byz/aba_asyn_byz.cfg": {
+    "model": "specifications/aba-asyn-byz/aba_asyn_byz.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 1562513408,
+     "min": 1561591808,
+     "max": 1569619968
+    },
+    "observed_max_bytes": 1562578944,
+    "known_retained_lb": 1285397,
+    "distinct": 5843977,
+    "wall_ms": 313538.09,
+    "bytes_per_state": 267.4,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/acp/ACP_NB_TLC.cfg": {
+    "model": "specifications/acp/ACP_NB_TLC.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 34029568,
+     "min": 33869824,
+     "max": 34078720
+    },
+    "observed_max_bytes": 34283520,
+    "known_retained_lb": 1399813,
+    "distinct": 4284,
+    "wall_ms": 339.14,
+    "bytes_per_state": 7943.4,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/allocator/AllocatorImplementation.cfg": {
+    "model": "specifications/allocator/AllocatorImplementation.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 54378496,
+     "min": 52891648,
+     "max": 55099392
+    },
+    "observed_max_bytes": 54816768,
+    "known_retained_lb": 1879790,
+    "distinct": 17701,
+    "wall_ms": 5119.31,
+    "bytes_per_state": 3072.1,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/allocator/AllocatorRefinement.cfg": {
+    "model": "specifications/allocator/AllocatorRefinement.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 32030720,
+     "min": 31830016,
+     "max": 32067584
+    },
+    "observed_max_bytes": 31985664,
+    "known_retained_lb": 1030278,
+    "distinct": 1690,
+    "wall_ms": 349.9,
+    "bytes_per_state": 18953.1,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/allocator/SchedulingAllocator.cfg": {
+    "model": "specifications/allocator/SchedulingAllocator.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 31760384,
+     "min": 31039488,
+     "max": 32083968
+    },
+    "observed_max_bytes": 32145408,
+    "known_retained_lb": 1030278,
+    "distinct": 1690,
+    "wall_ms": 262.24,
+    "bytes_per_state": 18793.1,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/allocator/SimpleAllocator.cfg": {
+    "model": "specifications/allocator/SimpleAllocator.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 27381760,
+     "min": 27222016,
+     "max": 27828224
+    },
+    "observed_max_bytes": 27873280,
+    "known_retained_lb": 1003390,
+    "distinct": 400,
+    "wall_ms": 59.51,
+    "bytes_per_state": 68454.4,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/bcastByz/bcastByz.cfg": {
+    "model": "specifications/bcastByz/bcastByz.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 44482560,
+     "min": 44453888,
+     "max": 44720128
+    },
+    "observed_max_bytes": 44863488,
+    "known_retained_lb": 2582592,
+    "distinct": 14424,
+    "wall_ms": 4140.35,
+    "bytes_per_state": 3083.9,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/bcastByz/bcastByzNoBcast.cfg": {
+    "model": "specifications/bcastByz/bcastByzNoBcast.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 34234368,
+     "min": 34136064,
+     "max": 34332672
+    },
+    "observed_max_bytes": 34271232,
+    "known_retained_lb": 1037680,
+    "distinct": 45,
+    "wall_ms": 47.65,
+    "bytes_per_state": 760763.7,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/bcastFolklore/bcastFolklore.cfg": {
+    "model": "specifications/bcastFolklore/bcastFolklore.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 777785344,
+     "min": 763006976,
+     "max": 778317824
+    },
+    "observed_max_bytes": 778616832,
+    "known_retained_lb": 10331712,
+    "distinct": 501552,
+    "wall_ms": 586428.31,
+    "bytes_per_state": 1550.8,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/byzpaxos/Consensus.cfg": {
+    "model": "specifications/byzpaxos/Consensus.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 27758592,
+     "min": 27701248,
+     "max": 28106752
+    },
+    "observed_max_bytes": 27807744,
+    "known_retained_lb": 870930,
+    "distinct": 4,
+    "wall_ms": 20.74,
+    "bytes_per_state": 6939648.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/cf1s-folklore/cf1s_folklore.cfg": {
+    "model": "specifications/cf1s-folklore/cf1s_folklore.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 498421760,
+     "min": 494370816,
+     "max": 498950144
+    },
+    "observed_max_bytes": 479965184,
+    "known_retained_lb": 1384351,
+    "distinct": 2057174,
+    "wall_ms": 85759.4,
+    "bytes_per_state": 242.3,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/chang_roberts/MCChangRoberts.cfg": {
+    "model": "specifications/chang_roberts/MCChangRoberts.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 25591808,
+     "min": 25399296,
+     "max": 25841664
+    },
+    "observed_max_bytes": 25776128,
+    "known_retained_lb": 970907,
+    "distinct": 137,
+    "wall_ms": 15.44,
+    "bytes_per_state": 186801.5,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg": {
+    "model": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 73678848,
+     "min": 73388032,
+     "max": 74039296
+    },
+    "observed_max_bytes": 74137600,
+    "known_retained_lb": 1442982,
+    "distinct": 90882,
+    "wall_ms": 3683.41,
+    "bytes_per_state": 810.7,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/ewd426/TokenRing.cfg": {
+    "model": "specifications/ewd426/TokenRing.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 44113920,
+     "min": 44048384,
+     "max": 44236800
+    },
+    "observed_max_bytes": 44421120,
+    "known_retained_lb": 7918352,
+    "distinct": 46656,
+    "wall_ms": 1244.51,
+    "bytes_per_state": 945.5,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/ewd687a/MCEWD687a.cfg": {
+    "model": "specifications/ewd687a/MCEWD687a.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 38154240,
+     "min": 38051840,
+     "max": 38371328
+    },
+    "observed_max_bytes": 38625280,
+    "known_retained_lb": 1120596,
+    "distinct": 18028,
+    "wall_ms": 2727.57,
+    "bytes_per_state": 2116.4,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/ewd840/EWD840.cfg": {
+    "model": "specifications/ewd840/EWD840.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 71282688,
+     "min": 70553600,
+     "max": 71327744
+    },
+    "observed_max_bytes": 38080512,
+    "known_retained_lb": 900866,
+    "distinct": 302,
+    "wall_ms": 35.19,
+    "bytes_per_state": 236035.4,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/ewd840/SyncTerminationDetection.cfg": {
+    "model": "specifications/ewd840/SyncTerminationDetection.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 23097344,
+     "min": 22962176,
+     "max": 23334912
+    },
+    "observed_max_bytes": 23285760,
+    "known_retained_lb": 1087376,
+    "distinct": 129,
+    "wall_ms": 11.72,
+    "bytes_per_state": 179049.2,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/ewd998/AsyncTerminationDetection.cfg": {
+    "model": "specifications/ewd998/AsyncTerminationDetection.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 27389952,
+     "min": 27267072,
+     "max": 27475968
+    },
+    "observed_max_bytes": 27418624,
+    "known_retained_lb": 1145360,
+    "distinct": 4097,
+    "wall_ms": 101.88,
+    "bytes_per_state": 6685.4,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/ewd998/EWD998Chan.cfg": {
+    "model": "specifications/ewd998/EWD998Chan.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 538697728,
+     "min": 538640384,
+     "max": 539004928
+    },
+    "observed_max_bytes": 539602944,
+    "known_retained_lb": 2236436,
+    "distinct": 1524022,
+    "wall_ms": 832586.27,
+    "bytes_per_state": 353.5,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/glowingRaccoon/product.cfg": {
+    "model": "specifications/glowingRaccoon/product.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 65126400,
+     "min": 65064960,
+     "max": 65212416
+    },
+    "observed_max_bytes": 31748096,
+    "known_retained_lb": 869727,
+    "distinct": 305,
+    "wall_ms": 97.57,
+    "bytes_per_state": 213529.2,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/glowingRaccoon/stages.cfg": {
+    "model": "specifications/glowingRaccoon/stages.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 25296896,
+     "min": 25198592,
+     "max": 25419776
+    },
+    "observed_max_bytes": 25391104,
+    "known_retained_lb": 868319,
+    "distinct": 83,
+    "wall_ms": 11.77,
+    "bytes_per_state": 304781.9,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/nbacg_guer01/nbacg_guer01.cfg": {
+    "model": "specifications/nbacg_guer01/nbacg_guer01.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 36196352,
+     "min": 36040704,
+     "max": 36245504
+    },
+    "observed_max_bytes": 36368384,
+    "known_retained_lb": 1107359,
+    "distinct": 24922,
+    "wall_ms": 723.92,
+    "bytes_per_state": 1452.4,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/tcp/MCtcp.cfg": {
+    "model": "specifications/tcp/MCtcp.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 32002048,
+     "min": 31907840,
+     "max": 32137216
+    },
+    "observed_max_bytes": 32133120,
+    "known_retained_lb": 1234594,
+    "distinct": 1182,
+    "wall_ms": 90.77,
+    "bytes_per_state": 27074.5,
+    "agrees_with_golden": true,
+    "stopped": null
+   }
+  }
+ }
+}

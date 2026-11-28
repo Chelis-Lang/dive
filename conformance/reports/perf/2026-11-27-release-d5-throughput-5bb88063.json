@@ -1,0 +1,194 @@
+{
+ "measurement": "D5",
+ "plan": "docs/developer/release-performance-plan.md#d5-startup-simulation-and-trace-validation-throughput",
+ "date": "2026-11-27",
+ "source": "5bb880635f46c7266e015a0d812f18e4411cdc6a",
+ "dive_binary_sha256": "f18c0f9a0411750a8aaeced079e625ada6c05c86581fb01871e3057ae6aa007a",
+ "oracle": "tlc-2026.10.06.014338",
+ "corpus": "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+ "host": {
+  "instance": "c7i.metal-24xl, us-east-1",
+  "cpu": "Intel Xeon Platinum 8488C",
+  "smt": "off",
+  "turbo": "off",
+  "frequency_khz": 2400000,
+  "governor": "performance",
+  "numa_nodes": 1,
+  "cpus": 48,
+  "binding": "numactl --cpunodebind=0 --membind=0 (all 48 CPUs of the single NUMA node)",
+  "storage": "gp3, 16000 IOPS, 1000 MiB/s",
+  "thp": "madvise",
+  "kernel": "7.0.0-1014-aws",
+  "ami": "Ubuntu 24.04.5 LTS (Canonical, x86_64)"
+ },
+ "command": {
+  "startup": "dive --version | dive parse docs/user/examples/Counter.tla | dive check docs/user/examples/Counter.tla --config docs/user/examples/Counter.cfg --workers 1 --seed 0 --fp 0 --output json (50 fresh runs each)",
+  "simulation": "dive simulate <module.tla> --config <model.cfg> --traces 10000 --depth 100 --seed 0 --stats basic --time-limit 600s --max-memory 16g --output json (3 repetitions)",
+  "validation": "dive validate-trace <module.tla> --config <model.cfg> --trace trace.json --seed 0 --fp 0 --output json (10 each); --sample for 100 bosco simulation traces (simulate --traces 100 --depth 100 --seed 0)"
+ },
+ "raw": {
+  "location": "dive evidence archive bucket (us-east-1), prefix release-perf/2026-11-27-rc02/small-node-raw.tar.gz",
+  "sha256": "51823724eacf41329b3a925971ae0275c634acaaed3741aa05129ae7f083b29c"
+ },
+ "deviations": [
+  "Release binary built on one bench node and copied to the others, because independent builds of the same source were not byte-identical; dive_binary_sha256 names the copied binary.",
+  "The 100 --sample traces come from bosco's simulation, not MCLamportMutex's: MCLamportMutex simulation stops at its first trace with a reported deadlock, so it yields one trace."
+ ],
+ "timing": "perf_counter around subprocess.run; check, simulate and validate-trace under GNU /usr/bin/time -v for peak RSS",
+ "previous_record": "conformance/reports/perf/2026-11-18-release-d5-throughput-08a14fba.json",
+ "rows": {
+  "startup": {
+   "version": {
+    "runs": 50,
+    "median_ms": 1.28,
+    "p90_ms": 1.42,
+    "max_ms": 1.54,
+    "rc": [
+     0
+    ]
+   },
+   "parse": {
+    "runs": 50,
+    "median_ms": 1.4,
+    "p90_ms": 1.57,
+    "max_ms": 1.79,
+    "rc": [
+     0
+    ]
+   },
+   "check": {
+    "runs": 50,
+    "median_ms": 4.46,
+    "p90_ms": 4.79,
+    "max_ms": 5.01,
+    "rc": [
+     0
+    ],
+    "peak_rss_bytes": 18237440.0
+   }
+  },
+  "simulation": {
+   "specifications/lamport_mutex/MCLamportMutex.cfg": {
+    "reps": [
+     {
+      "wall_ms": 20.28,
+      "exit_code": 11,
+      "peak_rss_bytes": 28905472,
+      "generated": 72,
+      "stopped": null
+     },
+     {
+      "wall_ms": 20.88,
+      "exit_code": 11,
+      "peak_rss_bytes": 28958720,
+      "generated": 72,
+      "stopped": null
+     },
+     {
+      "wall_ms": 19.59,
+      "exit_code": 11,
+      "peak_rss_bytes": 28831744,
+      "generated": 72,
+      "stopped": null
+     }
+    ],
+    "result": "violation (simulation deadlock on the first trace)",
+    "traces_started": 1,
+    "generated": 72,
+    "traces_per_second": null,
+    "states_per_second": null,
+    "note": "Every successor of the trace's last state is pruned by the state constraint, which dive reports as a deadlock (docs/user/simulation.md). The run stops after one trace, so it is not a throughput figure."
+   },
+   "specifications/bosco/bosco.cfg": {
+    "reps": [
+     {
+      "wall_ms": 28386.22,
+      "exit_code": 0,
+      "peak_rss_bytes": 47902720,
+      "generated": 2069707,
+      "stopped": null
+     },
+     {
+      "wall_ms": 28549.5,
+      "exit_code": 0,
+      "peak_rss_bytes": 47931392,
+      "generated": 2069707,
+      "stopped": null
+     },
+     {
+      "wall_ms": 28567.53,
+      "exit_code": 0,
+      "peak_rss_bytes": 48005120,
+      "generated": 2069707,
+      "stopped": null
+     }
+    ],
+    "result": "sampled: 10000 traces started, none dropped or stalled, in every repetition",
+    "traces_started": 10000,
+    "generated": 2069707,
+    "wall_ms_median": 28549.5,
+    "traces_per_second": 350.27,
+    "states_per_second": 72495.0,
+    "note": "Rates use the median wall time (process start to exit). In the 0.1.0 record (08a14fba) this run stopped at its 16 GiB memory budget after 9901 traces (#1024)."
+   }
+  },
+  "trace_validation": {
+   "validate|specifications/DieHard/DieHard.cfg": {
+    "runs": 10,
+    "median_ms": 6.06,
+    "max_ms": 6.37,
+    "total_ms": 59.8,
+    "results": {
+     "valid": 10
+    },
+    "rc": [
+     0
+    ],
+    "trace_states": 7,
+    "states_per_second": 1155.1
+   },
+   "validate|specifications/SlidingPuzzles/SlidingPuzzles.cfg": {
+    "runs": 10,
+    "median_ms": 46.12,
+    "max_ms": 46.88,
+    "total_ms": 462.2,
+    "results": {
+     "valid": 10
+    },
+    "rc": [
+     0
+    ],
+    "trace_states": 117,
+    "states_per_second": 2536.9
+   },
+   "validate|specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg": {
+    "runs": 10,
+    "median_ms": 7.33,
+    "max_ms": 7.78,
+    "total_ms": 73.4,
+    "results": {
+     "valid": 10
+    },
+    "rc": [
+     0
+    ],
+    "trace_states": 2,
+    "states_per_second": 272.9
+   },
+   "sample|specifications/bosco/bosco.cfg": {
+    "runs": 10,
+    "median_ms": 81.12,
+    "max_ms": 85.52,
+    "total_ms": 816.7,
+    "results": {
+     "valid": 10
+    },
+    "rc": [
+     0
+    ],
+    "trace_states": 101,
+    "states_per_second": 1245.1
+   }
+  }
+ }
+}

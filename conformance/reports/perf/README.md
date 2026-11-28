@@ -173,6 +173,12 @@ The [population edit-session measurements](2026-11-21-occupancy-edits.json) pair
 | `2026-11-18-release-d6-stop-latency-08a14fba.json` | D6 | How soon after a time, state or depth limit does a run stop? | `08a14fba` | c7i.metal-24xl (small node) |
 | `2026-11-18-release-d7-macos-08a14fba.json` | D7 (informational) | Does the macOS arm64 build behave like the x86 one? | `08a14fba` | MacBook Air M3, shared laptop |
 | `2026-11-19-release-s7-sail-vs-tlc-ce94df74.json` | S7, release gate | Sail+dive against a fresh `java -jar tla2tools.jar` per check | dive `3d5923a1`, Sail `ce94df74` (and four other Sail builds) | c7i.8xlarge, fresh node |
+| `2026-11-27-r2-procedure-5bb88063.json` | D1, R2 gate (0.2.0) | Is Core faster than TLC on the corpus (geomean below 1x, no model above 2x)? Includes the per-model comparison with `c14687e6` | `5bb88063` | 5 x c7i.metal-24xl |
+| `2026-11-27-release-d2-memory-5bb88063.json` | D2 (0.2.0) | Peak RSS of dive against TLC, and of liveness capture per state; compared with `08a14fba` | `5bb88063` | c7i.metal-24xl (small node) |
+| `2026-11-27-release-d3-store-5bb88063.json` | D3 (0.2.0) | What does `--store exact` cost against the fingerprint store? | `5bb88063` | c7i.metal-24xl (small node) |
+| `2026-11-27-release-d4-scaling-5bb88063.json` | D4 (0.2.0) | How does wall time scale at 1, 4 and 8 workers? Compared with `08a14fba` | `5bb88063` | 5 x c7i.metal-24xl (the D1 nodes) |
+| `2026-11-27-release-d5-throughput-5bb88063.json` | D5 (0.2.0) | Startup latency, simulation throughput, trace-validation throughput | `5bb88063` | c7i.metal-24xl (small node) |
+| `2026-11-27-release-d6-stop-latency-5bb88063.json` | D6 (0.2.0) | How soon after a time, state or depth limit does a run stop? | `5bb88063` | c7i.metal-24xl (small node) |
 | `2026-11-27-release-s7-sail-vs-tlc-5bb88063.json` | S7, release gate (0.2.0) | Sail 0.3.1 + dive 0.2.0 against a fresh `java -jar tla2tools.jar` per check, fresh checks (`rc`) and receipt replays (`rcreplay`) | dive `5bb88063`, Sail `b00b6de9` | c7i.8xlarge, fresh node |
 
 All D records share the oracle `tlc-2026.10.06.014338` (pinned JRE), the
@@ -218,6 +224,11 @@ packed (not rechecked against the bucket copy since).
 Prefix `release-perf/2026-11-27-rc02/s7/` holds the 0.2.0 S7 tarball; its
 record cites it under `raw` (SHA-256
 `92c4b073fb42a556d6324a10a4c1f012aac7dd6e65f95de0b86fcbf8da131562`).
+
+Prefix `release-perf/2026-11-27-rc02/` holds the 0.2.0 D1 to D6 tarballs:
+`small-node-raw.tar.gz` (D1 small class, D2, D3, D5, D6) and
+`shard1-d1-d4-raw.tar.gz` to `shard4-d1-d4-raw.tar.gz` (D1 large shards and
+the D4 repetitions run on each node). Each record cites them under `raw`.
 
 To fetch one, use the AWS CLI with read access to the bucket, then check the
 digest before reading anything:

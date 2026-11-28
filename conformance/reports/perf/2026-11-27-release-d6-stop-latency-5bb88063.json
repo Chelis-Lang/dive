@@ -1,0 +1,2020 @@
+{
+ "measurement": "D6",
+ "plan": "docs/developer/release-performance-plan.md#d6-stop-latency",
+ "date": "2026-11-27",
+ "source": "5bb880635f46c7266e015a0d812f18e4411cdc6a",
+ "dive_binary_sha256": "f18c0f9a0411750a8aaeced079e625ada6c05c86581fb01871e3057ae6aa007a",
+ "oracle": "tlc-2026.10.06.014338",
+ "corpus": "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+ "host": {
+  "instance": "c7i.metal-24xl, us-east-1",
+  "cpu": "Intel Xeon Platinum 8488C",
+  "smt": "off",
+  "turbo": "off",
+  "frequency_khz": 2400000,
+  "governor": "performance",
+  "numa_nodes": 1,
+  "cpus": 48,
+  "binding": "numactl --cpunodebind=0 --membind=0 (all 48 CPUs of the single NUMA node)",
+  "storage": "gp3, 16000 IOPS, 1000 MiB/s",
+  "thp": "madvise",
+  "kernel": "7.0.0-1014-aws",
+  "ami": "Ubuntu 24.04.5 LTS (Canonical, x86_64)"
+ },
+ "command": "dive check <module.tla> --config <model.cfg> --workers 1|8 --seed 0 --fp 0 with --time-limit 5s|30s|120s --max-memory 64g (5 repetitions), --max-states 1 for load time (3 repetitions), and the state/depth ceilings with --time-limit 3600s (3 repetitions); --output json",
+ "raw": {
+  "location": "dive evidence archive bucket (us-east-1), prefix release-perf/2026-11-27-rc02/small-node-raw.tar.gz",
+  "sha256": "51823724eacf41329b3a925971ae0275c634acaaed3741aa05129ae7f083b29c"
+ },
+ "deviations": [
+  "Release binary built on one bench node and copied to the others (independent builds were not byte-identical); dive_binary_sha256 names the copied binary."
+ ],
+ "latency": "wall time minus the load time (median of the --max-states 1 runs at the same worker count) minus the limit",
+ "latency_note": "ElevatorLivenessLarge now completes its whole check (holds, exit 0) in about 2 s, before any of the 5 s, 30 s and 120 s limits, so its time-budget rows are completed runs, not stops; their latency_ms values are negative by construction and are not latencies. In the 0.1.0 record (08a14fba) the same rows stopped in temporal analysis.",
+ "not_measured": [
+  "Time from the last progress report to exit: the runs used --output json without progress output."
+ ],
+ "previous_record": "conformance/reports/perf/2026-11-18-release-d6-stop-latency-08a14fba.json",
+ "rows": {
+  "time_budget": {
+   "MultiCarElevator/ElevatorSafetyLarge|workers=1|--time-limit 5s": {
+    "reps": 5,
+    "wall_ms_median": 5017.89,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "latency_ms_median": 6.9,
+    "latency_ms_max": 7.7,
+    "wall_minus_limit_ms_median": 17.9,
+    "wall_minus_limit_ms_max": 18.6,
+    "stopped_elapsed_over_limit_ms_max": 10,
+    "load_ms": 10.98,
+    "runs": [
+     {
+      "wall_ms": 5018.21,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5010,
+      "latency_ms": 7.2,
+      "wall_minus_limit_ms": 18.2,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 800469,
+      "load_ms": 10.98
+     },
+     {
+      "wall_ms": 5018.64,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5010,
+      "latency_ms": 7.7,
+      "wall_minus_limit_ms": 18.6,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 799940,
+      "load_ms": 10.98
+     },
+     {
+      "wall_ms": 5017.89,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5010,
+      "latency_ms": 6.9,
+      "wall_minus_limit_ms": 17.9,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 800928,
+      "load_ms": 10.98
+     },
+     {
+      "wall_ms": 5017.56,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5010,
+      "latency_ms": 6.6,
+      "wall_minus_limit_ms": 17.6,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 799717,
+      "load_ms": 10.98
+     },
+     {
+      "wall_ms": 5017.65,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5010,
+      "latency_ms": 6.7,
+      "wall_minus_limit_ms": 17.6,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 800336,
+      "load_ms": 10.98
+     }
+    ]
+   },
+   "MultiCarElevator/ElevatorSafetyLarge|workers=1|--time-limit 30s": {
+    "reps": 5,
+    "wall_ms_median": 30020.52,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "latency_ms_median": 9.5,
+    "latency_ms_max": 10.2,
+    "wall_minus_limit_ms_median": 20.5,
+    "wall_minus_limit_ms_max": 21.2,
+    "stopped_elapsed_over_limit_ms_max": 11,
+    "load_ms": 10.98,
+    "runs": [
+     {
+      "wall_ms": 30020.52,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30011,
+      "latency_ms": 9.5,
+      "wall_minus_limit_ms": 20.5,
+      "stopped_elapsed_over_limit_ms": 11,
+      "distinct": 2383315,
+      "load_ms": 10.98
+     },
+     {
+      "wall_ms": 30019.14,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30009,
+      "latency_ms": 8.2,
+      "wall_minus_limit_ms": 19.1,
+      "stopped_elapsed_over_limit_ms": 9,
+      "distinct": 2386686,
+      "load_ms": 10.98
+     },
+     {
+      "wall_ms": 30020.62,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30009,
+      "latency_ms": 9.6,
+      "wall_minus_limit_ms": 20.6,
+      "stopped_elapsed_over_limit_ms": 9,
+      "distinct": 2385831,
+      "load_ms": 10.98
+     },
+     {
+      "wall_ms": 30021.15,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30010,
+      "latency_ms": 10.2,
+      "wall_minus_limit_ms": 21.2,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 2384982,
+      "load_ms": 10.98
+     },
+     {
+      "wall_ms": 30019.56,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30009,
+      "latency_ms": 8.6,
+      "wall_minus_limit_ms": 19.6,
+      "stopped_elapsed_over_limit_ms": 9,
+      "distinct": 2383502,
+      "load_ms": 10.98
+     }
+    ]
+   },
+   "MultiCarElevator/ElevatorSafetyLarge|workers=1|--time-limit 120s": {
+    "reps": 5,
+    "wall_ms_median": 120050.79,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "latency_ms_median": 39.8,
+    "latency_ms_max": 42.6,
+    "wall_minus_limit_ms_median": 50.8,
+    "wall_minus_limit_ms_max": 53.5,
+    "stopped_elapsed_over_limit_ms_max": 41,
+    "load_ms": 10.98,
+    "runs": [
+     {
+      "wall_ms": 120051.23,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120039,
+      "latency_ms": 40.2,
+      "wall_minus_limit_ms": 51.2,
+      "stopped_elapsed_over_limit_ms": 39,
+      "distinct": 6348890,
+      "load_ms": 10.98
+     },
+     {
+      "wall_ms": 120042.89,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120031,
+      "latency_ms": 31.9,
+      "wall_minus_limit_ms": 42.9,
+      "stopped_elapsed_over_limit_ms": 31,
+      "distinct": 6360959,
+      "load_ms": 10.98
+     },
+     {
+      "wall_ms": 120050.79,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120039,
+      "latency_ms": 39.8,
+      "wall_minus_limit_ms": 50.8,
+      "stopped_elapsed_over_limit_ms": 39,
+      "distinct": 6361751,
+      "load_ms": 10.98
+     },
+     {
+      "wall_ms": 120049.5,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120038,
+      "latency_ms": 38.5,
+      "wall_minus_limit_ms": 49.5,
+      "stopped_elapsed_over_limit_ms": 38,
+      "distinct": 6364011,
+      "load_ms": 10.98
+     },
+     {
+      "wall_ms": 120053.53,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120041,
+      "latency_ms": 42.6,
+      "wall_minus_limit_ms": 53.5,
+      "stopped_elapsed_over_limit_ms": 41,
+      "distinct": 6357908,
+      "load_ms": 10.98
+     }
+    ]
+   },
+   "MultiCarElevator/ElevatorSafetyLarge|workers=8|--time-limit 5s": {
+    "reps": 5,
+    "wall_ms_median": 5021.14,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "latency_ms_median": 10.7,
+    "latency_ms_max": 10.9,
+    "wall_minus_limit_ms_median": 21.1,
+    "wall_minus_limit_ms_max": 21.3,
+    "stopped_elapsed_over_limit_ms_max": 10,
+    "load_ms": 10.46,
+    "runs": [
+     {
+      "wall_ms": 5018.99,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5009,
+      "latency_ms": 8.5,
+      "wall_minus_limit_ms": 19.0,
+      "stopped_elapsed_over_limit_ms": 9,
+      "distinct": 1877805,
+      "load_ms": 10.46
+     },
+     {
+      "wall_ms": 5021.14,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5010,
+      "latency_ms": 10.7,
+      "wall_minus_limit_ms": 21.1,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 1879167,
+      "load_ms": 10.46
+     },
+     {
+      "wall_ms": 5021.33,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5010,
+      "latency_ms": 10.9,
+      "wall_minus_limit_ms": 21.3,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 1904312,
+      "load_ms": 10.46
+     },
+     {
+      "wall_ms": 5019.79,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5009,
+      "latency_ms": 9.3,
+      "wall_minus_limit_ms": 19.8,
+      "stopped_elapsed_over_limit_ms": 9,
+      "distinct": 1906976,
+      "load_ms": 10.46
+     },
+     {
+      "wall_ms": 5021.19,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5010,
+      "latency_ms": 10.7,
+      "wall_minus_limit_ms": 21.2,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 1885200,
+      "load_ms": 10.46
+     }
+    ]
+   },
+   "MultiCarElevator/ElevatorSafetyLarge|workers=8|--time-limit 30s": {
+    "reps": 5,
+    "wall_ms_median": 30020.74,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "latency_ms_median": 10.3,
+    "latency_ms_max": 10.9,
+    "wall_minus_limit_ms_median": 20.7,
+    "wall_minus_limit_ms_max": 21.4,
+    "stopped_elapsed_over_limit_ms_max": 7,
+    "load_ms": 10.46,
+    "runs": [
+     {
+      "wall_ms": 30020.76,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30006,
+      "latency_ms": 10.3,
+      "wall_minus_limit_ms": 20.8,
+      "stopped_elapsed_over_limit_ms": 6,
+      "distinct": 7644126,
+      "load_ms": 10.46
+     },
+     {
+      "wall_ms": 30016.68,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30003,
+      "latency_ms": 6.2,
+      "wall_minus_limit_ms": 16.7,
+      "stopped_elapsed_over_limit_ms": 3,
+      "distinct": 7593615,
+      "load_ms": 10.46
+     },
+     {
+      "wall_ms": 30021.39,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30007,
+      "latency_ms": 10.9,
+      "wall_minus_limit_ms": 21.4,
+      "stopped_elapsed_over_limit_ms": 7,
+      "distinct": 7758620,
+      "load_ms": 10.46
+     },
+     {
+      "wall_ms": 30015.55,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30001,
+      "latency_ms": 5.1,
+      "wall_minus_limit_ms": 15.5,
+      "stopped_elapsed_over_limit_ms": 1,
+      "distinct": 7751997,
+      "load_ms": 10.46
+     },
+     {
+      "wall_ms": 30020.74,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30007,
+      "latency_ms": 10.3,
+      "wall_minus_limit_ms": 20.7,
+      "stopped_elapsed_over_limit_ms": 7,
+      "distinct": 7617799,
+      "load_ms": 10.46
+     }
+    ]
+   },
+   "MultiCarElevator/ElevatorSafetyLarge|workers=8|--time-limit 120s": {
+    "reps": 5,
+    "wall_ms_median": 120045.43,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "latency_ms_median": 35.0,
+    "latency_ms_max": 39.3,
+    "wall_minus_limit_ms_median": 45.4,
+    "wall_minus_limit_ms_max": 49.8,
+    "stopped_elapsed_over_limit_ms_max": 31,
+    "load_ms": 10.46,
+    "runs": [
+     {
+      "wall_ms": 120045.43,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120026,
+      "latency_ms": 35.0,
+      "wall_minus_limit_ms": 45.4,
+      "stopped_elapsed_over_limit_ms": 26,
+      "distinct": 27838772,
+      "load_ms": 10.46
+     },
+     {
+      "wall_ms": 120049.77,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120031,
+      "latency_ms": 39.3,
+      "wall_minus_limit_ms": 49.8,
+      "stopped_elapsed_over_limit_ms": 31,
+      "distinct": 28271366,
+      "load_ms": 10.46
+     },
+     {
+      "wall_ms": 120045.65,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120026,
+      "latency_ms": 35.2,
+      "wall_minus_limit_ms": 45.6,
+      "stopped_elapsed_over_limit_ms": 26,
+      "distinct": 28251987,
+      "load_ms": 10.46
+     },
+     {
+      "wall_ms": 120045.23,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120026,
+      "latency_ms": 34.8,
+      "wall_minus_limit_ms": 45.2,
+      "stopped_elapsed_over_limit_ms": 26,
+      "distinct": 27767163,
+      "load_ms": 10.46
+     },
+     {
+      "wall_ms": 120036.27,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120018,
+      "latency_ms": 25.8,
+      "wall_minus_limit_ms": 36.3,
+      "stopped_elapsed_over_limit_ms": 18,
+      "distinct": 28270796,
+      "load_ms": 10.46
+     }
+    ]
+   },
+   "SlushProtocol/SlushLarge|workers=1|--time-limit 5s": {
+    "reps": 5,
+    "wall_ms_median": 5018.84,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "latency_ms_median": 6.8,
+    "latency_ms_max": 7.1,
+    "wall_minus_limit_ms_median": 18.8,
+    "wall_minus_limit_ms_max": 19.1,
+    "stopped_elapsed_over_limit_ms_max": 10,
+    "load_ms": 12.05,
+    "runs": [
+     {
+      "wall_ms": 5018.63,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5009,
+      "latency_ms": 6.6,
+      "wall_minus_limit_ms": 18.6,
+      "stopped_elapsed_over_limit_ms": 9,
+      "distinct": 578000,
+      "load_ms": 12.05
+     },
+     {
+      "wall_ms": 5019.14,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5009,
+      "latency_ms": 7.1,
+      "wall_minus_limit_ms": 19.1,
+      "stopped_elapsed_over_limit_ms": 9,
+      "distinct": 576977,
+      "load_ms": 12.05
+     },
+     {
+      "wall_ms": 5018.81,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5009,
+      "latency_ms": 6.8,
+      "wall_minus_limit_ms": 18.8,
+      "stopped_elapsed_over_limit_ms": 9,
+      "distinct": 576803,
+      "load_ms": 12.05
+     },
+     {
+      "wall_ms": 5018.84,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5009,
+      "latency_ms": 6.8,
+      "wall_minus_limit_ms": 18.8,
+      "stopped_elapsed_over_limit_ms": 9,
+      "distinct": 579547,
+      "load_ms": 12.05
+     },
+     {
+      "wall_ms": 5019.08,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5010,
+      "latency_ms": 7.0,
+      "wall_minus_limit_ms": 19.1,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 577470,
+      "load_ms": 12.05
+     }
+    ]
+   },
+   "SlushProtocol/SlushLarge|workers=1|--time-limit 30s": {
+    "reps": 5,
+    "wall_ms_median": 30019.12,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "latency_ms_median": 7.1,
+    "latency_ms_max": 10.0,
+    "wall_minus_limit_ms_median": 19.1,
+    "wall_minus_limit_ms_max": 22.0,
+    "stopped_elapsed_over_limit_ms_max": 11,
+    "load_ms": 12.05,
+    "runs": [
+     {
+      "wall_ms": 30018.89,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30009,
+      "latency_ms": 6.8,
+      "wall_minus_limit_ms": 18.9,
+      "stopped_elapsed_over_limit_ms": 9,
+      "distinct": 2883627,
+      "load_ms": 12.05
+     },
+     {
+      "wall_ms": 30020.47,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30010,
+      "latency_ms": 8.4,
+      "wall_minus_limit_ms": 20.5,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 2872196,
+      "load_ms": 12.05
+     },
+     {
+      "wall_ms": 30022.02,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30011,
+      "latency_ms": 10.0,
+      "wall_minus_limit_ms": 22.0,
+      "stopped_elapsed_over_limit_ms": 11,
+      "distinct": 2875343,
+      "load_ms": 12.05
+     },
+     {
+      "wall_ms": 30019.12,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30008,
+      "latency_ms": 7.1,
+      "wall_minus_limit_ms": 19.1,
+      "stopped_elapsed_over_limit_ms": 8,
+      "distinct": 2874674,
+      "load_ms": 12.05
+     },
+     {
+      "wall_ms": 30018.28,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30009,
+      "latency_ms": 6.2,
+      "wall_minus_limit_ms": 18.3,
+      "stopped_elapsed_over_limit_ms": 9,
+      "distinct": 2895256,
+      "load_ms": 12.05
+     }
+    ]
+   },
+   "SlushProtocol/SlushLarge|workers=1|--time-limit 120s": {
+    "reps": 5,
+    "wall_ms_median": 120055.01,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "latency_ms_median": 43.0,
+    "latency_ms_max": 47.7,
+    "wall_minus_limit_ms_median": 55.0,
+    "wall_minus_limit_ms_max": 59.7,
+    "stopped_elapsed_over_limit_ms_max": 47,
+    "load_ms": 12.05,
+    "runs": [
+     {
+      "wall_ms": 120059.73,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120047,
+      "latency_ms": 47.7,
+      "wall_minus_limit_ms": 59.7,
+      "stopped_elapsed_over_limit_ms": 47,
+      "distinct": 9736782,
+      "load_ms": 12.05
+     },
+     {
+      "wall_ms": 120055.01,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120041,
+      "latency_ms": 43.0,
+      "wall_minus_limit_ms": 55.0,
+      "stopped_elapsed_over_limit_ms": 41,
+      "distinct": 9823754,
+      "load_ms": 12.05
+     },
+     {
+      "wall_ms": 120051.7,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120038,
+      "latency_ms": 39.6,
+      "wall_minus_limit_ms": 51.7,
+      "stopped_elapsed_over_limit_ms": 38,
+      "distinct": 9775150,
+      "load_ms": 12.05
+     },
+     {
+      "wall_ms": 120055.01,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120041,
+      "latency_ms": 43.0,
+      "wall_minus_limit_ms": 55.0,
+      "stopped_elapsed_over_limit_ms": 41,
+      "distinct": 9824150,
+      "load_ms": 12.05
+     },
+     {
+      "wall_ms": 120052.29,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120038,
+      "latency_ms": 40.2,
+      "wall_minus_limit_ms": 52.3,
+      "stopped_elapsed_over_limit_ms": 38,
+      "distinct": 9816503,
+      "load_ms": 12.05
+     }
+    ]
+   },
+   "SlushProtocol/SlushLarge|workers=8|--time-limit 5s": {
+    "reps": 5,
+    "wall_ms_median": 5021.85,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "latency_ms_median": 8.8,
+    "latency_ms_max": 8.9,
+    "wall_minus_limit_ms_median": 21.9,
+    "wall_minus_limit_ms_max": 22.0,
+    "stopped_elapsed_over_limit_ms_max": 10,
+    "load_ms": 13.06,
+    "runs": [
+     {
+      "wall_ms": 5021.78,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5010,
+      "latency_ms": 8.7,
+      "wall_minus_limit_ms": 21.8,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 2256228,
+      "load_ms": 13.06
+     },
+     {
+      "wall_ms": 5021.85,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5010,
+      "latency_ms": 8.8,
+      "wall_minus_limit_ms": 21.9,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 2267926,
+      "load_ms": 13.06
+     },
+     {
+      "wall_ms": 5021.84,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5010,
+      "latency_ms": 8.8,
+      "wall_minus_limit_ms": 21.8,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 2236398,
+      "load_ms": 13.06
+     },
+     {
+      "wall_ms": 5021.97,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5010,
+      "latency_ms": 8.9,
+      "wall_minus_limit_ms": 22.0,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 2244470,
+      "load_ms": 13.06
+     },
+     {
+      "wall_ms": 5021.99,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 5010,
+      "latency_ms": 8.9,
+      "wall_minus_limit_ms": 22.0,
+      "stopped_elapsed_over_limit_ms": 10,
+      "distinct": 2236892,
+      "load_ms": 13.06
+     }
+    ]
+   },
+   "SlushProtocol/SlushLarge|workers=8|--time-limit 30s": {
+    "reps": 5,
+    "wall_ms_median": 30022.2,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "latency_ms_median": 9.1,
+    "latency_ms_max": 9.6,
+    "wall_minus_limit_ms_median": 22.2,
+    "wall_minus_limit_ms_max": 22.7,
+    "stopped_elapsed_over_limit_ms_max": 7,
+    "load_ms": 13.06,
+    "runs": [
+     {
+      "wall_ms": 30022.2,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30006,
+      "latency_ms": 9.1,
+      "wall_minus_limit_ms": 22.2,
+      "stopped_elapsed_over_limit_ms": 6,
+      "distinct": 11350195,
+      "load_ms": 13.06
+     },
+     {
+      "wall_ms": 30020.2,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30004,
+      "latency_ms": 7.1,
+      "wall_minus_limit_ms": 20.2,
+      "stopped_elapsed_over_limit_ms": 4,
+      "distinct": 11380769,
+      "load_ms": 13.06
+     },
+     {
+      "wall_ms": 30022.25,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30007,
+      "latency_ms": 9.2,
+      "wall_minus_limit_ms": 22.2,
+      "stopped_elapsed_over_limit_ms": 7,
+      "distinct": 11370726,
+      "load_ms": 13.06
+     },
+     {
+      "wall_ms": 30022.65,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30007,
+      "latency_ms": 9.6,
+      "wall_minus_limit_ms": 22.7,
+      "stopped_elapsed_over_limit_ms": 7,
+      "distinct": 11356466,
+      "load_ms": 13.06
+     },
+     {
+      "wall_ms": 30021.89,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 30005,
+      "latency_ms": 8.8,
+      "wall_minus_limit_ms": 21.9,
+      "stopped_elapsed_over_limit_ms": 5,
+      "distinct": 11614438,
+      "load_ms": 13.06
+     }
+    ]
+   },
+   "SlushProtocol/SlushLarge|workers=8|--time-limit 120s": {
+    "reps": 5,
+    "wall_ms_median": 120046.88,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "latency_ms_median": 33.8,
+    "latency_ms_max": 36.2,
+    "wall_minus_limit_ms_median": 46.9,
+    "wall_minus_limit_ms_max": 49.2,
+    "stopped_elapsed_over_limit_ms_max": 25,
+    "load_ms": 13.06,
+    "runs": [
+     {
+      "wall_ms": 120049.19,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120024,
+      "latency_ms": 36.1,
+      "wall_minus_limit_ms": 49.2,
+      "stopped_elapsed_over_limit_ms": 24,
+      "distinct": 38171937,
+      "load_ms": 13.06
+     },
+     {
+      "wall_ms": 120046.65,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120022,
+      "latency_ms": 33.6,
+      "wall_minus_limit_ms": 46.6,
+      "stopped_elapsed_over_limit_ms": 22,
+      "distinct": 37929257,
+      "load_ms": 13.06
+     },
+     {
+      "wall_ms": 120049.25,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120025,
+      "latency_ms": 36.2,
+      "wall_minus_limit_ms": 49.2,
+      "stopped_elapsed_over_limit_ms": 25,
+      "distinct": 38337257,
+      "load_ms": 13.06
+     },
+     {
+      "wall_ms": 120046.56,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120022,
+      "latency_ms": 33.5,
+      "wall_minus_limit_ms": 46.6,
+      "stopped_elapsed_over_limit_ms": 22,
+      "distinct": 38000258,
+      "load_ms": 13.06
+     },
+     {
+      "wall_ms": 120046.88,
+      "exit_code": 5,
+      "phase": "safety-search",
+      "resource": "time",
+      "stopped_elapsed_ms": 120023,
+      "latency_ms": 33.8,
+      "wall_minus_limit_ms": 46.9,
+      "stopped_elapsed_over_limit_ms": 23,
+      "distinct": 38921736,
+      "load_ms": 13.06
+     }
+    ]
+   },
+   "MultiCarElevator/ElevatorLivenessLarge|workers=1|--time-limit 5s": {
+    "reps": 5,
+    "wall_ms_median": 2074.69,
+    "exit_codes": [
+     0
+    ],
+    "phases": [
+     "None"
+    ],
+    "latency_ms_median": -3005.1,
+    "latency_ms_max": -3001.4,
+    "wall_minus_limit_ms_median": -2925.3,
+    "wall_minus_limit_ms_max": -2921.6,
+    "stopped_elapsed_over_limit_ms_max": 0,
+    "load_ms": 79.84,
+    "runs": [
+     {
+      "wall_ms": 2078.45,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -3001.4,
+      "wall_minus_limit_ms": -2921.6,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     },
+     {
+      "wall_ms": 2078.23,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -3001.6,
+      "wall_minus_limit_ms": -2921.8,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     },
+     {
+      "wall_ms": 2073.69,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -3006.1,
+      "wall_minus_limit_ms": -2926.3,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     },
+     {
+      "wall_ms": 2074.69,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -3005.1,
+      "wall_minus_limit_ms": -2925.3,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     },
+     {
+      "wall_ms": 2074.02,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -3005.8,
+      "wall_minus_limit_ms": -2926.0,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     }
+    ]
+   },
+   "MultiCarElevator/ElevatorLivenessLarge|workers=1|--time-limit 30s": {
+    "reps": 5,
+    "wall_ms_median": 2076.41,
+    "exit_codes": [
+     0
+    ],
+    "phases": [
+     "None"
+    ],
+    "latency_ms_median": -28003.4,
+    "latency_ms_max": -28000.2,
+    "wall_minus_limit_ms_median": -27923.6,
+    "wall_minus_limit_ms_max": -27920.3,
+    "stopped_elapsed_over_limit_ms_max": 0,
+    "load_ms": 79.84,
+    "runs": [
+     {
+      "wall_ms": 2076.41,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -28003.4,
+      "wall_minus_limit_ms": -27923.6,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     },
+     {
+      "wall_ms": 2074.64,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -28005.2,
+      "wall_minus_limit_ms": -27925.4,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     },
+     {
+      "wall_ms": 2075.72,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -28004.1,
+      "wall_minus_limit_ms": -27924.3,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     },
+     {
+      "wall_ms": 2076.49,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -28003.3,
+      "wall_minus_limit_ms": -27923.5,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     },
+     {
+      "wall_ms": 2079.66,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -28000.2,
+      "wall_minus_limit_ms": -27920.3,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     }
+    ]
+   },
+   "MultiCarElevator/ElevatorLivenessLarge|workers=1|--time-limit 120s": {
+    "reps": 5,
+    "wall_ms_median": 2076.23,
+    "exit_codes": [
+     0
+    ],
+    "phases": [
+     "None"
+    ],
+    "latency_ms_median": -118003.6,
+    "latency_ms_max": -117998.7,
+    "wall_minus_limit_ms_median": -117923.8,
+    "wall_minus_limit_ms_max": -117918.9,
+    "stopped_elapsed_over_limit_ms_max": 0,
+    "load_ms": 79.84,
+    "runs": [
+     {
+      "wall_ms": 2075.37,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -118004.5,
+      "wall_minus_limit_ms": -117924.6,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     },
+     {
+      "wall_ms": 2072.95,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -118006.9,
+      "wall_minus_limit_ms": -117927.1,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     },
+     {
+      "wall_ms": 2076.23,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -118003.6,
+      "wall_minus_limit_ms": -117923.8,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     },
+     {
+      "wall_ms": 2081.1,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -117998.7,
+      "wall_minus_limit_ms": -117918.9,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     },
+     {
+      "wall_ms": 2080.2,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -117999.6,
+      "wall_minus_limit_ms": -117919.8,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 79.84
+     }
+    ]
+   },
+   "MultiCarElevator/ElevatorLivenessLarge|workers=8|--time-limit 5s": {
+    "reps": 5,
+    "wall_ms_median": 2493.52,
+    "exit_codes": [
+     0
+    ],
+    "phases": [
+     "None"
+    ],
+    "latency_ms_median": -2583.2,
+    "latency_ms_max": -2568.4,
+    "wall_minus_limit_ms_median": -2506.5,
+    "wall_minus_limit_ms_max": -2491.7,
+    "stopped_elapsed_over_limit_ms_max": 0,
+    "load_ms": 76.7,
+    "runs": [
+     {
+      "wall_ms": 2490.75,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -2585.9,
+      "wall_minus_limit_ms": -2509.2,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     },
+     {
+      "wall_ms": 2508.34,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -2568.4,
+      "wall_minus_limit_ms": -2491.7,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     },
+     {
+      "wall_ms": 2493.52,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -2583.2,
+      "wall_minus_limit_ms": -2506.5,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     },
+     {
+      "wall_ms": 2494.28,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -2582.4,
+      "wall_minus_limit_ms": -2505.7,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     },
+     {
+      "wall_ms": 2488.79,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -2587.9,
+      "wall_minus_limit_ms": -2511.2,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     }
+    ]
+   },
+   "MultiCarElevator/ElevatorLivenessLarge|workers=8|--time-limit 30s": {
+    "reps": 5,
+    "wall_ms_median": 2491.17,
+    "exit_codes": [
+     0
+    ],
+    "phases": [
+     "None"
+    ],
+    "latency_ms_median": -27585.5,
+    "latency_ms_max": -27580.2,
+    "wall_minus_limit_ms_median": -27508.8,
+    "wall_minus_limit_ms_max": -27503.5,
+    "stopped_elapsed_over_limit_ms_max": 0,
+    "load_ms": 76.7,
+    "runs": [
+     {
+      "wall_ms": 2496.53,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -27580.2,
+      "wall_minus_limit_ms": -27503.5,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     },
+     {
+      "wall_ms": 2487.8,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -27588.9,
+      "wall_minus_limit_ms": -27512.2,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     },
+     {
+      "wall_ms": 2492.32,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -27584.4,
+      "wall_minus_limit_ms": -27507.7,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     },
+     {
+      "wall_ms": 2487.78,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -27588.9,
+      "wall_minus_limit_ms": -27512.2,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     },
+     {
+      "wall_ms": 2491.17,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -27585.5,
+      "wall_minus_limit_ms": -27508.8,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     }
+    ]
+   },
+   "MultiCarElevator/ElevatorLivenessLarge|workers=8|--time-limit 120s": {
+    "reps": 5,
+    "wall_ms_median": 2492.11,
+    "exit_codes": [
+     0
+    ],
+    "phases": [
+     "None"
+    ],
+    "latency_ms_median": -117584.6,
+    "latency_ms_max": -117584.2,
+    "wall_minus_limit_ms_median": -117507.9,
+    "wall_minus_limit_ms_max": -117507.5,
+    "stopped_elapsed_over_limit_ms_max": 0,
+    "load_ms": 76.7,
+    "runs": [
+     {
+      "wall_ms": 2489.35,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -117587.4,
+      "wall_minus_limit_ms": -117510.6,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     },
+     {
+      "wall_ms": 2490.18,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -117586.5,
+      "wall_minus_limit_ms": -117509.8,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     },
+     {
+      "wall_ms": 2492.45,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -117584.2,
+      "wall_minus_limit_ms": -117507.6,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     },
+     {
+      "wall_ms": 2492.11,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -117584.6,
+      "wall_minus_limit_ms": -117507.9,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     },
+     {
+      "wall_ms": 2492.53,
+      "exit_code": 0,
+      "phase": null,
+      "resource": null,
+      "stopped_elapsed_ms": null,
+      "latency_ms": -117584.2,
+      "wall_minus_limit_ms": -117507.5,
+      "stopped_elapsed_over_limit_ms": null,
+      "distinct": 50653,
+      "load_ms": 76.7
+     }
+    ]
+   }
+  },
+  "state_depth_ceilings": {
+   "SlushProtocol/SlushLarge|workers=1|--max-states 1000000": {
+    "reps": 3,
+    "wall_ms_median": 9309.08,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "overshoot": [
+     0
+    ],
+    "distinct": [
+     1000000
+    ],
+    "depth": [
+     18
+    ],
+    "verdict": [
+     "stopped"
+    ],
+    "runs": [
+     {
+      "wall_ms": 9396.5,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "states",
+      "distinct": 1000000,
+      "depth": 18,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 9309.08,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "states",
+      "distinct": 1000000,
+      "depth": 18,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 9287.04,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "states",
+      "distinct": 1000000,
+      "depth": 18,
+      "overshoot": 0,
+      "check_kind": "safety"
+     }
+    ]
+   },
+   "SlushProtocol/SlushLarge|workers=1|--max-states 10000000": {
+    "reps": 3,
+    "wall_ms_median": 124478.61,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "overshoot": [
+     0
+    ],
+    "distinct": [
+     10000000
+    ],
+    "depth": [
+     23
+    ],
+    "verdict": [
+     "stopped"
+    ],
+    "runs": [
+     {
+      "wall_ms": 124846.56,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "states",
+      "distinct": 10000000,
+      "depth": 23,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 124109.22,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "states",
+      "distinct": 10000000,
+      "depth": 23,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 124478.61,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "states",
+      "distinct": 10000000,
+      "depth": 23,
+      "overshoot": 0,
+      "check_kind": "safety"
+     }
+    ]
+   },
+   "SlushProtocol/SlushLarge|workers=1|--max-depth 10": {
+    "reps": 3,
+    "wall_ms_median": 100.9,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "overshoot": [
+     0
+    ],
+    "distinct": [
+     15264
+    ],
+    "depth": [
+     10
+    ],
+    "verdict": [
+     "stopped"
+    ],
+    "runs": [
+     {
+      "wall_ms": 101.25,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "depth",
+      "distinct": 15264,
+      "depth": 10,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 100.9,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "depth",
+      "distinct": 15264,
+      "depth": 10,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 99.92,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "depth",
+      "distinct": 15264,
+      "depth": 10,
+      "overshoot": 0,
+      "check_kind": "safety"
+     }
+    ]
+   },
+   "SlushProtocol/SlushLarge|workers=1|--max-depth 30": {
+    "reps": 3,
+    "wall_ms_median": 1257203.42,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "overshoot": [
+     0
+    ],
+    "distinct": [
+     70238348
+    ],
+    "depth": [
+     30
+    ],
+    "verdict": [
+     "stopped"
+    ],
+    "runs": [
+     {
+      "wall_ms": 1257203.42,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "depth",
+      "distinct": 70238348,
+      "depth": 30,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 1268498.47,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "depth",
+      "distinct": 70238348,
+      "depth": 30,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 1256383.62,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "depth",
+      "distinct": 70238348,
+      "depth": 30,
+      "overshoot": 0,
+      "check_kind": "safety"
+     }
+    ]
+   },
+   "SlushProtocol/SlushLarge|workers=8|--max-states 1000000": {
+    "reps": 3,
+    "wall_ms_median": 2128.68,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "overshoot": [
+     0
+    ],
+    "distinct": [
+     1000000
+    ],
+    "depth": [
+     18
+    ],
+    "verdict": [
+     "stopped"
+    ],
+    "runs": [
+     {
+      "wall_ms": 2129.88,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "states",
+      "distinct": 1000000,
+      "depth": 18,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 2114.68,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "states",
+      "distinct": 1000000,
+      "depth": 18,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 2128.68,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "states",
+      "distinct": 1000000,
+      "depth": 18,
+      "overshoot": 0,
+      "check_kind": "safety"
+     }
+    ]
+   },
+   "SlushProtocol/SlushLarge|workers=8|--max-states 10000000": {
+    "reps": 3,
+    "wall_ms_median": 26198.5,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "overshoot": [
+     0
+    ],
+    "distinct": [
+     10000000
+    ],
+    "depth": [
+     23
+    ],
+    "verdict": [
+     "stopped"
+    ],
+    "runs": [
+     {
+      "wall_ms": 25960.51,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "states",
+      "distinct": 10000000,
+      "depth": 23,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 26420.7,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "states",
+      "distinct": 10000000,
+      "depth": 23,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 26198.5,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "states",
+      "distinct": 10000000,
+      "depth": 23,
+      "overshoot": 0,
+      "check_kind": "safety"
+     }
+    ]
+   },
+   "SlushProtocol/SlushLarge|workers=8|--max-depth 10": {
+    "reps": 3,
+    "wall_ms_median": 40.03,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "overshoot": [
+     0
+    ],
+    "distinct": [
+     15264
+    ],
+    "depth": [
+     10
+    ],
+    "verdict": [
+     "stopped"
+    ],
+    "runs": [
+     {
+      "wall_ms": 40.95,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "depth",
+      "distinct": 15264,
+      "depth": 10,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 40.03,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "depth",
+      "distinct": 15264,
+      "depth": 10,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 39.59,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "depth",
+      "distinct": 15264,
+      "depth": 10,
+      "overshoot": 0,
+      "check_kind": "safety"
+     }
+    ]
+   },
+   "SlushProtocol/SlushLarge|workers=8|--max-depth 30": {
+    "reps": 3,
+    "wall_ms_median": 246519.12,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "safety-search"
+    ],
+    "overshoot": [
+     0
+    ],
+    "distinct": [
+     70238348
+    ],
+    "depth": [
+     30
+    ],
+    "verdict": [
+     "stopped"
+    ],
+    "runs": [
+     {
+      "wall_ms": 245417.56,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "depth",
+      "distinct": 70238348,
+      "depth": 30,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 246519.12,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "depth",
+      "distinct": 70238348,
+      "depth": 30,
+      "overshoot": 0,
+      "check_kind": "safety"
+     },
+     {
+      "wall_ms": 247939.65,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "safety-search",
+      "resource": "depth",
+      "distinct": 70238348,
+      "depth": 30,
+      "overshoot": 0,
+      "check_kind": "safety"
+     }
+    ]
+   }
+  },
+  "temporal_ceilings": {
+   "MultiCarElevator/ElevatorLivenessLarge|workers=1|--max-states 20000|--store exact": {
+    "reps": 3,
+    "wall_ms_median": 438.46,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "graph-capture"
+    ],
+    "overshoot": [
+     0
+    ],
+    "distinct": [
+     20000
+    ],
+    "depth": [
+     15
+    ],
+    "verdict": [
+     "stopped"
+    ],
+    "runs": [
+     {
+      "wall_ms": 444.51,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "graph-capture",
+      "resource": "states",
+      "distinct": 20000,
+      "depth": 15,
+      "overshoot": 0,
+      "check_kind": "temporal"
+     },
+     {
+      "wall_ms": 438.46,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "graph-capture",
+      "resource": "states",
+      "distinct": 20000,
+      "depth": 15,
+      "overshoot": 0,
+      "check_kind": "temporal"
+     },
+     {
+      "wall_ms": 437.82,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "graph-capture",
+      "resource": "states",
+      "distinct": 20000,
+      "depth": 15,
+      "overshoot": 0,
+      "check_kind": "temporal"
+     }
+    ]
+   },
+   "MultiCarElevator/ElevatorLivenessLarge|workers=1|--max-depth 20|--store exact": {
+    "reps": 3,
+    "wall_ms_median": 619.84,
+    "exit_codes": [
+     5
+    ],
+    "phases": [
+     "graph-capture"
+    ],
+    "overshoot": [
+     0
+    ],
+    "distinct": [
+     30605
+    ],
+    "depth": [
+     20
+    ],
+    "verdict": [
+     "stopped"
+    ],
+    "runs": [
+     {
+      "wall_ms": 618.87,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "graph-capture",
+      "resource": "depth",
+      "distinct": 30605,
+      "depth": 20,
+      "overshoot": 0,
+      "check_kind": "temporal"
+     },
+     {
+      "wall_ms": 619.84,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "graph-capture",
+      "resource": "depth",
+      "distinct": 30605,
+      "depth": 20,
+      "overshoot": 0,
+      "check_kind": "temporal"
+     },
+     {
+      "wall_ms": 622.08,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "phase": "graph-capture",
+      "resource": "depth",
+      "distinct": 30605,
+      "depth": 20,
+      "overshoot": 0,
+      "check_kind": "temporal"
+     }
+    ]
+   }
+  }
+ }
+}
