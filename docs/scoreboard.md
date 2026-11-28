@@ -124,8 +124,8 @@ above 1x. The four models nearest 1x:
 | `KeyValueStore/MCKVSSafetyMedium` | 0.79x |
 | `GameOfLife/GameOfLife` | 0.79x |
 
-`KeyValueStore/MCKVsnap`, 1.11x on `c14687e6`, is 0.71x, and
-`allocator/AllocatorImplementation` is 0.53x. The largest models:
+`KeyValueStore/MCKVsnap`, 1.20x in 0.1.0, is 0.71x, and
+`allocator/AllocatorImplementation`, 1.17x in 0.1.0, is 0.53x. The largest models:
 `SlushProtocol/SlushLarge` 0.46x, `NanoBlockchain/MCNanoLarge` 0.41x,
 `MultiPaxos-SMR/MultiPaxos_MC` 0.53x, `MultiCarElevator/ElevatorSafetyLarge`
 0.53x, `ElevatorSafetyMedium` 0.58x, `bosco/bosco` 0.42x and

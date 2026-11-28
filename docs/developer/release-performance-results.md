@@ -23,7 +23,7 @@ For the subsequent large-model investigations, see the [engineering measurements
 
 | Measurement | Result | Record |
 |---|---|---|
-| Speed (R2) | **Pass.** dive / TLC geomean 0.170x over the 169 agreeing models (fixed-set geomean 0.185x), median 0.129x. No model above 1x; the highest is `EWD998Chan` at 0.870x. 0.1.0: 0.190x, one model above 1x. | `2026-11-27-r2-procedure-5bb88063.json` |
+| Speed (R2) | **Pass.** dive / TLC geomean 0.170x over the 169 agreeing models (fixed-set geomean 0.185x), median 0.129x. No model above 1x; the highest is `EWD998Chan` at 0.870x. 0.1.0 (`08a14fba`): 0.1949x, two models above 1x. | `2026-11-27-r2-procedure-5bb88063.json` |
 | Memory | Benchmark set, default profile: dive peaks at 24 to 102 MiB at 1 worker and 64 to 140 MiB at 8, against 798 to 1,448 MiB for TLC at `-Xmx3g` (0.36x to 0.92x of the 0.1.0 figures). Liveness capture: 64 temporal models, none stopped; 62 match their golden and 2 match a registered divergence; the largest is `CoffeeCan3000Beans` at 1,929 MiB for 4.5 million states (`aba_asyn_byz` fell from 4,523 to 1,490 MiB). One model uses more than before: `MCParReach` +3.1% (#1432). | `2026-11-27-release-d2-memory-5bb88063.json` |
 | Exact store | All 15 models agree under both stores. Exact costs 1.00x to 1.25x the fingerprint store's time and 0.99x to 1.90x its peak RSS. | `2026-11-27-release-d3-store-5bb88063.json` |
 | Worker scaling | Safety models scale: over the 28 safety models of the large class the median speed-up is 2.97x at 4 workers and 5.22x at 8, up to 7.3x (`FastPaxos`). Temporal models do not: 17 of 19 stay between 0.81x and 1.25x. The median over all 47 models fell from 4.04x to 3.25x at 8 workers, mostly because 1-worker temporal checks got much faster (#1431). | `2026-11-27-release-d4-scaling-5bb88063.json` |
@@ -81,14 +81,20 @@ first complete conforming attempt on this source; no part needed triage.
   (`EWD687a_anim`, #1424, fixed after this source by #1429). They count as 2x
   in the fixed-set geomean of 0.185x.
 
-The overall geomean is 0.170x (0.1.0: 0.190x on `c14687e6`). Against that
-record, 134 per-model ratios are within 10 %, 30 are lower and five are
-higher (`SpanTreeTest4Nodes` 1.26x its old ratio, `CoffeeCan100Beans` 1.21x,
-`SpanTree` 1.14x, `SpanTreeRandom` 1.13x, `TokenRing` 1.11x), all of them
-still at or below 0.40x TLC. The largest gains are in fairness checking:
-`ElevatorLivenessLarge` went from 0.233x to 0.001x (1,882 s for TLC, 2.1 s
-for dive) and `ElevatorLivenessMedium` from 0.416x to 0.015x. `MCKVsnap`,
-above 1x in 0.1.0, is 0.708x. The highest small-class ratios are `MCEcho`
+The overall geomean is 0.170x, against 0.1949x in 0.1.0 (`08a14fba`), when
+`MCKVsnap` (1.198x) and `AllocatorImplementation` (1.166x) were above 1x.
+Against that record, 125 per-model ratios are within 10 %, 44 are lower and
+none is higher. The record also compares each model with the later
+`c14687e6` run (geomean 0.190x): 134 ratios are within 10 %, 30 are lower and
+five are higher (`SpanTreeTest4Nodes` 1.26x its old ratio, `CoffeeCan100Beans`
+1.21x, `SpanTree` 1.14x, `SpanTreeRandom` 1.13x, `TokenRing` 1.11x). Those
+five now run at 0.546x TLC (`TokenRing`), 0.387x (`SpanTreeTest4Nodes`),
+0.272x (`SpanTree`), 0.219x (`SpanTreeRandom`) and 0.146x
+(`CoffeeCan100Beans`), each within 10 % of its 0.1.0 ratio or below it. The
+largest gains are in fairness checking: `ElevatorLivenessLarge` went from
+0.239x in 0.1.0 to 0.001x (1,882 s for TLC, 2.1 s for dive) and
+`ElevatorLivenessMedium` from 0.436x to 0.015x. `MCKVsnap` is now 0.708x and
+`AllocatorImplementation` 0.527x. The highest small-class ratios are `MCEcho`
 0.798x and `GameOfLife` 0.787x.
 
 ### The highest ratios and the largest models
