@@ -9,24 +9,25 @@ are in git history.
 
 ### Highlights
 
-- Fairness checking is much faster. ElevatorLivenessLarge now finishes in about 1.5 s at one worker, down from 449 s in 0.1.0 (TLC takes 1,880 s), and the four- through seven-floor Elevator models produce validated counterexamples where 0.1.0 refused or ran out of time.
-- Single-worker checks are faster on the speed-comparison corpus. The geomean dive/TLC time ratio is 0.190x, down from 0.195x, and AllocatorImplementation now runs faster than TLC at 0.96x (re-measure on RC).
-- EmergencyCall F3 at eight workers now runs as fast as TLC (0.96x, down from 1.60x) with 7% of TLC's peak memory (re-measure on RC).
-- `dive simulate` now checks temporal properties on each trace. EWD840 with its `PROPERTIES` takes 2.9 s for 40,000 traces, 3.6x faster than TLC at one worker and 5.4x faster at eight (re-measure on RC). The new `--workers`, `--trace-dir`, `RandomElement` and unbounded-set sampling are covered below.
+- Fairness checking is much faster. ElevatorLivenessLarge now finishes in about 2.1 s at one worker, down from 449 s in 0.1.0 (TLC takes 1,882 s), and the four- through seven-floor Elevator models produce validated counterexamples where 0.1.0 refused or ran out of time.
+- Single-worker checks are faster on the speed-comparison corpus of 169 models. The geomean dive/TLC time ratio is 0.170x, down from 0.195x in 0.1.0, and no model is slower than TLC: MCKVsnap went from 1.20x to 0.71x and AllocatorImplementation from 1.17x to 0.53x.
+- EmergencyCall F3 at eight workers now runs as fast as TLC (0.96x, down from 1.60x) with 7% of TLC's peak memory.
+- `dive simulate` now checks temporal properties on each trace. EWD840 with its `PROPERTIES` takes 2.9 s for 40,000 traces, 3.6x faster than TLC at one worker and 5.4x faster at eight. The new `--workers`, `--trace-dir`, `RandomElement` and unbounded-set sampling are covered below.
 - Large models use less memory: −69% for temporal graphs, −42% for resident safety frontiers and −41% for the exact-store index. Some models got dramatically faster: CCF MCabs takes 0.11 s instead of 44.6 s, and the failure detector takes 4.7 s instead of 453 s. LuPastry with 16 identifiers, which 0.1.0 refused, checks in 0.48 s.
 - ZooKeeper's Zab model with conditional diagnostics now uses every worker: the four-server configuration takes 52 s at 32 workers, down from 613 s on one worker, against 134 s for TLC.
 
 ### Performance
 
-All measurements use the installed `dive check` or `dive simulate`. Each record lists its inputs, host and commands. TLC ratios come from the records and are re-measured on the release candidate. The [full table](docs/developer/performance.md#020-improvements) lists every default-path change with its record, including the trade-offs where a change costs a little time to save memory.
+All measurements use the installed `dive check` or `dive simulate`. Each record lists its inputs, host and commands. The corpus geomean, the two slowest 0.1.0 models and ElevatorLivenessLarge were measured on the release candidate; every other row comes from the record of the change that made it. The [full table](docs/developer/performance.md#020-improvements) lists every default-path change with its record, including the trade-offs where a change costs a little time to save memory.
 
 | Model | Before | After | Workers | Record |
 |---|---|---|---|---|
-| ElevatorLivenessLarge (fairness) | 449.30 s in 0.1.0 (TLC 1,879.76 s) | 1.54 s | 1 | [0.1.0 corpus timing run](conformance/reports/perf/2026-11-18-r2-procedure-08a14fba.json), [action images](conformance/reports/perf/2026-11-22-producer-action-images.json) |
+| ElevatorLivenessLarge (fairness) | 449.30 s in 0.1.0 (TLC 1,879.76 s) | 2.15 s (TLC 1,881.88 s) | 1 | [0.1.0 corpus timing run](conformance/reports/perf/2026-11-18-r2-procedure-08a14fba.json), [0.2.0 corpus timing run](conformance/reports/perf/2026-11-27-r2-procedure-5bb88063.json) |
 | Five-floor Elevator, validated counterexample | 149.59 s | 36.83 s | 1 | [Streett workspace](conformance/reports/perf/2026-11-22-streett-workspace.json) |
 | CCF MCabs, exact store | 44.58 s | 0.109 s | 1 | [frame narrowing](conformance/reports/perf/2026-11-21-ccf-core-frame-narrowing.json) |
 | Failure detector (detector_chan96) safety, N=3 | 452.96 s, 203 MiB | 4.70 s, 36 MiB | 1 | [guarded message subsets](conformance/reports/perf/2026-11-21-guarded-message-subsets.json) |
-| Speed-comparison corpus, geomean dive/TLC | 0.1949x | 0.1896x | 1 | [before](conformance/reports/perf/2026-11-18-r2-procedure-08a14fba.json), [after](conformance/reports/perf/2026-11-20-r2-procedure-c14687e6.json) |
+| Speed-comparison corpus, geomean dive/TLC | 0.1949x, two models above 1x | 0.1698x, none above 1x | 1 | [before](conformance/reports/perf/2026-11-18-r2-procedure-08a14fba.json), [after](conformance/reports/perf/2026-11-27-r2-procedure-5bb88063.json) |
+| MCKVsnap and AllocatorImplementation, dive/TLC | 1.198x and 1.166x | 0.708x and 0.527x | 1 | [before](conformance/reports/perf/2026-11-18-r2-procedure-08a14fba.json), [after](conformance/reports/perf/2026-11-27-r2-procedure-5bb88063.json) |
 | EmergencyCall F3, dive/TLC time | 1.60x (c7i.metal-24xl) | 0.96x, 403 MiB vs TLC 5.6 GiB (c7i.4xlarge) | 8 | [before](conformance/reports/perf/2026-11-20-emergencycall-reference.json), [after](conformance/reports/perf/2026-11-21-allocator-fixed-large-baselines.json) |
 | `dive simulate` EWD840 with `PROPERTIES`, 40,000 traces | 21.40 s (first implementation, unreleased) | 2.92 s (TLC 10.40 s) | 1 | [simulation throughput](conformance/reports/perf/2026-11-21-simulation-throughput-f685076b.json) |
 | Flint two-barrier, `--compat=tlc` | 102.16 s, 538 MiB | 83.49 s, 370 MiB | 8 | [label guards](conformance/reports/perf/2026-11-22-core-label-guards.json) |

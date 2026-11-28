@@ -2,10 +2,10 @@
 
 **A deterministic TLA+ checker with independently validated counterexamples.**
 
-- **5.1× faster than pinned TLC** by geometric mean across 169 agreeing tlaplus/Examples checks at one worker, including startup.
-- **Minutes become seconds.** `MCInnerSerial` takes 8.9 minutes in TLC and 4.4 seconds in dive. `MCLeastCircularSubstringMedium` drops from 3.3 minutes to 2 seconds.
-- **Instant on small specs.** `DieHard` checks in about 6 ms. TLC takes about half a second.
-- **Lower memory on the ten-model release panel.** At one worker, peak RSS was 37–110 MiB for dive and 0.8–1.4 GiB for TLC.
+- **5.9× faster than pinned TLC** by geometric mean across 169 agreeing tlaplus/Examples checks at one worker, including startup.
+- **Minutes become seconds.** `MCInnerSerial` takes 8.6 minutes in TLC and 3.1 seconds in dive. `MCLeastCircularSubstringMedium` drops from 3.3 minutes to 2.1 seconds.
+- **Instant on small specs.** `DieHard` checks in about 5.5 ms. TLC takes about 450 ms.
+- **Lower memory on the ten-model release panel.** At one worker, peak RSS was 24–102 MiB for dive and 0.8–1.2 GiB for TLC.
 - **Existing TLA+ models.** Reads `.tla` and `.cfg` files and includes a `tlc` command for TLC-style invocations.
 - **One binary** for model checking, simulation, parsing, PlusCal translation and trace validation.
 
@@ -67,7 +67,7 @@ compatibility options. See the [compatibility guide](docs/user/compatibility.md)
 The release timings compare one-worker runs on the same host and include
 JVM startup. TLC's memory was measured at `-Xmx3g`. The geometric mean covers
 the 169 tlaplus/Examples configurations with matching results or a documented
-expected difference. The 48 larger configurations in that set ran 3.2×
+expected difference. The 48 larger configurations in that set ran 4.4×
 faster by geometric mean. The methods and per-model timings are in the
 [release performance results](docs/developer/release-performance-results.md).
 
