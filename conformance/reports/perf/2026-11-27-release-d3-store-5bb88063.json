@@ -1,0 +1,806 @@
+{
+ "measurement": "D3",
+ "plan": "docs/developer/release-performance-plan.md#d3-exact-versus-fingerprint-store",
+ "date": "2026-11-27",
+ "source": "5bb880635f46c7266e015a0d812f18e4411cdc6a",
+ "dive_binary_sha256": "f18c0f9a0411750a8aaeced079e625ada6c05c86581fb01871e3057ae6aa007a",
+ "oracle": "tlc-2026.10.06.014338",
+ "corpus": "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+ "host": {
+  "instance": "c7i.metal-24xl, us-east-1",
+  "cpu": "Intel Xeon Platinum 8488C",
+  "smt": "off",
+  "turbo": "off",
+  "frequency_khz": 2400000,
+  "governor": "performance",
+  "numa_nodes": 1,
+  "cpus": 48,
+  "binding": "numactl --cpunodebind=0 --membind=0 (all 48 CPUs of the single NUMA node)",
+  "storage": "gp3, 16000 IOPS, 1000 MiB/s",
+  "thp": "madvise",
+  "kernel": "7.0.0-1014-aws",
+  "ami": "Ubuntu 24.04.5 LTS (Canonical, x86_64)"
+ },
+ "command": "dive check <module.tla> --config <model.cfg> --workers 1 --seed 0 --fp 0 --store fp|exact --time-limit 1800s --max-memory 64g --output json under GNU /usr/bin/time -v; 3 repetitions, fp first on odd repetitions and exact first on even ones",
+ "raw": {
+  "location": "dive evidence archive bucket (us-east-1), prefix release-perf/2026-11-27-rc02/small-node-raw.tar.gz",
+  "sha256": "51823724eacf41329b3a925971ae0275c634acaaed3741aa05129ae7f083b29c"
+ },
+ "deviations": [
+  "Release binary built on one bench node and copied to the others (independent builds were not byte-identical); dive_binary_sha256 names the copied binary."
+ ],
+ "selection": "safety: the ten crates/dive-bench/benchmarks.toml models (CoffeeCan as the benchmark's safety-only config); liveness: CoffeeCan1000Beans, ElevatorLivenessMedium, MCLiveInternalMemory, MCFlashWithMutexLive, aba_asyn_byz",
+ "previous_record": "conformance/reports/perf/2026-11-18-release-d3-store-08a14fba.json",
+ "summary": {
+  "models": 15,
+  "all_agree_under_both_stores": true,
+  "wall_exact_over_fp_range": [
+   0.999,
+   1.249
+  ],
+  "rss_exact_over_fp_range": [
+   0.987,
+   1.897
+  ],
+  "ratios_worse_than_previous": {
+   "specifications/Disruptor/MCDisruptor_MPMC.cfg wall": [
+    1.244,
+    1.249
+   ],
+   "specifications/FlashProtocol/MCFlashWithMutexLive.cfg wall": [
+    1.046,
+    1.05
+   ],
+   "specifications/FlashProtocol/MCFlashWithMutexLive.cfg rss": [
+    0.95,
+    1.004
+   ],
+   "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg wall": [
+    0.997,
+    1.019
+   ],
+   "specifications/TeachingConcurrency/SimpleRegular.cfg wall": [
+    1.142,
+    1.182
+   ],
+   "specifications/aba-asyn-byz/aba_asyn_byz.cfg wall": [
+    1.026,
+    1.035
+   ],
+   "specifications/dag-consensus/TLCSailfish1.cfg wall": [
+    1.005,
+    1.009
+   ],
+   "specifications/ewd998/EWD998PCal.cfg wall": [
+    1.075,
+    1.078
+   ],
+   "specifications/lamport_mutex/MCLamportMutex.cfg wall": [
+    1.146,
+    1.152
+   ]
+  }
+ },
+ "rows": {
+  "CoffeeCan/CoffeeCan1000Beans (safety-only config: MaxBeanCount = 1000, INVARIANTS TypeInvariant)": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 1594.75,
+    "wall_range_ms": [
+     1594.7,
+     1601.03
+    ],
+    "peak_rss_bytes": 127197184,
+    "rss_range": [
+     127176704,
+     127528960
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 501500,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 1318.74,
+    "wall_range_ms": [
+     1317.29,
+     1322.89
+    ],
+    "peak_rss_bytes": 106684416,
+    "rss_range": [
+     106315776,
+     106741760
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 501500,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.209,
+    "rss": 1.192
+   }
+  },
+  "specifications/Bakery-Boulangerie/MCBakery.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 7424.67,
+    "wall_range_ms": [
+     7422.96,
+     7435.01
+    ],
+    "peak_rss_bytes": 75198464,
+    "rss_range": [
+     74899456,
+     75198464
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 655200,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 6509.63,
+    "wall_range_ms": [
+     6506.81,
+     6534.81
+    ],
+    "peak_rss_bytes": 39641088,
+    "rss_range": [
+     39628800,
+     39677952
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 655200,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.141,
+    "rss": 1.897
+   }
+  },
+  "specifications/CoffeeCan/CoffeeCan1000Beans.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 9682.82,
+    "wall_range_ms": [
+     9650.89,
+     9691.83
+    ],
+    "peak_rss_bytes": 235704320,
+    "rss_range": [
+     235597824,
+     236105728
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 501500,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 9483.92,
+    "wall_range_ms": [
+     9476.57,
+     9498.89
+    ],
+    "peak_rss_bytes": 238903296,
+    "rss_range": [
+     238346240,
+     240574464
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 501500,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.021,
+    "rss": 0.987
+   }
+  },
+  "specifications/Disruptor/MCDisruptor_MPMC.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 1259.37,
+    "wall_range_ms": [
+     1253.68,
+     1261.86
+    ],
+    "peak_rss_bytes": 31485952,
+    "rss_range": [
+     31154176,
+     31514624
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 112929,
+    "depth": 81,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 1008.56,
+    "wall_range_ms": [
+     1007.89,
+     1009.49
+    ],
+    "peak_rss_bytes": 25030656,
+    "rss_range": [
+     24875008,
+     25071616
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 112929,
+    "depth": 81,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.249,
+    "rss": 1.258
+   }
+  },
+  "specifications/FlashProtocol/MCFlashWithMutexLive.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 1014.85,
+    "wall_range_ms": [
+     1013.6,
+     1015.27
+    ],
+    "peak_rss_bytes": 48750592,
+    "rss_range": [
+     48660480,
+     48750592
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 8096,
+    "depth": 21,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 966.91,
+    "wall_range_ms": [
+     966.61,
+     967.02
+    ],
+    "peak_rss_bytes": 48558080,
+    "rss_range": [
+     48537600,
+     48738304
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 8096,
+    "depth": 21,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.05,
+    "rss": 1.004
+   }
+  },
+  "specifications/GameOfLife/GameOfLife.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 10912.6,
+    "wall_range_ms": [
+     10911.28,
+     10920.55
+    ],
+    "peak_rss_bytes": 52064256,
+    "rss_range": [
+     51949568,
+     52133888
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 65536,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 10803.25,
+    "wall_range_ms": [
+     10801.87,
+     10810.67
+    ],
+    "peak_rss_bytes": 48091136,
+    "rss_range": [
+     47771648,
+     48148480
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 65536,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.01,
+    "rss": 1.083
+   }
+  },
+  "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 182.04,
+    "wall_range_ms": [
+     181.79,
+     182.71
+    ],
+    "peak_rss_bytes": 33316864,
+    "rss_range": [
+     33267712,
+     33705984
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 4122,
+    "depth": 36,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 178.57,
+    "wall_range_ms": [
+     178.47,
+     179.89
+    ],
+    "peak_rss_bytes": 33456128,
+    "rss_range": [
+     33288192,
+     33591296
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 4122,
+    "depth": 36,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.019,
+    "rss": 0.996
+   }
+  },
+  "specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 144.0,
+    "wall_range_ms": [
+     143.88,
+     145.29
+    ],
+    "peak_rss_bytes": 29368320,
+    "rss_range": [
+     28921856,
+     29532160
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 4408,
+    "depth": 10,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 137.92,
+    "wall_range_ms": [
+     137.86,
+     138.47
+    ],
+    "peak_rss_bytes": 29466624,
+    "rss_range": [
+     29245440,
+     29470720
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 4408,
+    "depth": 10,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.044,
+    "rss": 0.997
+   }
+  },
+  "specifications/TeachingConcurrency/SimpleRegular.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 3000.2,
+    "wall_range_ms": [
+     2992.94,
+     3024.14
+    ],
+    "peak_rss_bytes": 60817408,
+    "rss_range": [
+     60510208,
+     60907520
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 277726,
+    "depth": 25,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 2538.41,
+    "wall_range_ms": [
+     2536.96,
+     2546.01
+    ],
+    "peak_rss_bytes": 47947776,
+    "rss_range": [
+     47939584,
+     48267264
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 277726,
+    "depth": 25,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.182,
+    "rss": 1.268
+   }
+  },
+  "specifications/aba-asyn-byz/aba_asyn_byz.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 324283.7,
+    "wall_range_ms": [
+     324267.8,
+     324513.48
+    ],
+    "peak_rss_bytes": 1569710080,
+    "rss_range": [
+     1566576640,
+     1572274176
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 5843977,
+    "depth": 45,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 313361.85,
+    "wall_range_ms": [
+     313304.33,
+     313762.14
+    ],
+    "peak_rss_bytes": 1561522176,
+    "rss_range": [
+     1558347776,
+     1567567872
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 5843977,
+    "depth": 45,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.035,
+    "rss": 1.005
+   }
+  },
+  "specifications/braf/BufferedRandomAccessFile.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 18667.54,
+    "wall_range_ms": [
+     18663.05,
+     18687.17
+    ],
+    "peak_rss_bytes": 29454336,
+    "rss_range": [
+     29331456,
+     29577216
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 3316,
+    "depth": 10,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 18688.44,
+    "wall_range_ms": [
+     18629.15,
+     18703.75
+    ],
+    "peak_rss_bytes": 29536256,
+    "rss_range": [
+     29396992,
+     29552640
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 3316,
+    "depth": 10,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 0.999,
+    "rss": 0.997
+   }
+  },
+  "specifications/btree/MCbtree.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 6349.84,
+    "wall_range_ms": [
+     6343.67,
+     6362.2
+    ],
+    "peak_rss_bytes": 48168960,
+    "rss_range": [
+     48074752,
+     48177152
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 374727,
+    "depth": 38,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 5348.05,
+    "wall_range_ms": [
+     5340.31,
+     5348.53
+    ],
+    "peak_rss_bytes": 33443840,
+    "rss_range": [
+     33116160,
+     33521664
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 374727,
+    "depth": 38,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.187,
+    "rss": 1.44
+   }
+  },
+  "specifications/dag-consensus/TLCSailfish1.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 37029.34,
+    "wall_range_ms": [
+     37002.87,
+     37060.11
+    ],
+    "peak_rss_bytes": 71249920,
+    "rss_range": [
+     71106560,
+     71434240
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 109604,
+    "depth": 16,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 36707.81,
+    "wall_range_ms": [
+     36677.77,
+     36745.49
+    ],
+    "peak_rss_bytes": 69324800,
+    "rss_range": [
+     69038080,
+     69341184
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 109604,
+    "depth": 16,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.009,
+    "rss": 1.028
+   }
+  },
+  "specifications/ewd998/EWD998PCal.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 14996.16,
+    "wall_range_ms": [
+     14980.77,
+     15023.22
+    ],
+    "peak_rss_bytes": 43851776,
+    "rss_range": [
+     43716608,
+     43905024
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 321370,
+    "depth": 47,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 13914.14,
+    "wall_range_ms": [
+     13907.21,
+     13926.27
+    ],
+    "peak_rss_bytes": 33505280,
+    "rss_range": [
+     33476608,
+     33521664
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 321370,
+    "depth": 47,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.078,
+    "rss": 1.309
+   }
+  },
+  "specifications/lamport_mutex/MCLamportMutex.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 13027.39,
+    "wall_range_ms": [
+     12960.6,
+     13124.2
+    ],
+    "peak_rss_bytes": 125759488,
+    "rss_range": [
+     125673472,
+     126083072
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 724274,
+    "depth": 61,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 11306.22,
+    "wall_range_ms": [
+     11255.31,
+     11318.44
+    ],
+    "peak_rss_bytes": 88924160,
+    "rss_range": [
+     87670784,
+     89567232
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 724274,
+    "depth": 61,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.152,
+    "rss": 1.414
+   }
+  }
+ }
+}
