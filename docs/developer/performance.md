@@ -64,9 +64,11 @@ triage: it may be posted as triage, and it never counts for the gate.
   measure the disk, not either checker.
 - **One checker at a time** (`--jobs 1`). With several jobs a model's
   neighbours differ between the TLC and Core passes, and a TLC JVM's GC and
-  JIT threads compete for cores, which favours Core. A full tier may be
-  sharded across nodes of the reference type by a fixed rule (manifest order,
-  round-robin); each node times TLC and Core on its shard.
+  JIT threads compete for cores, which favours Core. The large class may be
+  sharded across nodes of the reference type by a fixed rule: `--shard K/N`
+  sorts the models by their golden TLC time, longest first, and gives each to
+  the shard with the least total golden time so far (longest processing
+  time). Each node times TLC and Core on its shard.
 
 ### Size classes and repetitions
 
