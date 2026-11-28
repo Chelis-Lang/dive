@@ -1277,7 +1277,7 @@ taskset -c 7 python3 scripts/bench-project-first-temporal.py \
 
 ## 0.2.0 improvements
 
-Every default-path performance change between 0.1.0 and 0.2.0 that has a committed record. The release notes in `CHANGELOG.md` quote the strongest rows; ratios against TLC are re-measured on the release candidate.
+Every default-path performance change between 0.1.0 and 0.2.0 that has a committed record. The release notes in `CHANGELOG.md` quote the strongest rows; the release-candidate measurements are in the [release performance results](release-performance-results.md).
 
 Source: `conformance/reports/perf/*.json` on `main` at the 0.2.0 feature freeze, compared with v0.1.0.
 Numbers come from the record JSON (medians where the record gives them). Paths are
