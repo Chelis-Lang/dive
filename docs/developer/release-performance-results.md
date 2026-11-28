@@ -24,9 +24,9 @@ For the subsequent large-model investigations, see the [engineering measurements
 | Measurement | Result | Record |
 |---|---|---|
 | Speed (R2) | **Pass.** dive / TLC geomean 0.170x over the 169 agreeing models (fixed-set geomean 0.185x), median 0.129x. No model above 1x; the highest is `EWD998Chan` at 0.870x. 0.1.0 (`08a14fba`): 0.1949x, two models above 1x. | `2026-11-27-r2-procedure-5bb88063.json` |
-| Memory | Benchmark set, default profile: dive peaks at 24 to 102 MiB at 1 worker and 64 to 140 MiB at 8, against 798 to 1,448 MiB for TLC at `-Xmx3g` (0.36x to 0.92x of the 0.1.0 figures). Liveness capture: 64 temporal models, none stopped; 62 match their golden and 2 match a registered divergence; the largest is `CoffeeCan3000Beans` at 1,929 MiB for 4.5 million states (`aba_asyn_byz` fell from 4,523 to 1,490 MiB). One model uses more than before: `MCParReach` +3.1% (#1432). | `2026-11-27-release-d2-memory-5bb88063.json` |
+| Memory | Benchmark set, default profile: dive peaks at 24 to 102 MiB at 1 worker and 64 to 140 MiB at 8, against 798 to 1,448 MiB for TLC at `-Xmx3g` (0.37x to 0.92x of the 0.1.0 figures). Liveness capture: 64 temporal models, none stopped; 62 match their golden and 2 match a registered divergence; the largest is `CoffeeCan3000Beans` at 1,929 MiB for 4.5 million states (`aba_asyn_byz` fell from 4,523 to 1,490 MiB). One model uses more than before: `MCParReach` +3.1% (#1432). | `2026-11-27-release-d2-memory-5bb88063.json` |
 | Exact store | All 15 models agree under both stores. Exact costs 1.00x to 1.25x the fingerprint store's time and 0.99x to 1.90x its peak RSS. | `2026-11-27-release-d3-store-5bb88063.json` |
-| Worker scaling | Safety models scale: over the 28 safety models of the large class the median speed-up is 2.97x at 4 workers and 5.22x at 8, up to 7.3x (`FastPaxos`). Temporal models do not: 17 of 19 stay between 0.81x and 1.25x. The median over all 47 models fell from 4.04x to 3.25x at 8 workers, mostly because 1-worker temporal checks got much faster (#1431). | `2026-11-27-release-d4-scaling-5bb88063.json` |
+| Worker scaling | Safety models scale: over the 28 safety models of the large class the median speed-up is 2.97x at 4 workers and 5.22x at 8, up to 7.3x (`FastPaxos`). Temporal models do not: 16 of 19 stay between 0.83x and 1.25x at 8 workers. The median over all 47 models fell from 4.04x to 3.25x at 8 workers, mostly because 1-worker temporal checks got much faster (#1431). | `2026-11-27-release-d4-scaling-5bb88063.json` |
 | Startup and throughput | `dive --version` 1.3 ms, `dive parse` 1.4 ms and a full `dive check` of a small model 4.5 ms (medians of 50). Trace validation 6 to 46 ms per trace, all valid. The bosco simulation, which stopped at its 16 GiB budget in 0.1.0, now samples its 10,000 traces in 28.5 s at 46 MiB. | `2026-11-27-release-d5-throughput-5bb88063.json` |
 | Stop latency | Time budgets stop 7 to 43 ms after the limit (median per cell, load time subtracted; worst single run 48 ms). State and depth ceilings stop exactly at the ceiling, with no overshoot. | `2026-11-27-release-d6-stop-latency-5bb88063.json` |
 | macOS (informational) | Not repeated for 0.2.0. On 0.1.0, on an Apple M3 laptop, dive / TLC geomean 0.354x at 1 worker over six benchmark models, all agreeing. | `2026-11-18-release-d7-macos-08a14fba.json` |
@@ -95,10 +95,12 @@ largest gains are in fairness checking: `ElevatorLivenessLarge` went from
 0.239x in 0.1.0 to 0.001x (1,882 s for TLC, 2.1 s for dive) and
 `ElevatorLivenessMedium` from 0.436x to 0.015x. `MCKVsnap` is now 0.708x and
 `AllocatorImplementation` 0.527x. The highest small-class ratios are `MCEcho`
-0.798x and `GameOfLife` 0.787x.
+0.798x and `SlidingPuzzles` 0.726x. In the large class, `GameOfLife` 0.787x and
+`Huang` 0.729x are the highest after the two at the top of the table below.
 
-### The highest ratios and the largest models
+### The models TLC takes more than ten minutes on
 
+The 13 models on which TLC takes more than 600 s, by ratio.
 
 | Model | Class | Core / TLC | TLC s | Core s |
 |---|---|---:|---:|---:|
@@ -132,7 +134,7 @@ three repetitions at one worker under `/usr/bin/time -v`. `MCKVsnap` (D-005,
 unreduced symmetry with liveness) and `SpanTreeRandom` (D-002, dive's own
 seeded random streams) differ from the golden counts exactly as registered in
 `conformance/expected-divergences.toml`; every other model matches its golden.
-`MCParReach` is the only model whose peak RSS rose (98 to 102 MiB, #1432). In
+`MCParReach` is the only model whose peak RSS rose (99 to 102 MiB, #1432). In
 the benchmark set, the `--compat=tlc` profile at one worker is slower than TLC
 on `GameOfLife` (20.43 s against 12.10 s) and `TLCSailfish1` (68.53 s against
 52.29 s); the default profile is faster than TLC on every model.
@@ -260,8 +262,8 @@ and five liveness models. Both stores give the golden verdict, counts and
 depth on every model. The exact store keeps every state, so it costs memory
 on the models with many states per second of work (`MCLamportMutex`,
 `SimpleRegular`, `EWD998PCal`, `MCBakery`, up to 1.90x). On the liveness
-models, where the behavior graph dominates memory, it costs about 1.00x to
-1.15x. A few ratios are slightly worse than in 0.1.0, though both stores got
+models, where the behavior graph dominates memory, it costs 1.02x to
+1.05x the time and 0.99x to 1.01x the peak RSS. A few ratios are slightly worse than in 0.1.0, though both stores got
 faster on those models (#1433).
 
 ### Exact versus fingerprint store (median of 3)
@@ -300,9 +302,9 @@ the node of every repetition.
   speed-up is 5.22x (2.97x at 4 workers); the best are `FastPaxos` 7.30x,
   `PConProof` 7.14x and `bosco` 7.05x, and the lowest is
   `MCLeastCircularSubstringMedium` at 2.39x.
-- **Temporal models mostly do not** (#1028). Of the 19 temporal models, 17
-  stay between 0.81x and 1.25x at 8 workers; `Huang` reaches 1.88x and
-  `MCInnerSerial` 1.96x. `ElevatorLivenessLarge` (0.83x) and
+- **Temporal models mostly do not** (#1028). Of the 19 temporal models, 16
+  stay between 0.83x and 1.25x at 8 workers; `MCCRDT` reaches 1.46x,
+  `Huang` 1.88x and `MCInnerSerial` 1.96x. `ElevatorLivenessLarge` (0.83x) and
   `ElevatorLivenessMedium` (0.90x) are slower with workers, but their
   1-worker checks now take 2.1 s and 0.2 s (450 s and 6.8 s in 0.1.0).
   `CoffeeCan1000Beans` and `CoffeeCan3000Beans`, 0.50x in 0.1.0, now run with
@@ -546,7 +548,7 @@ Median milliseconds:
   (ElevatorLivenessMedium) the CLI's time with Sail's settings, so a large
   model's Sail/TLC ratio is its speed-measurement ratio times that factor.
   Composed this way: `MCLamportMutex` 0.645x (0.615x × 1.05),
-  `SlushSmall` 0.431x (0.403x × 1.07), `CoffeeCan1000Beans` 0.309x
+  `SlushSmall` 0.431x (0.403x × 1.07), `CoffeeCan1000Beans` 0.307x
   (0.278x × 1.11), `MCDisruptor_MPMC` 0.244x (0.226x × 1.08) and
   `ElevatorLivenessMedium` 0.016x (0.015x × 1.12).
 
